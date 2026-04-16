@@ -1,0 +1,87 @@
+{
+  "theme": "dark",
+  "archetype": "Archetype 5 (Jewel & Luxury) + Archetype 4 (Swiss & High-Contrast) Hybrid",
+  "rationale": "For an enterprise HR analytics application targeting top management, the UI must feel expensive, authoritative, and data-rich. We are using a deep slate/midnight blue dark theme to communicate premium quality (QlikView-like), completely avoiding generic fintech teal/mint or purple. Amber and Royal Blue will serve as elegant, high-contrast accents.",
+  "colors": {
+    "background": "#020617",
+    "surface": "#0F172A",
+    "surface_glass": "rgba(15, 23, 42, 0.6)",
+    "primary": "#2563EB",
+    "primary_hover": "#3B82F6",
+    "secondary": "#F59E0B",
+    "secondary_hover": "#FBBF24",
+    "text_primary": "#F8FAFC",
+    "text_secondary": "#94A3B8",
+    "border": "#1E293B",
+    "chart_colors": [
+      "#2563EB",
+      "#F59E0B",
+      "#F97316",
+      "#EF4444",
+      "#64748B"
+    ]
+  },
+  "typography": {
+    "heading_font": "Cabinet Grotesk",
+    "body_font": "IBM Plex Sans",
+    "hierarchy": {
+      "h1": "text-4xl sm:text-5xl tracking-tight font-light text-slate-50",
+      "h2": "text-2xl sm:text-3xl tracking-tight font-medium text-slate-50",
+      "h3": "text-xl sm:text-2xl font-medium text-slate-100",
+      "h4": "text-lg sm:text-xl font-medium text-slate-200",
+      "body": "text-base text-slate-300 leading-relaxed",
+      "small_label": "text-xs tracking-[0.2em] uppercase text-slate-400"
+    }
+  },
+  "layout_and_spacing": {
+    "philosophy": "The 'Control Room' Grid. Dense but breathable. 1px borders. No soft shadows.",
+    "grid": "grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6",
+    "container_padding": "p-4 sm:p-6",
+    "border_radius": "rounded-none sm:rounded-md",
+    "widget_styling": "bg-slate-900 border border-slate-800 transition-transform duration-300"
+  },
+  "motion": {
+    "hover": "transition-colors duration-200 ease-in-out",
+    "entrance": "animate-in fade-in slide-in-from-bottom-4 duration-500",
+    "charts": "Recharts animated active dot and tooltip transitions"
+  },
+  "components": {
+    "buttons": "bg-blue-600 hover:bg-blue-500 focus:ring-2 focus:ring-blue-300 text-white font-medium rounded-md px-4 py-2 transition-all",
+    "cards": "bg-slate-900 border border-slate-800 rounded-md shadow-sm overflow-hidden",
+    "charts": "Use Recharts. Hide default axes grids entirely or use very subtle stroke-opacity 0.1 stroke='#1E293B'",
+    "sidebar": "w-64 bg-slate-950 border-r border-slate-800 flex-shrink-0 h-screen sticky top-0"
+  },
+  "icons_and_assets": {
+    "icon_library": "@phosphor-icons/react",
+    "installation_command": "yarn add @phosphor-icons/react",
+    "style": "Duotone or Regular weight depending on context"
+  },
+  "media_urls": {
+    "executive_portraits": [
+      {
+        "url": "https://images.unsplash.com/photo-1584940120505-117038d90b05?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzd8MHwxfHNlYXJjaHwxfHxjb3Jwb3JhdGUlMjBleGVjdXRpdmUlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzYzMzUzNzV8MA&ixlib=rb-4.1.0&q=85",
+        "category": "headcount_table_avatar",
+        "description": "man in black suit jacket wearing black framed eyeglasses"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1771898343647-bd979ad8cca5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzd8MHwxfHNlYXJjaHw0fHxjb3Jwb3JhdGUlMjBleGVjdXRpdmUlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzYzMzUzNzV8MA&ixlib=rb-4.1.0&q=85",
+        "category": "headcount_table_avatar",
+        "description": "Smiling man in white shirt with arms crossed"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1584940121819-1883a5d3b0bd?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzd8MHwxfHNlYXJjaHwyfHxjb3Jwb3JhdGUlMjBleGVjdXRpdmUlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzYzMzUzNzV8MA&ixlib=rb-4.1.0&q=85",
+        "category": "headcount_table_avatar",
+        "description": "man in black suit jacket sitting on chair"
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Strictly follow the color palette: use Slate (900/950) for backgrounds and Blue/Amber for accents. No Teal/Mint/Purple.",
+    "Use @phosphor-icons/react for all iconography.",
+    "Data components (tables, lists) must use the Control Room Grid pattern with gap-4 or gap-6 and dense layout.",
+    "All interactive elements (buttons, nav, charts, inputs) MUST have a `data-testid` attribute (e.g. `data-testid='sidebar-nav-turnover'`).",
+    "Replace standard Inter with Cabinet Grotesk for Headings and IBM Plex Sans for body text.",
+    "Implement Shadcn UI for inputs, dialogues, dropdowns, and tabs, heavily customized to match the dark theme.",
+    "Use Recharts for all visualizations. Tooltips must be dark with 1px border. Hide axis grids or make them extremely faint (stroke-opacity 0.1)."
+  ]
+}
