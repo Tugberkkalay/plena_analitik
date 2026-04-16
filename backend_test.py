@@ -139,6 +139,91 @@ class HRlyticAPITester:
         """Test seed endpoint"""
         return self.run_test("Seed Data", "POST", "seed", 200)
 
+    # NEW MODULE ENDPOINTS
+    def test_recruitment_endpoint(self):
+        """Test recruitment dashboard endpoint"""
+        success, data = self.run_test("Recruitment Dashboard", "GET", "dashboard/recruitment?year=2025", 200)
+        if success and data:
+            required_keys = ['kpis', 'funnel', 'by_source', 'applications_by_month', 'pipeline_by_stage']
+            missing_keys = [k for k in required_keys if k not in data]
+            if missing_keys:
+                print(f"⚠️  Missing keys in recruitment response: {missing_keys}")
+            else:
+                print(f"✅ Recruitment data structure valid")
+        return success, data
+
+    def test_performance_endpoint(self):
+        """Test performance dashboard endpoint"""
+        success, data = self.run_test("Performance Dashboard", "GET", "dashboard/performance?year=2025", 200)
+        if success and data:
+            required_keys = ['kpis', 'distribution', 'by_department', 'by_band', 'top_performers']
+            missing_keys = [k for k in required_keys if k not in data]
+            if missing_keys:
+                print(f"⚠️  Missing keys in performance response: {missing_keys}")
+            else:
+                print(f"✅ Performance data structure valid")
+        return success, data
+
+    def test_learning_endpoint(self):
+        """Test learning dashboard endpoint"""
+        success, data = self.run_test("Learning Dashboard", "GET", "dashboard/learning?year=2025", 200)
+        if success and data:
+            required_keys = ['kpis', 'by_category', 'by_status', 'by_department', 'top_courses']
+            missing_keys = [k for k in required_keys if k not in data]
+            if missing_keys:
+                print(f"⚠️  Missing keys in learning response: {missing_keys}")
+            else:
+                print(f"✅ Learning data structure valid")
+        return success, data
+
+    def test_compensation_endpoint(self):
+        """Test compensation dashboard endpoint"""
+        success, data = self.run_test("Compensation Dashboard", "GET", "dashboard/compensation?year=2025", 200)
+        if success and data:
+            required_keys = ['kpis', 'by_band', 'by_department', 'salary_distribution', 'gender_by_band']
+            missing_keys = [k for k in required_keys if k not in data]
+            if missing_keys:
+                print(f"⚠️  Missing keys in compensation response: {missing_keys}")
+            else:
+                print(f"✅ Compensation data structure valid")
+        return success, data
+
+    def test_engagement_endpoint(self):
+        """Test engagement dashboard endpoint"""
+        success, data = self.run_test("Engagement Dashboard", "GET", "dashboard/engagement?year=2025", 200)
+        if success and data:
+            required_keys = ['kpis', 'by_department', 'score_distribution', 'drivers', 'enps_distribution']
+            missing_keys = [k for k in required_keys if k not in data]
+            if missing_keys:
+                print(f"⚠️  Missing keys in engagement response: {missing_keys}")
+            else:
+                print(f"✅ Engagement data structure valid")
+        return success, data
+
+    def test_career_endpoint(self):
+        """Test career & talent dashboard endpoint"""
+        success, data = self.run_test("Career & Talent Dashboard", "GET", "dashboard/career?year=2025", 200)
+        if success and data:
+            required_keys = ['kpis', 'talent_by_department', 'talent_by_band', 'leadership_pipeline']
+            missing_keys = [k for k in required_keys if k not in data]
+            if missing_keys:
+                print(f"⚠️  Missing keys in career response: {missing_keys}")
+            else:
+                print(f"✅ Career & Talent data structure valid")
+        return success, data
+
+    def test_hr_operations_endpoint(self):
+        """Test HR operations dashboard endpoint"""
+        success, data = self.run_test("HR Operations Dashboard", "GET", "dashboard/hr-operations?year=2025", 200)
+        if success and data:
+            required_keys = ['kpis', 'by_city', 'by_education', 'gender_distribution', 'department_metrics', 'operational_metrics']
+            missing_keys = [k for k in required_keys if k not in data]
+            if missing_keys:
+                print(f"⚠️  Missing keys in HR operations response: {missing_keys}")
+            else:
+                print(f"✅ HR Operations data structure valid")
+        return success, data
+
 def main():
     print("🚀 Starting HRlytic API Testing...")
     print("=" * 60)
@@ -165,6 +250,15 @@ def main():
     tester.test_data_sources_endpoint()
     tester.test_reset_data_endpoint()
     tester.test_seed_endpoint()
+    
+    print("\n🆕 Testing New Module Endpoints...")
+    tester.test_recruitment_endpoint()
+    tester.test_performance_endpoint()
+    tester.test_learning_endpoint()
+    tester.test_compensation_endpoint()
+    tester.test_engagement_endpoint()
+    tester.test_career_endpoint()
+    tester.test_hr_operations_endpoint()
     
     # Print final results
     print("\n" + "=" * 60)

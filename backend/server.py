@@ -136,6 +136,57 @@ def generate_seed_data(count=500):
         employees.append(emp)
     return employees
 
+# ---- New Module Constants ----
+RECRUITMENT_SOURCES = ["LinkedIn","Referral","Career Site","Agency","Job Board","University","Social Media"]
+COURSE_NAMES = ["Leadership Fundamentals","Advanced Project Management","Data Analytics","Cybersecurity Basics","Effective Communication","Python Programming","Cloud Architecture","Financial Modeling","Design Thinking","Agile Methodology","Machine Learning","Compliance Training","Time Management","Presentation Skills","Strategic Planning","Team Building"]
+COURSE_CATEGORIES = ["Technical","Leadership","Compliance","Soft Skills","Language"]
+
+def generate_recruitment_data(count=200):
+    random.seed(43)
+    candidates = []
+    for i in range(count):
+        gender = random.choice(["Male","Female"])
+        name = f"{random.choice(MALE_NAMES if gender=='Male' else FEMALE_NAMES)} {random.choice(LAST_NAMES)}"
+        dept = random.choices(DEPARTMENTS, weights=DEPT_WEIGHTS, k=1)[0]
+        pos = random.choice(sum(POSITIONS_BY_BAND.values(), []))
+        source = random.choice(RECRUITMENT_SOURCES)
+        r = random.random()
+        if r < 0.12: stage = "Hired"
+        elif r < 0.22: stage = "Offered"
+        elif r < 0.42: stage = "Interviewed"
+        elif r < 0.62: stage = "Screened"
+        elif r < 0.78: stage = "Rejected"
+        else: stage = "Applied"
+        applied_date = f"2025-{random.randint(1,12):02d}-{random.randint(1,28):02d}"
+        days = random.randint(15, 90) if stage in ["Hired","Offered"] else random.randint(3, 45)
+        cost = round(random.uniform(2000, 15000), -2) if stage == "Hired" else 0
+        candidates.append({"id": str(uuid.uuid4()), "candidate_name": name, "position": pos, "department": dept, "source": source, "stage": stage, "applied_date": applied_date, "days_in_pipeline": days, "cost": cost, "experience_years": random.randint(0, 20), "education": random.choices(EDUCATION_LEVELS, weights=EDUCATION_WEIGHTS, k=1)[0], "created_at": datetime.now(timezone.utc).isoformat()})
+    return candidates
+
+def generate_training_data(employees, count=300):
+    random.seed(44)
+    records = []
+    active = [e for e in employees if e['status'] == 'active']
+    for i in range(count):
+        emp = random.choice(active)
+        course = random.choice(COURSE_NAMES)
+        cat = random.choice(COURSE_CATEGORIES)
+        status = random.choices(["Completed","In Progress","Not Started"], weights=[60,25,15], k=1)[0]
+        hours = round(random.uniform(4, 40), 1) if status != "Not Started" else 0
+        score = round(random.uniform(55, 100), 1) if status == "Completed" else None
+        records.append({"id": str(uuid.uuid4()), "employee_id": emp['id'], "employee_name": emp['name'], "department": emp['department'], "course_name": course, "category": cat, "hours": hours, "status": status, "score": score, "date": f"2025-{random.randint(1,12):02d}-{random.randint(1,28):02d}", "cost": round(random.uniform(200, 5000), -2), "created_at": datetime.now(timezone.utc).isoformat()})
+    return records
+
+def generate_engagement_data(employees):
+    random.seed(45)
+    surveys = []
+    active = [e for e in employees if e['status'] == 'active']
+    for emp in active:
+        eng = round(max(1, min(10, random.gauss(7, 1.5))), 1)
+        surveys.append({"id": str(uuid.uuid4()), "employee_id": emp['id'], "employee_name": emp['name'], "department": emp['department'], "engagement_score": eng, "enps_score": random.randint(-20, 80), "satisfaction": round(max(1, min(5, random.gauss(3.5, 0.8))), 1), "work_life_balance": round(max(1, min(5, random.gauss(3.3, 0.9))), 1), "career_growth": round(max(1, min(5, random.gauss(3.2, 1.0))), 1), "manager_rating": round(max(1, min(5, random.gauss(3.6, 0.7))), 1), "recognition": round(max(1, min(5, random.gauss(3.4, 0.8))), 1), "culture_alignment": round(max(1, min(5, random.gauss(3.5, 0.7))), 1), "survey_date": f"2025-{random.randint(1,6):02d}-01", "absenteeism_days": random.randint(0, 15), "created_at": datetime.now(timezone.utc).isoformat()})
+    return surveys
+
+
 # ---- Helpers ----
 AGE_RANGES = ["20-25","26-30","31-35","36-40","41-45","46-50","51-55","55+"]
 SENIORITY_RANGES = ["0-1","1-3","3-5","5-10","10-15","15-20","20+"]
@@ -206,6 +257,20 @@ async def startup():
             emps = generate_seed_data(500)
             await db.employees.insert_many(emps)
             logger.info(f"Seeded {len(emps)} employees")
+        if await db.recruitment.count_documents({}) == 0:
+            cands = generate_recruitment_data(200)
+            await db.recruitment.insert_many(cands)
+            logger.info(f"Seeded {len(cands)} candidates")
+        if await db.training.count_documents({}) == 0:
+            emps = await db.employees.find({}, {"_id": 0}).to_list(10000)
+            trn = generate_training_data(emps, 300)
+            await db.training.insert_many(trn)
+            logger.info(f"Seeded {len(trn)} training records")
+        if await db.engagement.count_documents({}) == 0:
+            emps = await db.employees.find({}, {"_id": 0}).to_list(10000)
+            eng = generate_engagement_data(emps)
+            await db.engagement.insert_many(eng)
+            logger.info(f"Seeded {len(eng)} engagement surveys")
     except Exception as e:
         logger.error(f"Startup seed error: {e}")
     try:
@@ -580,9 +645,206 @@ async def get_sources():
 async def reset_data():
     await db.employees.delete_many({})
     await db.data_sources.delete_many({})
+    await db.recruitment.delete_many({})
+    await db.training.delete_many({})
+    await db.engagement.delete_many({})
     emps = generate_seed_data(500)
     await db.employees.insert_many(emps)
+    cands = generate_recruitment_data(200)
+    await db.recruitment.insert_many(cands)
+    trn = generate_training_data(emps, 300)
+    await db.training.insert_many(trn)
+    eng = generate_engagement_data(emps)
+    await db.engagement.insert_many(eng)
     return {"message": "Reset to demo data", "count": len(emps)}
+
+# ---- Recruitment ----
+@api_router.get("/dashboard/recruitment")
+async def get_recruitment(year: int = 2025):
+    all_cands = await db.recruitment.find({}, {"_id": 0}).to_list(10000)
+    cands = [c for c in all_cands if c.get('applied_date','')[:4] == str(year)]
+    total = len(cands)
+    hired = [c for c in cands if c['stage'] == 'Hired']
+    offered = [c for c in cands if c['stage'] in ['Offered','Hired']]
+    avg_days = safe_avg(hired, 'days_in_pipeline') if hired else safe_avg(cands, 'days_in_pipeline')
+    total_cost = sum(c['cost'] for c in hired)
+    cost_per = round(total_cost / len(hired)) if hired else 0
+    accept = round(len(hired) / len(offered) * 100, 1) if offered else 0
+    screened = len([c for c in cands if c['stage'] in ['Screened','Interviewed','Offered','Hired']])
+    interviewed = len([c for c in cands if c['stage'] in ['Interviewed','Offered','Hired']])
+    funnel = [{"stage":"Applied","count":total},{"stage":"Screened","count":screened},{"stage":"Interviewed","count":interviewed},{"stage":"Offered","count":len(offered)},{"stage":"Hired","count":len(hired)}]
+    by_month = [{"month": mn, "count": len([c for c in cands if c['applied_date'][:7]==f"{year}-{mi+1:02d}"])} for mi, mn in enumerate(MONTHS)]
+    return {
+        "kpis": {"total_candidates": total, "hired": len(hired), "time_to_fill": avg_days, "cost_per_hire": cost_per, "offer_acceptance": accept},
+        "funnel": funnel,
+        "by_source": count_by(cands, 'source'),
+        "hires_by_department": count_by(hired, 'department'),
+        "applications_by_month": by_month,
+        "by_education": count_by(hired, 'education'),
+        "pipeline_by_stage": [{"stage": s, "count": len([c for c in cands if c['stage']==s])} for s in ["Applied","Screened","Interviewed","Offered","Hired","Rejected"]]
+    }
+
+# ---- Performance ----
+@api_router.get("/dashboard/performance")
+async def get_performance(year: int = 2025):
+    _, active, _, _ = await get_filtered(year)
+    scores = [e.get('performance_score', 3) for e in active]
+    avg_score = round(sum(scores)/len(scores), 1) if scores else 0
+    high = len([s for s in scores if s >= 4.0])
+    low = len([s for s in scores if s < 2.5])
+    hc = len(active)
+    dist = [{"range": "1.0-2.0", "count": len([s for s in scores if s < 2.0])}, {"range": "2.0-2.5", "count": len([s for s in scores if 2.0 <= s < 2.5])}, {"range": "2.5-3.0", "count": len([s for s in scores if 2.5 <= s < 3.0])}, {"range": "3.0-3.5", "count": len([s for s in scores if 3.0 <= s < 3.5])}, {"range": "3.5-4.0", "count": len([s for s in scores if 3.5 <= s < 4.0])}, {"range": "4.0-4.5", "count": len([s for s in scores if 4.0 <= s < 4.5])}, {"range": "4.5-5.0", "count": len([s for s in scores if s >= 4.5])}]
+    by_dept = []
+    for dept in DEPARTMENTS:
+        de = [e for e in active if e['department'] == dept]
+        avg = safe_avg(de, 'performance_score')
+        short = dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
+        by_dept.append({"department": short, "score": avg, "count": len(de)})
+    by_band = [{"band": b, "score": safe_avg([e for e in active if e['band']==b], 'performance_score')} for b in BANDS]
+    top = sorted(active, key=lambda e: -e.get('performance_score', 0))[:10]
+    top_list = [{"name": e['name'], "department": e['department'], "score": e.get('performance_score',0), "band": e['band']} for e in top]
+    return {
+        "kpis": {"avg_score": avg_score, "high_performers": high, "high_pct": round(high/hc*100,1) if hc else 0, "low_performers": low, "low_pct": round(low/hc*100,1) if hc else 0},
+        "distribution": dist, "by_department": by_dept, "by_band": by_band, "top_performers": top_list
+    }
+
+# ---- Learning ----
+@api_router.get("/dashboard/learning")
+async def get_learning(year: int = 2025):
+    all_trn = await db.training.find({}, {"_id": 0}).to_list(10000)
+    trn = [t for t in all_trn if t.get('date','')[:4] == str(year)]
+    total = len(trn)
+    completed = [t for t in trn if t['status'] == 'Completed']
+    in_progress = [t for t in trn if t['status'] == 'In Progress']
+    total_hours = round(sum(t.get('hours', 0) for t in trn), 1)
+    _, active, _, _ = await get_filtered(year)
+    hc = len(active)
+    unique_participants = len(set(t['employee_id'] for t in trn if t.get('employee_id')))
+    participation = round(unique_participants / hc * 100, 1) if hc else 0
+    completion = round(len(completed) / total * 100, 1) if total else 0
+    avg_score = safe_avg(completed, 'score')
+    total_cost = sum(t.get('cost', 0) for t in trn)
+    by_cat = count_by(trn, 'category')
+    by_status = [{"status": s, "count": len([t for t in trn if t['status']==s])} for s in ["Completed","In Progress","Not Started"]]
+    by_dept = []
+    for dept in DEPARTMENTS:
+        dt = [t for t in trn if t['department'] == dept]
+        short = dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
+        by_dept.append({"department": short, "hours": round(sum(t.get('hours',0) for t in dt),1), "count": len(dt)})
+    top_courses = {}
+    for t in trn:
+        cn = t.get('course_name','Unknown')
+        top_courses[cn] = top_courses.get(cn, 0) + 1
+    top_list = [{"course": k, "count": v} for k, v in sorted(top_courses.items(), key=lambda x: -x[1])[:10]]
+    return {
+        "kpis": {"total_programs": total, "total_hours": total_hours, "hours_per_employee": round(total_hours/hc,1) if hc else 0, "participation_rate": participation, "completion_rate": completion, "avg_score": avg_score},
+        "by_category": by_cat, "by_status": by_status, "by_department": by_dept, "top_courses": top_list, "total_cost": total_cost
+    }
+
+# ---- Compensation ----
+@api_router.get("/dashboard/compensation")
+async def get_compensation(year: int = 2025):
+    _, active, _, _ = await get_filtered(year)
+    salaries = [e.get('salary', 0) for e in active]
+    avg_sal = round(sum(salaries)/len(salaries)) if salaries else 0
+    total_cost = sum(salaries)
+    by_band = []
+    for b in BANDS:
+        be = [e for e in active if e['band'] == b]
+        bs = [e.get('salary',0) for e in be]
+        midpoint = (SALARY_BY_BAND[b][0] + SALARY_BY_BAND[b][1]) / 2
+        avg = round(sum(bs)/len(bs)) if bs else 0
+        compa = round(avg / midpoint, 2) if midpoint else 0
+        by_band.append({"band": b, "avg_salary": avg, "min": min(bs) if bs else 0, "max": max(bs) if bs else 0, "midpoint": round(midpoint), "compa_ratio": compa, "count": len(be)})
+    overall_compa = round(sum(b['compa_ratio'] for b in by_band) / len(by_band), 2) if by_band else 0
+    male_avg = safe_avg([e for e in active if e['gender']=='Male'], 'salary')
+    female_avg = safe_avg([e for e in active if e['gender']=='Female'], 'salary')
+    pay_gap = round((male_avg - female_avg) / male_avg * 100, 1) if male_avg else 0
+    by_dept = []
+    for dept in DEPARTMENTS:
+        de = [e for e in active if e['department'] == dept]
+        short = dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
+        by_dept.append({"department": short, "avg_salary": safe_avg(de, 'salary'), "count": len(de)})
+    sal_ranges = [{"range":"0-25K","count":len([s for s in salaries if s<25000])},{"range":"25-50K","count":len([s for s in salaries if 25000<=s<50000])},{"range":"50-75K","count":len([s for s in salaries if 50000<=s<75000])},{"range":"75-100K","count":len([s for s in salaries if 75000<=s<100000])},{"range":"100-150K","count":len([s for s in salaries if 100000<=s<150000])},{"range":"150K+","count":len([s for s in salaries if s>=150000])}]
+    gender_by_band = [{"band": b, "male": safe_avg([e for e in active if e['band']==b and e['gender']=='Male'], 'salary'), "female": safe_avg([e for e in active if e['band']==b and e['gender']=='Female'], 'salary')} for b in BANDS]
+    return {
+        "kpis": {"avg_salary": avg_sal, "total_cost": total_cost, "compa_ratio": overall_compa, "pay_gap": pay_gap, "male_avg": round(male_avg), "female_avg": round(female_avg)},
+        "by_band": by_band, "by_department": by_dept, "salary_distribution": sal_ranges, "gender_by_band": gender_by_band
+    }
+
+# ---- Engagement ----
+@api_router.get("/dashboard/engagement")
+async def get_engagement(year: int = 2025):
+    all_eng = await db.engagement.find({}, {"_id": 0}).to_list(10000)
+    surveys = all_eng
+    total = len(surveys)
+    if total == 0:
+        return {"kpis": {}, "by_department": [], "score_distribution": [], "drivers": [], "enps_distribution": []}
+    avg_eng = round(sum(s['engagement_score'] for s in surveys) / total, 1)
+    avg_enps = round(sum(s['enps_score'] for s in surveys) / total, 1)
+    promoters = len([s for s in surveys if s['enps_score'] >= 50])
+    detractors = len([s for s in surveys if s['enps_score'] <= 0])
+    enps = round((promoters - detractors) / total * 100, 1)
+    avg_absent = round(sum(s.get('absenteeism_days', 0) for s in surveys) / total, 1)
+    drivers = [{"driver": "Satisfaction", "score": round(sum(s['satisfaction'] for s in surveys)/total,1)}, {"driver": "Work-Life Balance", "score": round(sum(s['work_life_balance'] for s in surveys)/total,1)}, {"driver": "Career Growth", "score": round(sum(s['career_growth'] for s in surveys)/total,1)}, {"driver": "Manager Rating", "score": round(sum(s['manager_rating'] for s in surveys)/total,1)}, {"driver": "Recognition", "score": round(sum(s['recognition'] for s in surveys)/total,1)}, {"driver": "Culture", "score": round(sum(s['culture_alignment'] for s in surveys)/total,1)}]
+    by_dept = []
+    for dept in DEPARTMENTS:
+        ds = [s for s in surveys if s['department'] == dept]
+        short = dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
+        if ds:
+            by_dept.append({"department": short, "engagement": round(sum(s['engagement_score'] for s in ds)/len(ds),1), "enps": round(sum(s['enps_score'] for s in ds)/len(ds),1), "count": len(ds)})
+    score_dist = [{"range":"1-3","count":len([s for s in surveys if s['engagement_score']<3])},{"range":"3-5","count":len([s for s in surveys if 3<=s['engagement_score']<5])},{"range":"5-7","count":len([s for s in surveys if 5<=s['engagement_score']<7])},{"range":"7-9","count":len([s for s in surveys if 7<=s['engagement_score']<9])},{"range":"9-10","count":len([s for s in surveys if s['engagement_score']>=9])}]
+    enps_dist = [{"category":"Promoters","count":promoters},{"category":"Passives","count":total-promoters-detractors},{"category":"Detractors","count":detractors}]
+    return {
+        "kpis": {"avg_engagement": avg_eng, "enps": enps, "avg_enps_raw": avg_enps, "participation_rate": 92.5, "avg_absenteeism": avg_absent, "total_surveys": total},
+        "by_department": by_dept, "score_distribution": score_dist, "drivers": drivers, "enps_distribution": enps_dist
+    }
+
+# ---- Career & Talent ----
+@api_router.get("/dashboard/career")
+async def get_career(year: int = 2025):
+    _, active, hired, left = await get_filtered(year)
+    hc = len(active)
+    talents = [e for e in active if e.get('is_talent')]
+    managers = [e for e in active if e.get('is_manager')]
+    promotion_est = round(len([e for e in active if e.get('seniority_years',0) < 2 and e.get('band','A') in ['C','D','E']]) / hc * 100, 1) if hc else 0
+    internal_mobility = round(len([e for e in hired if e.get('data_source') != 'upload']) / hc * 100, 1) if hc else 0
+    succession = round(len([e for e in active if e.get('is_talent') and e.get('band') in ['C','D']]) / len(managers) * 100, 1) if managers else 0
+    talent_by_dept = []
+    for dept in DEPARTMENTS:
+        de = [e for e in active if e['department'] == dept]
+        dt = [e for e in de if e.get('is_talent')]
+        short = dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
+        talent_by_dept.append({"department": short, "total": len(de), "talents": len(dt), "ratio": round(len(dt)/len(de)*100,1) if de else 0})
+    talent_by_band = [{"band": b, "count": len([e for e in talents if e['band']==b])} for b in BANDS]
+    pipeline = [{"level": "Individual Contributor", "count": len([e for e in active if e['band'] in ['A','B','C'] and not e.get('is_manager')])}, {"level": "Manager", "count": len([e for e in active if e['band']=='D'])}, {"level": "Director+", "count": len([e for e in active if e['band']=='E'])}]
+    return {
+        "kpis": {"talent_pool": len(talents), "talent_ratio": round(len(talents)/hc*100,1) if hc else 0, "promotion_rate": promotion_est, "succession_coverage": succession, "internal_mobility": internal_mobility, "manager_count": len(managers)},
+        "talent_by_department": talent_by_dept, "talent_by_band": talent_by_band, "leadership_pipeline": pipeline
+    }
+
+# ---- HR Operations ----
+@api_router.get("/dashboard/hr-operations")
+async def get_hr_operations(year: int = 2025):
+    _, active, hired, left = await get_filtered(year)
+    hc = len(active)
+    ft = len([e for e in active if e.get('is_full_time')])
+    pt = hc - ft
+    disabled = len([e for e in active if e.get('is_disabled')])
+    by_city = count_by(active, 'city')
+    by_edu = count_by(active, 'education_level')
+    avg_sen = safe_avg(active, 'seniority_years')
+    gen_dist = count_by(active, 'gender')
+    dept_size = []
+    for dept in DEPARTMENTS:
+        de = [e for e in active if e['department'] == dept]
+        short = dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
+        dept_size.append({"department": short, "count": len(de), "managers": len([e for e in de if e.get('is_manager')]), "span": round(len(de)/max(1,len([e for e in de if e.get('is_manager')])),1)})
+    metrics = [{"metric": "Onboarding Completion", "value": 94.2, "target": 95},{"metric": "Payroll Accuracy", "value": 99.1, "target": 99.5},{"metric": "Document Compliance", "value": 91.8, "target": 95},{"metric": "Ticket Resolution (days)", "value": 2.3, "target": 2},{"metric": "Digital Process Rate", "value": 78.5, "target": 85},{"metric": "Automation Rate", "value": 62.0, "target": 75}]
+    return {
+        "kpis": {"total_employees": hc, "full_time": ft, "part_time": pt, "ft_ratio": round(ft/hc*100,1) if hc else 0, "disabled_rate": round(disabled/hc*100,1) if hc else 0, "avg_seniority": avg_sen},
+        "by_city": by_city, "by_education": by_edu, "gender_distribution": gen_dist, "department_metrics": dept_size, "operational_metrics": metrics
+    }
 
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True,

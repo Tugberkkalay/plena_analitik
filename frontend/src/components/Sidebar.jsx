@@ -1,13 +1,35 @@
 import { NavLink } from "react-router-dom";
-import { ChartBar, Users, UserPlus, ArrowsClockwise, ArrowsLeftRight, Brain, CloudArrowUp, List, X } from "@phosphor-icons/react";
+import { ChartBar, Users, UserPlus, ArrowsClockwise, ArrowsLeftRight, Brain, CloudArrowUp, List, X, Funnel, Target, GraduationCap, CurrencyDollar, Smiley, Star, Gear } from "@phosphor-icons/react";
 
-const NAV_ITEMS = [
-  { path: "/", label: "Overview", icon: ChartBar },
-  { path: "/headcount", label: "Headcount", icon: Users },
-  { path: "/hires-leaves", label: "Hires & Leaves", icon: UserPlus },
-  { path: "/turnover", label: "Turnover", icon: ArrowsClockwise },
-  { path: "/movement", label: "Movement", icon: ArrowsLeftRight },
-  { path: "/ai-forecast", label: "AI Forecast", icon: Brain },
+const NAV_SECTIONS = [
+  {
+    label: "Workforce",
+    items: [
+      { path: "/", label: "Overview", icon: ChartBar },
+      { path: "/headcount", label: "Headcount", icon: Users },
+      { path: "/hires-leaves", label: "Hires & Leaves", icon: UserPlus },
+      { path: "/turnover", label: "Turnover", icon: ArrowsClockwise },
+      { path: "/movement", label: "Movement", icon: ArrowsLeftRight },
+    ],
+  },
+  {
+    label: "People",
+    items: [
+      { path: "/recruitment", label: "Recruitment", icon: Funnel },
+      { path: "/performance", label: "Performance", icon: Target },
+      { path: "/learning", label: "Learning", icon: GraduationCap },
+      { path: "/compensation", label: "Compensation", icon: CurrencyDollar },
+      { path: "/engagement", label: "Engagement", icon: Smiley },
+      { path: "/career-talent", label: "Career & Talent", icon: Star },
+    ],
+  },
+  {
+    label: "Insights",
+    items: [
+      { path: "/ai-forecast", label: "AI Forecast", icon: Brain },
+      { path: "/hr-operations", label: "HR Operations", icon: Gear },
+    ],
+  },
 ];
 
 const BOTTOM_ITEMS = [
@@ -44,24 +66,28 @@ export default function Sidebar({ open, onToggle }) {
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          <p className="px-3 mb-2 text-[10px] tracking-[0.2em] uppercase text-slate-500 font-medium">Dashboards</p>
-          {NAV_ITEMS.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.path === "/"}
-              data-testid={`sidebar-nav-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors duration-200 ${
-                  isActive
-                    ? "bg-teal-500/15 text-teal-300 border border-teal-500/20"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 border border-transparent"
-                }`
-              }
-            >
-              <item.icon size={18} weight="duotone" />
-              <span>{item.label}</span>
-            </NavLink>
+          {NAV_SECTIONS.map((section) => (
+            <div key={section.label} className="mb-3">
+              <p className="px-3 mb-2 text-[10px] tracking-[0.2em] uppercase text-slate-500 font-medium">{section.label}</p>
+              {section.items.map((item) => (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  end={item.path === "/"}
+                  data-testid={`sidebar-nav-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                      isActive
+                        ? "bg-teal-500/15 text-teal-300 border border-teal-500/20"
+                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 border border-transparent"
+                    }`
+                  }
+                >
+                  <item.icon size={17} weight="duotone" />
+                  <span>{item.label}</span>
+                </NavLink>
+              ))}
+            </div>
           ))}
         </nav>
 

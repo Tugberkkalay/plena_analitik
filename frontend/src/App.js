@@ -13,6 +13,14 @@ import MovementPage from "@/pages/MovementPage";
 import AIForecastPage from "@/pages/AIForecastPage";
 import DataUploadPage from "@/pages/DataUploadPage";
 
+import RecruitmentPage from "@/pages/RecruitmentPage";
+import PerformancePage from "@/pages/PerformancePage";
+import LearningPage from "@/pages/LearningPage";
+import CompensationPage from "@/pages/CompensationPage";
+import EngagementPage from "@/pages/EngagementPage";
+import CareerTalentPage from "@/pages/CareerTalentPage";
+import HROperationsPage from "@/pages/HROperationsPage";
+
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const PAGE_TITLES = {
@@ -23,6 +31,13 @@ const PAGE_TITLES = {
   "/movement": "Workforce Movement",
   "/ai-forecast": "AI Forecast",
   "/data-upload": "Data Management",
+  "/recruitment": "Recruitment Analytics",
+  "/performance": "Performance Management",
+  "/learning": "Learning & Development",
+  "/compensation": "Compensation & Benefits",
+  "/engagement": "Engagement & Experience",
+  "/career-talent": "Career & Talent",
+  "/hr-operations": "HR Operations",
 };
 
 function TopBar({ year, setYear, years }) {
@@ -80,6 +95,13 @@ function AppContent() {
             <Route path="/hires-leaves" element={<HiresLeavesPage year={year} />} />
             <Route path="/turnover" element={<TurnoverPage year={year} />} />
             <Route path="/movement" element={<MovementPage year={year} />} />
+            <Route path="/recruitment" element={<RecruitmentPage year={year} />} />
+            <Route path="/performance" element={<PerformancePage year={year} />} />
+            <Route path="/learning" element={<LearningPage year={year} />} />
+            <Route path="/compensation" element={<CompensationPage year={year} />} />
+            <Route path="/engagement" element={<EngagementPage year={year} />} />
+            <Route path="/career-talent" element={<CareerTalentPage year={year} />} />
+            <Route path="/hr-operations" element={<HROperationsPage year={year} />} />
             <Route path="/ai-forecast" element={<AIForecastPage year={year} />} />
             <Route path="/data-upload" element={<DataUploadPage />} />
           </Routes>
