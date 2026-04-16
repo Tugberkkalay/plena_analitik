@@ -20,7 +20,7 @@ export default function HeadcountPage({ year }) {
       .finally(() => setLoading(false));
   }, [year]);
 
-  if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>;
+  if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
   if (!data) return <p className="text-slate-400">No data available.</p>;
 
   const { kpis } = data;
@@ -39,16 +39,16 @@ export default function HeadcountPage({ year }) {
         <ChartCard title="Age by Gender Distribution" testId="chart-age-gender">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.age_gender}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
               <XAxis dataKey="range" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} />
-              <Bar dataKey="male" name="Male" fill="#2563EB" stackId="a" radius={[0, 0, 0, 0]} />
+              <Bar dataKey="male" name="Male" fill="#0E7490" stackId="a" radius={[0, 0, 0, 0]} />
               <Bar dataKey="female" name="Female" fill="#F59E0B" stackId="a" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
           <div className="flex justify-center gap-4 mt-1">
-            <span className="flex items-center gap-1.5 text-xs text-slate-400"><span className="w-2.5 h-2.5 rounded-sm bg-blue-600" />Male</span>
+            <span className="flex items-center gap-1.5 text-xs text-slate-400"><span className="w-2.5 h-2.5 rounded-sm bg-teal-700" />Male</span>
             <span className="flex items-center gap-1.5 text-xs text-slate-400"><span className="w-2.5 h-2.5 rounded-sm bg-amber-500" />Female</span>
           </div>
         </ChartCard>
@@ -56,16 +56,16 @@ export default function HeadcountPage({ year }) {
         <ChartCard title="Band by Gender" testId="chart-band-gender">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.band_gender}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
               <XAxis dataKey="band" tick={{ fill: "#64748B", fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} />
-              <Bar dataKey="male" name="Male" fill="#2563EB" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="male" name="Male" fill="#0E7490" radius={[3, 3, 0, 0]} />
               <Bar dataKey="female" name="Female" fill="#F59E0B" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
           <div className="flex justify-center gap-4 mt-1">
-            <span className="flex items-center gap-1.5 text-xs text-slate-400"><span className="w-2.5 h-2.5 rounded-sm bg-blue-600" />Male</span>
+            <span className="flex items-center gap-1.5 text-xs text-slate-400"><span className="w-2.5 h-2.5 rounded-sm bg-teal-700" />Male</span>
             <span className="flex items-center gap-1.5 text-xs text-slate-400"><span className="w-2.5 h-2.5 rounded-sm bg-amber-500" />Female</span>
           </div>
         </ChartCard>
@@ -73,11 +73,11 @@ export default function HeadcountPage({ year }) {
         <ChartCard title="Department Distribution" testId="chart-dept-hc">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.department_distribution} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
               <XAxis type="number" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis dataKey="name" type="category" tick={{ fill: "#64748B", fontSize: 9 }} axisLine={false} tickLine={false} width={90} />
               <Tooltip {...DARK_TOOLTIP} />
-              <Bar dataKey="value" fill="#2563EB" radius={[0, 3, 3, 0]} />
+              <Bar dataKey="value" fill="#0E7490" radius={[0, 3, 3, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -103,7 +103,7 @@ export default function HeadcountPage({ year }) {
         <ChartCard title="City Distribution" testId="chart-city">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.city_distribution}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
               <XAxis dataKey="name" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} />
@@ -135,7 +135,7 @@ export default function HeadcountPage({ year }) {
         <div className="overflow-x-auto px-2">
           <Table>
             <TableHeader>
-              <TableRow className="border-slate-800 hover:bg-transparent">
+              <TableRow className="border-slate-100 hover:bg-transparent">
                 <TableHead className="text-slate-400 text-xs">Name</TableHead>
                 <TableHead className="text-slate-400 text-xs">Department</TableHead>
                 <TableHead className="text-slate-400 text-xs">Position</TableHead>
@@ -148,15 +148,15 @@ export default function HeadcountPage({ year }) {
             </TableHeader>
             <TableBody>
               {data.employee_list?.map((e, i) => (
-                <TableRow key={i} className="border-slate-800/50 hover:bg-slate-800/30">
-                  <TableCell className="text-slate-200 text-sm font-medium">{e.name}</TableCell>
-                  <TableCell className="text-slate-400 text-sm">{e.department}</TableCell>
-                  <TableCell className="text-slate-400 text-sm">{e.job_title}</TableCell>
-                  <TableCell><span className="px-2 py-0.5 rounded text-xs bg-slate-800 text-slate-300">{e.band}</span></TableCell>
-                  <TableCell className="text-slate-400 text-sm">{e.age}</TableCell>
-                  <TableCell className="text-slate-400 text-sm">{e.gender}</TableCell>
-                  <TableCell className="text-slate-400 text-sm">{e.city}</TableCell>
-                  <TableCell className="text-slate-300 text-sm text-right">{e.salary?.toLocaleString()} TL</TableCell>
+                <TableRow key={i} className="border-slate-100 hover:bg-slate-50">
+                  <TableCell className="text-slate-900 text-sm font-medium">{e.name}</TableCell>
+                  <TableCell className="text-slate-600 text-sm">{e.department}</TableCell>
+                  <TableCell className="text-slate-600 text-sm">{e.job_title}</TableCell>
+                  <TableCell><span className="px-2 py-0.5 rounded text-xs bg-slate-100 text-slate-700">{e.band}</span></TableCell>
+                  <TableCell className="text-slate-600 text-sm">{e.age}</TableCell>
+                  <TableCell className="text-slate-600 text-sm">{e.gender}</TableCell>
+                  <TableCell className="text-slate-600 text-sm">{e.city}</TableCell>
+                  <TableCell className="text-slate-700 text-sm text-right">{e.salary?.toLocaleString()} TL</TableCell>
                 </TableRow>
               ))}
             </TableBody>

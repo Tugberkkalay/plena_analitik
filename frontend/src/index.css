@@ -9,8 +9,8 @@ body {
     font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #020617;
-    color: #F8FAFC;
+    background-color: #F1F5F9;
+    color: #0F172A;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -26,14 +26,14 @@ code {
     height: 6px;
 }
 ::-webkit-scrollbar-track {
-    background: #0F172A;
+    background: #F1F5F9;
 }
 ::-webkit-scrollbar-thumb {
-    background: #334155;
+    background: #CBD5E1;
     border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: #475569;
+    background: #94A3B8;
 }
 
 @layer base {

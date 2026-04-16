@@ -19,7 +19,7 @@ export default function MovementPage({ year }) {
       .finally(() => setLoading(false));
   }, [year]);
 
-  if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>;
+  if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
   if (!data) return <p className="text-slate-400">No data available.</p>;
 
   const { kpis } = data;
@@ -37,11 +37,11 @@ export default function MovementPage({ year }) {
         <ChartCard title="Hires vs Leaves by Month" testId="chart-hl-month">
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={data.hires_leaves_by_month}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
               <XAxis dataKey="month" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} />
-              <Bar dataKey="hires" name="Hires" fill="#22C55E" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="hires" name="Hires" fill="#14B8A6" radius={[3, 3, 0, 0]} />
               <Bar dataKey="leaves" name="Leaves" fill="#EF4444" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -54,11 +54,11 @@ export default function MovementPage({ year }) {
         <ChartCard title="Hires vs Leaves by Department" testId="chart-hl-dept">
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={data.hires_leaves_by_department} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
               <XAxis type="number" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis dataKey="department" type="category" tick={{ fill: "#64748B", fontSize: 9 }} axisLine={false} tickLine={false} width={75} />
               <Tooltip {...DARK_TOOLTIP} />
-              <Bar dataKey="hires" name="Hires" fill="#22C55E" radius={[0, 3, 3, 0]} />
+              <Bar dataKey="hires" name="Hires" fill="#14B8A6" radius={[0, 3, 3, 0]} />
               <Bar dataKey="leaves" name="Leaves" fill="#EF4444" radius={[0, 3, 3, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -71,11 +71,11 @@ export default function MovementPage({ year }) {
         <ChartCard title="Retention Rate by Year" testId="chart-retention-year">
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={data.retention_by_year}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
               <XAxis dataKey="year" tick={{ fill: "#64748B", fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} domain={[70, 100]} />
               <Tooltip {...DARK_TOOLTIP} formatter={(v) => `${v}%`} />
-              <Line type="monotone" dataKey="rate" name="Retention %" stroke="#2563EB" strokeWidth={2.5} dot={{ fill: "#2563EB", r: 4 }} />
+              <Line type="monotone" dataKey="rate" name="Retention %" stroke="#0E7490" strokeWidth={2.5} dot={{ fill: "#0E7490", r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -83,11 +83,11 @@ export default function MovementPage({ year }) {
         <ChartCard title="Movement by Band" testId="chart-move-band">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.movement_by_band}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
               <XAxis dataKey="band" tick={{ fill: "#64748B", fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} />
-              <Bar dataKey="hires" name="Hires" fill="#22C55E" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="hires" name="Hires" fill="#14B8A6" radius={[3, 3, 0, 0]} />
               <Bar dataKey="leaves" name="Leaves" fill="#EF4444" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -100,11 +100,11 @@ export default function MovementPage({ year }) {
         <ChartCard title="Movement by Age Group" className="lg:col-span-2" testId="chart-move-age">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.movement_by_age}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
               <XAxis dataKey="range" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} />
-              <Bar dataKey="hires" name="Hires" fill="#22C55E" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="hires" name="Hires" fill="#14B8A6" radius={[3, 3, 0, 0]} />
               <Bar dataKey="leaves" name="Leaves" fill="#EF4444" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>

@@ -12,15 +12,15 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const RiskGauge = ({ score, level, label }) => {
   const pct = Math.round(score * 100);
   const color = level === "Low" ? "#22C55E" : level === "Medium" ? "#F59E0B" : "#EF4444";
-  const bgColor = level === "Low" ? "bg-emerald-500/10" : level === "Medium" ? "bg-amber-500/10" : "bg-red-500/10";
-  const textColor = level === "Low" ? "text-emerald-400" : level === "Medium" ? "text-amber-400" : "text-red-400";
+  const bgColor = level === "Low" ? "bg-emerald-50" : level === "Medium" ? "bg-amber-50" : "bg-red-50";
+  const textColor = level === "Low" ? "text-emerald-700" : level === "Medium" ? "text-amber-700" : "text-red-700";
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-md p-5 flex flex-col items-center">
+    <div className="bg-white border border-slate-200 rounded-md p-5 shadow-sm flex flex-col items-center">
       <p className="text-xs tracking-[0.15em] uppercase text-slate-500 font-medium mb-4">{label}</p>
       <div className="relative w-32 h-16 mb-3">
         <svg viewBox="0 0 120 60" className="w-full h-full">
-          <path d="M 10 55 A 50 50 0 0 1 110 55" fill="none" stroke="#1E293B" strokeWidth="8" strokeLinecap="round" />
+          <path d="M 10 55 A 50 50 0 0 1 110 55" fill="none" stroke="#E2E8F0" strokeWidth="8" strokeLinecap="round" />
           <path d="M 10 55 A 50 50 0 0 1 110 55" fill="none" stroke={color} strokeWidth="8" strokeLinecap="round"
             strokeDasharray={`${pct * 1.57} 157`} />
         </svg>
@@ -47,15 +47,15 @@ export default function AIForecastPage({ year }) {
   if (!generated) {
     return (
       <div data-testid="ai-forecast-page" className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
-        <div className="w-20 h-20 rounded-2xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center">
-          <Brain size={40} weight="duotone" className="text-blue-400" />
+        <div className="w-20 h-20 rounded-2xl bg-teal-50 border border-teal-200 flex items-center justify-center">
+          <Brain size={40} weight="duotone" className="text-teal-600" />
         </div>
         <div className="text-center max-w-md">
-          <h2 className="text-2xl font-bold text-slate-100 mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>AI Workforce Forecast</h2>
-          <p className="text-slate-400 text-sm">Analyze your workforce data with AI to predict attrition risks, headcount forecasts, and get actionable recommendations.</p>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>AI Workforce Forecast</h2>
+          <p className="text-slate-600 text-sm">Analyze your workforce data with AI to predict attrition risks, headcount forecasts, and get actionable recommendations.</p>
         </div>
         <Button data-testid="run-forecast-btn" onClick={runForecast} disabled={loading}
-          className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 text-sm font-medium rounded-md">
+          className="bg-teal-700 hover:bg-teal-600 text-white px-6 py-3 text-sm font-medium rounded-md">
           {loading ? (
             <span className="flex items-center gap-2"><span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />Analyzing...</span>
           ) : (
@@ -73,12 +73,12 @@ export default function AIForecastPage({ year }) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <RiskGauge score={data.attrition_risk.score} level={data.attrition_risk.level} label="Attrition Risk" />
         <RiskGauge score={data.burnout_risk.score} level={data.burnout_risk.level} label="Burnout Risk" />
-        <div className="bg-slate-900 border border-slate-800 rounded-md p-5">
+        <div className="bg-white border border-slate-200 rounded-md p-5">
           <p className="text-xs tracking-[0.15em] uppercase text-slate-500 font-medium mb-3">AI Recommendations</p>
           <ul className="space-y-2">
             {data.recommendations?.map((r, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-slate-300">
-                <TrendUp size={14} weight="bold" className="text-blue-400 mt-0.5 flex-shrink-0" />
+              <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
+                <TrendUp size={14} weight="bold" className="text-teal-600 mt-0.5 flex-shrink-0" />
                 {r}
               </li>
             ))}
@@ -92,21 +92,21 @@ export default function AIForecastPage({ year }) {
             <AreaChart data={data.headcount_forecast}>
               <defs>
                 <linearGradient id="forecastGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#2563EB" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#2563EB" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#0E7490" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#0E7490" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="confGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#64748B" stopOpacity={0.15} />
                   <stop offset="95%" stopColor="#64748B" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
               <XAxis dataKey="month" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} />
               <Area type="monotone" dataKey="upper" stroke="none" fill="url(#confGrad)" />
               <Area type="monotone" dataKey="lower" stroke="none" fill="transparent" />
-              <Area type="monotone" dataKey="predicted" stroke="#2563EB" strokeWidth={2.5} fill="url(#forecastGrad)" dot={{ fill: "#2563EB", r: 4 }} />
+              <Area type="monotone" dataKey="predicted" stroke="#0E7490" strokeWidth={2.5} fill="url(#forecastGrad)" dot={{ fill: "#0E7490", r: 4 }} />
             </AreaChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -114,7 +114,7 @@ export default function AIForecastPage({ year }) {
         <ChartCard title="Department Risk Analysis" subtitle="Turnover risk by department" testId="chart-dept-risk">
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={data.department_risks}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
               <XAxis dataKey="department" tick={{ fill: "#64748B", fontSize: 9 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} formatter={(v) => `${v}%`} />
@@ -129,12 +129,12 @@ export default function AIForecastPage({ year }) {
       </div>
 
       {data.ai_summary && (
-        <div className="bg-slate-900 border border-slate-800 rounded-md p-5">
+        <div className="bg-white border border-slate-200 rounded-md p-5">
           <div className="flex items-center gap-2 mb-3">
-            <Brain size={18} weight="duotone" className="text-blue-400" />
-            <h3 className="text-sm font-medium text-slate-200">AI Analysis Summary</h3>
+            <Brain size={18} weight="duotone" className="text-teal-600" />
+            <h3 className="text-sm font-medium text-slate-800">AI Analysis Summary</h3>
           </div>
-          <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">{data.ai_summary}</p>
+          <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{data.ai_summary}</p>
         </div>
       )}
 
@@ -143,7 +143,7 @@ export default function AIForecastPage({ year }) {
           <div className="overflow-x-auto px-2">
             <Table>
               <TableHeader>
-                <TableRow className="border-slate-800 hover:bg-transparent">
+                <TableRow className="border-slate-100 hover:bg-transparent">
                   <TableHead className="text-slate-400 text-xs">Name</TableHead>
                   <TableHead className="text-slate-400 text-xs">Department</TableHead>
                   <TableHead className="text-slate-400 text-xs">Performance</TableHead>
@@ -153,14 +153,14 @@ export default function AIForecastPage({ year }) {
               </TableHeader>
               <TableBody>
                 {data.at_risk_employees.map((e, i) => (
-                  <TableRow key={i} className="border-slate-800/50 hover:bg-slate-800/30">
-                    <TableCell className="text-slate-200 text-sm font-medium">{e.name}</TableCell>
-                    <TableCell className="text-slate-400 text-sm">{e.department}</TableCell>
-                    <TableCell className="text-slate-300 text-sm">{e.performance}</TableCell>
-                    <TableCell className="text-slate-400 text-sm">{e.seniority} yrs</TableCell>
+                  <TableRow key={i} className="border-slate-100 hover:bg-slate-50">
+                    <TableCell className="text-slate-800 text-sm font-medium">{e.name}</TableCell>
+                    <TableCell className="text-slate-600 text-sm">{e.department}</TableCell>
+                    <TableCell className="text-slate-600 text-sm">{e.performance}</TableCell>
+                    <TableCell className="text-slate-600 text-sm">{e.seniority} yrs</TableCell>
                     <TableCell>
                       <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                        e.risk_level === "High" ? "bg-red-500/10 text-red-400" : "bg-amber-500/10 text-amber-400"
+                        e.risk_level === "High" ? "bg-red-50 text-red-600" : "bg-amber-50 text-amber-600"
                       }`}>{e.risk_level}</span>
                     </TableCell>
                   </TableRow>
@@ -173,7 +173,7 @@ export default function AIForecastPage({ year }) {
 
       <div className="flex justify-center">
         <Button data-testid="regenerate-forecast-btn" onClick={runForecast} disabled={loading} variant="outline"
-          className="border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-slate-100">
+          className="border-slate-700 text-slate-600 hover:bg-slate-800 hover:text-slate-100">
           {loading ? "Regenerating..." : "Regenerate Forecast"}
         </Button>
       </div>

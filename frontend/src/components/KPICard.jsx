@@ -1,11 +1,11 @@
 export default function KPICard({ title, value, subtitle, icon: Icon, color = "blue", format = "number", testId }) {
   const colorMap = {
-    blue: { bg: "bg-blue-500/10", text: "text-blue-400", border: "border-blue-500/20" },
-    amber: { bg: "bg-amber-500/10", text: "text-amber-400", border: "border-amber-500/20" },
-    red: { bg: "bg-red-500/10", text: "text-red-400", border: "border-red-500/20" },
-    green: { bg: "bg-emerald-500/10", text: "text-emerald-400", border: "border-emerald-500/20" },
-    slate: { bg: "bg-slate-500/10", text: "text-slate-400", border: "border-slate-500/20" },
-    orange: { bg: "bg-orange-500/10", text: "text-orange-400", border: "border-orange-500/20" },
+    blue: { bg: "bg-teal-50", text: "text-teal-700", border: "border-teal-200" },
+    amber: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" },
+    red: { bg: "bg-red-50", text: "text-red-700", border: "border-red-200" },
+    green: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200" },
+    slate: { bg: "bg-slate-100", text: "text-slate-600", border: "border-slate-200" },
+    orange: { bg: "bg-orange-50", text: "text-orange-700", border: "border-orange-200" },
   };
   const c = colorMap[color] || colorMap.blue;
 
@@ -19,7 +19,7 @@ export default function KPICard({ title, value, subtitle, icon: Icon, color = "b
   return (
     <div
       data-testid={testId || `kpi-${title?.toLowerCase().replace(/\s+/g, "-")}`}
-      className={`bg-slate-900 border border-slate-800 rounded-md p-4 transition-all duration-300 hover:border-slate-700`}
+      className={`bg-white border border-slate-200 rounded-md p-4 transition-all duration-300 hover:border-slate-300 shadow-sm`}
     >
       <div className="flex items-start justify-between mb-3">
         <p className="text-xs tracking-[0.15em] uppercase text-slate-500 font-medium">{title}</p>

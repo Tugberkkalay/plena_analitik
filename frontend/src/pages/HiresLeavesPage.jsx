@@ -24,7 +24,7 @@ export default function HiresLeavesPage({ year }) {
       .finally(() => setLoading(false));
   }, [year]);
 
-  if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>;
+  if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
   if (!hires || !leaves) return <p className="text-slate-400">No data available.</p>;
 
   return (
@@ -37,9 +37,9 @@ export default function HiresLeavesPage({ year }) {
       </div>
 
       <Tabs defaultValue="hires" className="w-full">
-        <TabsList className="bg-slate-900 border border-slate-800">
-          <TabsTrigger data-testid="tab-hires" value="hires" className="data-[state=active]:bg-blue-600/20 data-[state=active]:text-blue-400">Hires</TabsTrigger>
-          <TabsTrigger data-testid="tab-leaves" value="leaves" className="data-[state=active]:bg-red-600/20 data-[state=active]:text-red-400">Leaves</TabsTrigger>
+        <TabsList className="bg-white border border-slate-200">
+          <TabsTrigger data-testid="tab-hires" value="hires" className="data-[state=active]:bg-teal-600/15 data-[state=active]:text-teal-700">Hires</TabsTrigger>
+          <TabsTrigger data-testid="tab-leaves" value="leaves" className="data-[state=active]:bg-red-600/15 data-[state=active]:text-red-700">Leaves</TabsTrigger>
         </TabsList>
 
         <TabsContent value="hires" className="space-y-4 mt-4">
@@ -47,11 +47,11 @@ export default function HiresLeavesPage({ year }) {
             <ChartCard title="Hires by Month" className="lg:col-span-2" testId="chart-hires-month">
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={hires.hires_by_month}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
                   <XAxis dataKey="month" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip {...DARK_TOOLTIP} />
-                  <Bar dataKey="count" name="Hires" fill="#22C55E" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="count" name="Hires" fill="#14B8A6" radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </ChartCard>
@@ -75,18 +75,18 @@ export default function HiresLeavesPage({ year }) {
             <ChartCard title="Hires by Department" testId="chart-hire-dept">
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={hires.department_distribution} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
                   <XAxis type="number" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
                   <YAxis dataKey="name" type="category" tick={{ fill: "#64748B", fontSize: 9 }} axisLine={false} tickLine={false} width={85} />
                   <Tooltip {...DARK_TOOLTIP} />
-                  <Bar dataKey="value" fill="#22C55E" radius={[0, 3, 3, 0]} />
+                  <Bar dataKey="value" fill="#14B8A6" radius={[0, 3, 3, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </ChartCard>
             <ChartCard title="Education Level" testId="chart-hire-edu">
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={hires.education_distribution}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
                   <XAxis dataKey="name" tick={{ fill: "#64748B", fontSize: 9 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip {...DARK_TOOLTIP} />
@@ -97,11 +97,11 @@ export default function HiresLeavesPage({ year }) {
             <ChartCard title="Band Distribution" testId="chart-hire-band">
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={hires.band_distribution}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
                   <XAxis dataKey="name" tick={{ fill: "#64748B", fontSize: 11 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip {...DARK_TOOLTIP} />
-                  <Bar dataKey="value" fill="#2563EB" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="value" fill="#0E7490" radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </ChartCard>
@@ -110,7 +110,7 @@ export default function HiresLeavesPage({ year }) {
             <div className="overflow-x-auto px-2">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-slate-800 hover:bg-transparent">
+                  <TableRow className="border-slate-100 hover:bg-transparent">
                     <TableHead className="text-slate-400 text-xs">Name</TableHead>
                     <TableHead className="text-slate-400 text-xs">Department</TableHead>
                     <TableHead className="text-slate-400 text-xs">Position</TableHead>
@@ -121,13 +121,13 @@ export default function HiresLeavesPage({ year }) {
                 </TableHeader>
                 <TableBody>
                   {hires.employee_list?.slice(0, 15).map((e, i) => (
-                    <TableRow key={i} className="border-slate-800/50 hover:bg-slate-800/30">
-                      <TableCell className="text-slate-200 text-sm font-medium">{e.name}</TableCell>
-                      <TableCell className="text-slate-400 text-sm">{e.department}</TableCell>
-                      <TableCell className="text-slate-400 text-sm">{e.job_title}</TableCell>
-                      <TableCell><span className="px-2 py-0.5 rounded text-xs bg-slate-800 text-slate-300">{e.band}</span></TableCell>
-                      <TableCell className="text-slate-400 text-sm">{e.hire_date}</TableCell>
-                      <TableCell className="text-slate-400 text-sm">{e.gender}</TableCell>
+                    <TableRow key={i} className="border-slate-100 hover:bg-slate-50">
+                      <TableCell className="text-slate-900 text-sm font-medium">{e.name}</TableCell>
+                      <TableCell className="text-slate-600 text-sm">{e.department}</TableCell>
+                      <TableCell className="text-slate-600 text-sm">{e.job_title}</TableCell>
+                      <TableCell><span className="px-2 py-0.5 rounded text-xs bg-slate-100 text-slate-700">{e.band}</span></TableCell>
+                      <TableCell className="text-slate-600 text-sm">{e.hire_date}</TableCell>
+                      <TableCell className="text-slate-600 text-sm">{e.gender}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -141,7 +141,7 @@ export default function HiresLeavesPage({ year }) {
             <ChartCard title="Leaves by Month" className="lg:col-span-2" testId="chart-leaves-month">
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={leaves.leaves_by_month}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
                   <XAxis dataKey="month" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip {...DARK_TOOLTIP} />
@@ -152,7 +152,7 @@ export default function HiresLeavesPage({ year }) {
             <ChartCard title="Leaving Reasons" testId="chart-leave-reasons">
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={leaves.leaving_reasons} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
                   <XAxis type="number" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
                   <YAxis dataKey="reason" type="category" tick={{ fill: "#64748B", fontSize: 9 }} axisLine={false} tickLine={false} width={100} />
                   <Tooltip {...DARK_TOOLTIP} />
@@ -180,7 +180,7 @@ export default function HiresLeavesPage({ year }) {
             <ChartCard title="Leaves by Department" testId="chart-leave-dept">
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={leaves.department_distribution} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
                   <XAxis type="number" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
                   <YAxis dataKey="name" type="category" tick={{ fill: "#64748B", fontSize: 9 }} axisLine={false} tickLine={false} width={85} />
                   <Tooltip {...DARK_TOOLTIP} />
@@ -193,7 +193,7 @@ export default function HiresLeavesPage({ year }) {
             <div className="overflow-x-auto px-2">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-slate-800 hover:bg-transparent">
+                  <TableRow className="border-slate-100 hover:bg-transparent">
                     <TableHead className="text-slate-400 text-xs">Name</TableHead>
                     <TableHead className="text-slate-400 text-xs">Department</TableHead>
                     <TableHead className="text-slate-400 text-xs">Position</TableHead>
@@ -204,13 +204,13 @@ export default function HiresLeavesPage({ year }) {
                 </TableHeader>
                 <TableBody>
                   {leaves.employee_list?.slice(0, 15).map((e, i) => (
-                    <TableRow key={i} className="border-slate-800/50 hover:bg-slate-800/30">
-                      <TableCell className="text-slate-200 text-sm font-medium">{e.name}</TableCell>
-                      <TableCell className="text-slate-400 text-sm">{e.department}</TableCell>
-                      <TableCell className="text-slate-400 text-sm">{e.job_title}</TableCell>
-                      <TableCell className="text-slate-400 text-sm">{e.termination_date}</TableCell>
-                      <TableCell><span className="px-2 py-0.5 rounded text-xs bg-red-500/10 text-red-400">{e.leaving_reason}</span></TableCell>
-                      <TableCell className="text-slate-400 text-sm">{e.gender}</TableCell>
+                    <TableRow key={i} className="border-slate-100 hover:bg-slate-50">
+                      <TableCell className="text-slate-900 text-sm font-medium">{e.name}</TableCell>
+                      <TableCell className="text-slate-600 text-sm">{e.department}</TableCell>
+                      <TableCell className="text-slate-600 text-sm">{e.job_title}</TableCell>
+                      <TableCell className="text-slate-600 text-sm">{e.termination_date}</TableCell>
+                      <TableCell><span className="px-2 py-0.5 rounded text-xs bg-red-50 text-red-700">{e.leaving_reason}</span></TableCell>
+                      <TableCell className="text-slate-600 text-sm">{e.gender}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

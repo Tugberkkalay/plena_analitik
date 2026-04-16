@@ -13,10 +13,10 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const LoadingSkeleton = () => (
   <div className="space-y-6 animate-pulse">
     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-      {[...Array(5)].map((_, i) => <div key={i} className="h-28 bg-slate-800/50 rounded-md" />)}
+      {[...Array(5)].map((_, i) => <div key={i} className="h-28 bg-slate-200 rounded-md" />)}
     </div>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {[...Array(6)].map((_, i) => <div key={i} className="h-64 bg-slate-800/50 rounded-md" />)}
+      {[...Array(6)].map((_, i) => <div key={i} className="h-64 bg-slate-200 rounded-md" />)}
     </div>
   </div>
 );
@@ -54,15 +54,15 @@ export default function OverviewPage({ year }) {
             <AreaChart data={data.headcount_by_month}>
               <defs>
                 <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#2563EB" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#2563EB" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#0E7490" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#0E7490" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
               <XAxis dataKey="month" tick={{ fill: "#64748B", fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} />
-              <Area type="monotone" dataKey="count" stroke="#2563EB" strokeWidth={2} fill="url(#blueGrad)" />
+              <Area type="monotone" dataKey="count" stroke="#0E7490" strokeWidth={2} fill="url(#blueGrad)" />
             </AreaChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -93,11 +93,11 @@ export default function OverviewPage({ year }) {
         <ChartCard title="Age Distribution" testId="chart-age-dist">
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={data.age_distribution}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
               <XAxis dataKey="range" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} />
-              <Bar dataKey="count" fill="#2563EB" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="count" fill="#0E7490" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -105,7 +105,7 @@ export default function OverviewPage({ year }) {
         <ChartCard title="Department Distribution" testId="chart-dept-dist">
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={data.department_distribution} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
               <XAxis type="number" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis dataKey="name" type="category" tick={{ fill: "#64748B", fontSize: 9 }} axisLine={false} tickLine={false} width={85} />
               <Tooltip {...DARK_TOOLTIP} />
@@ -117,7 +117,7 @@ export default function OverviewPage({ year }) {
         <ChartCard title="Band Distribution" testId="chart-band-dist">
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={data.band_distribution}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
               <XAxis dataKey="name" tick={{ fill: "#64748B", fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} />
@@ -129,7 +129,7 @@ export default function OverviewPage({ year }) {
         <ChartCard title="Seniority Distribution" testId="chart-seniority-dist">
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={data.seniority_distribution}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
               <XAxis dataKey="range" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} />

@@ -19,7 +19,7 @@ export default function TurnoverPage({ year }) {
       .finally(() => setLoading(false));
   }, [year]);
 
-  if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>;
+  if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
   if (!data) return <p className="text-slate-400">No data available.</p>;
 
   const { kpis } = data;
@@ -44,7 +44,7 @@ export default function TurnoverPage({ year }) {
                   <stop offset="95%" stopColor="#F59E0B" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
               <XAxis dataKey="month" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} />
@@ -61,7 +61,7 @@ export default function TurnoverPage({ year }) {
         <ChartCard title="Leaving Reasons" testId="chart-leaving-reasons">
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={data.leaving_reasons} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
               <XAxis type="number" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis dataKey="reason" type="category" tick={{ fill: "#64748B", fontSize: 9 }} axisLine={false} tickLine={false} width={110} />
               <Tooltip {...DARK_TOOLTIP} />
@@ -73,11 +73,11 @@ export default function TurnoverPage({ year }) {
         <ChartCard title="Turnover by Department" testId="chart-turnover-dept">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.turnover_by_department}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
               <XAxis dataKey="department" tick={{ fill: "#64748B", fontSize: 9 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} formatter={(v) => `${v}%`} />
-              <Bar dataKey="rate" name="Turnover %" fill="#2563EB" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="rate" name="Turnover %" fill="#0E7490" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -85,7 +85,7 @@ export default function TurnoverPage({ year }) {
         <ChartCard title="Turnover by Age Group" testId="chart-turnover-age">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.turnover_by_age}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
               <XAxis dataKey="range" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} formatter={(v) => `${v}%`} />
@@ -97,7 +97,7 @@ export default function TurnoverPage({ year }) {
         <ChartCard title="Turnover by Gender" testId="chart-turnover-gender">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.turnover_by_gender}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
               <XAxis dataKey="gender" tick={{ fill: "#64748B", fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} formatter={(v) => `${v}%`} />
@@ -109,11 +109,11 @@ export default function TurnoverPage({ year }) {
         <ChartCard title="Turnover Trend by Year" testId="chart-turnover-yearly">
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={data.turnover_by_year}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
               <XAxis dataKey="year" tick={{ fill: "#64748B", fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} formatter={(v) => `${v}%`} />
-              <Line type="monotone" dataKey="rate" name="Turnover %" stroke="#2563EB" strokeWidth={2.5} dot={{ fill: "#2563EB", r: 4 }} activeDot={{ r: 6 }} />
+              <Line type="monotone" dataKey="rate" name="Turnover %" stroke="#0E7490" strokeWidth={2.5} dot={{ fill: "#0E7490", r: 4 }} activeDot={{ r: 6 }} />
             </LineChart>
           </ResponsiveContainer>
         </ChartCard>

@@ -30,22 +30,22 @@ function TopBar({ year, setYear, years }) {
   const title = PAGE_TITLES[location.pathname] || "Dashboard";
 
   return (
-    <div data-testid="top-bar" className="sticky top-0 z-30 flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
+    <div data-testid="top-bar" className="sticky top-0 z-30 flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-white/80 backdrop-blur-md">
       <div>
-        <h1 data-testid="page-title" className="text-2xl font-semibold text-slate-50 tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <h1 data-testid="page-title" className="text-2xl font-semibold text-slate-900 tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           {title}
         </h1>
       </div>
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-900 border border-slate-800">
-          <CalendarBlank size={16} className="text-slate-400" />
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-50 border border-slate-200">
+          <CalendarBlank size={16} className="text-slate-500" />
           <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
-            <SelectTrigger data-testid="year-selector" className="w-[90px] border-0 bg-transparent h-7 text-sm text-slate-200 p-0 focus:ring-0">
+            <SelectTrigger data-testid="year-selector" className="w-[90px] border-0 bg-transparent h-7 text-sm text-slate-700 p-0 focus:ring-0">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-slate-900 border-slate-700">
+            <SelectContent className="bg-white border-slate-200">
               {years.map((y) => (
-                <SelectItem key={y} value={String(y)} className="text-slate-200 focus:bg-slate-800 focus:text-slate-100">
+                <SelectItem key={y} value={String(y)} className="text-slate-700 focus:bg-slate-100 focus:text-slate-900">
                   {y}
                 </SelectItem>
               ))}
