@@ -1,34 +1,37 @@
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
-}
-
-.App-header {
-    background-color: #0f0f10;
-    min-height: 100vh;
+.hrlytic-layout {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+    min-height: 100vh;
+    background-color: #020617;
 }
 
-.App-link {
-    color: #61dafb;
+.hrlytic-main {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 100vh;
 }
 
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
+.hrlytic-content {
+    padding: 24px;
+    max-width: 1600px;
+}
+
+@media (max-width: 768px) {
+    .hrlytic-content {
+        padding: 16px;
     }
-    to {
-        transform: rotate(360deg);
-    }
+}
+
+.glass-card {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(30, 41, 59, 0.8);
+}
+
+.kpi-glow-blue {
+    box-shadow: 0 0 20px rgba(37, 99, 235, 0.08);
+}
+
+.kpi-glow-amber {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.08);
 }
