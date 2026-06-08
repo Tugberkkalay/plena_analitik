@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { ChartBar, Users, UserPlus, ArrowsClockwise, ArrowsLeftRight, Brain, CloudArrowUp, List, X, Funnel, Target, GraduationCap, CurrencyDollar, Smiley, Star, Gear, Compass, UserFocus } from "@phosphor-icons/react";
+import { ChartBar, Users, UserPlus, ArrowsClockwise, ArrowsLeftRight, Brain, CloudArrowUp, List, X, Funnel, Target, GraduationCap, CurrencyDollar, Smiley, Star, Gear, Compass, UserFocus, Sliders, Binoculars, ShieldWarning, Heartbeat, FilePdf } from "@phosphor-icons/react";
 
 const NAV_SECTIONS = [
   {
@@ -29,6 +29,10 @@ const NAV_SECTIONS = [
     label: "Insights",
     items: [
       { path: "/ai-forecast", label: "AI Forecast", icon: Brain },
+      { path: "/scenario-sim", label: "Scenario Sim", icon: Sliders },
+      { path: "/capability-forecast", label: "Capability Forecast", icon: Binoculars },
+      { path: "/succession", label: "Succession Plan", icon: ShieldWarning },
+      { path: "/burnout", label: "Burnout Warning", icon: Heartbeat },
       { path: "/hr-operations", label: "HR Operations", icon: Gear },
     ],
   },

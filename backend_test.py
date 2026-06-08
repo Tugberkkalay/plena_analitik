@@ -330,6 +330,84 @@ class HRlyticAPITester:
             })
             return False, {}
 
+    # PHASE 2: ADVANCED INSIGHTS ENDPOINTS
+    def test_scenario_simulator_endpoint(self):
+        """Test scenario simulator endpoint"""
+        test_params = {
+            "year": 2025,
+            "growth_rate": 10,
+            "budget_change": 5,
+            "attrition_change": 2,
+            "hiring_boost": 50,
+            "new_location_headcount": 100
+        }
+        success, data = self.run_test("Scenario Simulator", "POST", "simulator/scenario", 200, test_params)
+        if success and data:
+            required_keys = ['current', 'projected', 'monthly_projections', 'department_impact', 'hiring_need', 'cost_delta']
+            missing_keys = [k for k in required_keys if k not in data]
+            if missing_keys:
+                print(f"⚠️  Missing keys in scenario simulator response: {missing_keys}")
+            else:
+                print(f"✅ Scenario Simulator data structure valid")
+                print(f"   Current HC: {data.get('current', {}).get('headcount', 0)}")
+                print(f"   Projected HC: {data.get('projected', {}).get('headcount', 0)}")
+                print(f"   Net Change: {data.get('projected', {}).get('net_change', 0)}")
+                print(f"   Hiring Need: {data.get('hiring_need', 0)}")
+                print(f"   Monthly Projections: {len(data.get('monthly_projections', []))} months")
+        return success, data
+
+    def test_capability_forecast_endpoint(self):
+        """Test capability forecasting endpoint"""
+        success, data = self.run_test("Capability Forecast", "GET", "dashboard/capability-forecast?year=2025", 200)
+        if success and data:
+            required_keys = ['forecasts', 'critical_6m', 'warning_12m', 'top_demand', 'total_skills']
+            missing_keys = [k for k in required_keys if k not in data]
+            if missing_keys:
+                print(f"⚠️  Missing keys in capability forecast response: {missing_keys}")
+            else:
+                print(f"✅ Capability Forecast data structure valid")
+                print(f"   Total Skills: {data.get('total_skills', 0)}")
+                print(f"   Critical (6M): {len(data.get('critical_6m', []))}")
+                print(f"   Warning (12M): {len(data.get('warning_12m', []))}")
+                print(f"   Top Demand: {len(data.get('top_demand', []))}")
+        return success, data
+
+    def test_succession_planning_endpoint(self):
+        """Test succession planning endpoint"""
+        success, data = self.run_test("Succession Planning", "GET", "dashboard/succession?year=2025", 200)
+        if success and data:
+            required_keys = ['kpis', 'succession_map', 'risk_summary']
+            missing_keys = [k for k in required_keys if k not in data]
+            if missing_keys:
+                print(f"⚠️  Missing keys in succession planning response: {missing_keys}")
+            else:
+                print(f"✅ Succession Planning data structure valid")
+                kpis = data.get('kpis', {})
+                print(f"   Critical Roles: {kpis.get('critical_roles', 0)}")
+                print(f"   No Successor: {kpis.get('no_successor', 0)}")
+                print(f"   High Knowledge Risk: {kpis.get('high_knowledge_risk', 0)}")
+                print(f"   Avg Readiness: {kpis.get('avg_readiness', 0)}%")
+                print(f"   Succession Map: {len(data.get('succession_map', []))} roles")
+        return success, data
+
+    def test_burnout_warning_endpoint(self):
+        """Test burnout early warning endpoint"""
+        success, data = self.run_test("Burnout Early Warning", "GET", "dashboard/burnout?year=2025", 200)
+        if success and data:
+            required_keys = ['kpis', 'top_risk', 'department_risk', 'risk_distribution']
+            missing_keys = [k for k in required_keys if k not in data]
+            if missing_keys:
+                print(f"⚠️  Missing keys in burnout warning response: {missing_keys}")
+            else:
+                print(f"✅ Burnout Warning data structure valid")
+                kpis = data.get('kpis', {})
+                print(f"   Total At Risk: {kpis.get('total_at_risk', 0)}")
+                print(f"   Critical: {kpis.get('critical_count', 0)}")
+                print(f"   Avg Risk Score: {kpis.get('avg_risk_score', 0)}")
+                print(f"   Avg Engagement: {kpis.get('avg_engagement', 0)}/10")
+                print(f"   High Risk Employees: {len(data.get('top_risk', []))}")
+        return success, data
+
 def main():
     print("🚀 Starting HRlytic API Testing...")
     print("=" * 60)
@@ -371,6 +449,12 @@ def main():
     tester.test_internal_mobility_endpoint()
     tester.test_employee_search_endpoint()
     tester.test_career_plan_endpoint()
+    
+    print("\n🚀 Testing Phase 2: Advanced Insights...")
+    tester.test_scenario_simulator_endpoint()
+    tester.test_capability_forecast_endpoint()
+    tester.test_succession_planning_endpoint()
+    tester.test_burnout_warning_endpoint()
     
     # Print final results
     print("\n" + "=" * 60)

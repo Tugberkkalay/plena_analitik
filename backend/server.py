@@ -1070,6 +1070,161 @@ async def get_internal_mobility(year: int = 2025):
                         mobility_opps.append({"skill": gap["skill"], "from_dept": s_dept, "to_dept": dept, "available": s["count"], "from_avg": s["avg_prof"], "to_need": gap["status"]})
     return {"department_needs": dept_needs, "department_surplus": dept_surplus, "mobility_opportunities": mobility_opps[:15]}
 
+# ---- Scenario Simulator ----
+class ScenarioRequest(BaseModel):
+    year: int = 2025
+    growth_rate: float = 10
+    budget_change: float = 0
+    attrition_change: float = 0
+    hiring_boost: int = 0
+    new_location_headcount: int = 0
+
+@api_router.post("/simulator/scenario")
+async def run_scenario(body: ScenarioRequest):
+    _, active, hired, left = await get_filtered(body.year)
+    hc = len(active)
+    current_attrition = len(left)/hc if hc else 0
+    current_cost = sum(e.get('salary',0) for e in active)
+    avg_salary = current_cost/hc if hc else 50000
+    new_attrition = max(0, current_attrition + body.attrition_change/100)
+    growth = body.growth_rate/100
+    projections = []
+    cur_hc = hc
+    for m in range(1, 13):
+        monthly_growth = int(cur_hc * growth / 12) + (body.hiring_boost // 12)
+        monthly_attrition = int(cur_hc * new_attrition / 12)
+        new_loc = body.new_location_headcount // 12 if m <= 6 else 0
+        cur_hc = cur_hc + monthly_growth - monthly_attrition + new_loc
+        cost = cur_hc * avg_salary * (1 + body.budget_change/100)
+        projections.append({"month": MONTHS[m-1], "headcount": cur_hc, "cost": round(cost), "hires": monthly_growth + new_loc, "attrition": monthly_attrition})
+    final_hc = projections[-1]["headcount"]
+    dept_impact = []
+    for dept in DEPARTMENTS:
+        de = [e for e in active if e['department']==dept]
+        short = dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
+        projected = int(len(de) * (1 + growth))
+        dept_impact.append({"department": short, "current": len(de), "projected": projected, "delta": projected - len(de)})
+    return {
+        "current": {"headcount": hc, "annual_cost": round(current_cost), "attrition_rate": round(current_attrition*100,1), "avg_salary": round(avg_salary)},
+        "projected": {"headcount": final_hc, "annual_cost": round(final_hc * avg_salary * (1 + body.budget_change/100)), "attrition_rate": round(new_attrition*100,1), "net_change": final_hc - hc, "growth_pct": round((final_hc-hc)/hc*100,1) if hc else 0},
+        "monthly_projections": projections, "department_impact": dept_impact,
+        "hiring_need": max(0, final_hc - hc + int(hc * new_attrition)), "cost_delta": round((final_hc * avg_salary * (1+body.budget_change/100)) - current_cost)
+    }
+
+# ---- Capability Forecasting ----
+@api_router.get("/dashboard/capability-forecast")
+async def get_capability_forecast(year: int = 2025):
+    _, active, _, left = await get_filtered(year)
+    hc = len(active)
+    skill_supply = {}
+    for emp in active:
+        for s in emp.get('skills', []):
+            sn = s['skill']
+            if sn not in skill_supply:
+                skill_supply[sn] = {"skill": sn, "category": s['category'], "current_count": 0, "avg_prof": 0, "total": 0, "experts": 0, "at_risk": 0}
+            skill_supply[sn]["current_count"] += 1
+            skill_supply[sn]["total"] += s['proficiency']
+            if s['proficiency'] >= 4: skill_supply[sn]["experts"] += 1
+    for s in skill_supply.values():
+        s["avg_prof"] = round(s["total"]/s["current_count"],1) if s["current_count"] else 0
+        del s["total"]
+    attrition_rate = len(left)/hc if hc else 0.1
+    forecasts = []
+    for sn, data in skill_supply.items():
+        for horizon in [6, 12, 24]:
+            loss_rate = 1 - (1 - attrition_rate) ** (horizon/12)
+            projected_loss = int(data["current_count"] * loss_rate)
+            demand_growth = int(data["current_count"] * 0.08 * (horizon/12))
+            gap = projected_loss + demand_growth
+            remaining = data["current_count"] - projected_loss
+            status = "Critical" if remaining < data["current_count"]*0.6 else "Warning" if remaining < data["current_count"]*0.8 else "Stable"
+            if horizon == 6:
+                forecasts.append({**data, "horizon_6m": {"gap": gap, "remaining": remaining, "status": status},
+                    "horizon_12m": {}, "horizon_24m": {}})
+        for f in forecasts:
+            if f["skill"] == sn:
+                for horizon in [12, 24]:
+                    loss_rate = 1 - (1 - attrition_rate) ** (horizon/12)
+                    projected_loss = int(data["current_count"] * loss_rate)
+                    demand_growth = int(data["current_count"] * 0.08 * (horizon/12))
+                    remaining = data["current_count"] - projected_loss
+                    status = "Critical" if remaining < data["current_count"]*0.6 else "Warning" if remaining < data["current_count"]*0.8 else "Stable"
+                    f[f"horizon_{horizon}m"] = {"gap": projected_loss + demand_growth, "remaining": remaining, "status": status}
+    critical_6m = [f for f in forecasts if f.get("horizon_6m",{}).get("status")=="Critical"]
+    warning_12m = [f for f in forecasts if f.get("horizon_12m",{}).get("status") in ["Critical","Warning"]]
+    top_demand = sorted(forecasts, key=lambda x: -x.get("horizon_12m",{}).get("gap",0))[:10]
+    return {"forecasts": forecasts[:20], "critical_6m": critical_6m[:5], "warning_12m": warning_12m[:8], "top_demand": top_demand, "total_skills": len(forecasts)}
+
+# ---- Succession Planning + Knowledge Risk ----
+@api_router.get("/dashboard/succession")
+async def get_succession(year: int = 2025):
+    _, active, _, _ = await get_filtered(year)
+    critical_roles = [e for e in active if e.get('band') in ['D','E']]
+    successors_pool = [e for e in active if e.get('band') in ['C','D'] and e.get('performance_score',0) >= 3.5]
+    results = []
+    for role in critical_roles:
+        role_skills = {s['skill'] for s in role.get('skills',[])}
+        candidates = []
+        for s in successors_pool:
+            if s['id'] == role['id']: continue
+            if s['department'] != role['department'] and s.get('band','A') < role.get('band','E'): continue
+            s_skills = {sk['skill'] for sk in s.get('skills',[])}
+            overlap = len(role_skills & s_skills)
+            readiness = min(100, int((overlap / max(1,len(role_skills))) * 60 + (s.get('performance_score',3)/5)*40))
+            if readiness >= 40:
+                candidates.append({"name": s['name'], "band": s['band'], "department": s['department'], "performance": s.get('performance_score',0), "readiness": readiness, "skill_match": overlap})
+        candidates = sorted(candidates, key=lambda x: -x['readiness'])[:3]
+        unique_skills = len([s for s in role.get('skills',[]) if s['proficiency'] >= 4])
+        seniority = role.get('seniority_years',0)
+        knowledge_risk = min(100, int(unique_skills * 12 + seniority * 3 + (5 - len(candidates)) * 10))
+        risk_level = "Critical" if knowledge_risk >= 70 else "High" if knowledge_risk >= 50 else "Medium" if knowledge_risk >= 30 else "Low"
+        results.append({"name": role['name'], "department": role['department'], "job_title": role['job_title'], "band": role['band'],
+                        "seniority": seniority, "performance": role.get('performance_score',0),
+                        "knowledge_risk": knowledge_risk, "risk_level": risk_level, "successors": candidates, "successor_count": len(candidates)})
+    results = sorted(results, key=lambda x: -x['knowledge_risk'])
+    no_successor = len([r for r in results if r['successor_count']==0])
+    high_risk = len([r for r in results if r['risk_level'] in ['Critical','High']])
+    return {"kpis": {"critical_roles": len(critical_roles), "no_successor": no_successor, "high_knowledge_risk": high_risk, "avg_readiness": round(sum(c['readiness'] for r in results for c in r['successors'])/(sum(r['successor_count'] for r in results) or 1),1)},
+            "succession_map": results[:20], "risk_summary": [{"level": lv, "count": len([r for r in results if r['risk_level']==lv])} for lv in ["Critical","High","Medium","Low"]]}
+
+# ---- Burnout Early Warning ----
+@api_router.get("/dashboard/burnout")
+async def get_burnout(year: int = 2025):
+    _, active, _, _ = await get_filtered(year)
+    all_eng = await db.engagement.find({}, {"_id": 0}).to_list(10000)
+    eng_map = {e['employee_id']: e for e in all_eng}
+    risk_list = []
+    for emp in active:
+        eng = eng_map.get(emp['id'], {})
+        engagement = eng.get('engagement_score', 7)
+        absent = eng.get('absenteeism_days', 5)
+        wlb = eng.get('work_life_balance', 3.5)
+        perf = emp.get('performance_score', 3.5)
+        seniority = emp.get('seniority_years', 2)
+        eng_factor = max(0, (7 - engagement) / 7 * 30)
+        absent_factor = min(25, absent * 1.7)
+        wlb_factor = max(0, (3.5 - wlb) / 3.5 * 20)
+        perf_factor = max(0, (3.5 - perf) / 3.5 * 15)
+        tenure_factor = 10 if seniority < 1 else 5 if seniority > 8 else 0
+        risk_score = min(100, int(eng_factor + absent_factor + wlb_factor + perf_factor + tenure_factor))
+        risk_level = "Critical" if risk_score >= 70 else "High" if risk_score >= 50 else "Medium" if risk_score >= 30 else "Low"
+        risk_list.append({"name": emp['name'], "department": emp['department'], "job_title": emp['job_title'], "band": emp['band'],
+                          "risk_score": risk_score, "risk_level": risk_level, "engagement": engagement, "absenteeism": absent,
+                          "work_life_balance": wlb, "performance": perf, "seniority": seniority})
+    risk_list = sorted(risk_list, key=lambda x: -x['risk_score'])
+    dept_risk = []
+    for dept in DEPARTMENTS:
+        de = [r for r in risk_list if r['department']==dept]
+        short = dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
+        if de:
+            dept_risk.append({"department": short, "avg_risk": round(sum(r['risk_score'] for r in de)/len(de),1), "critical": len([r for r in de if r['risk_level']=='Critical']), "high": len([r for r in de if r['risk_level']=='High']), "count": len(de)})
+    dist = [{"level": lv, "count": len([r for r in risk_list if r['risk_level']==lv])} for lv in ["Critical","High","Medium","Low"]]
+    return {"kpis": {"total_at_risk": len([r for r in risk_list if r['risk_level'] in ['Critical','High']]),
+                     "critical_count": len([r for r in risk_list if r['risk_level']=='Critical']),
+                     "avg_risk_score": round(sum(r['risk_score'] for r in risk_list)/len(risk_list),1) if risk_list else 0,
+                     "avg_engagement": round(sum(r['engagement'] for r in risk_list)/len(risk_list),1) if risk_list else 0},
+            "top_risk": risk_list[:15], "department_risk": sorted(dept_risk, key=lambda x: -x['avg_risk']), "risk_distribution": dist}
+
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True,
                    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),

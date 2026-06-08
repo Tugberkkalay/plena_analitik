@@ -11,6 +11,13 @@
     min-height: 100vh;
 }
 
+@media (max-width: 768px) {
+    .hrlytic-content {
+        padding: 16px;
+    }
+}
+
+
 .hrlytic-content {
     padding: 24px;
     max-width: 1600px;
@@ -34,4 +41,14 @@
 
 .kpi-glow-amber {
     box-shadow: 0 0 20px rgba(245, 158, 11, 0.08);
+}
+
+@media print {
+  .hrlytic-layout > aside, [data-testid="sidebar"], [data-testid="sidebar-toggle-mobile"],
+  [data-testid="pdf-export-btn"], [data-testid="year-selector"] { display: none !important; }
+  .hrlytic-layout { display: block !important; }
+  .hrlytic-main { overflow: visible !important; }
+  .hrlytic-content { padding: 0 !important; max-width: 100% !important; }
+  body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  [data-testid="top-bar"] { position: static !important; border: none !important; background: white !important; }
 }

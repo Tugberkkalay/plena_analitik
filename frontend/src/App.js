@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import axios from "axios";
 import Sidebar from "@/components/Sidebar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CalendarBlank, FunnelSimple } from "@phosphor-icons/react";
+import { CalendarBlank, Printer } from "@phosphor-icons/react";
 import OverviewPage from "@/pages/OverviewPage";
 import HeadcountPage from "@/pages/HeadcountPage";
 import HiresLeavesPage from "@/pages/HiresLeavesPage";
@@ -22,6 +22,10 @@ import CareerTalentPage from "@/pages/CareerTalentPage";
 import HROperationsPage from "@/pages/HROperationsPage";
 import SkillsMapPage from "@/pages/SkillsMapPage";
 import CareerDevPage from "@/pages/CareerDevPage";
+import ScenarioSimulatorPage from "@/pages/ScenarioSimulatorPage";
+import CapabilityForecastPage from "@/pages/CapabilityForecastPage";
+import SuccessionPage from "@/pages/SuccessionPage";
+import BurnoutPage from "@/pages/BurnoutPage";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -41,12 +45,20 @@ const PAGE_TITLES = {
   "/career-talent": "Career & Talent",
   "/skills-map": "Skills & Competency Map",
   "/career-dev": "AI Career Development",
+  "/scenario-sim": "Scenario Simulator",
+  "/capability-forecast": "Capability Forecasting",
+  "/succession": "Succession & Knowledge Risk",
+  "/burnout": "Burnout Early Warning",
   "/hr-operations": "HR Operations",
 };
 
 function TopBar({ year, setYear, years }) {
   const location = useLocation();
   const title = PAGE_TITLES[location.pathname] || "Dashboard";
+
+  const handlePrint = () => {
+    window.print();
+  };
 
   return (
     <div data-testid="top-bar" className="sticky top-0 z-30 flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-white/80 backdrop-blur-md">
@@ -56,6 +68,15 @@ function TopBar({ year, setYear, years }) {
         </h1>
       </div>
       <div className="flex items-center gap-3">
+        <button
+          data-testid="pdf-export-btn"
+          onClick={handlePrint}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors"
+          title="Export to PDF"
+        >
+          <Printer size={16} weight="bold" />
+          <span>Export PDF</span>
+        </button>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-50 border border-slate-200">
           <CalendarBlank size={16} className="text-slate-500" />
           <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
@@ -107,6 +128,10 @@ function AppContent() {
             <Route path="/career-talent" element={<CareerTalentPage year={year} />} />
             <Route path="/skills-map" element={<SkillsMapPage year={year} />} />
             <Route path="/career-dev" element={<CareerDevPage year={year} />} />
+            <Route path="/scenario-sim" element={<ScenarioSimulatorPage year={year} />} />
+            <Route path="/capability-forecast" element={<CapabilityForecastPage year={year} />} />
+            <Route path="/succession" element={<SuccessionPage year={year} />} />
+            <Route path="/burnout" element={<BurnoutPage year={year} />} />
             <Route path="/hr-operations" element={<HROperationsPage year={year} />} />
             <Route path="/ai-forecast" element={<AIForecastPage year={year} />} />
             <Route path="/data-upload" element={<DataUploadPage />} />
