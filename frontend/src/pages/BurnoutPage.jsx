@@ -16,7 +16,7 @@ export default function BurnoutPage({ year }) {
   useEffect(() => {
     setLoading(true);
     axios.get(`${API}/dashboard/burnout?year=${year}`)
-      .then((r) => setData(r.data)).catch(console.error).finally(() => setLoading(false));
+      .then((r) => setData(r.data)).catch(() => {}).finally(() => setLoading(false));
   }, [year]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
@@ -81,7 +81,7 @@ export default function BurnoutPage({ year }) {
       <ChartCard title="High Risk Employees" subtitle="Employees with critical or high burnout risk - immediate attention needed" testId="chart-burnout-list">
         <div className="space-y-2 px-3 pb-2 max-h-[450px] overflow-y-auto">
           {data.top_risk?.slice(0, 12).map((emp, i) => (
-            <div key={i} className={`flex items-center gap-4 p-3 border rounded-md ${RISK_BG[emp.risk_level]}`}>
+            <div key={`burn-${emp.name}`} className={`flex items-center gap-4 p-3 border rounded-md ${RISK_BG[emp.risk_level]}`}>
               <div className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-xs font-bold text-slate-600">
                 {emp.name?.split(' ').map(n => n[0]).join('')}
               </div>

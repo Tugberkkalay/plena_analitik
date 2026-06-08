@@ -29,7 +29,7 @@ export default function OverviewPage({ year }) {
     setLoading(true);
     axios.get(`${API}/dashboard/overview?year=${year}`)
       .then((r) => setData(r.data))
-      .catch(console.error)
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, [year]);
 
@@ -72,7 +72,7 @@ export default function OverviewPage({ year }) {
             <PieChart>
               <Pie data={data.gender_distribution} cx="50%" cy="50%" innerRadius={60} outerRadius={90} dataKey="value" nameKey="name" strokeWidth={0}>
                 {data.gender_distribution.map((_, i) => (
-                  <Cell key={i} fill={CHART_COLORS[i]} />
+                  <Cell key={`gender-${data.gender_distribution[i]?.name || i}`} fill={CHART_COLORS[i]} />
                 ))}
               </Pie>
               <Tooltip {...DARK_TOOLTIP} />
@@ -143,7 +143,7 @@ export default function OverviewPage({ year }) {
             <PieChart>
               <Pie data={data.manager_distribution} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="value" nameKey="name" strokeWidth={0}>
                 {data.manager_distribution.map((_, i) => (
-                  <Cell key={i} fill={CHART_COLORS[i + 2]} />
+                  <Cell key={`mgr-${data.manager_distribution[i]?.name || i}`} fill={CHART_COLORS[i + 2]} />
                 ))}
               </Pie>
               <Tooltip {...DARK_TOOLTIP} />

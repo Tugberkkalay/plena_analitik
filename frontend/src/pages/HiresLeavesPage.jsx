@@ -20,7 +20,7 @@ export default function HiresLeavesPage({ year }) {
       axios.get(`${API}/dashboard/hires?year=${year}`),
       axios.get(`${API}/dashboard/leaves?year=${year}`),
     ]).then(([h, l]) => { setHires(h.data); setLeaves(l.data); })
-      .catch(console.error)
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, [year]);
 
@@ -59,7 +59,7 @@ export default function HiresLeavesPage({ year }) {
               <ResponsiveContainer width="100%" height={240}>
                 <PieChart>
                   <Pie data={hires.gender_distribution} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" nameKey="name" strokeWidth={0}>
-                    {hires.gender_distribution.map((_, i) => <Cell key={i} fill={CHART_COLORS[i]} />)}
+                    {hires.gender_distribution.map((entry, i) => <Cell key={`hg-${entry.name}`} fill={CHART_COLORS[i]} />)}
                   </Pie>
                   <Tooltip {...DARK_TOOLTIP} />
                 </PieChart>
@@ -164,7 +164,7 @@ export default function HiresLeavesPage({ year }) {
               <ResponsiveContainer width="100%" height={240}>
                 <PieChart>
                   <Pie data={leaves.gender_distribution} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" nameKey="name" strokeWidth={0}>
-                    {leaves.gender_distribution.map((_, i) => <Cell key={i} fill={CHART_COLORS[i]} />)}
+                    {leaves.gender_distribution.map((entry, i) => <Cell key={`lg-${entry.name}`} fill={CHART_COLORS[i]} />)}
                   </Pie>
                   <Tooltip {...DARK_TOOLTIP} />
                 </PieChart>

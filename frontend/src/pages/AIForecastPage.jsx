@@ -40,7 +40,7 @@ export default function AIForecastPage({ year }) {
     setLoading(true);
     axios.post(`${API}/ai/forecast`, { year })
       .then((r) => { setData(r.data); setGenerated(true); })
-      .catch(console.error)
+      .catch(() => {})
       .finally(() => setLoading(false));
   };
 
@@ -77,7 +77,7 @@ export default function AIForecastPage({ year }) {
           <p className="text-xs tracking-[0.15em] uppercase text-slate-500 font-medium mb-3">AI Recommendations</p>
           <ul className="space-y-2">
             {data.recommendations?.map((r, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
+              <li key={`rec-${i}`} className="flex items-start gap-2 text-sm text-slate-600">
                 <TrendUp size={14} weight="bold" className="text-teal-600 mt-0.5 flex-shrink-0" />
                 {r}
               </li>
@@ -153,7 +153,7 @@ export default function AIForecastPage({ year }) {
               </TableHeader>
               <TableBody>
                 {data.at_risk_employees.map((e, i) => (
-                  <TableRow key={i} className="border-slate-100 hover:bg-slate-50">
+                  <TableRow key={`risk-${e.name}`} className="border-slate-100 hover:bg-slate-50">
                     <TableCell className="text-slate-800 text-sm font-medium">{e.name}</TableCell>
                     <TableCell className="text-slate-600 text-sm">{e.department}</TableCell>
                     <TableCell className="text-slate-600 text-sm">{e.performance}</TableCell>

@@ -16,7 +16,7 @@ export default function HROperationsPage({ year }) {
   useEffect(() => {
     setLoading(true);
     axios.get(`${API}/dashboard/hr-operations?year=${year}`)
-      .then((r) => setData(r.data)).catch(console.error).finally(() => setLoading(false));
+      .then((r) => setData(r.data)).catch(() => {}).finally(() => setLoading(false));
   }, [year]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
@@ -93,7 +93,7 @@ export default function HROperationsPage({ year }) {
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie data={data.gender_distribution} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="value" nameKey="name" strokeWidth={0}>
-                {data.gender_distribution?.map((_, i) => <Cell key={i} fill={CHART_COLORS[i]} />)}
+                {data.gender_distribution?.map((entry, i) => <Cell key={`gen-${entry.name}`} fill={CHART_COLORS[i]} />)}
               </Pie>
               <Tooltip {...DARK_TOOLTIP} />
             </PieChart>

@@ -14,7 +14,7 @@ export default function DataUploadPage() {
   const fileInputRef = useRef(null);
 
   useEffect(() => {
-    axios.get(`${API}/data/sources`).then((r) => setSources(r.data.sources || [])).catch(console.error);
+    axios.get(`${API}/data/sources`).then((r) => setSources(r.data.sources || [])).catch(() => {});
   }, []);
 
   const handleUpload = async (file) => {

@@ -14,7 +14,7 @@ export default function CareerTalentPage({ year }) {
   useEffect(() => {
     setLoading(true);
     axios.get(`${API}/dashboard/career?year=${year}`)
-      .then((r) => setData(r.data)).catch(console.error).finally(() => setLoading(false));
+      .then((r) => setData(r.data)).catch(() => {}).finally(() => setLoading(false));
   }, [year]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
@@ -52,7 +52,7 @@ export default function CareerTalentPage({ year }) {
           <ResponsiveContainer width="100%" height={280}>
             <PieChart>
               <Pie data={data.leadership_pipeline} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="count" nameKey="level" strokeWidth={0}>
-                {data.leadership_pipeline?.map((_, i) => <Cell key={i} fill={CHART_COLORS[i]} />)}
+                {data.leadership_pipeline?.map((entry, i) => <Cell key={`lp-${entry.level}`} fill={CHART_COLORS[i]} />)}
               </Pie>
               <Tooltip {...DARK_TOOLTIP} />
             </PieChart>

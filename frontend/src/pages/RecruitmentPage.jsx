@@ -14,7 +14,7 @@ export default function RecruitmentPage({ year }) {
   useEffect(() => {
     setLoading(true);
     axios.get(`${API}/dashboard/recruitment?year=${year}`)
-      .then((r) => setData(r.data)).catch(console.error).finally(() => setLoading(false));
+      .then((r) => setData(r.data)).catch(() => {}).finally(() => setLoading(false));
   }, [year]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
@@ -39,7 +39,7 @@ export default function RecruitmentPage({ year }) {
               <YAxis dataKey="stage" type="category" tick={{ fill: "#64748B", fontSize: 11 }} axisLine={false} tickLine={false} width={90} />
               <Tooltip {...DARK_TOOLTIP} />
               <Bar dataKey="count" radius={[0, 4, 4, 0]}>
-                {data.funnel?.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+                {data.funnel?.map((entry, i) => <Cell key={`fn-${entry.stage}`} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -70,7 +70,7 @@ export default function RecruitmentPage({ year }) {
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie data={data.pipeline_by_stage} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="count" nameKey="stage" strokeWidth={0}>
-                {data.pipeline_by_stage?.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+                {data.pipeline_by_stage?.map((entry, i) => <Cell key={`pl-${entry.stage}`} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
               </Pie>
               <Tooltip {...DARK_TOOLTIP} />
             </PieChart>

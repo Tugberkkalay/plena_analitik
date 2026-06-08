@@ -15,7 +15,7 @@ export default function TurnoverPage({ year }) {
     setLoading(true);
     axios.get(`${API}/dashboard/turnover?year=${year}`)
       .then((r) => setData(r.data))
-      .catch(console.error)
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, [year]);
 

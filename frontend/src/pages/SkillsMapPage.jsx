@@ -20,7 +20,7 @@ export default function SkillsMapPage({ year }) {
       axios.get(`${API}/dashboard/skills-map?year=${year}`),
       axios.get(`${API}/dashboard/internal-mobility?year=${year}`)
     ]).then(([s, m]) => { setData(s.data); setMobility(m.data); })
-      .catch(console.error).finally(() => setLoading(false));
+      .catch(() => {}).finally(() => setLoading(false));
   }, [year]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
@@ -89,7 +89,7 @@ export default function SkillsMapPage({ year }) {
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie data={data.category_distribution} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="count" nameKey="category" strokeWidth={0}>
-                {data.category_distribution?.map((_, i) => <Cell key={i} fill={CHART_COLORS[i]} />)}
+                {data.category_distribution?.map((entry, i) => <Cell key={`skcat-${entry.category}`} fill={CHART_COLORS[i]} />)}
               </Pie>
               <Tooltip {...DARK_TOOLTIP} />
             </PieChart>

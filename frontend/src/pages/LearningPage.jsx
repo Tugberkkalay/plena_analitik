@@ -14,7 +14,7 @@ export default function LearningPage({ year }) {
   useEffect(() => {
     setLoading(true);
     axios.get(`${API}/dashboard/learning?year=${year}`)
-      .then((r) => setData(r.data)).catch(console.error).finally(() => setLoading(false));
+      .then((r) => setData(r.data)).catch(() => {}).finally(() => setLoading(false));
   }, [year]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
@@ -38,7 +38,7 @@ export default function LearningPage({ year }) {
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie data={data.by_category} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="value" nameKey="name" strokeWidth={0}>
-                {data.by_category?.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+                {data.by_category?.map((entry, i) => <Cell key={`lcat-${entry.name}`} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
               </Pie>
               <Tooltip {...DARK_TOOLTIP} />
             </PieChart>
@@ -57,7 +57,7 @@ export default function LearningPage({ year }) {
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} />
               <Bar dataKey="count" radius={[3, 3, 0, 0]}>
-                {data.by_status?.map((s, i) => <Cell key={i} fill={STATUS_COLORS[s.status] || CHART_COLORS[i]} />)}
+                {data.by_status?.map((s, i) => <Cell key={`st-${s.status}`} fill={STATUS_COLORS[s.status] || CHART_COLORS[i]} />)}
               </Bar>
             </BarChart>
           </ResponsiveContainer>

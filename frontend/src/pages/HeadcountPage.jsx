@@ -16,7 +16,7 @@ export default function HeadcountPage({ year }) {
     setLoading(true);
     axios.get(`${API}/dashboard/headcount?year=${year}`)
       .then((r) => setData(r.data))
-      .catch(console.error)
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, [year]);
 
@@ -86,7 +86,7 @@ export default function HeadcountPage({ year }) {
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie data={data.education_distribution} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="value" nameKey="name" strokeWidth={0}>
-                {data.education_distribution.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+                {data.education_distribution.map((entry, i) => <Cell key={`edu-${entry.name}`} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
               </Pie>
               <Tooltip {...DARK_TOOLTIP} />
             </PieChart>
@@ -116,7 +116,7 @@ export default function HeadcountPage({ year }) {
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie data={data.marital_distribution} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="value" nameKey="name" strokeWidth={0}>
-                {data.marital_distribution.map((_, i) => <Cell key={i} fill={CHART_COLORS[i + 2]} />)}
+                {data.marital_distribution.map((entry, i) => <Cell key={`mar-${entry.name}`} fill={CHART_COLORS[i + 2]} />)}
               </Pie>
               <Tooltip {...DARK_TOOLTIP} />
             </PieChart>

@@ -254,29 +254,36 @@ def get_seniority_range(y):
     else: return "20+"
 
 def count_by(items, key):
-    c = {}
-    for i in items:
-        v = i.get(key, "Unknown")
-        if v is None: v = "Unknown"
-        c[v] = c.get(v, 0) + 1
-    return [{"name": k, "value": v} for k, v in sorted(c.items())]
+    counts = {}
+    for item in items:
+        val = item.get(key, "Unknown")
+        if val is None:
+            val = "Unknown"
+        counts[val] = counts.get(val, 0) + 1
+    return [{"name": name, "value": total} for name, total in sorted(counts.items())]
 
 def count_by_range(items, key, fn, ranges):
-    c = {r: 0 for r in ranges}
-    for i in items:
-        r = fn(i.get(key, 0))
-        if r in c: c[r] += 1
-    return [{"range": r, "count": c[r]} for r in ranges]
+    counts = {rng: 0 for rng in ranges}
+    for item in items:
+        rng = fn(item.get(key, 0))
+        if rng in counts:
+            counts[rng] += 1
+    return [{"range": rng, "count": counts[rng]} for rng in ranges]
 
 def count_by_gender_range(items, key, fn, ranges):
-    m = {r: 0 for r in ranges}
-    f = {r: 0 for r in ranges}
-    for i in items:
-        r = fn(i.get(key, 0))
-        if r in m:
-            if i.get("gender") == "Male": m[r] += 1
-            else: f[r] += 1
-    return [{"range": r, "male": m[r], "female": f[r]} for r in ranges]
+    male_counts = {rng: 0 for rng in ranges}
+    female_counts = {rng: 0 for rng in ranges}
+    for item in items:
+        rng = fn(item.get(key, 0))
+        if rng in male_counts:
+            if item.get("gender") == "Male":
+                male_counts[rng] += 1
+            else:
+                female_counts[rng] += 1
+    return [{"range": rng, "male": male_counts[rng], "female": female_counts[rng]} for rng in ranges]
+
+def shorten_dept(dept):
+    return dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
 
 async def get_filtered(year):
     all_emp = await db.employees.find({}, {"_id": 0}).to_list(10000)
@@ -457,61 +464,67 @@ async def get_leaves(year: int = 2025):
     }
 
 # ---- Turnover ----
+def _compute_monthly_turnover(left, hc, year):
+    result = []
+    cum = 0
+    for mi, mn in enumerate(MONTHS):
+        ms = f"{year}-{mi+1:02d}"
+        monthly_left = len([e for e in left if e.get('termination_date','')[:7] == ms])
+        rate = round(monthly_left / hc * 100, 1) if hc else 0
+        cum += rate
+        result.append({"month": mn, "rate": rate, "cumulative": round(cum, 1)})
+    return result
+
+def _compute_group_turnover(active, left, groups, group_key, label_key="name", label_fn=None):
+    result = []
+    for group in groups:
+        grp_active = [e for e in active if (label_fn(e) if label_fn else e.get(group_key)) == group]
+        grp_left = [e for e in left if (label_fn(e) if label_fn else e.get(group_key)) == group]
+        rate = round(len(grp_left) / len(grp_active) * 100, 1) if grp_active else 0
+        result.append({label_key: group, "rate": rate})
+    return result
+
 @api_router.get("/dashboard/turnover")
 async def get_turnover(year: int = 2025):
     all_emp, active, hired, left = await get_filtered(year)
     hc = len(active)
-    vol = [e for e in left if e.get('termination_type')=='voluntary']
-    invol = [e for e in left if e.get('termination_type')=='involuntary']
+    vol = [e for e in left if e.get('termination_type') == 'voluntary']
+    invol = [e for e in left if e.get('termination_type') == 'involuntary']
     talent_left = [e for e in left if e.get('is_talent')]
-    new_hire_left = [e for e in left if e['hire_date'][:4]==str(year)]
-    turnover_month = []
-    cum = 0
-    for mi, mn in enumerate(MONTHS):
-        ms = f"{year}-{mi+1:02d}"
-        ml = len([e for e in left if e.get('termination_date','')[:7]==ms])
-        rate = round(ml/hc*100,1) if hc else 0
-        cum += rate
-        turnover_month.append({"month": mn, "rate": rate, "cumulative": round(cum,1)})
+    new_hire_left = [e for e in left if e['hire_date'][:4] == str(year)]
+
+    turnover_month = _compute_monthly_turnover(left, hc, year)
+
     reasons = {}
-    for e in left:
-        r = e.get('leaving_reason','Unknown')
-        reasons[r] = reasons.get(r, 0) + 1
-    dept_turnover = []
-    for dept in DEPARTMENTS:
-        da = [e for e in active if e['department']==dept]
-        dl = [e for e in left if e['department']==dept]
-        rate = round(len(dl)/len(da)*100,1) if da else 0
-        dept_turnover.append({"department": dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D"), "rate": rate})
-    age_turnover = []
-    for ar in AGE_RANGES:
-        aa = [e for e in active if get_age_range(e['age'])==ar]
-        al = [e for e in left if get_age_range(e['age'])==ar]
-        rate = round(len(al)/len(aa)*100,1) if aa else 0
-        age_turnover.append({"range": ar, "rate": rate})
-    gender_turnover = []
-    for g in ["Male","Female"]:
-        ga = [e for e in active if e['gender']==g]
-        gl = [e for e in left if e['gender']==g]
-        rate = round(len(gl)/len(ga)*100,1) if ga else 0
-        gender_turnover.append({"gender": g, "rate": rate})
+    for emp in left:
+        reason = emp.get('leaving_reason', 'Unknown')
+        reasons[reason] = reasons.get(reason, 0) + 1
+
+    dept_turnover = _compute_group_turnover(active, left, [shorten_dept(d) for d in DEPARTMENTS], 'department', 'department',
+                                             lambda e: shorten_dept(e['department']))
+    age_turnover = _compute_group_turnover(active, left, AGE_RANGES, 'age', 'range', lambda e: get_age_range(e['age']))
+    gender_turnover = _compute_group_turnover(active, left, ["Male", "Female"], 'gender', 'gender')
+
     yearly = []
-    for y in range(2020, year+1):
+    for y in range(2020, year + 1):
         _, ya, _, yl = await get_filtered(y)
-        rate = round(len(yl)/len(ya)*100,1) if ya else 0
+        rate = round(len(yl) / len(ya) * 100, 1) if ya else 0
         yearly.append({"year": y, "rate": rate})
+
     return {
-        "kpis": {"turnover_rate": round(len(left)/hc*100,1) if hc else 0,
-                 "voluntary_rate": round(len(vol)/hc*100,1) if hc else 0,
-                 "involuntary_rate": round(len(invol)/hc*100,1) if hc else 0,
-                 "talent_turnover": round(len(talent_left)/hc*100,1) if hc else 0,
-                 "new_hire_turnover": round(len(new_hire_left)/hc*100,1) if hc else 0},
+        "kpis": {
+            "turnover_rate": round(len(left) / hc * 100, 1) if hc else 0,
+            "voluntary_rate": round(len(vol) / hc * 100, 1) if hc else 0,
+            "involuntary_rate": round(len(invol) / hc * 100, 1) if hc else 0,
+            "talent_turnover": round(len(talent_left) / hc * 100, 1) if hc else 0,
+            "new_hire_turnover": round(len(new_hire_left) / hc * 100, 1) if hc else 0,
+        },
         "turnover_by_month": turnover_month,
-        "leaving_reasons": [{"reason": k, "count": v} for k, v in sorted(reasons.items(), key=lambda x:-x[1])],
+        "leaving_reasons": [{"reason": k, "count": v} for k, v in sorted(reasons.items(), key=lambda x: -x[1])],
         "turnover_by_department": dept_turnover,
         "turnover_by_age": age_turnover,
         "turnover_by_gender": gender_turnover,
-        "turnover_by_year": yearly
+        "turnover_by_year": yearly,
     }
 
 # ---- Movement ----
@@ -561,39 +574,50 @@ async def get_movement(year: int = 2025):
 class ForecastRequest(BaseModel):
     year: int = 2025
 
+def _compute_headcount_forecast(hc, net, year):
+    forecast = []
+    cur = hc
+    for month_name in ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]:
+        cur = int(cur + net + random.uniform(-2, 2))
+        forecast.append({"month": f"{month_name} {year}", "predicted": cur, "lower": int(cur * 0.95), "upper": int(cur * 1.05)})
+    return forecast
+
+def _compute_dept_risks(active, left):
+    risks = []
+    for dept in DEPARTMENTS:
+        dept_active = [e for e in active if e['department'] == dept]
+        dept_left = [e for e in left if e['department'] == dept]
+        risk = round(len(dept_left) / len(dept_active) * 100, 1) if dept_active else 0
+        risks.append({"department": shorten_dept(dept), "risk": risk, "headcount": len(dept_active)})
+    return sorted(risks, key=lambda x: -x['risk'])
+
+def _build_at_risk_list(active):
+    at_risk = sorted([e for e in active if e.get('performance_score', 3) < 2.5], key=lambda x: x.get('performance_score', 3))[:10]
+    return [{"name": e['name'], "department": e['department'], "performance": e.get('performance_score', 0),
+             "seniority": e.get('seniority_years', 0),
+             "risk_level": "High" if e.get('performance_score', 3) < 2 else "Medium"} for e in at_risk]
+
 @api_router.post("/ai/forecast")
 async def ai_forecast(body: ForecastRequest):
     year = body.year
     all_emp, active, hired, left = await get_filtered(year)
     hc = len(active)
-    turnover_rate = len(left)/hc if hc else 0
-    avg_monthly_hires = len(hired)/12
-    avg_monthly_leaves = len(left)/12
-    net = avg_monthly_hires - avg_monthly_leaves
-    forecast_months = ["Jul","Aug","Sep","Oct","Nov","Dec"]
-    hc_forecast = []
-    cur = hc
-    for m in forecast_months:
-        cur = int(cur + net + random.uniform(-2,2))
-        hc_forecast.append({"month": f"{m} {year}", "predicted": cur, "lower": int(cur*0.95), "upper": int(cur*1.05)})
-    dept_risks = []
-    for dept in DEPARTMENTS:
-        da = [e for e in active if e['department']==dept]
-        dl = [e for e in left if e['department']==dept]
-        risk = round(len(dl)/len(da)*100,1) if da else 0
-        short = dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
-        dept_risks.append({"department": short, "risk": risk, "headcount": len(da)})
-    dept_risks.sort(key=lambda x: -x['risk'])
+    turnover_rate = len(left) / hc if hc else 0
+    net = len(hired) / 12 - len(left) / 12
+
+    hc_forecast = _compute_headcount_forecast(hc, net, year)
+    dept_risks = _compute_dept_risks(active, left)
+    at_risk_list = _build_at_risk_list(active)
+
     attrition_level = "Low" if turnover_rate < 0.1 else "Medium" if turnover_rate < 0.2 else "High"
     avg_perf = safe_avg(active, 'performance_score')
-    burnout = max(0, min(1, (5-avg_perf)/5*0.6))
+    burnout = max(0, min(1, (5 - avg_perf) / 5 * 0.6))
     burnout_level = "Low" if burnout < 0.3 else "Medium" if burnout < 0.6 else "High"
-    at_risk = sorted([e for e in active if e.get('performance_score',3) < 2.5], key=lambda x: x.get('performance_score',3))[:10]
-    at_risk_list = [{"name":e['name'],"department":e['department'],"performance":e.get('performance_score',0),"seniority":e.get('seniority_years',0),"risk_level":"High" if e.get('performance_score',3)<2 else "Medium"} for e in at_risk]
+
     result = {
-        "attrition_risk": {"score": round(turnover_rate,2), "level": attrition_level},
+        "attrition_risk": {"score": round(turnover_rate, 2), "level": attrition_level},
         "headcount_forecast": hc_forecast,
-        "burnout_risk": {"score": round(burnout,2), "level": burnout_level},
+        "burnout_risk": {"score": round(burnout, 2), "level": burnout_level},
         "department_risks": dept_risks[:6],
         "at_risk_employees": at_risk_list,
         "recommendations": [
@@ -601,15 +625,16 @@ async def ai_forecast(body: ForecastRequest):
             "Implement mentoring for new hires to reduce 180-day failure rate",
             "Review compensation for talent retention",
             "Develop career pathways for high performers",
-            "Enhance onboarding process"
+            "Enhance onboarding process",
         ],
-        "ai_summary": ""
+        "ai_summary": "",
     }
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
-        summary_data = {"headcount":hc,"hires":len(hired),"leaves":len(left),"turnover_pct":round(turnover_rate*100,1),
-                        "avg_age":safe_avg(active,'age'),"avg_seniority":safe_avg(active,'seniority_years'),
-                        "top_risk_depts":[d['department'] for d in dept_risks[:3]]}
+        summary_data = {"headcount": hc, "hires": len(hired), "leaves": len(left),
+                        "turnover_pct": round(turnover_rate * 100, 1),
+                        "avg_age": safe_avg(active, 'age'), "avg_seniority": safe_avg(active, 'seniority_years'),
+                        "top_risk_depts": [d['department'] for d in dept_risks[:3]]}
         chat = LlmChat(api_key=EMERGENT_KEY, session_id=str(uuid.uuid4()),
                        system_message="You are an expert HR analytics advisor. Provide concise actionable insights. Respond in 150 words max.")
         chat.with_model("openai", "gpt-5.2")
@@ -622,68 +647,73 @@ async def ai_forecast(body: ForecastRequest):
     return result
 
 # ---- Data Upload ----
+def _map_upload_columns(df):
+    col_map = {}
+    for col in df.columns:
+        cl = col.lower().strip()
+        if 'name' in cl or 'ad' in cl: col_map[col] = 'name'
+        elif 'gender' in cl or 'cinsiyet' in cl: col_map[col] = 'gender'
+        elif 'age' in cl or 'yas' in cl: col_map[col] = 'age'
+        elif 'department' in cl or 'departman' in cl or 'birim' in cl: col_map[col] = 'department'
+        elif 'title' in cl or 'pozisyon' in cl or 'position' in cl: col_map[col] = 'job_title'
+        elif 'band' in cl: col_map[col] = 'band'
+        elif 'salary' in cl or 'maas' in cl: col_map[col] = 'salary'
+        elif 'city' in cl or 'sehir' in cl: col_map[col] = 'city'
+        elif 'hire' in cl or 'ise_giris' in cl or 'start' in cl: col_map[col] = 'hire_date'
+        elif 'education' in cl or 'egitim' in cl: col_map[col] = 'education_level'
+    return col_map
+
+def _create_employee_from_record(rec):
+    return {
+        "id": str(uuid.uuid4()),
+        "name": str(rec.get('name', 'Unknown')),
+        "gender": str(rec.get('gender', random.choice(['Male', 'Female']))),
+        "age": int(rec.get('age', random.randint(25, 45))),
+        "hire_date": str(rec.get('hire_date', f"2024-{random.randint(1,12):02d}-01")),
+        "termination_date": None,
+        "department": str(rec.get('department', 'General')),
+        "job_title": str(rec.get('job_title', 'Specialist')),
+        "band": str(rec.get('band', random.choice(BANDS))),
+        "salary": float(rec.get('salary', 50000)),
+        "city": str(rec.get('city', 'Istanbul')),
+        "education_level": str(rec.get('education_level', 'Bachelor')),
+        "university": None, "marital_status": "Single",
+        "is_talent": False, "is_manager": False, "is_disabled": False, "is_full_time": True,
+        "performance_score": round(random.uniform(2.5, 4.5), 1),
+        "seniority_years": round(random.uniform(0, 5), 1),
+        "status": "active", "leaving_reason": None, "termination_type": None,
+        "data_source": "upload", "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+def _try_store_file(content, ext, content_type):
+    try:
+        sp = f"{APP_NAME}/uploads/{uuid.uuid4()}.{ext}"
+        put_object(sp, content, content_type or "application/octet-stream")
+        return sp
+    except Exception:
+        return None
+
 @api_router.post("/data/upload")
 async def upload_data(file: UploadFile = File(...)):
     content = await file.read()
     filename = file.filename or "unknown"
     ext = filename.split('.')[-1].lower()
-    if ext not in ['xlsx','xls','csv']:
+    if ext not in ['xlsx', 'xls', 'csv']:
         raise HTTPException(400, "Unsupported format. Use .xlsx or .csv")
     try:
-        if ext in ['xlsx','xls']:
-            df = pd.read_excel(BytesIO(content))
-        else:
-            df = pd.read_csv(BytesIO(content))
-        storage_path = None
-        try:
-            sp = f"{APP_NAME}/uploads/{uuid.uuid4()}.{ext}"
-            put_object(sp, content, file.content_type or "application/octet-stream")
-            storage_path = sp
-        except:
-            pass
-        col_map = {}
-        for col in df.columns:
-            cl = col.lower().strip()
-            if 'name' in cl or 'ad' in cl: col_map[col] = 'name'
-            elif 'gender' in cl or 'cinsiyet' in cl: col_map[col] = 'gender'
-            elif 'age' in cl or 'yas' in cl: col_map[col] = 'age'
-            elif 'department' in cl or 'departman' in cl or 'birim' in cl: col_map[col] = 'department'
-            elif 'title' in cl or 'pozisyon' in cl or 'position' in cl: col_map[col] = 'job_title'
-            elif 'band' in cl: col_map[col] = 'band'
-            elif 'salary' in cl or 'maas' in cl: col_map[col] = 'salary'
-            elif 'city' in cl or 'sehir' in cl: col_map[col] = 'city'
-            elif 'hire' in cl or 'ise_giris' in cl or 'start' in cl: col_map[col] = 'hire_date'
-            elif 'education' in cl or 'egitim' in cl: col_map[col] = 'education_level'
+        df = pd.read_excel(BytesIO(content)) if ext in ['xlsx', 'xls'] else pd.read_csv(BytesIO(content))
+        storage_path = _try_store_file(content, ext, file.content_type)
+        col_map = _map_upload_columns(df)
         df_renamed = df.rename(columns=col_map)
         records = df_renamed.to_dict('records')
-        employees = []
-        for rec in records:
-            emp = {
-                "id": str(uuid.uuid4()),
-                "name": str(rec.get('name', 'Unknown')),
-                "gender": str(rec.get('gender', random.choice(['Male','Female']))),
-                "age": int(rec.get('age', random.randint(25,45))),
-                "hire_date": str(rec.get('hire_date', f"2024-{random.randint(1,12):02d}-01")),
-                "termination_date": None,
-                "department": str(rec.get('department', 'General')),
-                "job_title": str(rec.get('job_title', 'Specialist')),
-                "band": str(rec.get('band', random.choice(BANDS))),
-                "salary": float(rec.get('salary', 50000)),
-                "city": str(rec.get('city', 'Istanbul')),
-                "education_level": str(rec.get('education_level', 'Bachelor')),
-                "university": None, "marital_status": "Single",
-                "is_talent": False, "is_manager": False, "is_disabled": False, "is_full_time": True,
-                "performance_score": round(random.uniform(2.5,4.5),1),
-                "seniority_years": round(random.uniform(0,5),1),
-                "status": "active", "leaving_reason": None, "termination_type": None,
-                "data_source": "upload", "created_at": datetime.now(timezone.utc).isoformat()
-            }
-            employees.append(emp)
+        employees = [_create_employee_from_record(rec) for rec in records]
         if employees:
             await db.employees.insert_many(employees)
-        file_rec = {"id": str(uuid.uuid4()), "filename": filename, "storage_path": storage_path,
-                    "row_count": len(records), "columns": list(df.columns),
-                    "uploaded_at": datetime.now(timezone.utc).isoformat()}
+        file_rec = {
+            "id": str(uuid.uuid4()), "filename": filename, "storage_path": storage_path,
+            "row_count": len(records), "columns": list(df.columns),
+            "uploaded_at": datetime.now(timezone.utc).isoformat(),
+        }
         await db.data_sources.insert_one(file_rec)
         return {"message": f"Imported {len(records)} records", "filename": filename,
                 "row_count": len(records), "columns": list(df.columns), "mapped_columns": col_map}

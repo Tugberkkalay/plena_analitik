@@ -15,7 +15,7 @@ export default function CapabilityForecastPage({ year }) {
   useEffect(() => {
     setLoading(true);
     axios.get(`${API}/dashboard/capability-forecast?year=${year}`)
-      .then((r) => setData(r.data)).catch(console.error).finally(() => setLoading(false));
+      .then((r) => setData(r.data)).catch(() => {}).finally(() => setLoading(false));
   }, [year]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
@@ -61,7 +61,7 @@ export default function CapabilityForecastPage({ year }) {
         <ChartCard title="Critical Skills (6-Month Horizon)" subtitle="Skills approaching critical shortage" testId="chart-critical-6m">
           <div className="space-y-2 px-3 pb-2">
             {data.critical_6m?.length > 0 ? data.critical_6m.map((s, i) => (
-              <div key={i} className="flex items-center justify-between p-3 bg-red-50 border border-red-100 rounded-md">
+              <div key={`cap-${s.skill}`} className="flex items-center justify-between p-3 bg-red-50 border border-red-100 rounded-md">
                 <div>
                   <p className="text-sm font-medium text-slate-800">{s.skill}</p>
                   <p className="text-xs text-slate-500">{s.category} · {s.current_count} current · {s.experts} experts</p>
@@ -78,7 +78,7 @@ export default function CapabilityForecastPage({ year }) {
         <ChartCard title="Warning Skills (12-Month Horizon)" subtitle="Skills requiring attention" testId="chart-warning-12m">
           <div className="space-y-2 px-3 pb-2 max-h-[300px] overflow-y-auto">
             {data.warning_12m?.length > 0 ? data.warning_12m.slice(0, 8).map((s, i) => (
-              <div key={i} className="flex items-center justify-between p-3 bg-amber-50 border border-amber-100 rounded-md">
+              <div key={`warn-${s.skill}`} className="flex items-center justify-between p-3 bg-amber-50 border border-amber-100 rounded-md">
                 <div>
                   <p className="text-sm font-medium text-slate-800">{s.skill}</p>
                   <p className="text-xs text-slate-500">{s.category} · {s.current_count} people · Avg: {s.avg_prof}/5</p>

@@ -15,7 +15,7 @@ export default function PerformancePage({ year }) {
   useEffect(() => {
     setLoading(true);
     axios.get(`${API}/dashboard/performance?year=${year}`)
-      .then((r) => setData(r.data)).catch(console.error).finally(() => setLoading(false));
+      .then((r) => setData(r.data)).catch(() => {}).finally(() => setLoading(false));
   }, [year]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
@@ -40,7 +40,7 @@ export default function PerformancePage({ year }) {
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} />
               <Bar dataKey="count" radius={[3, 3, 0, 0]}>
-                {data.distribution?.map((d, i) => <Cell key={i} fill={parseFloat(d.range) >= 4.0 ? "#14B8A6" : parseFloat(d.range) < 2.5 ? "#EF4444" : "#0E7490"} />)}
+                {data.distribution?.map((d, i) => <Cell key={`perf-${d.range}`} fill={parseFloat(d.range) >= 4.0 ? "#14B8A6" : parseFloat(d.range) < 2.5 ? "#EF4444" : "#0E7490"} />)}
               </Bar>
             </BarChart>
           </ResponsiveContainer>

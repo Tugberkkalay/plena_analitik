@@ -15,7 +15,7 @@ export default function MovementPage({ year }) {
     setLoading(true);
     axios.get(`${API}/dashboard/movement?year=${year}`)
       .then((r) => setData(r.data))
-      .catch(console.error)
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, [year]);
 

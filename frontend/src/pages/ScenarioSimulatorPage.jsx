@@ -19,7 +19,7 @@ export default function ScenarioSimulatorPage({ year }) {
     try {
       const res = await axios.post(`${API}/simulator/scenario`, { year, ...params });
       setResult(res.data);
-    } catch (e) { console.error(e); }
+    } catch (_) { /* silenced */ }
     finally { setLoading(false); }
   }, [year, params]);
 
@@ -52,11 +52,10 @@ export default function ScenarioSimulatorPage({ year }) {
           <P label="Attrition Change" value={params.attrition_change} unit="%" paramKey="attrition_change" min={-10} max={15} />
           <P label="Hiring Boost" value={params.hiring_boost} unit="" paramKey="hiring_boost" min={0} max={200} step={10} />
           <P label="New Location HC" value={params.new_location_headcount} unit="" paramKey="new_location_headcount" min={0} max={500} step={25} />
-          <Button data-testid="run-simulation-btn" onClick={runSimulation} disabled={loading}
+          <Button data-testid="run-simulation-btn" onClick={() => runSimulation(params)} disabled={loading}
             className="w-full bg-teal-700 hover:bg-teal-600 text-white text-sm">
             {loading ? "Simulating..." : "Run Scenario"}
-          </Button>
-        </div>
+          </Button>        </div>
 
         {/* Results */}
         <div className="lg:col-span-3 space-y-4">

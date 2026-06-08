@@ -25,7 +25,7 @@ export default function CareerDevPage({ year }) {
     try {
       const res = await axios.get(`${API}/employees/search?q=${q}&limit=10`);
       setEmployees(res.data.employees || []);
-    } catch (e) { console.error(e); }
+    } catch (_) { /* silenced */ }
     finally { setSearching(false); }
   }, []);
 
@@ -43,7 +43,7 @@ export default function CareerDevPage({ year }) {
     try {
       const res = await axios.post(`${API}/employee/career-plan`, { employee_id: emp.id });
       setPlan(res.data);
-    } catch (e) { console.error(e); }
+    } catch (_) { /* silenced */ }
     finally { setLoading(false); }
   };
 
@@ -133,7 +133,7 @@ export default function CareerDevPage({ year }) {
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {plan.employee.skills?.map((s, i) => (
-                    <span key={i} className={`px-2 py-0.5 rounded text-[10px] font-medium ${PROF_BG[s.proficiency]}`}>
+                    <span key={`skill-${s.skill}`} className={`px-2 py-0.5 rounded text-[10px] font-medium ${PROF_BG[s.proficiency]}`}>
                       {s.skill} ({s.proficiency})
                     </span>
                   ))}
@@ -160,7 +160,7 @@ export default function CareerDevPage({ year }) {
               </div>
               <div className="space-y-3">
                 {plan.mentors?.length > 0 ? plan.mentors.map((m, i) => (
-                  <div key={i} className="p-3 bg-slate-50 border border-slate-100 rounded-md">
+                  <div key={`mentor-${m.name}`} className="p-3 bg-slate-50 border border-slate-100 rounded-md">
                     <div className="flex items-center gap-2 mb-1.5">
                       <div className="w-7 h-7 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 text-[10px] font-bold">
                         {m.name?.split(' ').map(n => n[0]).join('')}
