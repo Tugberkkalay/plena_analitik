@@ -20,6 +20,8 @@ import CompensationPage from "@/pages/CompensationPage";
 import EngagementPage from "@/pages/EngagementPage";
 import CareerTalentPage from "@/pages/CareerTalentPage";
 import HROperationsPage from "@/pages/HROperationsPage";
+import SkillsMapPage from "@/pages/SkillsMapPage";
+import CareerDevPage from "@/pages/CareerDevPage";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -37,6 +39,8 @@ const PAGE_TITLES = {
   "/compensation": "Compensation & Benefits",
   "/engagement": "Engagement & Experience",
   "/career-talent": "Career & Talent",
+  "/skills-map": "Skills & Competency Map",
+  "/career-dev": "AI Career Development",
   "/hr-operations": "HR Operations",
 };
 
@@ -101,6 +105,8 @@ function AppContent() {
             <Route path="/compensation" element={<CompensationPage year={year} />} />
             <Route path="/engagement" element={<EngagementPage year={year} />} />
             <Route path="/career-talent" element={<CareerTalentPage year={year} />} />
+            <Route path="/skills-map" element={<SkillsMapPage year={year} />} />
+            <Route path="/career-dev" element={<CareerDevPage year={year} />} />
             <Route path="/hr-operations" element={<HROperationsPage year={year} />} />
             <Route path="/ai-forecast" element={<AIForecastPage year={year} />} />
             <Route path="/data-upload" element={<DataUploadPage />} />

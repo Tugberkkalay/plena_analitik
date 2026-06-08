@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { ChartBar, Users, UserPlus, ArrowsClockwise, ArrowsLeftRight, Brain, CloudArrowUp, List, X, Funnel, Target, GraduationCap, CurrencyDollar, Smiley, Star, Gear } from "@phosphor-icons/react";
+import { ChartBar, Users, UserPlus, ArrowsClockwise, ArrowsLeftRight, Brain, CloudArrowUp, List, X, Funnel, Target, GraduationCap, CurrencyDollar, Smiley, Star, Gear, Compass, UserFocus } from "@phosphor-icons/react";
 
 const NAV_SECTIONS = [
   {
@@ -21,6 +21,8 @@ const NAV_SECTIONS = [
       { path: "/compensation", label: "Compensation", icon: CurrencyDollar },
       { path: "/engagement", label: "Engagement", icon: Smiley },
       { path: "/career-talent", label: "Career & Talent", icon: Star },
+      { path: "/skills-map", label: "Skills Map", icon: Compass },
+      { path: "/career-dev", label: "Career Dev (AI)", icon: UserFocus },
     ],
   },
   {

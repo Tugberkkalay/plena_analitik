@@ -224,6 +224,112 @@ class HRlyticAPITester:
                 print(f"✅ HR Operations data structure valid")
         return success, data
 
+    # NEW DEEP FEATURES: SKILLS MAP & CAREER DEVELOPMENT
+    def test_skills_map_endpoint(self):
+        """Test skills map dashboard endpoint"""
+        success, data = self.run_test("Skills Map Dashboard", "GET", "dashboard/skills-map?year=2025", 200)
+        if success and data:
+            required_keys = ['all_skills', 'skill_gaps', 'critical_needs', 'category_distribution', 'department_heatmap', 'heatmap_skills', 'total_unique_skills']
+            missing_keys = [k for k in required_keys if k not in data]
+            if missing_keys:
+                print(f"⚠️  Missing keys in skills map response: {missing_keys}")
+            else:
+                print(f"✅ Skills Map data structure valid")
+                print(f"   Total unique skills: {data.get('total_unique_skills', 0)}")
+                print(f"   Skill gaps: {len(data.get('skill_gaps', []))}")
+                print(f"   Critical needs: {len(data.get('critical_needs', []))}")
+        return success, data
+
+    def test_internal_mobility_endpoint(self):
+        """Test internal mobility endpoint"""
+        success, data = self.run_test("Internal Mobility", "GET", "dashboard/internal-mobility?year=2025", 200)
+        if success and data:
+            required_keys = ['department_needs', 'department_surplus', 'mobility_opportunities']
+            missing_keys = [k for k in required_keys if k not in data]
+            if missing_keys:
+                print(f"⚠️  Missing keys in internal mobility response: {missing_keys}")
+            else:
+                print(f"✅ Internal Mobility data structure valid")
+                print(f"   Mobility opportunities: {len(data.get('mobility_opportunities', []))}")
+        return success, data
+
+    def test_employee_search_endpoint(self):
+        """Test employee search endpoint"""
+        success, data = self.run_test("Employee Search (Ahmet)", "GET", "employees/search?q=Ahmet&limit=10", 200)
+        if success and data:
+            required_keys = ['employees', 'total']
+            missing_keys = [k for k in required_keys if k not in data]
+            if missing_keys:
+                print(f"⚠️  Missing keys in employee search response: {missing_keys}")
+            else:
+                print(f"✅ Employee Search data structure valid")
+                print(f"   Found {data.get('total', 0)} employees")
+                if data.get('employees') and len(data['employees']) > 0:
+                    # Store first employee ID for career plan test
+                    self.test_employee_id = data['employees'][0].get('id')
+                    print(f"   First employee: {data['employees'][0].get('name')} (ID: {self.test_employee_id})")
+        return success, data
+
+    def test_career_plan_endpoint(self):
+        """Test AI career plan endpoint (may take 10-15 seconds for AI generation)"""
+        # Use employee ID from search test, or fallback to a test
+        if not hasattr(self, 'test_employee_id'):
+            print("⚠️  No employee ID from search, attempting to get one...")
+            success, search_data = self.test_employee_search_endpoint()
+            if not success or not hasattr(self, 'test_employee_id'):
+                print("❌ Cannot test career plan without valid employee ID")
+                return False, {}
+        
+        print(f"   Using employee ID: {self.test_employee_id}")
+        print(f"   ⏳ This may take 10-15 seconds for AI generation...")
+        
+        # Use longer timeout for AI endpoint
+        url = f"{self.base_url}/employee/career-plan"
+        headers = {'Content-Type': 'application/json'}
+        self.tests_run += 1
+        
+        try:
+            response = requests.post(url, json={"employee_id": self.test_employee_id}, headers=headers, timeout=60)
+            success = response.status_code == 200
+            if success:
+                self.tests_passed += 1
+                print(f"✅ Passed - Status: {response.status_code}")
+                data = response.json()
+                required_keys = ['employee', 'skill_analysis', 'career_path', 'mentors', 'ai_recommendations']
+                missing_keys = [k for k in required_keys if k not in data]
+                if missing_keys:
+                    print(f"⚠️  Missing keys in career plan response: {missing_keys}")
+                else:
+                    print(f"✅ Career Plan data structure valid")
+                    print(f"   Employee: {data.get('employee', {}).get('name')}")
+                    print(f"   Total skills: {data.get('skill_analysis', {}).get('total', 0)}")
+                    print(f"   Mentors found: {len(data.get('mentors', []))}")
+                    if data.get('ai_recommendations'):
+                        print(f"✅ AI recommendations generated (length: {len(data['ai_recommendations'])} chars)")
+                    else:
+                        print(f"⚠️  AI recommendations empty - may be using fallback mode")
+                return True, data
+            else:
+                print(f"❌ Failed - Expected 200, got {response.status_code}")
+                self.failed_tests.append({
+                    "name": "AI Career Plan",
+                    "endpoint": "employee/career-plan",
+                    "expected": 200,
+                    "actual": response.status_code,
+                    "error": response.text[:200]
+                })
+                return False, {}
+        except Exception as e:
+            print(f"❌ Failed - Error: {str(e)}")
+            self.failed_tests.append({
+                "name": "AI Career Plan",
+                "endpoint": "employee/career-plan",
+                "expected": 200,
+                "actual": "Exception",
+                "error": str(e)
+            })
+            return False, {}
+
 def main():
     print("🚀 Starting HRlytic API Testing...")
     print("=" * 60)
@@ -259,6 +365,12 @@ def main():
     tester.test_engagement_endpoint()
     tester.test_career_endpoint()
     tester.test_hr_operations_endpoint()
+    
+    print("\n🎯 Testing Deep Features: Skills Map & Career Development...")
+    tester.test_skills_map_endpoint()
+    tester.test_internal_mobility_endpoint()
+    tester.test_employee_search_endpoint()
+    tester.test_career_plan_endpoint()
     
     # Print final results
     print("\n" + "=" * 60)

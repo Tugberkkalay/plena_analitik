@@ -141,6 +141,48 @@ RECRUITMENT_SOURCES = ["LinkedIn","Referral","Career Site","Agency","Job Board",
 COURSE_NAMES = ["Leadership Fundamentals","Advanced Project Management","Data Analytics","Cybersecurity Basics","Effective Communication","Python Programming","Cloud Architecture","Financial Modeling","Design Thinking","Agile Methodology","Machine Learning","Compliance Training","Time Management","Presentation Skills","Strategic Planning","Team Building"]
 COURSE_CATEGORIES = ["Technical","Leadership","Compliance","Soft Skills","Language"]
 
+# ---- Skills & Competency Framework ----
+TECH_SKILLS = ["Python","JavaScript","React","Data Analytics","Cloud Computing","AI/ML","Prompt Engineering","Cybersecurity","DevOps","SQL","UX Design","Java","Agile","Machine Learning","Deep Learning","NLP","Computer Vision","Embedded Systems","Systems Engineering","Autonomous Systems","IoT","Blockchain"]
+SOFT_SKILLS = ["Leadership","Communication","Problem Solving","Strategic Thinking","Team Management","Negotiation","Presentation","Critical Thinking","Creativity","Emotional Intelligence","Conflict Resolution","Time Management","Mentoring","Cross-functional Collaboration","Change Management"]
+DOMAIN_SKILLS = ["Financial Analysis","HR Management","Project Management","Digital Marketing","Legal Compliance","Supply Chain","Sales Strategy","Business Intelligence","Risk Management","Quality Assurance","Talent Development","Organizational Design"]
+
+DEPT_SKILL_FOCUS = {
+    "Information Technology": {"tech": ["Python","JavaScript","React","Cloud Computing","DevOps","SQL","AI/ML","Cybersecurity"], "soft": ["Problem Solving","Team Management"], "domain": ["Project Management"]},
+    "Human Resources": {"tech": ["Data Analytics","SQL"], "soft": ["Communication","Leadership","Emotional Intelligence","Change Management","Mentoring"], "domain": ["HR Management","Talent Development","Organizational Design"]},
+    "Finance": {"tech": ["SQL","Data Analytics","Python"], "soft": ["Critical Thinking","Presentation"], "domain": ["Financial Analysis","Risk Management","Business Intelligence"]},
+    "Marketing": {"tech": ["Data Analytics","UX Design","JavaScript"], "soft": ["Creativity","Communication","Presentation"], "domain": ["Digital Marketing","Business Intelligence"]},
+    "Operations": {"tech": ["Data Analytics","SQL","Agile"], "soft": ["Problem Solving","Team Management","Time Management"], "domain": ["Project Management","Quality Assurance","Supply Chain"]},
+    "Sales": {"tech": ["Data Analytics"], "soft": ["Negotiation","Communication","Presentation","Strategic Thinking"], "domain": ["Sales Strategy","Business Intelligence"]},
+    "Legal": {"tech": ["SQL"], "soft": ["Critical Thinking","Communication","Negotiation"], "domain": ["Legal Compliance","Risk Management"]},
+    "Research & Development": {"tech": ["Python","AI/ML","Machine Learning","Deep Learning","NLP","Embedded Systems","Systems Engineering","Autonomous Systems"], "soft": ["Problem Solving","Critical Thinking","Creativity"], "domain": ["Project Management"]},
+    "Administration": {"tech": ["SQL","Data Analytics"], "soft": ["Communication","Time Management","Conflict Resolution"], "domain": ["Project Management"]},
+    "Supply Chain": {"tech": ["Data Analytics","SQL"], "soft": ["Negotiation","Problem Solving"], "domain": ["Supply Chain","Quality Assurance","Risk Management"]}
+}
+PROFICIENCY_LABELS = {1: "Beginner", 2: "Developing", 3: "Proficient", 4: "Advanced", 5: "Expert"}
+CAREER_PATHS = {
+    "A": {"next": "B", "title": "Specialist", "timeline": "12-18 months"},
+    "B": {"next": "C", "title": "Senior Specialist", "timeline": "18-24 months"},
+    "C": {"next": "D", "title": "Manager/Team Lead", "timeline": "24-36 months"},
+    "D": {"next": "E", "title": "Director", "timeline": "36-48 months"},
+    "E": {"next": "E", "title": "Executive", "timeline": "ongoing"}
+}
+
+def generate_employee_skills(department, band):
+    focus = DEPT_SKILL_FOCUS.get(department, {"tech": ["Data Analytics"], "soft": ["Communication"], "domain": ["Project Management"]})
+    band_range = {"A": (1,3), "B": (2,4), "C": (2,5), "D": (3,5), "E": (3,5)}
+    mn, mx = band_range.get(band, (1,5))
+    skills = []
+    for s in focus.get("tech", [])[:random.randint(3,5)]:
+        skills.append({"skill": s, "category": "Tech", "proficiency": random.randint(mn, mx)})
+    for s in focus.get("soft", [])[:random.randint(2,4)]:
+        skills.append({"skill": s, "category": "Soft", "proficiency": random.randint(mn, mx)})
+    for s in focus.get("domain", [])[:random.randint(1,3)]:
+        skills.append({"skill": s, "category": "Domain", "proficiency": random.randint(mn, mx)})
+    extra_tech = random.sample([s for s in TECH_SKILLS if s not in [x['skill'] for x in skills]], min(2, len(TECH_SKILLS)))
+    for s in extra_tech:
+        skills.append({"skill": s, "category": "Tech", "proficiency": random.randint(1, max(2, mn))})
+    return skills
+
 def generate_recruitment_data(count=200):
     random.seed(43)
     candidates = []
@@ -271,6 +313,16 @@ async def startup():
             eng = generate_engagement_data(emps)
             await db.engagement.insert_many(eng)
             logger.info(f"Seeded {len(eng)} engagement surveys")
+        # Migrate: add skills to employees if missing
+        no_skills = await db.employees.count_documents({"skills": {"$exists": False}})
+        if no_skills > 0:
+            logger.info(f"Adding skills to {no_skills} employees...")
+            emps_no_skills = await db.employees.find({"skills": {"$exists": False}}).to_list(10000)
+            for emp in emps_no_skills:
+                random.seed(hash(str(emp.get('_id',''))) % 2**32)
+                skills = generate_employee_skills(emp.get('department',''), emp.get('band','B'))
+                await db.employees.update_one({"_id": emp['_id']}, {"$set": {"skills": skills}})
+            logger.info(f"Skills added to {no_skills} employees")
     except Exception as e:
         logger.error(f"Startup seed error: {e}")
     try:
@@ -287,6 +339,10 @@ async def root():
 async def seed_data():
     await db.employees.delete_many({})
     emps = generate_seed_data(500)
+    # Add skills to employees
+    for emp in emps:
+        random.seed(hash(emp['id']) % 2**32)
+        emp['skills'] = generate_employee_skills(emp.get('department',''), emp.get('band','B'))
     await db.employees.insert_many(emps)
     return {"message": f"Seeded {len(emps)} employees", "count": len(emps)}
 
@@ -649,6 +705,10 @@ async def reset_data():
     await db.training.delete_many({})
     await db.engagement.delete_many({})
     emps = generate_seed_data(500)
+    # Add skills to employees
+    for emp in emps:
+        random.seed(hash(emp['id']) % 2**32)
+        emp['skills'] = generate_employee_skills(emp.get('department',''), emp.get('band','B'))
     await db.employees.insert_many(emps)
     cands = generate_recruitment_data(200)
     await db.recruitment.insert_many(cands)
@@ -845,6 +905,170 @@ async def get_hr_operations(year: int = 2025):
         "kpis": {"total_employees": hc, "full_time": ft, "part_time": pt, "ft_ratio": round(ft/hc*100,1) if hc else 0, "disabled_rate": round(disabled/hc*100,1) if hc else 0, "avg_seniority": avg_sen},
         "by_city": by_city, "by_education": by_edu, "gender_distribution": gen_dist, "department_metrics": dept_size, "operational_metrics": metrics
     }
+
+# ---- Skills Map & Gap Analysis ----
+@api_router.get("/dashboard/skills-map")
+async def get_skills_map(year: int = 2025):
+    _, active, _, _ = await get_filtered(year)
+    skill_agg = {}
+    dept_skills = {}
+    cat_counts = {"Tech": 0, "Soft": 0, "Domain": 0}
+    for emp in active:
+        dept = emp['department'].replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
+        for s in emp.get('skills', []):
+            sn, cat, prof = s['skill'], s['category'], s['proficiency']
+            cat_counts[cat] = cat_counts.get(cat, 0) + 1
+            if sn not in skill_agg:
+                skill_agg[sn] = {"skill": sn, "category": cat, "count": 0, "total_prof": 0, "experts": 0, "beginners": 0}
+            skill_agg[sn]["count"] += 1
+            skill_agg[sn]["total_prof"] += prof
+            if prof >= 4: skill_agg[sn]["experts"] += 1
+            if prof <= 2: skill_agg[sn]["beginners"] += 1
+            if dept not in dept_skills:
+                dept_skills[dept] = {}
+            if sn not in dept_skills[dept]:
+                dept_skills[dept][sn] = {"count": 0, "total": 0}
+            dept_skills[dept][sn]["count"] += 1
+            dept_skills[dept][sn]["total"] += prof
+    for s in skill_agg.values():
+        s["avg_proficiency"] = round(s["total_prof"] / s["count"], 1) if s["count"] else 0
+        del s["total_prof"]
+    all_skills = sorted(skill_agg.values(), key=lambda x: -x["count"])
+    gaps = sorted([s for s in all_skills if s["avg_proficiency"] < 3.0], key=lambda x: x["avg_proficiency"])
+    critical_needs = sorted([s for s in all_skills if s["avg_proficiency"] < 2.5 and s["count"] >= 5], key=lambda x: x["avg_proficiency"])
+    dept_heatmap = []
+    top_skills = [s["skill"] for s in all_skills[:15]]
+    for dept, skills in dept_skills.items():
+        row = {"department": dept}
+        for sk in top_skills:
+            if sk in skills:
+                row[sk] = round(skills[sk]["total"] / skills[sk]["count"], 1) if skills[sk]["count"] else 0
+            else:
+                row[sk] = 0
+        dept_heatmap.append(row)
+    return {
+        "all_skills": all_skills[:25], "skill_gaps": gaps[:10], "critical_needs": critical_needs[:5],
+        "category_distribution": [{"category": k, "count": v} for k, v in cat_counts.items()],
+        "department_heatmap": dept_heatmap, "heatmap_skills": top_skills, "total_unique_skills": len(skill_agg)
+    }
+
+# ---- Employee Search ----
+@api_router.get("/employees/search")
+async def search_employees(q: str = "", department: str = "", limit: int = 20):
+    query = {"status": "active"}
+    if q:
+        query["name"] = {"$regex": q, "$options": "i"}
+    if department:
+        query["department"] = department
+    emps = await db.employees.find(query, {"_id": 0}).to_list(limit)
+    return {"employees": emps, "total": len(emps)}
+
+# ---- AI Career Development Plan ----
+class CareerPlanRequest(BaseModel):
+    employee_id: str
+
+@api_router.post("/employee/career-plan")
+async def get_career_plan(body: CareerPlanRequest):
+    emp = await db.employees.find_one({"id": body.employee_id}, {"_id": 0})
+    if not emp:
+        raise HTTPException(404, "Employee not found")
+    skills = emp.get('skills', [])
+    skill_text = ", ".join([f"{s['skill']}({s['proficiency']}/5)" for s in skills])
+    weak_skills = [s for s in skills if s['proficiency'] <= 2]
+    strong_skills = [s for s in skills if s['proficiency'] >= 4]
+    # Find potential mentors
+    _, active, _, _ = await get_filtered(2025)
+    mentors = []
+    weak_names = {s['skill'] for s in weak_skills}
+    for m in active:
+        if m['id'] == emp['id'] or m.get('band','A') <= emp.get('band','A'):
+            continue
+        m_skills = m.get('skills', [])
+        matching = [s for s in m_skills if s['skill'] in weak_names and s['proficiency'] >= 4]
+        if len(matching) >= 2:
+            mentors.append({"name": m['name'], "department": m['department'], "band": m['band'], "job_title": m['job_title'],
+                            "matching_skills": [{"skill": s['skill'], "proficiency": s['proficiency']} for s in matching[:4]],
+                            "match_score": len(matching)})
+    mentors = sorted(mentors, key=lambda x: -x['match_score'])[:5]
+    career = CAREER_PATHS.get(emp.get('band','A'), {})
+    result = {
+        "employee": {"name": emp['name'], "department": emp['department'], "job_title": emp['job_title'], "band": emp['band'],
+                      "performance_score": emp.get('performance_score',0), "seniority_years": emp.get('seniority_years',0),
+                      "age": emp.get('age',0), "skills": skills},
+        "skill_analysis": {"strong": [{"skill": s['skill'], "proficiency": s['proficiency']} for s in strong_skills],
+                           "weak": [{"skill": s['skill'], "proficiency": s['proficiency']} for s in weak_skills],
+                           "total": len(skills), "avg_proficiency": round(sum(s['proficiency'] for s in skills)/len(skills),1) if skills else 0},
+        "career_path": {"current_band": emp.get('band','A'), "next_band": career.get('next',''), "next_title": career.get('title',''), "timeline": career.get('timeline','')},
+        "mentors": mentors,
+        "ai_recommendations": ""
+    }
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        prompt = f"""Bu çalışanın kariyer gelişim planını oluştur. Türkçe yanıt ver.
+
+Çalışan: {emp['name']}
+Departman: {emp['department']} | Pozisyon: {emp['job_title']} | Band: {emp['band']}
+Performans: {emp.get('performance_score',0)}/5.0 | Kıdem: {emp.get('seniority_years',0)} yıl
+Mevcut Yetkinlikler: {skill_text}
+Güçlü Alanlar: {', '.join(s['skill'] for s in strong_skills)}
+Gelişim Alanları: {', '.join(s['skill'] for s in weak_skills)}
+
+Aşağıdaki başlıklarda detaylı öneriler sun:
+1. KAZANMASI GEREKEN YETKİNLİKLER: 3-4 yeni yetkinlik (Tech + Soft) ve neden önemli
+2. ÖNERİLEN EĞİTİMLER: 4-5 spesifik eğitim/kurs (AI, Prompt Engineering, teknik ve soft skill karışımı)
+3. GELİŞİM HEDEFLERİ: 3 SMART hedef (6 ay, 1 yıl, 2 yıl)
+4. KARİYER YOLU: Mevcut pozisyondan bir sonraki basamağa geçiş için aksiyon planı
+5. MENTORLUK ÖNERİSİ: İdeal mentor profili ve mentordan beklenen katkı alanları"""
+
+        chat = LlmChat(api_key=EMERGENT_KEY, session_id=str(uuid.uuid4()),
+                       system_message="Sen uzman bir İK kariyer danışmanısın. Organizasyonel planlama ve yetenek gelişimi konusunda derinlemesine bilgin var. Her öneriyi spesifik, uygulanabilir ve ölçülebilir yap.")
+        chat.with_model("openai", "gpt-5.2")
+        response = await chat.send_message(UserMessage(text=prompt))
+        result["ai_recommendations"] = response
+    except Exception as e:
+        logger.error(f"AI career plan error: {e}")
+        result["ai_recommendations"] = "AI analizi şu anda kullanılamıyor. Algoritmik öneriler yukarıda listelenmiştir."
+    return result
+
+# ---- Internal Mobility & Skill Gap by Department ----
+@api_router.get("/dashboard/internal-mobility")
+async def get_internal_mobility(year: int = 2025):
+    _, active, _, _ = await get_filtered(year)
+    dept_needs = {}
+    dept_surplus = {}
+    for dept_name in DEPARTMENTS:
+        short = dept_name.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
+        dept_emps = [e for e in active if e['department'] == dept_name]
+        focus = DEPT_SKILL_FOCUS.get(dept_name, {})
+        required = set(focus.get("tech",[]) + focus.get("soft",[]) + focus.get("domain",[]))
+        covered = {}
+        for emp in dept_emps:
+            for s in emp.get('skills', []):
+                if s['skill'] not in covered:
+                    covered[s['skill']] = {"count": 0, "avg": 0, "total": 0}
+                covered[s['skill']]["count"] += 1
+                covered[s['skill']]["total"] += s['proficiency']
+        for sk in covered:
+            covered[sk]["avg"] = round(covered[sk]["total"] / covered[sk]["count"], 1)
+        gaps = []
+        for sk in required:
+            if sk not in covered:
+                gaps.append({"skill": sk, "coverage": 0, "avg_prof": 0, "status": "Missing"})
+            elif covered[sk]["avg"] < 3.0:
+                gaps.append({"skill": sk, "coverage": covered[sk]["count"], "avg_prof": covered[sk]["avg"], "status": "Weak"})
+        surplus = [{"skill": sk, "count": v["count"], "avg_prof": v["avg"]} for sk, v in covered.items() if v["avg"] >= 4.0 and v["count"] >= 3]
+        dept_needs[short] = {"gaps": sorted(gaps, key=lambda x: x["avg_prof"]), "headcount": len(dept_emps)}
+        dept_surplus[short] = surplus
+    mobility_opps = []
+    for dept, data in dept_needs.items():
+        for gap in data["gaps"][:3]:
+            for s_dept, surplus in dept_surplus.items():
+                if s_dept == dept:
+                    continue
+                for s in surplus:
+                    if s["skill"] == gap["skill"]:
+                        mobility_opps.append({"skill": gap["skill"], "from_dept": s_dept, "to_dept": dept, "available": s["count"], "from_avg": s["avg_prof"], "to_need": gap["status"]})
+    return {"department_needs": dept_needs, "department_surplus": dept_surplus, "mobility_opportunities": mobility_opps[:15]}
 
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True,
