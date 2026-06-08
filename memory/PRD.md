@@ -1,28 +1,20 @@
-# HRlytic - Enterprise HR Analytics Platform (Baykar Edition)
+# HRlytic - Enterprise HR Analytics Platform
 
-## Architecture
-Frontend: React + Recharts + Shadcn UI + Tailwind (Light Corporate Theme - teal/navy)
-Backend: FastAPI + MongoDB + OpenAI GPT-5.2 (emergentintegrations)
-
-## 16 Modules Implemented
+## 20 Modules (All Complete)
 ### Workforce (5): Overview, Headcount, Hires & Leaves, Turnover, Movement
-### People (8): Recruitment, Performance, Learning, Compensation, Engagement, Career & Talent, **Skills & Competency Map**, **AI Career Development**
-### Insights (2): AI Forecast, HR Operations  
-### Settings (1): Data Management
+### People (8): Recruitment, Performance, Learning, Compensation, Engagement, Career & Talent, Skills Map, AI Career Dev
+### Insights (6): AI Forecast, Scenario Simulator, Capability Forecasting, Succession & Knowledge Risk, Burnout Early Warning, HR Operations
+### Settings (1): Data Management (Excel/CSV upload + PDF export)
 
-## Key Differentiators (Baykar Document Aligned)
-- **Skills Heatmap**: Department × Skill proficiency matrix (47 unique skills, Tech/Soft/Domain)
-- **Skill Gap Analysis**: Critical needs detection, avg proficiency < 3.0 alerts
-- **Internal Mobility**: Cross-department skill transfer opportunities
-- **AI Career Dev**: GPT-5.2 Türkçe kariyer önerileri, mentor eşleşmesi, radar chart, SMART hedefler
-- **Mentor Matching**: Algorithmic matching based on skill complementarity
+## Key Features
+- 47 unique skills tracked, department×skill heatmap, internal mobility opportunities
+- AI Career Development (GPT-5.2 Turkish career recommendations, mentor matching)
+- Scenario Simulator (interactive what-if sliders for growth/budget/attrition modeling)
+- Capability Forecasting (6/12/24-month skill demand prediction)
+- Succession Planning (knowledge risk scoring, successor readiness, brain drain detection)
+- Burnout Early Warning (multi-factor risk: engagement + absenteeism + WLB + performance)
+- PDF Export on all pages via print CSS
 
-## Seed Data: 500 employees (with skills), 200 candidates, 300 training records, 400 engagement surveys
-
-## P0 Backlog
-- Capability Forecasting (6-24 month skill demand prediction)
-- Scenario Simulator (what-if headcount/budget modeling)
-- Succession Planning with AI recommendations
-- Knowledge Risk / Brain Drain scoring
-- Burnout Early Warning system
-- PDF/Excel export for all dashboards
+## Data: 500 employees (with skills), 200 candidates, 300 training records, 400 engagement surveys
+## Stack: React + Recharts + Shadcn UI / FastAPI + MongoDB + OpenAI GPT-5.2
+## 27 backend API endpoints, all tested 100%
