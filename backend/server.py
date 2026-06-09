@@ -333,34 +333,48 @@ async def startup():
     try:
         count = await db.employees.count_documents({})
         if count == 0:
-            logger.info("Seeding demo data...")
+            logger.info("Seeding demo data (first deploy)...")
             emps = generate_seed_data(500)
+            for emp in emps:
+                random.seed(hash(emp['id']) % 2**32)
+                emp['skills'] = generate_employee_skills(emp.get('department',''), emp.get('band','B'))
             await db.employees.insert_many(emps)
-            logger.info(f"Seeded {len(emps)} employees")
-        if await db.recruitment.count_documents({}) == 0:
+            logger.info(f"Seeded {len(emps)} employees with skills")
             cands = generate_recruitment_data(200)
             await db.recruitment.insert_many(cands)
             logger.info(f"Seeded {len(cands)} candidates")
-        if await db.training.count_documents({}) == 0:
-            emps = await db.employees.find({}, {"_id": 0}).to_list(10000)
             trn = generate_training_data(emps, 300)
             await db.training.insert_many(trn)
             logger.info(f"Seeded {len(trn)} training records")
-        if await db.engagement.count_documents({}) == 0:
-            emps = await db.employees.find({}, {"_id": 0}).to_list(10000)
             eng = generate_engagement_data(emps)
             await db.engagement.insert_many(eng)
             logger.info(f"Seeded {len(eng)} engagement surveys")
-        # Migrate: add skills to employees if missing
-        no_skills = await db.employees.count_documents({"skills": {"$exists": False}})
-        if no_skills > 0:
-            logger.info(f"Adding skills to {no_skills} employees...")
-            emps_no_skills = await db.employees.find({"skills": {"$exists": False}}).to_list(10000)
-            for emp in emps_no_skills:
-                random.seed(hash(str(emp.get('_id',''))) % 2**32)
-                skills = generate_employee_skills(emp.get('department',''), emp.get('band','B'))
-                await db.employees.update_one({"_id": emp['_id']}, {"$set": {"skills": skills}})
-            logger.info(f"Skills added to {no_skills} employees")
+            logger.info("Demo data seeding complete!")
+        else:
+            if await db.recruitment.count_documents({}) == 0:
+                cands = generate_recruitment_data(200)
+                await db.recruitment.insert_many(cands)
+            if await db.training.count_documents({}) == 0:
+                emps = await db.employees.find({}, {"_id": 0}).to_list(10000)
+                trn = generate_training_data(emps, 300)
+                await db.training.insert_many(trn)
+            if await db.engagement.count_documents({}) == 0:
+                emps = await db.employees.find({}, {"_id": 0}).to_list(10000)
+                eng = generate_engagement_data(emps)
+                await db.engagement.insert_many(eng)
+            no_skills = await db.employees.count_documents({"skills": {"$exists": False}})
+            if no_skills > 0:
+                logger.info(f"Adding skills to {no_skills} employees...")
+                emps_no_skills = await db.employees.find({"skills": {"$exists": False}}).to_list(10000)
+                from pymongo import UpdateOne
+                ops = []
+                for emp in emps_no_skills:
+                    random.seed(hash(str(emp.get('_id',''))) % 2**32)
+                    skills = generate_employee_skills(emp.get('department',''), emp.get('band','B'))
+                    ops.append(UpdateOne({"_id": emp['_id']}, {"$set": {"skills": skills}}))
+                if ops:
+                    await db.employees.bulk_write(ops)
+                logger.info(f"Skills added to {no_skills} employees")
     except Exception as e:
         logger.error(f"Startup seed error: {e}")
     try:
