@@ -10,65 +10,61 @@ Develop an HR analytics application ("HRlytic") with professional corporate visu
 - **AI**: OpenAI GPT-5.2 via Emergent LLM Key (career plans, forecasting, action center)
 - **Theme**: Corporate light theme (teal + slate + white)
 
-## Multi-Location Support
+## Multi-Location Support (Feb 2026)
 - **Turkey**: Istanbul, Ankara, Izmir, Bursa, Antalya
 - **Italy**: Genova, Villanova d'Asti
+- Global country filter in TopBar (All / Turkey / Italy)
+- Filter applied to: Overview, Headcount, Turnover, HC Planning, Org Health
+
+## Q-o-Q Trend Indicators (Feb 2026)
+- KPI cards show ↑↓ arrows with % change vs previous year
+- Trend data: headcount delta, hires delta, leaves delta, turnover change
+- Inverse logic: leaves/turnover ↑ = red, headcount/hires ↑ = green
 
 ## Completed Modules (25 total)
 
 ### Workforce (5)
-1. Executive Overview
-2. Headcount Analytics
+1. Executive Overview — with trends + country distribution
+2. Headcount Analytics — country-filterable
 3. Hires & Leaves
-4. Turnover Analysis
+4. Turnover Analysis — country-filterable
 5. Workforce Movement
 
 ### Planning (6)
-6. Headcount Planning — Target vs current, dept gap analysis, hiring timeline
-7. Workforce Alignment — 5 strategic objectives, skill/HC fulfillment radar
-8. Organization Health — Span of control, manager ratio, band pyramid
-9. Skills & Gap Analysis — Demand vs supply, heatmap, priority gaps with suggested actions
-10. Scenario Simulator — What-if modeling
-11. Succession & Knowledge Risk — Critical role mapping, readiness scoring
+6. Headcount Planning — country-filterable
+7. Workforce Alignment — 5 strategic objectives
+8. Organization Health — country-filterable
+9. Skills & Gap Analysis — demand vs supply, heatmap
+10. Scenario Simulator — Turkey + Italy location impact
+11. Succession & Knowledge Risk
 
 ### Talent (8)
-12. Internal Mobility — Open positions + candidate matching (fit_score)
-13. Recruitment Analytics
-14. Performance Management
-15. Learning & Development
-16. Compensation & Benefits
-17. Engagement & Experience
-18. Career & Talent
-19. AI Career Development (GPT-5.2)
+12. Internal Mobility — open positions + candidate matching
+13-19. Recruitment, Performance, Learning, Compensation, Engagement, Career & Talent, AI Career Dev
 
 ### Insights (5)
-20. **Action Center** — Rule engine (5 sources: Turnover/Succession/Skills/OrgHealth/Headcount) + **AI Executive Brief (GPT-5.2)** with prioritized actions, risk outlook, quick wins
-21. AI Forecast (GPT-5.2)
-22. Capability Forecasting
-23. Burnout Early Warning
-24. HR Operations
+20. Action Center — 5-source alert engine + AI Executive Brief (GPT-5.2)
+21-24. AI Forecast, Capability, Burnout, HR Operations
 
 ### Settings (1)
 25. Data Management
 
-## Key API Endpoints
-GET /api/dashboard/overview, /headcount, /hires, /leaves, /turnover, /movement
-GET /api/dashboard/recruitment, /performance, /learning, /compensation, /engagement
-GET /api/dashboard/career, /skills-map, /skills-map-v2, /hr-operations, /internal-mobility
-GET /api/dashboard/headcount-plan, /workforce-alignment, /org-health
-GET /api/dashboard/capability-forecast, /succession, /burnout
-GET /api/dashboard/positions, /positions/{id}/matches, /alerts
-POST /api/ai/forecast, /api/employee/career-plan, /api/simulator/scenario
-POST /api/dashboard/alerts/ai-scan, /api/dashboard/alerts/resolve
-POST /api/data/upload
-DELETE /api/data/reset
+## Key API Endpoints (country filter marked with *)
+GET /api/dashboard/overview* /headcount* /turnover* /headcount-plan* /org-health*
+GET /api/dashboard/hires /leaves /movement /recruitment /performance /learning /compensation /engagement
+GET /api/dashboard/career /skills-map /skills-map-v2 /hr-operations /internal-mobility
+GET /api/dashboard/capability-forecast /succession /burnout
+GET /api/dashboard/positions /positions/{id}/matches /alerts
+POST /api/ai/forecast /employee/career-plan /simulator/scenario
+POST /api/dashboard/alerts/ai-scan /alerts/resolve
+POST /api/data/upload | DELETE /api/data/reset
 
 ## Upcoming Tasks
-- Multi-location drill-down (TR vs Italy views)
-- Quarter-over-quarter trend comparisons
-- Persist alert resolutions to DB
+- Turkish UI translation (all 25 pages, sidebar, KPI labels, chart titles)
+- Alert resolve persistence to DB
+- Quarter-over-quarter (Q-o-Q) detailed trend pages
 
 ## Backlog (P2)
-- server.py modularization (split into routers)
-- Component refactoring
+- server.py modularization
 - Configurable strategic objectives (DB-driven)
+- Performance optimization for position matching

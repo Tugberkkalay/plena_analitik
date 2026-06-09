@@ -1456,8 +1456,8 @@ async def get_workforce_alignment(year: int = 2025):
 
 # ---- Org Health (Structure Analysis) ----
 @api_router.get("/dashboard/org-health")
-async def get_org_health(year: int = 2025):
-    _, active, _, _ = await get_filtered(year)
+async def get_org_health(year: int = 2025, country: str = None):
+    _, active, _, _ = await get_filtered(year, country)
     hc = len(active)
     total_managers = len([e for e in active if e.get('is_manager')])
     total_ic = hc - total_managers
