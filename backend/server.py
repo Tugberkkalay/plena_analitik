@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 STORAGE_URL = "https://integrations.emergentagent.com/objstore/api/v1/storage"
 EMERGENT_KEY = os.environ.get("EMERGENT_LLM_KEY")
-APP_NAME = "hrlytic"
+APP_NAME = "plenalitik"
 storage_key = None
 
 def init_storage():
@@ -371,7 +371,7 @@ async def startup():
 
 @api_router.get("/")
 async def root():
-    return {"message": "HRlytic API v1.0"}
+    return {"message": "Plenalitik API v1.0"}
 
 @api_router.post("/seed")
 async def seed_data():

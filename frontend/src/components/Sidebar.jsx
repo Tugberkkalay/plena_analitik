@@ -74,7 +74,7 @@ export default function Sidebar({ open, onToggle }) {
             </div>
             <div>
               <h2 data-testid="sidebar-logo" className="text-lg font-bold text-slate-900 tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                HRlytic
+                Plenalitik
               </h2>
               <p className="text-[10px] tracking-[0.2em] uppercase text-slate-400">Analitik Platformu</p>
             </div>
