@@ -7,78 +7,68 @@ Develop an HR analytics application ("HRlytic") with professional corporate visu
 - **Frontend**: React 18, Tailwind CSS, Recharts, Shadcn UI, React Router, Phosphor Icons
 - **Backend**: FastAPI, Python, Motor (async MongoDB driver)
 - **Database**: MongoDB
-- **AI**: OpenAI GPT-5.2 via Emergent LLM Key
+- **AI**: OpenAI GPT-5.2 via Emergent LLM Key (career plans, forecasting, action center)
 - **Theme**: Corporate light theme (teal + slate + white)
 
 ## Multi-Location Support
 - **Turkey**: Istanbul, Ankara, Izmir, Bursa, Antalya
 - **Italy**: Genova, Villanova d'Asti
-- Employee records include `country` field (Turkey/Italy)
 
 ## Completed Modules (25 total)
 
 ### Workforce (5)
-1. Executive Overview — KPIs, demographics, monthly headcount trend
-2. Headcount Analytics — Age×Gender, Band×Gender, dept/city/education, employee list
-3. Hires & Leaves — Monthly tracking, retention, demographics
-4. Turnover Analysis — Vol/invol rates, dept/age/gender breakdown, yearly trend
-5. Workforce Movement — Net movement, 180-day failure, retention by year
+1. Executive Overview
+2. Headcount Analytics
+3. Hires & Leaves
+4. Turnover Analysis
+5. Workforce Movement
 
-### Planning (6) — NEW
-6. Headcount Planning — Target vs current HC, dept gap analysis, critical role gaps, hiring timeline
-7. Workforce Alignment — 5 strategic objectives, skill/HC fulfillment radar, expandable skill coverage
-8. Organization Health — Span of control, manager ratio, band pyramid (actual vs ideal), dept health scores
-9. Skills & Gap Analysis — Demand vs supply bars, coverage heatmap, priority gaps with suggested actions
-10. Scenario Simulator — What-if modeling with parametric sliders
+### Planning (6)
+6. Headcount Planning — Target vs current, dept gap analysis, hiring timeline
+7. Workforce Alignment — 5 strategic objectives, skill/HC fulfillment radar
+8. Organization Health — Span of control, manager ratio, band pyramid
+9. Skills & Gap Analysis — Demand vs supply, heatmap, priority gaps with suggested actions
+10. Scenario Simulator — What-if modeling
 11. Succession & Knowledge Risk — Critical role mapping, readiness scoring
 
-### Talent (8) — REORGANIZED
-12. Internal Mobility — 58 open positions, candidate matching (fit_score), skill overlap visualization
-13. Recruitment Analytics — Funnel, source analysis, time-to-fill, cost-per-hire
-14. Performance Management — Score distribution, dept/band averages, top performers
-15. Learning & Development — Training programs, hours, completion rates
-16. Compensation & Benefits — Salary analysis, compa-ratio, pay gap analysis
-17. Engagement & Experience — eNPS, engagement scores, drivers
-18. Career & Talent — Talent pool, promotion rate, leadership pipeline
-19. AI Career Development — GPT-5.2 powered career plans with skill analysis
+### Talent (8)
+12. Internal Mobility — Open positions + candidate matching (fit_score)
+13. Recruitment Analytics
+14. Performance Management
+15. Learning & Development
+16. Compensation & Benefits
+17. Engagement & Experience
+18. Career & Talent
+19. AI Career Development (GPT-5.2)
 
-### Insights (5) — ENHANCED
-20. Action Center — Alert engine (Turnover/Succession/Skills/OrgHealth/Headcount), prescriptive actions, resolve flow
-21. AI Forecast — GPT-5.2 powered workforce predictions
-22. Capability Forecasting — 6/12/24 month skill projections
-23. Burnout Early Warning — Multi-factor risk scoring
-24. HR Operations — Operational metrics, automation rates
+### Insights (5)
+20. **Action Center** — Rule engine (5 sources: Turnover/Succession/Skills/OrgHealth/Headcount) + **AI Executive Brief (GPT-5.2)** with prioritized actions, risk outlook, quick wins
+21. AI Forecast (GPT-5.2)
+22. Capability Forecasting
+23. Burnout Early Warning
+24. HR Operations
 
 ### Settings (1)
-25. Data Management — Excel/CSV upload, data source tracking, reset
-
-## Data Consistency Fixes Applied
-- Succession critical roles: reduced from 96 → 45 (Band E + high-perf talent D only, ~11% of HC)
-- WF Alignment: KPI renamed from "critical_count" → "at_risk_count" (eliminates priority vs status confusion)
-- Alert engine: Succession alerts now fire with readiness threshold <80% (previously silent)
+25. Data Management
 
 ## Key API Endpoints
-### Dashboard
 GET /api/dashboard/overview, /headcount, /hires, /leaves, /turnover, /movement
 GET /api/dashboard/recruitment, /performance, /learning, /compensation, /engagement
 GET /api/dashboard/career, /skills-map, /skills-map-v2, /hr-operations, /internal-mobility
 GET /api/dashboard/headcount-plan, /workforce-alignment, /org-health
 GET /api/dashboard/capability-forecast, /succession, /burnout
 GET /api/dashboard/positions, /positions/{id}/matches, /alerts
-
-### Actions
 POST /api/ai/forecast, /api/employee/career-plan, /api/simulator/scenario
-POST /api/data/upload, /api/dashboard/alerts/resolve
+POST /api/dashboard/alerts/ai-scan, /api/dashboard/alerts/resolve
+POST /api/data/upload
 DELETE /api/data/reset
 
 ## Upcoming Tasks
-- **Faz 3**: Prescriptive AI integration (GPT-5.2 powered action recommendations)
-- **Faz 3**: Multi-location drill-down (TR vs Italy views in Org Health, Scenario Sim)
-- **Faz 3**: Quarter-over-quarter trend comparisons
+- Multi-location drill-down (TR vs Italy views)
+- Quarter-over-quarter trend comparisons
+- Persist alert resolutions to DB
 
 ## Backlog (P2)
-- server.py modularization (1787 lines → separate router files)
-- Component refactoring (large pages)
-- Persist alert resolutions to DB
+- server.py modularization (split into routers)
+- Component refactoring
 - Configurable strategic objectives (DB-driven)
-- Performance optimization for position matching (cache/precompute)

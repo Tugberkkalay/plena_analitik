@@ -1775,6 +1775,77 @@ class AlertResolveRequest(BaseModel):
 async def resolve_alert(body: AlertResolveRequest):
     return {"message": f"Alert {body.alert_id} resolved", "status": "resolved"}
 
+# ---- AI-Powered Alert Analysis ----
+class AIAlertScanRequest(BaseModel):
+    year: int = 2025
+
+@api_router.post("/dashboard/alerts/ai-scan")
+async def ai_alert_scan(body: AIAlertScanRequest):
+    """Generate AI-powered executive brief from all active alerts + HR context."""
+    year = body.year
+    all_emp, active, hired, left = await get_filtered(year)
+    hc = len(active)
+    # Gather HR context
+    turnover_rate = round(len(left) / hc * 100, 1) if hc else 0
+    avg_perf = safe_avg(active, 'performance_score')
+    avg_eng_data = await db.engagement.find({}, {"_id": 0, "engagement_score": 1}).to_list(10000)
+    avg_eng = round(sum(e['engagement_score'] for e in avg_eng_data) / len(avg_eng_data), 1) if avg_eng_data else 0
+    country_dist = {}
+    for e in active:
+        c = e.get('country', 'Turkey')
+        country_dist[c] = country_dist.get(c, 0) + 1
+    # Get alerts
+    alerts_resp = await get_alerts(year)
+    alerts = alerts_resp["alerts"]
+    high_alerts = [a for a in alerts if a["severity"] == "high"]
+    med_alerts = [a for a in alerts if a["severity"] == "med"]
+    # Build prompt
+    alert_summary = "\n".join([f"- [{a['severity'].upper()}] {a['source']}: {a['title']}" for a in alerts[:15]])
+    context = {
+        "headcount": hc, "turnover_rate": turnover_rate, "avg_performance": avg_perf,
+        "avg_engagement": avg_eng, "hires_ytd": len(hired), "leaves_ytd": len(left),
+        "country_dist": country_dist, "high_alerts": len(high_alerts), "med_alerts": len(med_alerts),
+        "total_alerts": len(alerts)
+    }
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        prompt = f"""You are a senior HR strategy advisor analyzing organizational health signals. Based on the following data, provide a concise executive brief with prioritized action recommendations.
+
+## Organization Context ({year})
+- Headcount: {hc} ({country_dist})
+- Turnover Rate: {turnover_rate}%
+- Avg Performance Score: {avg_perf}/5.0
+- Avg Engagement: {avg_eng}/10
+- YTD Hires: {len(hired)}, Leaves: {len(left)}
+
+## Active Alerts ({len(alerts)} total, {len(high_alerts)} high priority)
+{alert_summary}
+
+Provide your analysis in this EXACT format:
+
+**EXECUTIVE SUMMARY**
+2-3 sentence overview of the organization's health and most critical risks.
+
+**TOP 3 PRIORITY ACTIONS**
+For each: specific action, expected impact, timeline, and owner (HR/Leadership/Department).
+
+**RISK OUTLOOK**
+Brief assessment: what happens if no action is taken in the next 90 days?
+
+**QUICK WINS**
+2-3 actions that can be implemented this week with minimal cost.
+
+Keep each section concise (2-4 sentences). Use data from the alerts. Be specific, not generic."""
+
+        chat = LlmChat(api_key=EMERGENT_KEY, session_id=str(uuid.uuid4()),
+                       system_message="You are a world-class HR analytics advisor. Provide data-driven, specific, actionable insights. Never use generic advice. Always reference the specific numbers and departments from the data.")
+        chat.with_model("openai", "gpt-5.2")
+        response = await chat.send_message(UserMessage(text=prompt))
+        return {"ai_brief": response, "context": context, "status": "success"}
+    except Exception as e:
+        logger.error(f"AI alert scan error: {e}")
+        return {"ai_brief": "AI analysis temporarily unavailable. Please review individual alert recommendations below.", "context": context, "status": "error"}
+
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True,
                    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
