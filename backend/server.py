@@ -1678,32 +1678,31 @@ async def get_alerts(year: int = 2025):
                 "detail": f"{short} department has {len(dept_left)} departures ({rate}% rate) this year. Industry avg is 10-12%.",
                 "suggested_action": f"Conduct stay interviews in {short}, review compensation bands, establish mentoring program for at-risk employees.",
                 "entity_ref": short, "status": "active"})
-    # Rule 2: Succession — roles without successors or low readiness
+    # Rule 2: Succession — roles without high-readiness successors
     _, s_active, _, _ = await get_filtered(year)
     critical_roles_s = [e for e in s_active if e.get('band') == 'E' or (e.get('band') == 'D' and e.get('is_talent') and e.get('performance_score', 0) >= 4.0)]
     succ_pool = [e for e in s_active if e.get('band') in ['C','D'] and e.get('performance_score',0) >= 3.5]
-    no_succ_roles = []
+    weak_succ_roles = []
     for role in critical_roles_s:
         role_skills = {s['skill'] for s in role.get('skills',[])}
-        has_successor = False
+        best_readiness = 0
         for s in succ_pool:
             if s['id'] == role['id']: continue
             s_skills = {sk['skill'] for sk in s.get('skills',[])}
             overlap = len(role_skills & s_skills)
             readiness = min(100, int((overlap / max(1,len(role_skills))) * 60 + (s.get('performance_score',3)/5)*40))
-            if readiness >= 55:
-                has_successor = True
-                break
-        if not has_successor:
-            no_succ_roles.append(role)
-    if no_succ_roles:
-        for role in no_succ_roles[:5]:
-            alert_id += 1
-            alerts.append({"id": str(alert_id), "source": "Succession", "severity": "high",
-                "title": f"No successor for {role['job_title']} ({shorten_dept(role['department'])})",
-                "detail": f"{role['name']} (Band {role['band']}, {role.get('seniority_years',0)} yrs) has no qualified successor identified.",
-                "suggested_action": f"Evaluate internal mobility candidates from adjacent bands/departments. Consider targeted external recruitment if gap persists > 90 days.",
-                "entity_ref": role['name'], "status": "active"})
+            best_readiness = max(best_readiness, readiness)
+        if best_readiness < 80:
+            weak_succ_roles.append((role, best_readiness))
+    for role, best_r in weak_succ_roles[:5]:
+        alert_id += 1
+        sev = "high" if best_r < 65 else "med"
+        title = f"No qualified successor for {role['job_title']} ({shorten_dept(role['department'])})" if best_r < 65 else f"Weak successor pipeline for {role['job_title']} ({shorten_dept(role['department'])})"
+        alerts.append({"id": str(alert_id), "source": "Succession", "severity": sev,
+            "title": title,
+            "detail": f"{role['name']} (Band {role['band']}, {role.get('seniority_years',0)} yrs). Best successor readiness: {best_r}%.",
+            "suggested_action": f"Evaluate internal mobility candidates from adjacent bands/departments. Launch accelerated development program for potential successors.",
+            "entity_ref": role['name'], "status": "active"})
     # Rule 3: Skills gap — critical coverage
     skill_demand = {}
     for obj in STRATEGIC_OBJECTIVES:
