@@ -41,7 +41,7 @@ export default function WorkforceAlignmentPage({ year }) {
         <KPICard title="Objectives" value={kpis.total_objectives} icon={Target} color="blue" />
         <KPICard title="Overall Readiness" value={kpis.overall_readiness} icon={CheckCircle} color="green" format="percent" />
         <KPICard title="On Track" value={kpis.on_track} icon={Lightning} color="green" />
-        <KPICard title="Critical" value={kpis.critical_count} icon={Warning} color="red" />
+        <KPICard title="At Risk" value={kpis.at_risk_count} icon={Warning} color="red" />
         <KPICard title="Skill Gaps" value={kpis.total_skill_gaps} icon={Crosshair} color="amber" />
       </div>
 

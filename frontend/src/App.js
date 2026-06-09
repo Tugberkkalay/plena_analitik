@@ -29,6 +29,9 @@ import BurnoutPage from "@/pages/BurnoutPage";
 import HeadcountPlanPage from "@/pages/HeadcountPlanPage";
 import WorkforceAlignmentPage from "@/pages/WorkforceAlignmentPage";
 import OrgHealthPage from "@/pages/OrgHealthPage";
+import SkillsMapV2Page from "@/pages/SkillsMapV2Page";
+import InternalMobilityPage from "@/pages/InternalMobilityPage";
+import ActionCenterPage from "@/pages/ActionCenterPage";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -56,6 +59,9 @@ const PAGE_TITLES = {
   "/headcount-plan": "Headcount Planning",
   "/workforce-alignment": "Workforce Alignment",
   "/org-health": "Organization Health",
+  "/skills-map-v2": "Skills & Gap Analysis",
+  "/internal-mobility": "Internal Mobility",
+  "/action-center": "Action Center",
 };
 
 function TopBar({ year, setYear, years }) {
@@ -142,6 +148,9 @@ function AppContent() {
             <Route path="/headcount-plan" element={<HeadcountPlanPage year={year} />} />
             <Route path="/workforce-alignment" element={<WorkforceAlignmentPage year={year} />} />
             <Route path="/org-health" element={<OrgHealthPage year={year} />} />
+            <Route path="/skills-map-v2" element={<SkillsMapV2Page year={year} />} />
+            <Route path="/internal-mobility" element={<InternalMobilityPage year={year} />} />
+            <Route path="/action-center" element={<ActionCenterPage year={year} />} />
             <Route path="/ai-forecast" element={<AIForecastPage year={year} />} />
             <Route path="/data-upload" element={<DataUploadPage />} />
           </Routes>

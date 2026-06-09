@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { ChartBar, Users, UserPlus, ArrowsClockwise, ArrowsLeftRight, Brain, CloudArrowUp, List, X, Funnel, Target, GraduationCap, CurrencyDollar, Smiley, Star, Gear, Compass, UserFocus, Sliders, Binoculars, ShieldWarning, Heartbeat, FilePdf, Crosshair, TreeStructure, Strategy } from "@phosphor-icons/react";
+import { ChartBar, Users, UserPlus, ArrowsClockwise, ArrowsLeftRight, Brain, CloudArrowUp, List, X, Funnel, Target, GraduationCap, CurrencyDollar, Smiley, Star, Gear, Compass, UserFocus, Sliders, Binoculars, ShieldWarning, Heartbeat, FilePdf, Crosshair, TreeStructure, Strategy, Bell, UserSwitch, GridNine } from "@phosphor-icons/react";
 
 const NAV_SECTIONS = [
   {
@@ -18,26 +18,28 @@ const NAV_SECTIONS = [
       { path: "/headcount-plan", label: "HC Planning", icon: Crosshair },
       { path: "/workforce-alignment", label: "WF Alignment", icon: Strategy },
       { path: "/org-health", label: "Org Health", icon: TreeStructure },
+      { path: "/skills-map-v2", label: "Skills Map", icon: GridNine },
       { path: "/scenario-sim", label: "Scenario Sim", icon: Sliders },
       { path: "/succession", label: "Succession", icon: ShieldWarning },
     ],
   },
   {
-    label: "People",
+    label: "Talent",
     items: [
+      { path: "/internal-mobility", label: "Internal Mobility", icon: UserSwitch },
       { path: "/recruitment", label: "Recruitment", icon: Funnel },
       { path: "/performance", label: "Performance", icon: Target },
       { path: "/learning", label: "Learning", icon: GraduationCap },
       { path: "/compensation", label: "Compensation", icon: CurrencyDollar },
       { path: "/engagement", label: "Engagement", icon: Smiley },
       { path: "/career-talent", label: "Career & Talent", icon: Star },
-      { path: "/skills-map", label: "Skills Map", icon: Compass },
       { path: "/career-dev", label: "Career Dev (AI)", icon: UserFocus },
     ],
   },
   {
     label: "Insights",
     items: [
+      { path: "/action-center", label: "Action Center", icon: Bell },
       { path: "/ai-forecast", label: "AI Forecast", icon: Brain },
       { path: "/capability-forecast", label: "Capability", icon: Binoculars },
       { path: "/burnout", label: "Burnout Alert", icon: Heartbeat },

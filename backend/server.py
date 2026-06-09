@@ -65,16 +65,20 @@ POSITIONS_BY_BAND = {
 }
 BANDS = ["A","B","C","D","E"]
 BAND_WEIGHTS = [20,30,25,15,10]
-CITIES = ["Istanbul","Ankara","Izmir","Bursa","Antalya"]
-CITY_WEIGHTS = [45,20,15,10,10]
+CITIES = ["Istanbul","Ankara","Izmir","Bursa","Antalya","Genova","Villanova d'Asti"]
+CITY_WEIGHTS = [35,15,10,7,5,18,10]
+CITY_COUNTRY = {"Istanbul":"Turkey","Ankara":"Turkey","Izmir":"Turkey","Bursa":"Turkey","Antalya":"Turkey","Genova":"Italy","Villanova d'Asti":"Italy"}
 EDUCATION_LEVELS = ["High School","Bachelor","Master","PhD"]
 EDUCATION_WEIGHTS = [10,50,30,10]
-UNIVERSITIES = ["Bogazici University","Istanbul Technical University","METU","Bilkent University","Koc University","Sabanci University","Istanbul University","Galatasaray University","Hacettepe University","Yildiz Technical University","Marmara University","Ege University","Dokuz Eylul University","Gazi University","Anadolu University"]
+UNIVERSITIES = ["Bogazici University","Istanbul Technical University","METU","Bilkent University","Koc University","Sabanci University","Istanbul University","Galatasaray University","Hacettepe University","Yildiz Technical University","Marmara University","Ege University","Dokuz Eylul University","Gazi University","Anadolu University","Politecnico di Torino","Universita di Genova","Politecnico di Milano"]
 MARITAL_STATUS = ["Single","Married","Divorced"]
 MARITAL_WEIGHTS = [35,55,10]
 LEAVING_REASONS_VOL = ["Resignation","Better Opportunity","Relocation","Personal Reasons","Career Change","Retirement"]
 LEAVING_REASONS_INVOL = ["Performance Issues","Restructuring","End of Contract"]
 SALARY_BY_BAND = {"A":(15000,30000),"B":(30000,50000),"C":(50000,80000),"D":(80000,130000),"E":(130000,250000)}
+ITALIAN_MALE = ["Marco","Luca","Alessandro","Andrea","Giovanni","Matteo","Francesco","Lorenzo","Davide","Giuseppe"]
+ITALIAN_FEMALE = ["Giulia","Francesca","Sara","Chiara","Valentina","Elena","Alessia","Marta","Laura","Anna"]
+ITALIAN_LAST = ["Rossi","Russo","Ferrari","Esposito","Bianchi","Romano","Colombo","Ricci","Marino","Greco"]
 
 def generate_seed_data(count=500):
     random.seed(42)
@@ -92,9 +96,15 @@ def generate_seed_data(count=500):
     leave_w = [l[2] for l in LEAVE_WEIGHTS]
 
     for i in range(count):
+        city = random.choices(CITIES, weights=CITY_WEIGHTS, k=1)[0]
+        country = CITY_COUNTRY[city]
         gender = random.choices(["Male","Female"], weights=[55,45], k=1)[0]
-        first = random.choice(MALE_NAMES if gender == "Male" else FEMALE_NAMES)
-        last = random.choice(LAST_NAMES)
+        if country == "Italy":
+            first = random.choice(ITALIAN_MALE if gender == "Male" else ITALIAN_FEMALE)
+            last = random.choice(ITALIAN_LAST)
+        else:
+            first = random.choice(MALE_NAMES if gender == "Male" else FEMALE_NAMES)
+            last = random.choice(LAST_NAMES)
         band = random.choices(BANDS, weights=BAND_WEIGHTS, k=1)[0]
         age_min = {"A":22,"B":25,"C":28,"D":32,"E":38}[band]
         age_max = {"A":35,"B":42,"C":50,"D":55,"E":62}[band]
@@ -107,7 +117,6 @@ def generate_seed_data(count=500):
         seniority = max(0, round(2025 - hy + random.uniform(-0.5, 0.5), 1))
         dept = random.choices(DEPARTMENTS, weights=DEPT_WEIGHTS, k=1)[0]
         pos = random.choice(POSITIONS_BY_BAND[band])
-        city = random.choices(CITIES, weights=CITY_WEIGHTS, k=1)[0]
         edu = random.choices(EDUCATION_LEVELS, weights=EDUCATION_WEIGHTS, k=1)[0]
         uni = random.choice(UNIVERSITIES) if edu != "High School" else None
         marital = random.choices(MARITAL_STATUS, weights=MARITAL_WEIGHTS, k=1)[0]
@@ -145,10 +154,11 @@ def generate_seed_data(count=500):
         emp = {
             "id": str(uuid.uuid4()), "name": f"{first} {last}", "gender": gender, "age": age,
             "hire_date": hire_date, "termination_date": termination_date, "department": dept,
-            "job_title": pos, "band": band, "salary": salary, "city": city,
+            "job_title": pos, "band": band, "salary": salary, "city": city, "country": country,
             "education_level": edu, "university": uni, "marital_status": marital,
             "is_talent": is_talent, "is_manager": is_manager, "is_disabled": is_disabled,
             "is_full_time": is_full_time, "performance_score": perf, "seniority_years": seniority,
+            "mobility_flag": random.random() < 0.35,
             "status": status, "leaving_reason": leaving_reason, "termination_type": termination_type,
             "data_source": "seed", "created_at": datetime.now(timezone.utc).isoformat()
         }
@@ -1208,7 +1218,9 @@ async def get_capability_forecast(year: int = 2025):
 @api_router.get("/dashboard/succession")
 async def get_succession(year: int = 2025):
     _, active, _, _ = await get_filtered(year)
-    critical_roles = [e for e in active if e.get('band') in ['D','E']]
+    # Critical roles: Band E + Band D with high performance/talent (5-10% of HC)
+    critical_roles = [e for e in active if e.get('band') == 'E' or
+                      (e.get('band') == 'D' and e.get('is_talent') and e.get('performance_score', 0) >= 4.0)]
     successors_pool = [e for e in active if e.get('band') in ['C','D'] and e.get('performance_score',0) >= 3.5]
     results = []
     for role in critical_roles:
@@ -1220,13 +1232,13 @@ async def get_succession(year: int = 2025):
             s_skills = {sk['skill'] for sk in s.get('skills',[])}
             overlap = len(role_skills & s_skills)
             readiness = min(100, int((overlap / max(1,len(role_skills))) * 60 + (s.get('performance_score',3)/5)*40))
-            if readiness >= 40:
+            if readiness >= 55:
                 candidates.append({"name": s['name'], "band": s['band'], "department": s['department'], "performance": s.get('performance_score',0), "readiness": readiness, "skill_match": overlap})
         candidates = sorted(candidates, key=lambda x: -x['readiness'])[:3]
         unique_skills = len([s for s in role.get('skills',[]) if s['proficiency'] >= 4])
         seniority = role.get('seniority_years',0)
-        knowledge_risk = min(100, int(unique_skills * 12 + seniority * 3 + (5 - len(candidates)) * 10))
-        risk_level = "Critical" if knowledge_risk >= 70 else "High" if knowledge_risk >= 50 else "Medium" if knowledge_risk >= 30 else "Low"
+        knowledge_risk = min(100, int(unique_skills * 10 + seniority * 4 + (3 - len(candidates)) * 15))
+        risk_level = "Critical" if knowledge_risk >= 75 else "High" if knowledge_risk >= 55 else "Medium" if knowledge_risk >= 35 else "Low"
         results.append({"name": role['name'], "department": role['department'], "job_title": role['job_title'], "band": role['band'],
                         "seniority": seniority, "performance": role.get('performance_score',0),
                         "knowledge_risk": knowledge_risk, "risk_level": risk_level, "successors": candidates, "successor_count": len(candidates)})
@@ -1408,10 +1420,10 @@ async def get_workforce_alignment(year: int = 2025):
             "status": "On Track" if overall >= 75 else "At Risk" if overall >= 50 else "Critical"
         })
     overall_readiness = round(sum(o["overall_readiness"] for o in objectives) / len(objectives), 1) if objectives else 0
-    critical = len([o for o in objectives if o["status"] == "Critical"])
+    at_risk = len([o for o in objectives if o["status"] in ["Critical", "At Risk"]])
     return {
         "kpis": {"total_objectives": len(objectives), "overall_readiness": overall_readiness,
-                 "critical_count": critical, "on_track": len([o for o in objectives if o["status"] == "On Track"]),
+                 "at_risk_count": at_risk, "on_track": len([o for o in objectives if o["status"] == "On Track"]),
                  "total_skill_gaps": sum(o["gap_count"] for o in objectives)},
         "objectives": objectives
     }
@@ -1473,6 +1485,296 @@ async def get_org_health(year: int = 2025):
         "department_health": sorted(dept_health, key=lambda x: x["health_score"]),
         "band_pyramid": band_pyramid,
     }
+
+# ---- Open Positions Generation ----
+def generate_open_positions(active_employees):
+    random.seed(50)
+    positions = []
+    for dept_name, target in TARGET_HEADCOUNT.items():
+        dept_emps = [e for e in active_employees if e['department'] == dept_name]
+        gap = target["target"] - len(dept_emps)
+        if gap <= 0:
+            continue
+        num_open = min(gap, random.randint(2, max(3, gap // 2)))
+        for i in range(num_open):
+            band = random.choices(BANDS, weights=[15, 30, 30, 15, 10], k=1)[0]
+            title = random.choice(target["critical_roles"]) if random.random() < 0.4 else random.choice(POSITIONS_BY_BAND[band])
+            city = random.choices(CITIES, weights=CITY_WEIGHTS, k=1)[0]
+            focus = DEPT_SKILL_FOCUS.get(dept_name, {"tech": ["Data Analytics"], "soft": ["Communication"], "domain": ["Project Management"]})
+            req_skills = random.sample(focus.get("tech", [])[:6], min(3, len(focus.get("tech", [])))) + \
+                         random.sample(focus.get("soft", [])[:4], min(1, len(focus.get("soft", [])))) + \
+                         random.sample(focus.get("domain", [])[:3], min(1, len(focus.get("domain", []))))
+            days_open = random.randint(3, 65)
+            pos_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"{dept_name}-{i}-{title}-{band}"))
+            positions.append({
+                "id": pos_id, "title": title, "department": dept_name,
+                "location": city, "country": CITY_COUNTRY[city],
+                "status": "open", "target_band": band,
+                "required_skills": req_skills,
+                "opened_date": f"2025-{random.randint(1,12):02d}-{random.randint(1,28):02d}",
+                "days_open": days_open
+            })
+    return positions
+
+# ---- Enhanced Skills Map ----
+@api_router.get("/dashboard/skills-map-v2")
+async def get_skills_map_v2(year: int = 2025):
+    _, active, _, _ = await get_filtered(year)
+    hc = len(active)
+    skill_agg = {}
+    dept_skills = {}
+    for emp in active:
+        dept = shorten_dept(emp['department'])
+        for s in emp.get('skills', []):
+            sn, cat, prof = s['skill'], s['category'], s['proficiency']
+            if sn not in skill_agg:
+                skill_agg[sn] = {"skill": sn, "category": cat, "count": 0, "total_prof": 0, "experts": 0, "beginners": 0, "proficient": 0}
+            skill_agg[sn]["count"] += 1
+            skill_agg[sn]["total_prof"] += prof
+            if prof >= 4: skill_agg[sn]["experts"] += 1
+            if prof == 3: skill_agg[sn]["proficient"] += 1
+            if prof <= 2: skill_agg[sn]["beginners"] += 1
+            if dept not in dept_skills:
+                dept_skills[dept] = {}
+            if sn not in dept_skills[dept]:
+                dept_skills[dept][sn] = {"count": 0, "total": 0}
+            dept_skills[dept][sn]["count"] += 1
+            dept_skills[dept][sn]["total"] += prof
+    for s in skill_agg.values():
+        s["avg_proficiency"] = round(s["total_prof"] / s["count"], 1) if s["count"] else 0
+        s["capacity"] = s["proficient"] + s["experts"]
+        del s["total_prof"]
+    all_skills = sorted(skill_agg.values(), key=lambda x: -x["count"])
+    # Derive future demand from strategic objectives
+    skill_demand = {}
+    for obj in STRATEGIC_OBJECTIVES:
+        for sk in obj["required_skills"]:
+            if sk not in skill_demand:
+                skill_demand[sk] = 0
+            skill_demand[sk] += max(3, obj["required_headcount"] // len(obj["required_skills"]))
+    # Compute gaps
+    gaps = []
+    for sk_name, demand in skill_demand.items():
+        data = skill_agg.get(sk_name, {"skill": sk_name, "count": 0, "avg_proficiency": 0, "capacity": 0, "experts": 0, "beginners": 0, "category": "Tech"})
+        current_cap = data.get("capacity", 0)
+        coverage = round(current_cap / demand * 100, 1) if demand else 100
+        severity = "critical" if coverage < 50 else "moderate" if coverage < 80 else "healthy"
+        if severity == "critical":
+            action = "Targeted hiring + intensive training program"
+        elif severity == "moderate":
+            action = "Internal rotation + upskilling courses"
+        else:
+            action = "Maintain through mentoring"
+        gaps.append({
+            "skill": sk_name, "category": data.get("category", "Tech"),
+            "current_capacity": current_cap, "future_demand": demand,
+            "gap": max(0, demand - current_cap), "coverage": coverage,
+            "severity": severity, "suggested_action": action,
+            "experts": data.get("experts", 0), "avg_proficiency": data.get("avg_proficiency", 0)
+        })
+    gaps = sorted(gaps, key=lambda x: x["coverage"])
+    # Heatmap: category × department
+    categories = sorted(set(s["category"] for s in all_skills))
+    heatmap = []
+    for cat in categories:
+        row = {"category": cat}
+        cat_skills = [s["skill"] for s in all_skills if s["category"] == cat]
+        for dept, skills in dept_skills.items():
+            cat_dept_scores = [skills[sk]["total"] / skills[sk]["count"] for sk in cat_skills if sk in skills]
+            row[dept] = round(sum(cat_dept_scores) / len(cat_dept_scores), 1) if cat_dept_scores else 0
+        heatmap.append(row)
+    heatmap_depts = sorted(dept_skills.keys())
+    critical_gaps = [g for g in gaps if g["severity"] == "critical"]
+    emerging = [s for s in all_skills if s["avg_proficiency"] < 2.5 and s["count"] >= 3]
+    capped_coverages = [min(100, g["coverage"]) for g in gaps]
+    avg_cov = round(sum(capped_coverages) / len(capped_coverages), 1) if capped_coverages else 0
+    return {
+        "kpis": {"tracked_skills": len(all_skills), "critical_gaps": len(critical_gaps),
+                 "avg_coverage": avg_cov,
+                 "emerging_skills": len(emerging)},
+        "gaps": gaps, "heatmap": heatmap, "heatmap_depts": heatmap_depts,
+        "all_skills": all_skills[:30], "demand_supply": sorted(gaps, key=lambda x: -x["gap"])[:15]
+    }
+
+# ---- Internal Mobility (Positions + Matching) ----
+@api_router.get("/dashboard/positions")
+async def get_positions(year: int = 2025):
+    _, active, _, _ = await get_filtered(year)
+    positions = generate_open_positions(active)
+    filled_count = random.Random(51).randint(8, 18)
+    internal_fill = random.Random(51).randint(3, filled_count)
+    avg_ttf = round(random.Random(51).uniform(22, 42), 1)
+    internal_fit_count = 0
+    for pos in positions:
+        matches = _compute_matches(pos, active)
+        if any(m["fit_score"] >= 70 for m in matches):
+            internal_fit_count += 1
+    internal_fit_pct = round(internal_fit_count / len(positions) * 100, 1) if positions else 0
+    return {
+        "kpis": {"open_roles": len(positions), "internal_fit": internal_fit_pct,
+                 "avg_time_to_fill": avg_ttf, "filled_internally": internal_fill},
+        "positions": positions
+    }
+
+def _compute_matches(position, active_employees):
+    req_skills = set(position["required_skills"])
+    matches = []
+    for emp in active_employees:
+        if emp.get('status') != 'active': continue
+        emp_skills = {s['skill']: s['proficiency'] for s in emp.get('skills', [])}
+        matched = []
+        missing = []
+        skill_score = 0
+        for sk in req_skills:
+            if sk in emp_skills:
+                matched.append({"skill": sk, "proficiency": emp_skills[sk]})
+                skill_score += min(1.0, emp_skills[sk] / 4.0)
+            else:
+                missing.append(sk)
+        if len(matched) == 0: continue
+        skill_overlap = round(skill_score / len(req_skills) * 100, 1) if req_skills else 0
+        perf_norm = min(100, round(emp.get('performance_score', 3) / 5.0 * 100, 1))
+        mob_score = 80 if emp.get('mobility_flag') else 30
+        fit_score = round(0.55 * skill_overlap + 0.25 * perf_norm + 0.20 * mob_score, 1)
+        if fit_score >= 35:
+            matches.append({
+                "employee_id": emp['id'], "name": emp['name'],
+                "department": shorten_dept(emp['department']),
+                "job_title": emp['job_title'], "band": emp['band'],
+                "performance": emp.get('performance_score', 0),
+                "fit_score": fit_score, "skill_overlap": skill_overlap,
+                "matched_skills": matched, "missing_skills": missing,
+                "mobility_ready": emp.get('mobility_flag', False)
+            })
+    return sorted(matches, key=lambda x: -x["fit_score"])[:10]
+
+@api_router.get("/dashboard/positions/{position_id}/matches")
+async def get_position_matches(position_id: str, year: int = 2025):
+    _, active, _, _ = await get_filtered(year)
+    positions = generate_open_positions(active)
+    pos = next((p for p in positions if p["id"] == position_id), None)
+    if not pos:
+        raise HTTPException(404, "Position not found")
+    matches = _compute_matches(pos, active)
+    return {"position": pos, "matches": matches}
+
+# ---- Action Center (Alert Engine) ----
+@api_router.get("/dashboard/alerts")
+async def get_alerts(year: int = 2025):
+    all_emp, active, hired, left = await get_filtered(year)
+    hc = len(active)
+    alerts = []
+    alert_id = 0
+    # Rule 1: Department turnover > 10%
+    for dept_name in DEPARTMENTS:
+        short = shorten_dept(dept_name)
+        dept_active = [e for e in active if e['department'] == dept_name]
+        dept_left = [e for e in left if e['department'] == dept_name]
+        rate = round(len(dept_left) / len(dept_active) * 100, 1) if dept_active else 0
+        if rate > 10:
+            alert_id += 1
+            alerts.append({"id": str(alert_id), "source": "Turnover", "severity": "high" if rate > 18 else "med",
+                "title": f"High turnover in {short} ({rate}%)",
+                "detail": f"{short} department has {len(dept_left)} departures ({rate}% rate) this year. Industry avg is 10-12%.",
+                "suggested_action": f"Conduct stay interviews in {short}, review compensation bands, establish mentoring program for at-risk employees.",
+                "entity_ref": short, "status": "active"})
+    # Rule 2: Succession — roles without successors or low readiness
+    _, s_active, _, _ = await get_filtered(year)
+    critical_roles_s = [e for e in s_active if e.get('band') == 'E' or (e.get('band') == 'D' and e.get('is_talent') and e.get('performance_score', 0) >= 4.0)]
+    succ_pool = [e for e in s_active if e.get('band') in ['C','D'] and e.get('performance_score',0) >= 3.5]
+    no_succ_roles = []
+    for role in critical_roles_s:
+        role_skills = {s['skill'] for s in role.get('skills',[])}
+        has_successor = False
+        for s in succ_pool:
+            if s['id'] == role['id']: continue
+            s_skills = {sk['skill'] for sk in s.get('skills',[])}
+            overlap = len(role_skills & s_skills)
+            readiness = min(100, int((overlap / max(1,len(role_skills))) * 60 + (s.get('performance_score',3)/5)*40))
+            if readiness >= 55:
+                has_successor = True
+                break
+        if not has_successor:
+            no_succ_roles.append(role)
+    if no_succ_roles:
+        for role in no_succ_roles[:5]:
+            alert_id += 1
+            alerts.append({"id": str(alert_id), "source": "Succession", "severity": "high",
+                "title": f"No successor for {role['job_title']} ({shorten_dept(role['department'])})",
+                "detail": f"{role['name']} (Band {role['band']}, {role.get('seniority_years',0)} yrs) has no qualified successor identified.",
+                "suggested_action": f"Evaluate internal mobility candidates from adjacent bands/departments. Consider targeted external recruitment if gap persists > 90 days.",
+                "entity_ref": role['name'], "status": "active"})
+    # Rule 3: Skills gap — critical coverage
+    skill_demand = {}
+    for obj in STRATEGIC_OBJECTIVES:
+        for sk in obj["required_skills"]:
+            if sk not in skill_demand: skill_demand[sk] = 0
+            skill_demand[sk] += max(3, obj["required_headcount"] // len(obj["required_skills"]))
+    skill_supply = {}
+    for emp in active:
+        for s in emp.get('skills', []):
+            if s['skill'] not in skill_supply: skill_supply[s['skill']] = 0
+            if s['proficiency'] >= 3: skill_supply[s['skill']] += 1
+    for sk, demand in skill_demand.items():
+        supply = skill_supply.get(sk, 0)
+        cov = round(supply / demand * 100) if demand else 100
+        if cov < 50:
+            alert_id += 1
+            alerts.append({"id": str(alert_id), "source": "Skills", "severity": "high" if cov < 30 else "med",
+                "title": f"Critical skill gap: {sk} ({cov}% coverage)",
+                "detail": f"Only {supply} proficient employees vs {demand} demand. Coverage at {cov}%.",
+                "suggested_action": f"Launch targeted {sk} training program (8-week intensive). Prioritize hiring with {sk} as mandatory requirement.",
+                "entity_ref": sk, "status": "active"})
+    # Rule 4: Org Health — narrow span or high manager ratio
+    for dept_name in DEPARTMENTS:
+        short = shorten_dept(dept_name)
+        dept_emps = [e for e in active if e['department'] == dept_name]
+        managers = [e for e in dept_emps if e.get('is_manager')]
+        ics = [e for e in dept_emps if not e.get('is_manager')]
+        span = round(len(ics) / len(managers), 1) if managers else 0
+        mgr_ratio = round(len(managers) / len(dept_emps) * 100, 1) if dept_emps else 0
+        if span < 4 and len(dept_emps) > 10:
+            alert_id += 1
+            alerts.append({"id": str(alert_id), "source": "Org Health", "severity": "med",
+                "title": f"Narrow span of control in {short} (1:{span})",
+                "detail": f"{short} has {len(managers)} managers for {len(ics)} ICs. Span of control {span} is below optimal range (5-10).",
+                "suggested_action": f"Evaluate team consolidation in {short}. Consider merging sub-teams or converting managerial roles to senior IC tracks.",
+                "entity_ref": short, "status": "active"})
+        if mgr_ratio > 30:
+            alert_id += 1
+            alerts.append({"id": str(alert_id), "source": "Org Health", "severity": "med",
+                "title": f"High manager ratio in {short} ({mgr_ratio}%)",
+                "detail": f"{len(managers)} of {len(dept_emps)} employees ({mgr_ratio}%) are in managerial roles. Benchmark is 15-20%.",
+                "suggested_action": f"Review {short} organizational design. Transition some managerial roles to technical leadership or senior specialist tracks.",
+                "entity_ref": short, "status": "active"})
+    # Rule 5: Headcount gap — critical departments
+    for dept_name, target in TARGET_HEADCOUNT.items():
+        short = shorten_dept(dept_name)
+        current = len([e for e in active if e['department'] == dept_name])
+        fill_rate = round(current / target["target"] * 100, 1) if target["target"] else 100
+        if fill_rate < 65:
+            alert_id += 1
+            alerts.append({"id": str(alert_id), "source": "Headcount", "severity": "high" if fill_rate < 55 else "med",
+                "title": f"{short} understaffed ({fill_rate}% fill rate)",
+                "detail": f"Current: {current}, Target: {target['target']}. Gap of {target['target'] - current} positions.",
+                "suggested_action": f"Accelerate recruitment pipeline for {short}. Engage 2-3 additional sourcing channels. Consider contractor bridge staffing.",
+                "entity_ref": short, "status": "active"})
+    # Sort by severity
+    sev_order = {"high": 0, "med": 1, "low": 2}
+    alerts = sorted(alerts, key=lambda x: sev_order.get(x["severity"], 2))
+    high_count = len([a for a in alerts if a["severity"] == "high"])
+    return {
+        "kpis": {"active_alerts": len(alerts), "high_priority": high_count,
+                 "resolved_this_month": random.Random(52).randint(5, 15), "sources": len(set(a["source"] for a in alerts))},
+        "alerts": alerts
+    }
+
+class AlertResolveRequest(BaseModel):
+    alert_id: str
+
+@api_router.post("/dashboard/alerts/resolve")
+async def resolve_alert(body: AlertResolveRequest):
+    return {"message": f"Alert {body.alert_id} resolved", "status": "resolved"}
 
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True,
