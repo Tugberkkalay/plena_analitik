@@ -7,17 +7,19 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, L
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
-export default function TurnoverPage({ year }) {
+export default function TurnoverPage({ year, country }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    axios.get(`${API}/dashboard/turnover?year=${year}`)
+    const params = new URLSearchParams({ year });
+    if (country) params.append("country", country);
+    axios.get(`${API}/dashboard/turnover?${params}`)
       .then((r) => setData(r.data))
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [year]);
+  }, [year, country]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
   if (!data) return <p className="text-slate-400">No data available.</p>;

@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import axios from "axios";
 import Sidebar from "@/components/Sidebar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CalendarBlank, Printer } from "@phosphor-icons/react";
+import { CalendarBlank, Printer, GlobeHemisphereWest } from "@phosphor-icons/react";
 import OverviewPage from "@/pages/OverviewPage";
 import HeadcountPage from "@/pages/HeadcountPage";
 import HiresLeavesPage from "@/pages/HiresLeavesPage";
@@ -64,7 +64,7 @@ const PAGE_TITLES = {
   "/action-center": "Action Center",
 };
 
-function TopBar({ year, setYear, years }) {
+function TopBar({ year, setYear, years, country, setCountry }) {
   const location = useLocation();
   const title = PAGE_TITLES[location.pathname] || "Dashboard";
 
@@ -90,6 +90,19 @@ function TopBar({ year, setYear, years }) {
           <span>Export PDF</span>
         </button>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-50 border border-slate-200">
+          <GlobeHemisphereWest size={16} className="text-slate-500" />
+          <Select value={country || "all"} onValueChange={(v) => setCountry(v === "all" ? null : v)}>
+            <SelectTrigger data-testid="country-selector" className="w-[90px] border-0 bg-transparent h-7 text-sm text-slate-700 p-0 focus:ring-0">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-white border-slate-200">
+              <SelectItem value="all" className="text-slate-700 focus:bg-slate-100">All</SelectItem>
+              <SelectItem value="Turkey" className="text-slate-700 focus:bg-slate-100">Turkey</SelectItem>
+              <SelectItem value="Italy" className="text-slate-700 focus:bg-slate-100">Italy</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-50 border border-slate-200">
           <CalendarBlank size={16} className="text-slate-500" />
           <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
             <SelectTrigger data-testid="year-selector" className="w-[90px] border-0 bg-transparent h-7 text-sm text-slate-700 p-0 focus:ring-0">
@@ -113,6 +126,7 @@ function AppContent() {
   const [year, setYear] = useState(2025);
   const [years, setYears] = useState([2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [country, setCountry] = useState(null);
 
   useEffect(() => {
     axios.get(`${API}/dashboard/years`).then((res) => {
@@ -124,14 +138,14 @@ function AppContent() {
     <div className="hrlytic-layout">
       <Sidebar open={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
       <div className="hrlytic-main">
-        <TopBar year={year} setYear={setYear} years={years} />
+        <TopBar year={year} setYear={setYear} years={years} country={country} setCountry={setCountry} />
         <div className="hrlytic-content">
           <Routes>
-            <Route path="/" element={<OverviewPage year={year} />} />
-            <Route path="/headcount" element={<HeadcountPage year={year} />} />
-            <Route path="/hires-leaves" element={<HiresLeavesPage year={year} />} />
-            <Route path="/turnover" element={<TurnoverPage year={year} />} />
-            <Route path="/movement" element={<MovementPage year={year} />} />
+            <Route path="/" element={<OverviewPage year={year} country={country} />} />
+            <Route path="/headcount" element={<HeadcountPage year={year} country={country} />} />
+            <Route path="/hires-leaves" element={<HiresLeavesPage year={year} country={country} />} />
+            <Route path="/turnover" element={<TurnoverPage year={year} country={country} />} />
+            <Route path="/movement" element={<MovementPage year={year} country={country} />} />
             <Route path="/recruitment" element={<RecruitmentPage year={year} />} />
             <Route path="/performance" element={<PerformancePage year={year} />} />
             <Route path="/learning" element={<LearningPage year={year} />} />
@@ -145,9 +159,9 @@ function AppContent() {
             <Route path="/succession" element={<SuccessionPage year={year} />} />
             <Route path="/burnout" element={<BurnoutPage year={year} />} />
             <Route path="/hr-operations" element={<HROperationsPage year={year} />} />
-            <Route path="/headcount-plan" element={<HeadcountPlanPage year={year} />} />
+            <Route path="/headcount-plan" element={<HeadcountPlanPage year={year} country={country} />} />
             <Route path="/workforce-alignment" element={<WorkforceAlignmentPage year={year} />} />
-            <Route path="/org-health" element={<OrgHealthPage year={year} />} />
+            <Route path="/org-health" element={<OrgHealthPage year={year} country={country} />} />
             <Route path="/skills-map-v2" element={<SkillsMapV2Page year={year} />} />
             <Route path="/internal-mobility" element={<InternalMobilityPage year={year} />} />
             <Route path="/action-center" element={<ActionCenterPage year={year} />} />

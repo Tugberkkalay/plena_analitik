@@ -314,8 +314,10 @@ def count_by_gender_range(items, key, fn, ranges):
 def shorten_dept(dept):
     return dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
 
-async def get_filtered(year):
+async def get_filtered(year, country=None):
     all_emp = await db.employees.find({}, {"_id": 0}).to_list(10000)
+    if country:
+        all_emp = [e for e in all_emp if e.get('country') == country]
     active = [e for e in all_emp if e['hire_date'][:4] <= str(year) and (not e.get('termination_date') or e['termination_date'][:4] > str(year))]
     hired = [e for e in all_emp if e['hire_date'][:4] == str(year)]
     left = [e for e in all_emp if e.get('termination_date') and e['termination_date'][:4] == str(year)]
@@ -390,8 +392,8 @@ async def get_years():
 
 # ---- Overview ----
 @api_router.get("/dashboard/overview")
-async def get_overview(year: int = 2025):
-    all_emp, active, hired, left = await get_filtered(year)
+async def get_overview(year: int = 2025, country: str = None):
+    all_emp, active, hired, left = await get_filtered(year, country)
     hc = len(active)
     disabled = len([e for e in active if e.get('is_disabled')])
     managers = len([e for e in active if e.get('is_manager')])
@@ -400,23 +402,38 @@ async def get_overview(year: int = 2025):
         ms = f"{year}-{mi+1:02d}"
         c = len([e for e in all_emp if e['hire_date'][:7] <= ms and (not e.get('termination_date') or e['termination_date'][:7] > ms)])
         hc_by_month.append({"month": mn, "count": c})
+    # Q-o-Q trends (compare with previous year same period)
+    _, prev_active, prev_hired, prev_left = await get_filtered(year - 1, country)
+    prev_hc = len(prev_active)
+    prev_turnover = round(len(prev_left)/prev_hc*100,1) if prev_hc else 0
+    cur_turnover = round(len(left)/hc*100,1) if hc else 0
+    trends = {
+        "headcount": {"prev": prev_hc, "delta": hc - prev_hc, "pct": round((hc - prev_hc)/prev_hc*100,1) if prev_hc else 0},
+        "hires": {"prev": len(prev_hired), "delta": len(hired) - len(prev_hired), "pct": round((len(hired) - len(prev_hired))/len(prev_hired)*100,1) if prev_hired else 0},
+        "leaves": {"prev": len(prev_left), "delta": len(left) - len(prev_left), "pct": round((len(left) - len(prev_left))/max(1,len(prev_left))*100,1)},
+        "turnover": {"prev": prev_turnover, "delta": round(cur_turnover - prev_turnover, 1), "pct": 0}
+    }
+    # Country distribution
+    country_dist = count_by(active, 'country') if not country else []
     return {
         "kpis": {"headcount": hc, "hires": len(hired), "leaves": len(left),
-                 "turnover_rate": round(len(left)/hc*100,1) if hc else 0,
+                 "turnover_rate": cur_turnover,
                  "disabled_pct": round(disabled/hc*100,1) if hc else 0},
+        "trends": trends,
         "gender_distribution": count_by(active, 'gender'),
         "age_distribution": count_by_range(active, 'age', get_age_range, AGE_RANGES),
         "seniority_distribution": count_by_range(active, 'seniority_years', get_seniority_range, SENIORITY_RANGES),
         "band_distribution": count_by(active, 'band'),
         "department_distribution": count_by(active, 'department'),
+        "country_distribution": country_dist,
         "headcount_by_month": hc_by_month,
         "manager_distribution": [{"name": "Manager", "value": managers}, {"name": "Non-Manager", "value": hc - managers}]
     }
 
 # ---- Headcount ----
 @api_router.get("/dashboard/headcount")
-async def get_headcount(year: int = 2025):
-    _, active, _, _ = await get_filtered(year)
+async def get_headcount(year: int = 2025, country: str = None):
+    _, active, _, _ = await get_filtered(year, country)
     hc = len(active)
     female_leaders = len([e for e in active if e.get('gender') == 'Female' and e.get('is_manager')])
     talents = len([e for e in active if e.get('is_talent')])
@@ -514,8 +531,8 @@ def _compute_group_turnover(active, left, groups, group_key, label_key="name", l
     return result
 
 @api_router.get("/dashboard/turnover")
-async def get_turnover(year: int = 2025):
-    all_emp, active, hired, left = await get_filtered(year)
+async def get_turnover(year: int = 2025, country: str = None):
+    all_emp, active, hired, left = await get_filtered(year, country)
     hc = len(active)
     vol = [e for e in left if e.get('termination_type') == 'voluntary']
     invol = [e for e in left if e.get('termination_type') == 'involuntary']
@@ -536,7 +553,7 @@ async def get_turnover(year: int = 2025):
 
     yearly = []
     for y in range(2020, year + 1):
-        _, ya, _, yl = await get_filtered(y)
+        _, ya, _, yl = await get_filtered(y, country)
         rate = round(len(yl) / len(ya) * 100, 1) if ya else 0
         yearly.append({"year": y, "rate": rate})
 
@@ -1163,10 +1180,19 @@ async def run_scenario(body: ScenarioRequest):
         short = dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
         projected = int(len(de) * (1 + growth))
         dept_impact.append({"department": short, "current": len(de), "projected": projected, "delta": projected - len(de)})
+    # Location breakdown
+    tr_active = [e for e in active if e.get('country') == 'Turkey']
+    it_active = [e for e in active if e.get('country') == 'Italy']
+    tr_hc = len(tr_active)
+    it_hc = len(it_active)
+    location_impact = [
+        {"location": "Turkey", "current": tr_hc, "projected": int(tr_hc * (1 + growth)), "delta": int(tr_hc * growth)},
+        {"location": "Italy", "current": it_hc, "projected": int(it_hc * (1 + growth)) + body.new_location_headcount, "delta": int(it_hc * growth) + body.new_location_headcount}
+    ]
     return {
         "current": {"headcount": hc, "annual_cost": round(current_cost), "attrition_rate": round(current_attrition*100,1), "avg_salary": round(avg_salary)},
         "projected": {"headcount": final_hc, "annual_cost": round(final_hc * avg_salary * (1 + body.budget_change/100)), "attrition_rate": round(new_attrition*100,1), "net_change": final_hc - hc, "growth_pct": round((final_hc-hc)/hc*100,1) if hc else 0},
-        "monthly_projections": projections, "department_impact": dept_impact,
+        "monthly_projections": projections, "department_impact": dept_impact, "location_impact": location_impact,
         "hiring_need": max(0, final_hc - hc + int(hc * new_attrition)), "cost_delta": round((final_hc * avg_salary * (1+body.budget_change/100)) - current_cost)
     }
 
@@ -1301,8 +1327,8 @@ TARGET_HEADCOUNT = {
 }
 
 @api_router.get("/dashboard/headcount-plan")
-async def get_headcount_plan(year: int = 2025):
-    _, active, hired, left = await get_filtered(year)
+async def get_headcount_plan(year: int = 2025, country: str = None):
+    _, active, hired, left = await get_filtered(year, country)
     hc = len(active)
     total_target = sum(t["target"] for t in TARGET_HEADCOUNT.values())
     total_gap = total_target - hc

@@ -9,7 +9,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
-export default function HiresLeavesPage({ year }) {
+export default function HiresLeavesPage({ year, country }) {
   const [hires, setHires] = useState(null);
   const [leaves, setLeaves] = useState(null);
   const [loading, setLoading] = useState(true);

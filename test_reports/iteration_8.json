@@ -1,0 +1,58 @@
+{
+  "summary": "Iteration 8 testing: global country filter, Q-o-Q trend indicators on KPI cards, Scenario Simulator Turkey/Italy location_impact cards. Backend pytest 20/21 passed (1 real bug: /api/dashboard/org-health ignores country query param). Frontend verified: country selector toggles HC correctly (All=402, Italy=115, Turkey=287), Scenario Sim renders both Turkey (287→315, +28) and Italy (115→126, +11) cards via data-testids.",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "/api/dashboard/org-health", "issue": "country query param is NOT respected. Endpoint signature at server.py:1459 is `get_org_health(year: int = 2025)` — missing `country: str = None` param and pass-through to get_filtered(). Response for ?country=Italy is byte-identical to no filter (band_pyramid totals 402, all 10 depts including Turkey-only ones like Supply Chain returned). Spec explicitly requires: 'Org Health page respects country filter'.", "priority": "HIGH"}
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "passed_tests": [
+    "TopBar has [data-testid='country-selector'] with All/Turkey/Italy options",
+    "GET /api/dashboard/overview returns trends={headcount,hires,leaves,turnover} each with prev/delta/pct keys",
+    "GET /api/dashboard/overview?country=Italy → HC=115 (verified UI), country_distribution=[] (single-country mode)",
+    "GET /api/dashboard/overview?country=Turkey → HC=287 (verified UI)",
+    "Italy HC + Turkey HC == All HC (115+287=402) — partition correct",
+    "GET /api/dashboard/headcount?country=Italy returns only Italian cities (Genova, Villanova d'Asti)",
+    "GET /api/dashboard/headcount?country=Turkey returns only Turkish cities (Istanbul, Ankara, Izmir, Bursa, Antalya)",
+    "GET /api/dashboard/turnover?country=Italy returns different KPIs than unfiltered",
+    "GET /api/dashboard/headcount-plan?country=Italy filters correctly",
+    "POST /api/simulator/scenario returns location_impact array with Turkey + Italy entries, each having current/projected/delta",
+    "Frontend: country selector switching updates Overview HC live (115 ↔ 287 ↔ 402)",
+    "Frontend: Scenario Simulator renders [data-testid='location-turkey'] and [data-testid='location-italy'] cards showing Current → Projected with delta tag",
+    "Trend indicator(s) rendered on Overview (at least 1 element matched, KPICard component has trend prop)",
+    "Regression: 9 existing endpoints (overview, headcount, turnover, org-health, hires, leaves, recruitment, performance, years) all return 200",
+    "No DOM error markers / no console errors during navigation"
+  ],
+  "test_report_links": [
+    "/app/backend/tests/test_country_trends.py",
+    "/app/test_reports/pytest/iteration_8.xml"
+  ],
+  "action_items": [
+    "Fix /api/dashboard/org-health to accept optional `country: str = None` query param and call `await get_filtered(year, country)` (currently signature has only year). The function uses active list for all aggregations, so adding the country filter is a 2-line change."
+  ],
+  "critical_code_review_comments": [
+    "server.py now 1883 lines — earlier recommendation to split into routers still pending; planning/insights/people modules would help maintainability.",
+    "Trend pct calculations in overview use `max(1, len(prev_left))` for leaves but bare `prev_hired` / `prev_hc` divisors for hires/headcount — inconsistent guard. If prev_hired==0 then guard returns 0 (OK), but ZeroDivisionError protection style is inconsistent. Consider helper `pct_delta(cur, prev)`.",
+    "Trends 'turnover' object sets pct=0 hardcoded (line 414) while delta is computed — UI cannot show % change for turnover. Either compute (cur-prev)/prev*100 or document why it's intentionally absolute delta only.",
+    "country_distribution returns [] when country filter is applied (line 417). UI may show empty chart instead of hiding it — verify hidden state.",
+    "Org Health endpoint signature missing country param is a regression caught by the listed spec — likely an oversight when adding country filter across endpoints. /api/dashboard/headcount, /turnover, /headcount-plan, /overview all received the update; org-health was missed.",
+    "Scenario Simulator endpoint is POST /api/simulator/scenario (not /dashboard/scenario-simulate as initially guessed); naming inconsistency vs. other dashboard endpoints — consider standardising under /dashboard/* or moving all simulators under /simulator/*."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_country_trends.py (new)"
+  ],
+  "success_rate": {
+    "backend": "95.2% (20/21 pytest — only org-health country filter failed)",
+    "frontend": "100% (country selector, KPI updates, scenario location cards all verified)"
+  },
+  "seed_data_creation": "Used existing seed. Verified HC=402 total (Turkey=287, Italy=115).",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Country filter wiring complete on 4/5 endpoints (overview, headcount, turnover, headcount-plan). Org Health is the only miss. Scenario endpoint is at POST /api/simulator/scenario (not /dashboard/...). location_impact returns hardcoded Turkey+Italy list. Frontend KPICard accepts trend prop {delta, pct, inverse}; visual TrendUp/TrendDown arrows rendered. After org-health fix, re-run test_country_trends.py::TestOrgHealthCountry. All testids are stable: country-selector, year-selector, location-turkey, location-italy, top-bar, page-title, pdf-export-btn.",
+  "rca_of_the_issue": "Root cause for org-health filter failure: server.py line 1459 defines `async def get_org_health(year: int = 2025)` without a `country` parameter. Inside, it calls `await get_filtered(year)` (no country arg). Two-line fix: (1) add `country: str = None` to signature, (2) pass `country` to get_filtered. No other code changes needed — all downstream aggregations operate on the returned `active` list."
+}

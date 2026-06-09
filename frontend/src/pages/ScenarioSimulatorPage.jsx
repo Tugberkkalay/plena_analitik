@@ -124,6 +124,34 @@ export default function ScenarioSimulatorPage({ year }) {
                   </div>
                 </ChartCard>
               </div>
+
+              {/* Location Impact */}
+              {result.location_impact && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                  {result.location_impact.map((loc) => (
+                    <div key={loc.location} data-testid={`location-${loc.location.toLowerCase()}`}
+                      className="bg-white border border-slate-200 rounded-md p-4 shadow-sm">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-sm font-semibold text-slate-800">{loc.location}</h4>
+                        <span className={`px-2 py-0.5 rounded text-xs font-bold ${loc.delta > 0 ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>
+                          {loc.delta > 0 ? "+" : ""}{loc.delta}
+                        </span>
+                      </div>
+                      <div className="flex items-end gap-4">
+                        <div>
+                          <p className="text-[10px] text-slate-400 uppercase">Current</p>
+                          <p className="text-lg font-bold text-slate-700">{loc.current}</p>
+                        </div>
+                        <div className="text-teal-600 text-lg font-light pb-0.5">→</div>
+                        <div>
+                          <p className="text-[10px] text-slate-400 uppercase">Projected</p>
+                          <p className="text-lg font-bold text-teal-700">{loc.projected}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </>
           )}
         </div>

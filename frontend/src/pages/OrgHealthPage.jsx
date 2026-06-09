@@ -10,15 +10,17 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const HEALTH_COLOR = { Healthy: "#14B8A6", Attention: "#F59E0B", Restructure: "#EF4444" };
 const HEALTH_BG = { Healthy: "bg-emerald-50 border-emerald-200 text-emerald-700", Attention: "bg-amber-50 border-amber-200 text-amber-700", Restructure: "bg-red-50 border-red-200 text-red-700" };
 
-export default function OrgHealthPage({ year }) {
+export default function OrgHealthPage({ year, country }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    axios.get(`${API}/dashboard/org-health?year=${year}`)
+    const params = new URLSearchParams({ year });
+    if (country) params.append("country", country);
+    axios.get(`${API}/dashboard/org-health?${params}`)
       .then((r) => setData(r.data)).catch(() => {}).finally(() => setLoading(false));
-  }, [year]);
+  }, [year, country]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
   if (!data) return <p className="text-slate-400">No data available.</p>;

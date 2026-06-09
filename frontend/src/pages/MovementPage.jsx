@@ -7,7 +7,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, L
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
-export default function MovementPage({ year }) {
+export default function MovementPage({ year, country }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 

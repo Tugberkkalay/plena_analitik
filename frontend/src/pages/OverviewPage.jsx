@@ -21,30 +21,32 @@ const LoadingSkeleton = () => (
   </div>
 );
 
-export default function OverviewPage({ year }) {
+export default function OverviewPage({ year, country }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    axios.get(`${API}/dashboard/overview?year=${year}`)
+    const params = new URLSearchParams({ year });
+    if (country) params.append("country", country);
+    axios.get(`${API}/dashboard/overview?${params}`)
       .then((r) => setData(r.data))
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [year]);
+  }, [year, country]);
 
   if (loading) return <LoadingSkeleton />;
   if (!data) return <p className="text-slate-400">No data available.</p>;
 
-  const { kpis } = data;
+  const { kpis, trends } = data;
 
   return (
     <div data-testid="overview-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        <KPICard title="Headcount" value={kpis.headcount} icon={Users} color="blue" />
-        <KPICard title="Hires" value={kpis.hires} icon={UserPlus} color="green" />
-        <KPICard title="Leaves" value={kpis.leaves} icon={UserMinus} color="red" />
-        <KPICard title="Turnover Rate" value={kpis.turnover_rate} icon={TrendDown} color="amber" format="percent" />
+        <KPICard title="Headcount" value={kpis.headcount} icon={Users} color="blue" trend={trends?.headcount} />
+        <KPICard title="Hires" value={kpis.hires} icon={UserPlus} color="green" trend={trends?.hires} />
+        <KPICard title="Leaves" value={kpis.leaves} icon={UserMinus} color="red" trend={{ ...trends?.leaves, inverse: true }} />
+        <KPICard title="Turnover Rate" value={kpis.turnover_rate} icon={TrendDown} color="amber" format="percent" trend={{ ...trends?.turnover, inverse: true }} />
         <KPICard title="Disabled" value={kpis.disabled_pct} icon={Wheelchair} color="slate" format="percent" />
       </div>
 

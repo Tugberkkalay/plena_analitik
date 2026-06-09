@@ -16,15 +16,17 @@ const STATUS_STYLE = {
 
 const GAP_COLOR = (gap) => gap > 8 ? "#EF4444" : gap > 3 ? "#F59E0B" : gap > 0 ? "#14B8A6" : "#6366F1";
 
-export default function HeadcountPlanPage({ year }) {
+export default function HeadcountPlanPage({ year, country }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    axios.get(`${API}/dashboard/headcount-plan?year=${year}`)
+    const params = new URLSearchParams({ year });
+    if (country) params.append("country", country);
+    axios.get(`${API}/dashboard/headcount-plan?${params}`)
       .then((r) => setData(r.data)).catch(() => {}).finally(() => setLoading(false));
-  }, [year]);
+  }, [year, country]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
   if (!data) return <p className="text-slate-400">No data available.</p>;

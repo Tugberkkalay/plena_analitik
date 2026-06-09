@@ -1,4 +1,6 @@
-export default function KPICard({ title, value, subtitle, icon: Icon, color = "blue", format = "number", testId }) {
+import { TrendUp, TrendDown, Minus } from "@phosphor-icons/react";
+
+export default function KPICard({ title, value, subtitle, icon: Icon, color = "blue", format = "number", testId, trend }) {
   const colorMap = {
     blue: { bg: "bg-teal-50", text: "text-teal-700", border: "border-teal-200" },
     amber: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" },
@@ -16,6 +18,8 @@ export default function KPICard({ title, value, subtitle, icon: Icon, color = "b
     return v;
   };
 
+  const trendColor = trend ? (trend.delta > 0 ? (trend.inverse ? "text-red-600" : "text-emerald-600") : trend.delta < 0 ? (trend.inverse ? "text-emerald-600" : "text-red-600") : "text-slate-400") : null;
+
   return (
     <div
       data-testid={testId || `kpi-${title?.toLowerCase().replace(/\s+/g, "-")}`}
@@ -32,7 +36,16 @@ export default function KPICard({ title, value, subtitle, icon: Icon, color = "b
       <p className={`text-2xl font-bold ${c.text} tracking-tight`} style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
         {formatValue(value)}
       </p>
-      {subtitle && <p className="text-xs text-slate-500 mt-1">{subtitle}</p>}
+      {trend && trend.delta !== undefined && (
+        <div className={`flex items-center gap-1 mt-1 ${trendColor}`}>
+          {trend.delta > 0 ? <TrendUp size={12} weight="bold" /> : trend.delta < 0 ? <TrendDown size={12} weight="bold" /> : <Minus size={12} />}
+          <span className="text-[10px] font-semibold">
+            {trend.delta > 0 ? "+" : ""}{trend.pct !== undefined ? `${trend.pct}%` : trend.delta}
+          </span>
+          <span className="text-[10px] text-slate-400 ml-0.5">vs prev year</span>
+        </div>
+      )}
+      {subtitle && !trend && <p className="text-xs text-slate-500 mt-1">{subtitle}</p>}
     </div>
   );
 }
