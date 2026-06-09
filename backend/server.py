@@ -1452,12 +1452,12 @@ async def get_org_health(year: int = 2025):
             "avg_performance": avg_perf, "avg_seniority": avg_sen,
             "band_distribution": band_dist,
             "health_score": health_score, "health_status": health_status,
-            "issues": (["Narrow span of control" if span < 3 else "Wide span of control" if span > 12 else None] +
-                       ["High manager ratio" if mgr_ratio > 30 else "Low manager ratio" if mgr_ratio < 8 else None] +
-                       ["Low avg performance" if avg_perf < 3.0 else None])
+            "issues": [x for x in [
+                "Narrow span of control" if span < 3 else ("Wide span of control" if span > 12 else None),
+                "High manager ratio" if mgr_ratio > 30 else ("Low manager ratio" if mgr_ratio < 8 else None),
+                "Low avg performance" if avg_perf < 3.0 else None
+            ] if x]
         })
-        for d in dept_health:
-            d["issues"] = [i for i in d["issues"] if i]
     band_pyramid = [{"band": b, "count": band_counts[b], "pct": round(band_counts[b]/hc*100,1) if hc else 0} for b in BANDS]
     ideal_pyramid = [{"band": "A", "ideal": 20}, {"band": "B", "ideal": 30}, {"band": "C", "ideal": 25}, {"band": "D", "ideal": 15}, {"band": "E", "ideal": 10}]
     for i, bp in enumerate(band_pyramid):
