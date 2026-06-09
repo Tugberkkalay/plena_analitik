@@ -79,16 +79,29 @@ SALARY_BY_BAND = {"A":(15000,30000),"B":(30000,50000),"C":(50000,80000),"D":(800
 def generate_seed_data(count=500):
     random.seed(42)
     employees = []
+    # Seasonal hiring weights: Q1 high, Q2 medium, Q3 high, Q4 low
+    MONTH_HIRE_WEIGHTS = [12,10,11, 8,7,6, 10,11,9, 6,5,5]
+    # Year hiring distribution: more recent = more hires
+    YEAR_WEIGHTS = {2018:40, 2019:50, 2020:35, 2021:55, 2022:70, 2023:80, 2024:90, 2025:80}
+    # Department-specific turnover multiplier
+    DEPT_TURNOVER = {"Sales":1.6, "Marketing":1.3, "Operations":1.4, "Information Technology":1.1, "Human Resources":0.9, "Finance":0.8, "Legal":0.7, "Research & Development":0.9, "Administration":1.0, "Supply Chain":1.2}
+    # Weighted leaving reasons
+    LEAVE_WEIGHTS = [("Better Opportunity","voluntary",28),("Resignation","voluntary",22),("Personal Reasons","voluntary",14),("Career Change","voluntary",10),("Relocation","voluntary",6),("Retirement","voluntary",3),("Performance Issues","involuntary",9),("Restructuring","involuntary",5),("End of Contract","involuntary",3)]
+    leave_reasons = [l[0] for l in LEAVE_WEIGHTS]
+    leave_types = [l[1] for l in LEAVE_WEIGHTS]
+    leave_w = [l[2] for l in LEAVE_WEIGHTS]
+
     for i in range(count):
-        gender = random.choice(["Male","Female"])
+        gender = random.choices(["Male","Female"], weights=[55,45], k=1)[0]
         first = random.choice(MALE_NAMES if gender == "Male" else FEMALE_NAMES)
         last = random.choice(LAST_NAMES)
         band = random.choices(BANDS, weights=BAND_WEIGHTS, k=1)[0]
         age_min = {"A":22,"B":25,"C":28,"D":32,"E":38}[band]
         age_max = {"A":35,"B":42,"C":50,"D":55,"E":62}[band]
         age = random.randint(age_min, age_max)
-        hy = random.randint(2018, 2025)
-        hm = random.randint(1, 12)
+        # Year weighted toward recent
+        hy = random.choices(list(YEAR_WEIGHTS.keys()), weights=list(YEAR_WEIGHTS.values()), k=1)[0]
+        hm = random.choices(range(1,13), weights=MONTH_HIRE_WEIGHTS, k=1)[0]
         hd = random.randint(1, 28)
         hire_date = f"{hy}-{hm:02d}-{hd:02d}"
         seniority = max(0, round(2025 - hy + random.uniform(-0.5, 0.5), 1))
@@ -100,29 +113,35 @@ def generate_seed_data(count=500):
         marital = random.choices(MARITAL_STATUS, weights=MARITAL_WEIGHTS, k=1)[0]
         sal_range = SALARY_BY_BAND[band]
         salary = round(random.uniform(sal_range[0], sal_range[1]), -2)
-        perf = max(1.0, min(5.0, round(random.gauss(3.5, 0.7), 1)))
-        is_talent = random.random() < 0.12
+        # Performance: department and band affect score
+        base_perf = 3.5 if band in ["D","E"] else 3.3
+        perf = max(1.0, min(5.0, round(random.gauss(base_perf, 0.8), 1)))
+        is_talent = random.random() < (0.18 if perf >= 4.0 else 0.05)
         is_manager = band in ["D","E"]
         is_disabled = random.random() < 0.03
-        is_full_time = random.random() < 0.95
+        is_full_time = random.random() < 0.93
         status = "active"
         termination_date = None
         leaving_reason = None
         termination_type = None
-        if random.random() < 0.2:
-            min_ty = max(hy + 1, 2020)
+        # Turnover: dept-specific rate, higher for new hires, lower for seniors
+        dept_mult = DEPT_TURNOVER.get(dept, 1.0)
+        base_turnover = 0.18 * dept_mult
+        if seniority < 1: base_turnover *= 1.8  # early attrition
+        elif seniority > 7: base_turnover *= 0.6  # loyal long-timers
+        if perf < 2.5: base_turnover *= 1.5  # low performers leave more
+        if random.random() < min(0.45, base_turnover):
+            min_ty = max(hy, 2020)
             if min_ty <= 2025:
-                ty = random.randint(min_ty, 2025)
-                tm = random.randint(1, 12)
+                ty = random.choices(range(min_ty, 2026), weights=[max(1, y-2019) for y in range(min_ty, 2026)], k=1)[0]
+                tm = random.choices(range(1,13), weights=[8,7,9,10,8,11,7,6,9,10,8,7], k=1)[0]
                 td = random.randint(1, 28)
-                termination_date = f"{ty}-{tm:02d}-{td:02d}"
-                if random.random() < 0.65:
-                    termination_type = "voluntary"
-                    leaving_reason = random.choice(LEAVING_REASONS_VOL)
-                else:
-                    termination_type = "involuntary"
-                    leaving_reason = random.choice(LEAVING_REASONS_INVOL)
-                status = "terminated"
+                if f"{ty}-{tm:02d}" > hire_date[:7]:
+                    termination_date = f"{ty}-{tm:02d}-{td:02d}"
+                    idx = random.choices(range(len(leave_reasons)), weights=leave_w, k=1)[0]
+                    leaving_reason = leave_reasons[idx]
+                    termination_type = leave_types[idx]
+                    status = "terminated"
         emp = {
             "id": str(uuid.uuid4()), "name": f"{first} {last}", "gender": gender, "age": age,
             "hire_date": hire_date, "termination_date": termination_date, "department": dept,
@@ -1254,6 +1273,206 @@ async def get_burnout(year: int = 2025):
                      "avg_risk_score": round(sum(r['risk_score'] for r in risk_list)/len(risk_list),1) if risk_list else 0,
                      "avg_engagement": round(sum(r['engagement'] for r in risk_list)/len(risk_list),1) if risk_list else 0},
             "top_risk": risk_list[:15], "department_risk": sorted(dept_risk, key=lambda x: -x['avg_risk']), "risk_distribution": dist}
+
+# ---- Target Headcount Planning ----
+TARGET_HEADCOUNT = {
+    "Information Technology": {"target": 95, "critical_roles": ["Senior Developer", "Cloud Architecture Lead", "AI/ML Engineer", "Cybersecurity Lead"]},
+    "Human Resources": {"target": 50, "critical_roles": ["Talent Acquisition Lead", "HR Analytics Specialist"]},
+    "Finance": {"target": 60, "critical_roles": ["Financial Controller", "Risk Analyst"]},
+    "Marketing": {"target": 55, "critical_roles": ["Digital Marketing Lead", "Brand Strategist"]},
+    "Operations": {"target": 80, "critical_roles": ["Operations Manager", "Quality Lead", "Process Engineer"]},
+    "Sales": {"target": 75, "critical_roles": ["Regional Sales Director", "Key Account Manager"]},
+    "Legal": {"target": 30, "critical_roles": ["Compliance Lead", "IP Attorney"]},
+    "Research & Development": {"target": 75, "critical_roles": ["Systems Architect", "AI Research Lead", "Embedded Systems Lead", "Test Engineer"]},
+    "Administration": {"target": 35, "critical_roles": ["Office Manager", "Facilities Lead"]},
+    "Supply Chain": {"target": 45, "critical_roles": ["Procurement Lead", "Logistics Manager"]},
+}
+
+@api_router.get("/dashboard/headcount-plan")
+async def get_headcount_plan(year: int = 2025):
+    _, active, hired, left = await get_filtered(year)
+    hc = len(active)
+    total_target = sum(t["target"] for t in TARGET_HEADCOUNT.values())
+    total_gap = total_target - hc
+    dept_plan = []
+    critical_gaps = []
+    for dept_name in DEPARTMENTS:
+        short = shorten_dept(dept_name)
+        dept_emps = [e for e in active if e['department'] == dept_name]
+        target_info = TARGET_HEADCOUNT.get(dept_name, {"target": len(dept_emps), "critical_roles": []})
+        current = len(dept_emps)
+        target = target_info["target"]
+        gap = target - current
+        fill_rate = round(current / target * 100, 1) if target else 100
+        dept_plan.append({
+            "department": short, "current": current, "target": target,
+            "gap": gap, "fill_rate": fill_rate,
+            "critical_roles": target_info["critical_roles"],
+            "status": "Over" if gap < 0 else "On Track" if gap == 0 else "Under" if gap <= 5 else "Critical Gap"
+        })
+        if gap > 3:
+            for role in target_info["critical_roles"]:
+                critical_gaps.append({"department": short, "role": role, "urgency": "High" if gap > 8 else "Medium"})
+    monthly_plan = []
+    remaining = total_gap
+    for mi, mn in enumerate(MONTHS):
+        planned_hires = max(0, int(remaining * 0.12)) if remaining > 0 else 0
+        remaining -= planned_hires
+        monthly_plan.append({"month": mn, "planned_hires": planned_hires, "cumulative_gap": max(0, remaining)})
+    return {
+        "kpis": {"total_headcount": hc, "target_headcount": total_target, "total_gap": total_gap,
+                 "fill_rate": round(hc / total_target * 100, 1) if total_target else 100,
+                 "critical_gaps_count": len(critical_gaps), "depts_under": len([d for d in dept_plan if d["status"] in ["Under", "Critical Gap"]])},
+        "department_plan": sorted(dept_plan, key=lambda x: x["gap"], reverse=True),
+        "critical_gaps": critical_gaps[:15],
+        "monthly_hiring_plan": monthly_plan
+    }
+
+# ---- Workforce Alignment (Strategy → Roles/Skills → Fulfillment) ----
+STRATEGIC_OBJECTIVES = [
+    {
+        "id": "ai_expansion", "name": "AI/ML Capability Expansion",
+        "description": "Build in-house AI/ML team for autonomous systems and predictive analytics",
+        "priority": "Critical",
+        "required_skills": ["AI/ML", "Machine Learning", "Deep Learning", "Python", "NLP", "Computer Vision", "Data Analytics"],
+        "required_headcount": 45, "target_departments": ["Information Technology", "Research & Development"],
+        "timeline": "Q1-Q4 2025"
+    },
+    {
+        "id": "intl_growth", "name": "International Market Expansion",
+        "description": "Establish operations in Italy and expand European presence",
+        "priority": "High",
+        "required_skills": ["Sales Strategy", "Legal Compliance", "Supply Chain", "Digital Marketing", "Negotiation"],
+        "required_headcount": 50, "target_departments": ["Sales", "Legal", "Supply Chain", "Marketing"],
+        "timeline": "Q2-Q4 2025"
+    },
+    {
+        "id": "digital_transform", "name": "Digital Transformation",
+        "description": "Modernize internal processes through automation and cloud migration",
+        "priority": "High",
+        "required_skills": ["Cloud Computing", "DevOps", "Cybersecurity", "Agile", "JavaScript", "React"],
+        "required_headcount": 35, "target_departments": ["Information Technology", "Operations"],
+        "timeline": "Q1-Q3 2025"
+    },
+    {
+        "id": "talent_dev", "name": "Leadership Pipeline Development",
+        "description": "Develop next-generation leaders through structured programs",
+        "priority": "Medium",
+        "required_skills": ["Leadership", "Strategic Thinking", "Change Management", "Mentoring", "Communication"],
+        "required_headcount": 25, "target_departments": ["Human Resources"],
+        "timeline": "Q1-Q4 2025"
+    },
+    {
+        "id": "product_innovation", "name": "Next-Gen Product Development",
+        "description": "Accelerate R&D for advanced systems and autonomous technologies",
+        "priority": "Critical",
+        "required_skills": ["Embedded Systems", "Systems Engineering", "Autonomous Systems", "IoT", "AI/ML", "Deep Learning"],
+        "required_headcount": 55, "target_departments": ["Research & Development", "Information Technology"],
+        "timeline": "Q1-Q4 2025"
+    }
+]
+
+@api_router.get("/dashboard/workforce-alignment")
+async def get_workforce_alignment(year: int = 2025):
+    _, active, _, _ = await get_filtered(year)
+    objectives = []
+    for obj in STRATEGIC_OBJECTIVES:
+        target_emps = [e for e in active if e['department'] in obj["target_departments"]]
+        skill_coverage = {}
+        for skill in obj["required_skills"]:
+            holders = []
+            for emp in target_emps:
+                for s in emp.get('skills', []):
+                    if s['skill'] == skill:
+                        holders.append({"name": emp['name'], "proficiency": s['proficiency'], "department": shorten_dept(emp['department'])})
+            avg_prof = round(sum(h['proficiency'] for h in holders) / len(holders), 1) if holders else 0
+            experts = len([h for h in holders if h['proficiency'] >= 4])
+            skill_coverage[skill] = {
+                "skill": skill, "holders": len(holders), "avg_proficiency": avg_prof,
+                "experts": experts, "status": "Strong" if avg_prof >= 3.5 and len(holders) >= 5 else "Adequate" if avg_prof >= 2.5 and len(holders) >= 3 else "Gap"
+            }
+        current_hc = len(target_emps)
+        gap_skills = [s for s in skill_coverage.values() if s["status"] == "Gap"]
+        strong_skills = [s for s in skill_coverage.values() if s["status"] == "Strong"]
+        fulfillment = round((len(obj["required_skills"]) - len(gap_skills)) / len(obj["required_skills"]) * 100, 1) if obj["required_skills"] else 100
+        hc_fulfillment = min(100, round(current_hc / obj["required_headcount"] * 100, 1)) if obj["required_headcount"] else 100
+        overall = round((fulfillment * 0.6 + hc_fulfillment * 0.4), 1)
+        objectives.append({
+            "id": obj["id"], "name": obj["name"], "description": obj["description"],
+            "priority": obj["priority"], "timeline": obj["timeline"],
+            "required_headcount": obj["required_headcount"], "current_headcount": current_hc,
+            "hc_fulfillment": hc_fulfillment,
+            "skill_fulfillment": fulfillment, "overall_readiness": overall,
+            "skill_coverage": list(skill_coverage.values()),
+            "gap_count": len(gap_skills), "strong_count": len(strong_skills),
+            "status": "On Track" if overall >= 75 else "At Risk" if overall >= 50 else "Critical"
+        })
+    overall_readiness = round(sum(o["overall_readiness"] for o in objectives) / len(objectives), 1) if objectives else 0
+    critical = len([o for o in objectives if o["status"] == "Critical"])
+    return {
+        "kpis": {"total_objectives": len(objectives), "overall_readiness": overall_readiness,
+                 "critical_count": critical, "on_track": len([o for o in objectives if o["status"] == "On Track"]),
+                 "total_skill_gaps": sum(o["gap_count"] for o in objectives)},
+        "objectives": objectives
+    }
+
+# ---- Org Health (Structure Analysis) ----
+@api_router.get("/dashboard/org-health")
+async def get_org_health(year: int = 2025):
+    _, active, _, _ = await get_filtered(year)
+    hc = len(active)
+    total_managers = len([e for e in active if e.get('is_manager')])
+    total_ic = hc - total_managers
+    overall_span = round(total_ic / total_managers, 1) if total_managers else 0
+    overall_mgr_ratio = round(total_managers / hc * 100, 1) if hc else 0
+    band_counts = {b: len([e for e in active if e['band'] == b]) for b in BANDS}
+    hierarchy_depth = len([b for b in BANDS if band_counts[b] > 0])
+    dept_health = []
+    for dept_name in DEPARTMENTS:
+        short = shorten_dept(dept_name)
+        dept_emps = [e for e in active if e['department'] == dept_name]
+        managers = [e for e in dept_emps if e.get('is_manager')]
+        ics = [e for e in dept_emps if not e.get('is_manager')]
+        span = round(len(ics) / len(managers), 1) if managers else 0
+        mgr_ratio = round(len(managers) / len(dept_emps) * 100, 1) if dept_emps else 0
+        avg_perf = safe_avg(dept_emps, 'performance_score')
+        avg_sen = safe_avg(dept_emps, 'seniority_years')
+        band_dist = {b: len([e for e in dept_emps if e['band'] == b]) for b in BANDS}
+        health_score = 100
+        if span < 3: health_score -= 20  # too narrow span
+        elif span > 12: health_score -= 25  # too wide span
+        if mgr_ratio > 30: health_score -= 15  # too many managers
+        elif mgr_ratio < 8: health_score -= 10  # too few managers
+        if avg_perf < 3.0: health_score -= 15
+        health_status = "Healthy" if health_score >= 80 else "Attention" if health_score >= 60 else "Restructure"
+        dept_health.append({
+            "department": short, "headcount": len(dept_emps),
+            "managers": len(managers), "individual_contributors": len(ics),
+            "span_of_control": span, "manager_ratio": mgr_ratio,
+            "avg_performance": avg_perf, "avg_seniority": avg_sen,
+            "band_distribution": band_dist,
+            "health_score": health_score, "health_status": health_status,
+            "issues": (["Narrow span of control" if span < 3 else "Wide span of control" if span > 12 else None] +
+                       ["High manager ratio" if mgr_ratio > 30 else "Low manager ratio" if mgr_ratio < 8 else None] +
+                       ["Low avg performance" if avg_perf < 3.0 else None])
+        })
+        for d in dept_health:
+            d["issues"] = [i for i in d["issues"] if i]
+    band_pyramid = [{"band": b, "count": band_counts[b], "pct": round(band_counts[b]/hc*100,1) if hc else 0} for b in BANDS]
+    ideal_pyramid = [{"band": "A", "ideal": 20}, {"band": "B", "ideal": 30}, {"band": "C", "ideal": 25}, {"band": "D", "ideal": 15}, {"band": "E", "ideal": 10}]
+    for i, bp in enumerate(band_pyramid):
+        bp["ideal_pct"] = ideal_pyramid[i]["ideal"]
+        bp["deviation"] = round(bp["pct"] - ideal_pyramid[i]["ideal"], 1)
+    healthy_count = len([d for d in dept_health if d["health_status"] == "Healthy"])
+    attention_count = len([d for d in dept_health if d["health_status"] == "Attention"])
+    restructure_count = len([d for d in dept_health if d["health_status"] == "Restructure"])
+    return {
+        "kpis": {"total_headcount": hc, "overall_span": overall_span, "manager_ratio": overall_mgr_ratio,
+                 "hierarchy_depth": hierarchy_depth, "healthy_depts": healthy_count,
+                 "attention_depts": attention_count, "restructure_depts": restructure_count},
+        "department_health": sorted(dept_health, key=lambda x: x["health_score"]),
+        "band_pyramid": band_pyramid,
+    }
 
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True,

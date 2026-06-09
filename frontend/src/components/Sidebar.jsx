@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { ChartBar, Users, UserPlus, ArrowsClockwise, ArrowsLeftRight, Brain, CloudArrowUp, List, X, Funnel, Target, GraduationCap, CurrencyDollar, Smiley, Star, Gear, Compass, UserFocus, Sliders, Binoculars, ShieldWarning, Heartbeat, FilePdf } from "@phosphor-icons/react";
+import { ChartBar, Users, UserPlus, ArrowsClockwise, ArrowsLeftRight, Brain, CloudArrowUp, List, X, Funnel, Target, GraduationCap, CurrencyDollar, Smiley, Star, Gear, Compass, UserFocus, Sliders, Binoculars, ShieldWarning, Heartbeat, FilePdf, Crosshair, TreeStructure, Strategy } from "@phosphor-icons/react";
 
 const NAV_SECTIONS = [
   {
@@ -10,6 +10,16 @@ const NAV_SECTIONS = [
       { path: "/hires-leaves", label: "Hires & Leaves", icon: UserPlus },
       { path: "/turnover", label: "Turnover", icon: ArrowsClockwise },
       { path: "/movement", label: "Movement", icon: ArrowsLeftRight },
+    ],
+  },
+  {
+    label: "Planning",
+    items: [
+      { path: "/headcount-plan", label: "HC Planning", icon: Crosshair },
+      { path: "/workforce-alignment", label: "WF Alignment", icon: Strategy },
+      { path: "/org-health", label: "Org Health", icon: TreeStructure },
+      { path: "/scenario-sim", label: "Scenario Sim", icon: Sliders },
+      { path: "/succession", label: "Succession", icon: ShieldWarning },
     ],
   },
   {
@@ -29,9 +39,7 @@ const NAV_SECTIONS = [
     label: "Insights",
     items: [
       { path: "/ai-forecast", label: "AI Forecast", icon: Brain },
-      { path: "/scenario-sim", label: "Scenario Sim", icon: Sliders },
       { path: "/capability-forecast", label: "Capability", icon: Binoculars },
-      { path: "/succession", label: "Succession", icon: ShieldWarning },
       { path: "/burnout", label: "Burnout Alert", icon: Heartbeat },
       { path: "/hr-operations", label: "HR Ops", icon: Gear },
     ],

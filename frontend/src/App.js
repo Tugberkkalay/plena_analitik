@@ -26,6 +26,9 @@ import ScenarioSimulatorPage from "@/pages/ScenarioSimulatorPage";
 import CapabilityForecastPage from "@/pages/CapabilityForecastPage";
 import SuccessionPage from "@/pages/SuccessionPage";
 import BurnoutPage from "@/pages/BurnoutPage";
+import HeadcountPlanPage from "@/pages/HeadcountPlanPage";
+import WorkforceAlignmentPage from "@/pages/WorkforceAlignmentPage";
+import OrgHealthPage from "@/pages/OrgHealthPage";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -50,6 +53,9 @@ const PAGE_TITLES = {
   "/succession": "Succession & Knowledge Risk",
   "/burnout": "Burnout Early Warning",
   "/hr-operations": "HR Operations",
+  "/headcount-plan": "Headcount Planning",
+  "/workforce-alignment": "Workforce Alignment",
+  "/org-health": "Organization Health",
 };
 
 function TopBar({ year, setYear, years }) {
@@ -133,6 +139,9 @@ function AppContent() {
             <Route path="/succession" element={<SuccessionPage year={year} />} />
             <Route path="/burnout" element={<BurnoutPage year={year} />} />
             <Route path="/hr-operations" element={<HROperationsPage year={year} />} />
+            <Route path="/headcount-plan" element={<HeadcountPlanPage year={year} />} />
+            <Route path="/workforce-alignment" element={<WorkforceAlignmentPage year={year} />} />
+            <Route path="/org-health" element={<OrgHealthPage year={year} />} />
             <Route path="/ai-forecast" element={<AIForecastPage year={year} />} />
             <Route path="/data-upload" element={<DataUploadPage />} />
           </Routes>
