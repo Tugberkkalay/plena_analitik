@@ -48,25 +48,25 @@ export default function Sidebar({ open, onToggle }) {
       <button
         data-testid="sidebar-toggle-mobile"
         onClick={onToggle}
-        className="fixed top-4 left-4 z-50 md:hidden p-2 rounded-md bg-slate-800 text-slate-200"
+        className="fixed top-4 left-4 z-50 md:hidden p-2 rounded-md bg-white border border-slate-200 text-slate-700"
       >
         {open ? <X size={20} /> : <List size={20} />}
       </button>
 
       <aside
         data-testid="sidebar"
-        className={`${open ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 fixed md:sticky top-0 left-0 z-40 w-64 h-screen bg-slate-950 border-r border-slate-800 flex flex-col transition-transform duration-300`}
+        className={`${open ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 fixed md:sticky top-0 left-0 z-40 w-64 h-screen bg-white border-r border-slate-200 flex flex-col transition-transform duration-300`}
       >
-        <div className="px-5 py-6 border-b border-slate-800">
+        <div className="px-5 py-6 border-b border-slate-200">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-teal-700 flex items-center justify-center">
               <ChartBar size={20} weight="bold" className="text-white" />
             </div>
             <div>
-              <h2 data-testid="sidebar-logo" className="text-lg font-bold text-slate-50 tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              <h2 data-testid="sidebar-logo" className="text-lg font-bold text-slate-900 tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 HRlytic
               </h2>
-              <p className="text-[10px] tracking-[0.2em] uppercase text-slate-500">Analytics Platform</p>
+              <p className="text-[10px] tracking-[0.2em] uppercase text-slate-400">Analytics Platform</p>
             </div>
           </div>
         </div>
@@ -74,7 +74,7 @@ export default function Sidebar({ open, onToggle }) {
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {NAV_SECTIONS.map((section) => (
             <div key={section.label} className="mb-3">
-              <p className="px-3 mb-2 text-[10px] tracking-[0.2em] uppercase text-slate-500 font-medium">{section.label}</p>
+              <p className="px-3 mb-2 text-[10px] tracking-[0.2em] uppercase text-slate-400 font-medium">{section.label}</p>
               {section.items.map((item) => (
                 <NavLink
                   key={item.path}
@@ -84,8 +84,8 @@ export default function Sidebar({ open, onToggle }) {
                   className={({ isActive }) =>
                     `flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                       isActive
-                        ? "bg-teal-500/15 text-teal-300 border border-teal-500/20"
-                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 border border-transparent"
+                        ? "bg-teal-50 text-teal-700 border border-teal-200"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent"
                     }`
                   }
                 >
@@ -97,8 +97,8 @@ export default function Sidebar({ open, onToggle }) {
           ))}
         </nav>
 
-        <div className="px-3 py-4 border-t border-slate-800">
-          <p className="px-3 mb-2 text-[10px] tracking-[0.2em] uppercase text-slate-500 font-medium">Settings</p>
+        <div className="px-3 py-4 border-t border-slate-200">
+          <p className="px-3 mb-2 text-[10px] tracking-[0.2em] uppercase text-slate-400 font-medium">Settings</p>
           {BOTTOM_ITEMS.map((item) => (
             <NavLink
               key={item.path}
@@ -107,8 +107,8 @@ export default function Sidebar({ open, onToggle }) {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors duration-200 ${
                   isActive
-                    ? "bg-teal-500/15 text-teal-300 border border-teal-500/20"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 border border-transparent"
+                    ? "bg-teal-50 text-teal-700 border border-teal-200"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent"
                 }`
               }
             >
