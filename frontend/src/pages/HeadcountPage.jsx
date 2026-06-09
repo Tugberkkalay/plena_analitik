@@ -36,7 +36,7 @@ export default function HeadcountPage({ year }) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <ChartCard title="Age by Gender Distribution" testId="chart-age-gender">
+        <ChartCard title="Age by Gender" testId="chart-age-gender">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.age_gender}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />

@@ -26,7 +26,7 @@ export default function BurnoutPage({ year }) {
   return (
     <div data-testid="burnout-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <KPICard title="At Risk" value={kpis.total_at_risk} icon={Warning} color="red" subtitle="Critical+High" />
+        <KPICard title="At Risk" value={kpis.total_at_risk} icon={Warning} color="red" subtitle="Critical+Yüksek" />
         <KPICard title="Critical" value={kpis.critical_count} icon={Lightning} color="red" />
         <KPICard title="Avg Risk Score" value={kpis.avg_risk_score} icon={Heartbeat} color="amber" format="decimal" subtitle="/100" />
         <KPICard title="Avg Engagement" value={kpis.avg_engagement} icon={Smiley} color="green" format="decimal" subtitle="/10" />

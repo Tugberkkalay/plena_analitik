@@ -30,10 +30,10 @@ const NAV_SECTIONS = [
     items: [
       { path: "/ai-forecast", label: "AI Forecast", icon: Brain },
       { path: "/scenario-sim", label: "Scenario Sim", icon: Sliders },
-      { path: "/capability-forecast", label: "Capability Forecast", icon: Binoculars },
-      { path: "/succession", label: "Succession Plan", icon: ShieldWarning },
-      { path: "/burnout", label: "Burnout Warning", icon: Heartbeat },
-      { path: "/hr-operations", label: "HR Operations", icon: Gear },
+      { path: "/capability-forecast", label: "Capability", icon: Binoculars },
+      { path: "/succession", label: "Succession", icon: ShieldWarning },
+      { path: "/burnout", label: "Burnout Alert", icon: Heartbeat },
+      { path: "/hr-operations", label: "HR Ops", icon: Gear },
     ],
   },
 ];

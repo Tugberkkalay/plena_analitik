@@ -28,7 +28,7 @@ export default function EngagementPage({ year }) {
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <KPICard title="Engagement" value={kpis.avg_engagement} icon={Smiley} color="blue" format="decimal" subtitle="/10" />
         <KPICard title="eNPS" value={kpis.enps} icon={ThumbsUp} color={kpis.enps > 20 ? "green" : "amber"} format="decimal" />
-        <KPICard title="Participation" value={kpis.participation_rate} icon={ChartBar} color="green" format="percent" />
+        <KPICard title="Katılım" value={kpis.participation_rate} icon={ChartBar} color="green" format="percent" />
         <KPICard title="Absenteeism" value={kpis.avg_absenteeism} icon={CalendarBlank} color="orange" format="decimal" subtitle="days/yr" />
         <KPICard title="Surveys" value={kpis.total_surveys} icon={ThumbsDown} color="slate" />
       </div>

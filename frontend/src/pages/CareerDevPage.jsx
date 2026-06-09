@@ -88,7 +88,7 @@ export default function CareerDevPage({ year }) {
       {loading && (
         <div className="flex flex-col items-center justify-center py-16 gap-3">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600" />
-          <p className="text-sm text-slate-500">AI analyzing career path and generating recommendations...</p>
+          <p className="text-sm text-slate-500">AI analyzing career path...</p>
         </div>
       )}
 
@@ -201,7 +201,7 @@ export default function CareerDevPage({ year }) {
           <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center">
             <User size={32} className="text-slate-400" />
           </div>
-          <p className="text-sm text-slate-500">Search and select an employee above to generate their career development plan</p>
+          <p className="text-sm text-slate-500">Search and select an employee to generate their career development plan</p>
         </div>
       )}
     </div>
