@@ -61,8 +61,8 @@ function AIBriefCard({ year }) {
             <Robot size={18} weight="bold" className="text-white" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-slate-800">AI Executive Brief</h3>
-            <p className="text-[10px] text-slate-500">GPT-5.2 powered analysis of all active alerts</p>
+            <h3 className="text-sm font-semibold text-slate-800">AI Yönetici Özeti</h3>
+            <p className="text-[10px] text-slate-500">GPT-5.2 destekli tüm aktif uyarı analizi</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -76,7 +76,7 @@ function AIBriefCard({ year }) {
             onClick={runScan} disabled={loading}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-teal-700 hover:bg-teal-600 text-white text-xs font-medium transition-colors disabled:opacity-50">
             {loading ? <SpinnerGap size={14} className="animate-spin" /> : <Lightning size={14} weight="bold" />}
-            {loading ? "Analyzing..." : brief ? "Re-analyze" : "Run AI Scan"}
+            {loading ? "Analiz ediliyor..." : brief ? "Yeniden Analiz" : "AI Tarama Başlat"}
           </button>
         </div>
       </div>
@@ -120,7 +120,7 @@ export default function ActionCenterPage({ year }) {
   }, []);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
-  if (!data) return <p className="text-slate-400">No data available.</p>;
+  if (!data) return <p className="text-slate-400">Veri bulunamadı.</p>;
 
   const { kpis } = data;
   const activeAlerts = (data.alerts || []).filter(a => !resolvedIds.has(a.id));
@@ -130,10 +130,10 @@ export default function ActionCenterPage({ year }) {
   return (
     <div data-testid="action-center-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <KPICard title="Active Alerts" value={activeAlerts.length} icon={Bell} color="red" />
-        <KPICard title="High Priority" value={activeAlerts.filter(a => a.severity === "high").length} icon={Warning} color="amber" />
-        <KPICard title="Resolved (Month)" value={resolvedCount} icon={CheckCircle} color="green" />
-        <KPICard title="Signal Sources" value={kpis.sources} icon={Robot} color="blue" />
+        <KPICard title="Aktif Uyarılar" value={activeAlerts.length} icon={Bell} color="red" />
+        <KPICard title="Yüksek Öncelik" value={activeAlerts.filter(a => a.severity === "high").length} icon={Warning} color="amber" />
+        <KPICard title="Çözülen (Ay)" value={resolvedCount} icon={CheckCircle} color="green" />
+        <KPICard title="Sinyal Kaynağı" value={kpis.sources} icon={Robot} color="blue" />
       </div>
 
       {/* AI Executive Brief */}
@@ -155,13 +155,13 @@ export default function ActionCenterPage({ year }) {
       </div>
 
       {/* Alert Feed */}
-      <ChartCard title="Alert Feed" subtitle="Signals from all HR modules — sorted by priority" testId="chart-alert-feed">
+      <ChartCard title="Uyarı Akışı" subtitle="Tüm İK modüllerinden sinyaller — önceliğe göre sıralı" testId="chart-alert-feed">
         <div className="space-y-2 px-3 pb-2 max-h-[600px] overflow-y-auto">
           {filtered.length === 0 && (
             <div className="flex flex-col items-center justify-center py-10 text-slate-400">
               <CheckCircle size={32} className="mb-2 text-emerald-400" />
-              <p className="text-sm font-medium">No active alerts</p>
-              <p className="text-xs">All signals are within normal thresholds</p>
+              <p className="text-sm font-medium">Aktif uyarı yok</p>
+              <p className="text-xs">Tüm sinyaller normal eşiklerde</p>
             </div>
           )}
           {filtered.map((alert) => (
@@ -187,12 +187,12 @@ export default function ActionCenterPage({ year }) {
                 </div>
                 {/* Suggested Action Box */}
                 <div className="bg-teal-50 border border-teal-200 rounded-md px-3 py-2.5 mt-3">
-                  <p className="text-[10px] uppercase tracking-wider text-teal-600 font-medium mb-1">Suggested Action</p>
+                  <p className="text-[10px] uppercase tracking-wider text-teal-600 font-medium mb-1">Önerilen Aksiyon</p>
                   <p className="text-xs text-teal-800 leading-relaxed">{alert.suggested_action}</p>
                   <button data-testid={`resolve-${alert.id}`}
                     onClick={() => resolveAlert(alert.id)}
                     className="mt-2 px-3 py-1 rounded text-[10px] font-semibold bg-teal-700 text-white hover:bg-teal-600 transition-colors">
-                    Mark Resolved
+                    Çözüldü İşaretle
                   </button>
                 </div>
               </div>

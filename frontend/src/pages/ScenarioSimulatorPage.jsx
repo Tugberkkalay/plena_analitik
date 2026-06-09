@@ -45,16 +45,16 @@ export default function ScenarioSimulatorPage({ year }) {
         <div className="bg-white border border-slate-200 rounded-md p-5 shadow-sm space-y-5">
           <div className="flex items-center gap-2 mb-2">
             <Sliders size={18} weight="duotone" className="text-teal-600" />
-            <h3 className="text-sm font-semibold text-slate-800">Scenario Parameters</h3>
+            <h3 className="text-sm font-semibold text-slate-800">Senaryo Parametreleri</h3>
           </div>
-          <P label="Growth Rate" value={params.growth_rate} unit="%" paramKey="growth_rate" min={-20} max={50} />
-          <P label="Budget Change" value={params.budget_change} unit="%" paramKey="budget_change" min={-30} max={50} />
-          <P label="Attrition Change" value={params.attrition_change} unit="%" paramKey="attrition_change" min={-10} max={15} />
-          <P label="Hiring Boost" value={params.hiring_boost} unit="" paramKey="hiring_boost" min={0} max={200} step={10} />
-          <P label="New Location HC" value={params.new_location_headcount} unit="" paramKey="new_location_headcount" min={0} max={500} step={25} />
+          <P label="Büyüme Oranı" value={params.growth_rate} unit="%" paramKey="growth_rate" min={-20} max={50} />
+          <P label="Bütçe Değişimi" value={params.budget_change} unit="%" paramKey="budget_change" min={-30} max={50} />
+          <P label="Ayrılma Değişimi" value={params.attrition_change} unit="%" paramKey="attrition_change" min={-10} max={15} />
+          <P label="Ek İşe Alım" value={params.hiring_boost} unit="" paramKey="hiring_boost" min={0} max={200} step={10} />
+          <P label="Yeni Lokasyon Kadro" value={params.new_location_headcount} unit="" paramKey="new_location_headcount" min={0} max={500} step={25} />
           <Button data-testid="run-simulation-btn" onClick={() => runSimulation(params)} disabled={loading}
             className="w-full bg-teal-700 hover:bg-teal-600 text-white text-sm">
-            {loading ? "Simulating..." : "Run Scenario"}
+            {loading ? "Hesaplanıyor..." : "Senaryoyu Çalıştır"}
           </Button>        </div>
 
         {/* Results */}
@@ -87,7 +87,7 @@ export default function ScenarioSimulatorPage({ year }) {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <ChartCard title="Headcount Projection (12 months)" testId="chart-scenario-hc">
+                <ChartCard title="Kadro Projeksiyonu (12 ay)" testId="chart-scenario-hc">
                   <ResponsiveContainer width="100%" height={260}>
                     <ComposedChart data={result.monthly_projections}>
                       <defs>
@@ -107,7 +107,7 @@ export default function ScenarioSimulatorPage({ year }) {
                   </ResponsiveContainer>
                 </ChartCard>
 
-                <ChartCard title="Department Impact" testId="chart-scenario-dept">
+                <ChartCard title="Departman Etkisi" testId="chart-scenario-dept">
                   <ResponsiveContainer width="100%" height={260}>
                     <BarChart data={result.department_impact}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />

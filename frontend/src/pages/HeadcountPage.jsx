@@ -23,22 +23,22 @@ export default function HeadcountPage({ year, country }) {
   }, [year, country]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
-  if (!data) return <p className="text-slate-400">No data available.</p>;
+  if (!data) return <p className="text-slate-400">Veri bulunamadı.</p>;
 
   const { kpis } = data;
 
   return (
     <div data-testid="headcount-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        <KPICard title="Total Headcount" value={kpis.headcount} icon={Users} color="blue" />
-        <KPICard title="Female Leaders" value={kpis.female_leaders} icon={GenderFemale} color="amber" />
-        <KPICard title="Talents" value={kpis.talents} icon={Star} color="green" />
-        <KPICard title="Avg Age" value={kpis.avg_age} icon={CalendarBlank} color="orange" format="decimal" />
-        <KPICard title="Avg Seniority" value={kpis.avg_seniority} icon={Clock} color="slate" format="decimal" subtitle="years" />
+        <KPICard title="Toplam Kadro" value={kpis.headcount} icon={Users} color="blue" />
+        <KPICard title="Kadın Yönetici" value={kpis.female_leaders} icon={GenderFemale} color="amber" />
+        <KPICard title="Yetenekler" value={kpis.talents} icon={Star} color="green" />
+        <KPICard title="Ort. Yaş" value={kpis.avg_age} icon={CalendarBlank} color="orange" format="decimal" />
+        <KPICard title="Ort. Kıdem" value={kpis.avg_seniority} icon={Clock} color="slate" format="decimal" subtitle="yıl" />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <ChartCard title="Age by Gender" testId="chart-age-gender">
+        <ChartCard title="Yaş × Cinsiyet" testId="chart-age-gender">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.age_gender}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -55,7 +55,7 @@ export default function HeadcountPage({ year, country }) {
           </div>
         </ChartCard>
 
-        <ChartCard title="Band by Gender" testId="chart-band-gender">
+        <ChartCard title="Band × Cinsiyet" testId="chart-band-gender">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.band_gender}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -72,7 +72,7 @@ export default function HeadcountPage({ year, country }) {
           </div>
         </ChartCard>
 
-        <ChartCard title="Department Distribution" testId="chart-dept-hc">
+        <ChartCard title="Departman Dağılımı" testId="chart-dept-hc">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.department_distribution} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -84,7 +84,7 @@ export default function HeadcountPage({ year, country }) {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Education Level" testId="chart-education">
+        <ChartCard title="Eğitim Düzeyi" testId="chart-education">
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie data={data.education_distribution} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="value" nameKey="name" strokeWidth={0}>
@@ -102,7 +102,7 @@ export default function HeadcountPage({ year, country }) {
           </div>
         </ChartCard>
 
-        <ChartCard title="City Distribution" testId="chart-city">
+        <ChartCard title="Şehir Dağılımı" testId="chart-city">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.city_distribution}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -114,7 +114,7 @@ export default function HeadcountPage({ year, country }) {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Marital Status" testId="chart-marital">
+        <ChartCard title="Medeni Durum" testId="chart-marital">
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie data={data.marital_distribution} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="value" nameKey="name" strokeWidth={0}>
@@ -133,19 +133,19 @@ export default function HeadcountPage({ year, country }) {
         </ChartCard>
       </div>
 
-      <ChartCard title="Employee List" subtitle="Top 50 active employees" testId="chart-employee-list">
+      <ChartCard title="Çalışan Listesi" subtitle="İlk 50 aktif çalışan" testId="chart-employee-list">
         <div className="overflow-x-auto px-2">
           <Table>
             <TableHeader>
               <TableRow className="border-slate-100 hover:bg-transparent">
-                <TableHead className="text-slate-400 text-xs">Name</TableHead>
-                <TableHead className="text-slate-400 text-xs">Department</TableHead>
-                <TableHead className="text-slate-400 text-xs">Position</TableHead>
+                <TableHead className="text-slate-400 text-xs">Ad Soyad</TableHead>
+                <TableHead className="text-slate-400 text-xs">Departman</TableHead>
+                <TableHead className="text-slate-400 text-xs">Pozisyon</TableHead>
                 <TableHead className="text-slate-400 text-xs">Band</TableHead>
-                <TableHead className="text-slate-400 text-xs">Age</TableHead>
-                <TableHead className="text-slate-400 text-xs">Gender</TableHead>
-                <TableHead className="text-slate-400 text-xs">City</TableHead>
-                <TableHead className="text-slate-400 text-xs text-right">Salary</TableHead>
+                <TableHead className="text-slate-400 text-xs">Yaş</TableHead>
+                <TableHead className="text-slate-400 text-xs">Cinsiyet</TableHead>
+                <TableHead className="text-slate-400 text-xs">Şehir</TableHead>
+                <TableHead className="text-slate-400 text-xs text-right">Maaş</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

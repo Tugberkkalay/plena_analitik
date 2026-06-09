@@ -25,7 +25,7 @@ export default function HiresLeavesPage({ year, country }) {
   }, [year]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
-  if (!hires || !leaves) return <p className="text-slate-400">No data available.</p>;
+  if (!hires || !leaves) return <p className="text-slate-400">Veri bulunamadı.</p>;
 
   return (
     <div data-testid="hires-leaves-page" className="space-y-6">

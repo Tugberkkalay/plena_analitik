@@ -36,32 +36,32 @@ import ActionCenterPage from "@/pages/ActionCenterPage";
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const PAGE_TITLES = {
-  "/": "Executive Overview",
-  "/headcount": "Headcount Analytics",
-  "/hires-leaves": "Hires & Leaves",
-  "/turnover": "Turnover Analysis",
-  "/movement": "Workforce Movement",
-  "/ai-forecast": "AI Forecast",
-  "/data-upload": "Data Management",
-  "/recruitment": "Recruitment Analytics",
-  "/performance": "Performance Management",
-  "/learning": "Learning & Development",
-  "/compensation": "Compensation & Benefits",
-  "/engagement": "Engagement & Experience",
-  "/career-talent": "Career & Talent",
-  "/skills-map": "Skills & Competency Map",
-  "/career-dev": "AI Career Development",
-  "/scenario-sim": "Scenario Simulator",
-  "/capability-forecast": "Capability Forecasting",
-  "/succession": "Succession & Knowledge Risk",
-  "/burnout": "Burnout Early Warning",
-  "/hr-operations": "HR Operations",
-  "/headcount-plan": "Headcount Planning",
-  "/workforce-alignment": "Workforce Alignment",
-  "/org-health": "Organization Health",
-  "/skills-map-v2": "Skills & Gap Analysis",
-  "/internal-mobility": "Internal Mobility",
-  "/action-center": "Action Center",
+  "/": "Yönetim Özeti",
+  "/headcount": "Kadro Analizi",
+  "/hires-leaves": "İşe Alım & Ayrılma",
+  "/turnover": "Personel Devir Analizi",
+  "/movement": "İşgücü Hareketi",
+  "/ai-forecast": "AI Tahminleme",
+  "/data-upload": "Veri Yönetimi",
+  "/recruitment": "İşe Alım Süreci",
+  "/performance": "Performans Yönetimi",
+  "/learning": "Eğitim & Gelişim",
+  "/compensation": "Ücret & Yan Haklar",
+  "/engagement": "Çalışan Bağlılığı",
+  "/career-talent": "Kariyer & Yetenek",
+  "/skills-map": "Yetkinlik Haritası",
+  "/career-dev": "AI Kariyer Gelişimi",
+  "/scenario-sim": "Senaryo Simülatörü",
+  "/capability-forecast": "Yetkinlik Tahmini",
+  "/succession": "Halef Planlaması",
+  "/burnout": "Tükenmişlik Uyarısı",
+  "/hr-operations": "İK Operasyonları",
+  "/headcount-plan": "Kadro Planlama",
+  "/workforce-alignment": "Strateji-Kadro Hizalaması",
+  "/org-health": "Organizasyon Sağlığı",
+  "/skills-map-v2": "Yetkinlik & Açık Analizi",
+  "/internal-mobility": "İç Mobilite",
+  "/action-center": "Aksiyon Merkezi",
 };
 
 function TopBar({ year, setYear, years, country, setCountry }) {
@@ -87,7 +87,7 @@ function TopBar({ year, setYear, years, country, setCountry }) {
           title="Export to PDF"
         >
           <Printer size={16} weight="bold" />
-          <span>Export PDF</span>
+          <span>PDF Dışa Aktar</span>
         </button>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-50 border border-slate-200">
           <GlobeHemisphereWest size={16} className="text-slate-500" />

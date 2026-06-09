@@ -36,22 +36,22 @@ export default function OverviewPage({ year, country }) {
   }, [year, country]);
 
   if (loading) return <LoadingSkeleton />;
-  if (!data) return <p className="text-slate-400">No data available.</p>;
+  if (!data) return <p className="text-slate-400">Veri bulunamadı.</p>;
 
   const { kpis, trends } = data;
 
   return (
     <div data-testid="overview-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        <KPICard title="Headcount" value={kpis.headcount} icon={Users} color="blue" trend={trends?.headcount} />
-        <KPICard title="Hires" value={kpis.hires} icon={UserPlus} color="green" trend={trends?.hires} />
-        <KPICard title="Leaves" value={kpis.leaves} icon={UserMinus} color="red" trend={{ ...trends?.leaves, inverse: true }} />
-        <KPICard title="Turnover Rate" value={kpis.turnover_rate} icon={TrendDown} color="amber" format="percent" trend={{ ...trends?.turnover, inverse: true }} />
-        <KPICard title="Disabled" value={kpis.disabled_pct} icon={Wheelchair} color="slate" format="percent" />
+        <KPICard title="Çalışan Sayısı" value={kpis.headcount} icon={Users} color="blue" trend={trends?.headcount} />
+        <KPICard title="İşe Alım" value={kpis.hires} icon={UserPlus} color="green" trend={trends?.hires} />
+        <KPICard title="Ayrılma" value={kpis.leaves} icon={UserMinus} color="red" trend={{ ...trends?.leaves, inverse: true }} />
+        <KPICard title="Devir Oranı" value={kpis.turnover_rate} icon={TrendDown} color="amber" format="percent" trend={{ ...trends?.turnover, inverse: true }} />
+        <KPICard title="Engelli Oranı" value={kpis.disabled_pct} icon={Wheelchair} color="slate" format="percent" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <ChartCard title="Headcount Trend" subtitle="Monthly progression" className="lg:col-span-2" testId="chart-headcount-trend">
+        <ChartCard title="Kadro Trendi" subtitle="Aylık değişim" className="lg:col-span-2" testId="chart-headcount-trend">
           <ResponsiveContainer width="100%" height={260}>
             <AreaChart data={data.headcount_by_month}>
               <defs>
@@ -69,7 +69,7 @@ export default function OverviewPage({ year, country }) {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Gender Distribution" testId="chart-gender-dist">
+        <ChartCard title="Cinsiyet Dağılımı" testId="chart-gender-dist">
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie data={data.gender_distribution} cx="50%" cy="50%" innerRadius={60} outerRadius={90} dataKey="value" nameKey="name" strokeWidth={0}>
@@ -92,7 +92,7 @@ export default function OverviewPage({ year, country }) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <ChartCard title="Age Distribution" testId="chart-age-dist">
+        <ChartCard title="Yaş Dağılımı" testId="chart-age-dist">
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={data.age_distribution}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -104,7 +104,7 @@ export default function OverviewPage({ year, country }) {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Department Distribution" testId="chart-dept-dist">
+        <ChartCard title="Departman Dağılımı" testId="chart-dept-dist">
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={data.department_distribution} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -116,7 +116,7 @@ export default function OverviewPage({ year, country }) {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Band Distribution" testId="chart-band-dist">
+        <ChartCard title="Band Dağılımı" testId="chart-band-dist">
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={data.band_distribution}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -128,7 +128,7 @@ export default function OverviewPage({ year, country }) {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Seniority Distribution" testId="chart-seniority-dist">
+        <ChartCard title="Kıdem Dağılımı" testId="chart-seniority-dist">
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={data.seniority_distribution}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -140,7 +140,7 @@ export default function OverviewPage({ year, country }) {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Manager Distribution" testId="chart-manager-dist" className="lg:col-span-2">
+        <ChartCard title="Yönetici Dağılımı" testId="chart-manager-dist" className="lg:col-span-2">
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
               <Pie data={data.manager_distribution} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="value" nameKey="name" strokeWidth={0}>

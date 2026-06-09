@@ -45,7 +45,7 @@ export default function InternalMobilityPage({ year }) {
   };
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
-  if (!data) return <p className="text-slate-400">No data available.</p>;
+  if (!data) return <p className="text-slate-400">Veri bulunamadı.</p>;
 
   const { kpis, positions } = data;
   const deptShort = (d) => d.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D");
@@ -53,15 +53,15 @@ export default function InternalMobilityPage({ year }) {
   return (
     <div data-testid="internal-mobility-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <KPICard title="Open Roles" value={kpis.open_roles} icon={UserCirclePlus} color="blue" />
-        <KPICard title="Internal Fit" value={kpis.internal_fit} icon={ArrowsLeftRight} color="green" format="percent" />
-        <KPICard title="Avg Time-to-Fill" value={kpis.avg_time_to_fill} icon={Clock} color="amber" format="decimal" subtitle="days" />
-        <KPICard title="Filled Internally" value={kpis.filled_internally} icon={UserSwitch} color="green" subtitle="YTD" />
+        <KPICard title="Açık Pozisyon" value={kpis.open_roles} icon={UserCirclePlus} color="blue" />
+        <KPICard title="İç Uyum" value={kpis.internal_fit} icon={ArrowsLeftRight} color="green" format="percent" />
+        <KPICard title="Ort. Dolum Süresi" value={kpis.avg_time_to_fill} icon={Clock} color="amber" format="decimal" subtitle="gün" />
+        <KPICard title="İçeriden Doldurulan" value={kpis.filled_internally} icon={UserSwitch} color="green" subtitle="YTD" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Position Selector */}
-        <ChartCard title="Open Positions" subtitle={`${positions.length} open roles`} testId="chart-positions-list">
+        <ChartCard title="Açık Pozisyonlar" subtitle={`${positions.length} açık rol`} testId="chart-positions-list">
           <div className="space-y-1.5 px-3 pb-2 max-h-[500px] overflow-y-auto">
             {positions.map((pos) => (
               <div key={pos.id} data-testid={`position-${pos.id}`}
@@ -96,7 +96,7 @@ export default function InternalMobilityPage({ year }) {
         </ChartCard>
 
         {/* Candidate Matches */}
-        <ChartCard title={selectedPos ? `Matches: ${selectedPos.title}` : "Select a Position"} 
+        <ChartCard title={selectedPos ? `Eşleşmeler: ${selectedPos.title}` : "Pozisyon Seçin"} 
           subtitle={selectedPos ? `${deptShort(selectedPos.department)} · ${selectedPos.location} · Band ${selectedPos.target_band}` : ""}
           className="lg:col-span-2" testId="chart-matches">
           {matchLoading ? (
@@ -104,7 +104,7 @@ export default function InternalMobilityPage({ year }) {
           ) : matches.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-32 text-slate-400">
               <MagnifyingGlass size={28} className="mb-2" />
-              <p className="text-sm">No matching candidates found</p>
+              <p className="text-sm">Eşleşen aday bulunamadı</p>
             </div>
           ) : (
             <div className="space-y-2 px-3 pb-2 max-h-[500px] overflow-y-auto">

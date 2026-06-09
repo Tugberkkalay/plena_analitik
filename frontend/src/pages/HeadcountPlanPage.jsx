@@ -29,23 +29,23 @@ export default function HeadcountPlanPage({ year, country }) {
   }, [year, country]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
-  if (!data) return <p className="text-slate-400">No data available.</p>;
+  if (!data) return <p className="text-slate-400">Veri bulunamadı.</p>;
 
   const { kpis } = data;
 
   return (
     <div data-testid="headcount-plan-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <KPICard title="Current HC" value={kpis.total_headcount} icon={Users} color="blue" />
-        <KPICard title="Target HC" value={kpis.target_headcount} icon={Target} color="green" />
-        <KPICard title="Total Gap" value={kpis.total_gap} icon={Warning} color="red" />
-        <KPICard title="Fill Rate" value={kpis.fill_rate} icon={ChartLineUp} color="amber" format="percent" />
-        <KPICard title="Critical Gaps" value={kpis.critical_gaps_count} icon={Crosshair} color="red" />
-        <KPICard title="Depts Under" value={kpis.depts_under} icon={Buildings} color="orange" />
+        <KPICard title="Mevcut Kadro" value={kpis.total_headcount} icon={Users} color="blue" />
+        <KPICard title="Hedef Kadro" value={kpis.target_headcount} icon={Target} color="green" />
+        <KPICard title="Toplam Açık" value={kpis.total_gap} icon={Warning} color="red" />
+        <KPICard title="Doluluk Oranı" value={kpis.fill_rate} icon={ChartLineUp} color="amber" format="percent" />
+        <KPICard title="Kritik Açıklar" value={kpis.critical_gaps_count} icon={Crosshair} color="red" />
+        <KPICard title="Eksik Dept." value={kpis.depts_under} icon={Buildings} color="orange" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ChartCard title="Target vs Current by Department" testId="chart-target-vs-current">
+        <ChartCard title="Hedef vs Mevcut (Departman)" testId="chart-target-vs-current">
           <ResponsiveContainer width="100%" height={320}>
             <BarChart data={data.department_plan} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -62,7 +62,7 @@ export default function HeadcountPlanPage({ year, country }) {
           </div>
         </ChartCard>
 
-        <ChartCard title="Gap Analysis by Department" testId="chart-gap-analysis">
+        <ChartCard title="Departman Açık Analizi" testId="chart-gap-analysis">
           <ResponsiveContainer width="100%" height={320}>
             <BarChart data={data.department_plan}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -84,7 +84,7 @@ export default function HeadcountPlanPage({ year, country }) {
         </ChartCard>
       </div>
 
-      <ChartCard title="Hiring Plan Timeline" subtitle="Monthly planned hires to close gaps" testId="chart-hiring-plan">
+      <ChartCard title="İşe Alım Plan Takvimi" subtitle="Açıkları kapatmak için aylık planlanan alımlar" testId="chart-hiring-plan">
         <ResponsiveContainer width="100%" height={240}>
           <ComposedChart data={data.monthly_hiring_plan}>
             <defs>
@@ -105,7 +105,7 @@ export default function HeadcountPlanPage({ year, country }) {
       </ChartCard>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ChartCard title="Department Fill Rate" testId="chart-dept-status">
+        <ChartCard title="Departman Doluluk Oranı" testId="chart-dept-status">
           <div className="space-y-2 px-3 pb-2 max-h-[400px] overflow-y-auto">
             {data.department_plan.map((dept) => (
               <div key={dept.department} className="flex items-center gap-3 p-2.5 border border-slate-100 rounded-md hover:bg-slate-50 transition-colors">
@@ -134,7 +134,7 @@ export default function HeadcountPlanPage({ year, country }) {
           </div>
         </ChartCard>
 
-        <ChartCard title="Critical Role Gaps" subtitle="Roles requiring immediate hiring" testId="chart-critical-gaps">
+        <ChartCard title="Kritik Rol Açıkları" subtitle="Acil işe alım gerektiren roller" testId="chart-critical-gaps">
           <div className="space-y-1.5 px-3 pb-2 max-h-[400px] overflow-y-auto">
             {data.critical_gaps.length === 0 && <p className="text-sm text-slate-400 py-4 text-center">No critical gaps identified</p>}
             {data.critical_gaps.map((gap, i) => (

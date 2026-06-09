@@ -23,7 +23,7 @@ export default function OrgHealthPage({ year, country }) {
   }, [year, country]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
-  if (!data) return <p className="text-slate-400">No data available.</p>;
+  if (!data) return <p className="text-slate-400">Veri bulunamadı.</p>;
 
   const { kpis } = data;
 
@@ -36,17 +36,17 @@ export default function OrgHealthPage({ year, country }) {
   return (
     <div data-testid="org-health-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-4">
-        <KPICard title="Headcount" value={kpis.total_headcount} icon={Users} color="blue" />
-        <KPICard title="Span of Control" value={kpis.overall_span} icon={ArrowsOutSimple} color="amber" format="decimal" />
-        <KPICard title="Manager Ratio" value={kpis.manager_ratio} icon={UsersFour} color="orange" format="percent" />
-        <KPICard title="Hierarchy Depth" value={kpis.hierarchy_depth} icon={TreeStructure} color="blue" />
-        <KPICard title="Healthy" value={kpis.healthy_depts} icon={CheckCircle} color="green" />
-        <KPICard title="Attention" value={kpis.attention_depts} icon={Warning} color="amber" />
-        <KPICard title="Restructure" value={kpis.restructure_depts} icon={Warning} color="red" />
+        <KPICard title="Kadro" value={kpis.total_headcount} icon={Users} color="blue" />
+        <KPICard title="Kontrol Aralığı" value={kpis.overall_span} icon={ArrowsOutSimple} color="amber" format="decimal" />
+        <KPICard title="Yönetici Oranı" value={kpis.manager_ratio} icon={UsersFour} color="orange" format="percent" />
+        <KPICard title="Hiyerarşi Derinliği" value={kpis.hierarchy_depth} icon={TreeStructure} color="blue" />
+        <KPICard title="Sağlıklı" value={kpis.healthy_depts} icon={CheckCircle} color="green" />
+        <KPICard title="Dikkat" value={kpis.attention_depts} icon={Warning} color="amber" />
+        <KPICard title="Yeniden Yapılanma" value={kpis.restructure_depts} icon={Warning} color="red" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ChartCard title="Span of Control by Department" subtitle="Employees per manager (ideal: 5-10)" testId="chart-span-control">
+        <ChartCard title="Departman Kontrol Aralığı" subtitle="Yönetici başına çalışan (ideal: 5-10)" testId="chart-span-control">
           <ResponsiveContainer width="100%" height={300}>
             <ComposedChart data={data.department_health}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -86,7 +86,7 @@ export default function OrgHealthPage({ year, country }) {
         </ChartCard>
       </div>
 
-      <ChartCard title="Department Structure Health" subtitle="Health score based on span of control, manager ratio and performance" testId="chart-dept-health">
+      <ChartCard title="Departman Yapı Sağlığı" subtitle="Kontrol aralığı, yönetici oranı ve performansa dayalı sağlık skoru" testId="chart-dept-health">
         <div className="space-y-2 px-3 pb-2">
           {data.department_health.map((dept) => (
             <div key={dept.department} data-testid={`dept-health-${dept.department.toLowerCase()}`}
@@ -146,7 +146,7 @@ export default function OrgHealthPage({ year, country }) {
         </div>
       </ChartCard>
 
-      <ChartCard title="Manager Ratio by Department" testId="chart-mgr-ratio">
+      <ChartCard title="Departman Yönetici Oranı" testId="chart-mgr-ratio">
         <ResponsiveContainer width="100%" height={260}>
           <BarChart data={data.department_health}>
             <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />

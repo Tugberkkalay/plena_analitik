@@ -21,16 +21,16 @@ export default function SuccessionPage({ year }) {
   }, [year]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
-  if (!data) return <p className="text-slate-500">No data.</p>;
+  if (!data) return <p className="text-slate-500">Veri bulunamadı.</p>;
 
   const { kpis } = data;
   return (
     <div data-testid="succession-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <KPICard title="Critical Roles" value={kpis.critical_roles} icon={Users} color="blue" />
-        <KPICard title="No Successor" value={kpis.no_successor} icon={Warning} color="red" />
-        <KPICard title="High Knowledge Risk" value={kpis.high_knowledge_risk} icon={ShieldWarning} color="amber" />
-        <KPICard title="Avg Readiness" value={kpis.avg_readiness} icon={CheckCircle} color="green" format="percent" />
+        <KPICard title="Kritik Roller" value={kpis.critical_roles} icon={Users} color="blue" />
+        <KPICard title="Halef Yok" value={kpis.no_successor} icon={Warning} color="red" />
+        <KPICard title="Yüksek Bilgi Riski" value={kpis.high_knowledge_risk} icon={ShieldWarning} color="amber" />
+        <KPICard title="Ort. Hazırlık" value={kpis.avg_readiness} icon={CheckCircle} color="green" format="percent" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -52,7 +52,7 @@ export default function SuccessionPage({ year }) {
           </div>
         </ChartCard>
 
-        <ChartCard title="Succession Map" subtitle="Critical roles sorted by knowledge risk" className="lg:col-span-2" testId="chart-succession-map">
+        <ChartCard title="Halef Haritası" subtitle="Bilgi riskine göre sıralı kritik roller" className="lg:col-span-2" testId="chart-succession-map">
           <div className="space-y-2 px-3 pb-2 max-h-[400px] overflow-y-auto">
             {data.succession_map?.slice(0, 12).map((role, i) => (
               <div key={i} className={`p-3 border rounded-md ${RISK_BG[role.risk_level]}`}>
@@ -84,7 +84,7 @@ export default function SuccessionPage({ year }) {
                   </div>
                 )}
                 {role.successors?.length === 0 && (
-                  <p className="text-[10px] text-red-500 ml-10 mt-1 font-medium">No successor identified</p>
+                  <p className="text-[10px] text-red-500 ml-10 mt-1 font-medium">Halef belirlenmedi</p>
                 )}
               </div>
             ))}

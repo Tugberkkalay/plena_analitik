@@ -22,22 +22,22 @@ export default function TurnoverPage({ year, country }) {
   }, [year, country]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
-  if (!data) return <p className="text-slate-400">No data available.</p>;
+  if (!data) return <p className="text-slate-400">Veri bulunamadı.</p>;
 
   const { kpis } = data;
 
   return (
     <div data-testid="turnover-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        <KPICard title="Turnover Rate" value={kpis.turnover_rate} icon={TrendDown} color="red" format="percent" />
-        <KPICard title="Voluntary" value={kpis.voluntary_rate} icon={ArrowsClockwise} color="amber" format="percent" />
-        <KPICard title="Involuntary" value={kpis.involuntary_rate} icon={UserMinus} color="orange" format="percent" />
-        <KPICard title="Talent Turnover" value={kpis.talent_turnover} icon={Star} color="blue" format="percent" />
-        <KPICard title="New Hire Turnover" value={kpis.new_hire_turnover} icon={Lightning} color="slate" format="percent" />
+        <KPICard title="Devir Oranı" value={kpis.turnover_rate} icon={TrendDown} color="red" format="percent" />
+        <KPICard title="Gönüllü" value={kpis.voluntary_rate} icon={ArrowsClockwise} color="amber" format="percent" />
+        <KPICard title="Zorunlu" value={kpis.involuntary_rate} icon={UserMinus} color="orange" format="percent" />
+        <KPICard title="Yetenek Kaybı" value={kpis.talent_turnover} icon={Star} color="blue" format="percent" />
+        <KPICard title="Yeni İşe Alım Kaybı" value={kpis.new_hire_turnover} icon={Lightning} color="slate" format="percent" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ChartCard title="Monthly Turnover & Cumulative" testId="chart-turnover-monthly">
+        <ChartCard title="Aylık Devir & Kümülatif" testId="chart-turnover-monthly">
           <ResponsiveContainer width="100%" height={280}>
             <ComposedChart data={data.turnover_by_month}>
               <defs>
@@ -60,7 +60,7 @@ export default function TurnoverPage({ year, country }) {
           </div>
         </ChartCard>
 
-        <ChartCard title="Leaving Reasons" testId="chart-leaving-reasons">
+        <ChartCard title="Ayrılma Nedenleri" testId="chart-leaving-reasons">
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={data.leaving_reasons} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -72,7 +72,7 @@ export default function TurnoverPage({ year, country }) {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Turnover by Department" testId="chart-turnover-dept">
+        <ChartCard title="Departman Bazlı Devir" testId="chart-turnover-dept">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.turnover_by_department}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -84,7 +84,7 @@ export default function TurnoverPage({ year, country }) {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Turnover by Age Group" testId="chart-turnover-age">
+        <ChartCard title="Yaş Grubu Bazlı Devir" testId="chart-turnover-age">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.turnover_by_age}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -96,7 +96,7 @@ export default function TurnoverPage({ year, country }) {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Turnover by Gender" testId="chart-turnover-gender">
+        <ChartCard title="Cinsiyet Bazlı Devir" testId="chart-turnover-gender">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.turnover_by_gender}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -108,7 +108,7 @@ export default function TurnoverPage({ year, country }) {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Turnover Trend by Year" testId="chart-turnover-yearly">
+        <ChartCard title="Yıllık Devir Trendi" testId="chart-turnover-yearly">
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={data.turnover_by_year}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />

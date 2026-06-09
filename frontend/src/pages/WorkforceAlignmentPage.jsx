@@ -24,7 +24,7 @@ export default function WorkforceAlignmentPage({ year }) {
   }, [year]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
-  if (!data) return <p className="text-slate-400">No data available.</p>;
+  if (!data) return <p className="text-slate-400">Veri bulunamadı.</p>;
 
   const { kpis, objectives } = data;
 
@@ -46,7 +46,7 @@ export default function WorkforceAlignmentPage({ year }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <ChartCard title="Readiness Overview" testId="chart-readiness-radar" className="lg:col-span-1">
+        <ChartCard title="Hazırlık Genel Görünüm" testId="chart-readiness-radar" className="lg:col-span-1">
           <ResponsiveContainer width="100%" height={300}>
             <RadarChart data={radarData}>
               <PolarGrid stroke="#E2E8F0" />
@@ -63,7 +63,7 @@ export default function WorkforceAlignmentPage({ year }) {
           </div>
         </ChartCard>
 
-        <ChartCard title="Readiness by Objective" testId="chart-readiness-bars" className="lg:col-span-2">
+        <ChartCard title="Hedefe Göre Hazırlık" testId="chart-readiness-bars" className="lg:col-span-2">
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={objectives} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -81,7 +81,7 @@ export default function WorkforceAlignmentPage({ year }) {
         </ChartCard>
       </div>
 
-      <ChartCard title="Strategic Objectives Detail" subtitle="Click to expand skill coverage" testId="chart-objectives-detail">
+      <ChartCard title="Stratejik Hedef Detayları" subtitle="Yetkinlik karşılanmasını görmek için tıklayın" testId="chart-objectives-detail">
         <div className="space-y-3 px-3 pb-2">
           {objectives.map((obj) => (
             <div key={obj.id} data-testid={`objective-${obj.id}`}

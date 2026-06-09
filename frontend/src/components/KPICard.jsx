@@ -42,7 +42,7 @@ export default function KPICard({ title, value, subtitle, icon: Icon, color = "b
           <span className="text-[10px] font-semibold">
             {trend.delta > 0 ? "+" : ""}{trend.pct !== undefined ? `${trend.pct}%` : trend.delta}
           </span>
-          <span className="text-[10px] text-slate-400 ml-0.5">vs prev year</span>
+          <span className="text-[10px] text-slate-400 ml-0.5">önceki yıla göre</span>
         </div>
       )}
       {subtitle && !trend && <p className="text-xs text-slate-500 mt-1">{subtitle}</p>}

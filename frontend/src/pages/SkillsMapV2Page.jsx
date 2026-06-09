@@ -22,7 +22,7 @@ export default function SkillsMapV2Page({ year }) {
   }, [year]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
-  if (!data) return <p className="text-slate-400">No data available.</p>;
+  if (!data) return <p className="text-slate-400">Veri bulunamadı.</p>;
 
   const { kpis } = data;
   const depts = data.heatmap_depts || [];
@@ -30,14 +30,14 @@ export default function SkillsMapV2Page({ year }) {
   return (
     <div data-testid="skills-map-v2-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <KPICard title="Tracked Skills" value={kpis.tracked_skills} icon={Compass} color="blue" />
-        <KPICard title="Critical Gaps" value={kpis.critical_gaps} icon={Warning} color="red" />
-        <KPICard title="Avg Coverage" value={kpis.avg_coverage > 100 ? 100 : kpis.avg_coverage} icon={ChartLineUp} color="amber" format="percent" />
-        <KPICard title="Emerging Skills" value={kpis.emerging_skills} icon={Lightning} color="green" />
+        <KPICard title="Takip Edilen" value={kpis.tracked_skills} icon={Compass} color="blue" />
+        <KPICard title="Kritik Açıklar" value={kpis.critical_gaps} icon={Warning} color="red" />
+        <KPICard title="Ort. Karşılanma" value={kpis.avg_coverage > 100 ? 100 : kpis.avg_coverage} icon={ChartLineUp} color="amber" format="percent" />
+        <KPICard title="Gelişen Yetkinlikler" value={kpis.emerging_skills} icon={Lightning} color="green" />
       </div>
 
       {/* Demand-Supply Bar */}
-      <ChartCard title="Skill Demand vs Supply" subtitle="Top skills by gap size (proficient+ employees vs strategic demand)" testId="chart-demand-supply">
+      <ChartCard title="Yetkinlik Arz vs Talep" subtitle="Açık büyüklüğüne göre (yetkin çalışan vs stratejik talep)" testId="chart-demand-supply">
         <ResponsiveContainer width="100%" height={320}>
           <BarChart data={data.demand_supply} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -55,12 +55,12 @@ export default function SkillsMapV2Page({ year }) {
       </ChartCard>
 
       {/* Heatmap */}
-      <ChartCard title="Skill Coverage Heatmap" subtitle="Category × Department — avg proficiency (green ≥3.5, amber 2.5-3.5, red <2.5)" testId="chart-skill-heatmap">
+      <ChartCard title="Yetkinlik Karşılanma Isı Haritası" subtitle="Kategori × Departman — ort. yetkinlik (yeşil ≥3.5, amber 2.5-3.5, kırmızı <2.5)" testId="chart-skill-heatmap">
         <div className="overflow-x-auto px-3 pb-2">
           <table className="w-full text-xs">
             <thead>
               <tr>
-                <th className="text-left p-2 text-slate-500 font-medium">Category</th>
+                <th className="text-left p-2 text-slate-500 font-medium">Kategori</th>
                 {depts.map(d => <th key={d} className="text-center p-2 text-slate-500 font-medium">{d}</th>)}
               </tr>
             </thead>
@@ -81,7 +81,7 @@ export default function SkillsMapV2Page({ year }) {
       </ChartCard>
 
       {/* Priority Skill Gaps */}
-      <ChartCard title="Priority Skill Gaps" subtitle="Skills with coverage below demand — with suggested closure path" testId="chart-skill-gaps">
+      <ChartCard title="Öncelikli Yetkinlik Açıkları" subtitle="Talebin altında kalan yetkinlikler — önerilen kapatma yolu ile" testId="chart-skill-gaps">
         <div className="space-y-2 px-3 pb-2 max-h-[500px] overflow-y-auto">
           {data.gaps?.filter(g => g.severity !== "healthy").map((gap, i) => (
             <div key={gap.skill} data-testid={`skill-gap-${i}`}

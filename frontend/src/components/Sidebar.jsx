@@ -3,53 +3,53 @@ import { ChartBar, Users, UserPlus, ArrowsClockwise, ArrowsLeftRight, Brain, Clo
 
 const NAV_SECTIONS = [
   {
-    label: "Workforce",
+    label: "İşgücü",
     items: [
-      { path: "/", label: "Overview", icon: ChartBar },
-      { path: "/headcount", label: "Headcount", icon: Users },
-      { path: "/hires-leaves", label: "Hires & Leaves", icon: UserPlus },
-      { path: "/turnover", label: "Turnover", icon: ArrowsClockwise },
-      { path: "/movement", label: "Movement", icon: ArrowsLeftRight },
+      { path: "/", label: "Genel Bakış", icon: ChartBar },
+      { path: "/headcount", label: "Kadro", icon: Users },
+      { path: "/hires-leaves", label: "Alım & Ayrılma", icon: UserPlus },
+      { path: "/turnover", label: "Devir Oranı", icon: ArrowsClockwise },
+      { path: "/movement", label: "Hareket", icon: ArrowsLeftRight },
     ],
   },
   {
-    label: "Planning",
+    label: "Planlama",
     items: [
-      { path: "/headcount-plan", label: "HC Planning", icon: Crosshair },
-      { path: "/workforce-alignment", label: "WF Alignment", icon: Strategy },
-      { path: "/org-health", label: "Org Health", icon: TreeStructure },
-      { path: "/skills-map-v2", label: "Skills Map", icon: GridNine },
-      { path: "/scenario-sim", label: "Scenario Sim", icon: Sliders },
-      { path: "/succession", label: "Succession", icon: ShieldWarning },
+      { path: "/headcount-plan", label: "Kadro Planlama", icon: Crosshair },
+      { path: "/workforce-alignment", label: "Strateji Hizalama", icon: Strategy },
+      { path: "/org-health", label: "Org. Sağlığı", icon: TreeStructure },
+      { path: "/skills-map-v2", label: "Yetkinlik Haritası", icon: GridNine },
+      { path: "/scenario-sim", label: "Senaryo Sim.", icon: Sliders },
+      { path: "/succession", label: "Halef Planı", icon: ShieldWarning },
     ],
   },
   {
-    label: "Talent",
+    label: "Yetenek",
     items: [
-      { path: "/internal-mobility", label: "Internal Mobility", icon: UserSwitch },
-      { path: "/recruitment", label: "Recruitment", icon: Funnel },
-      { path: "/performance", label: "Performance", icon: Target },
-      { path: "/learning", label: "Learning", icon: GraduationCap },
-      { path: "/compensation", label: "Compensation", icon: CurrencyDollar },
-      { path: "/engagement", label: "Engagement", icon: Smiley },
-      { path: "/career-talent", label: "Career & Talent", icon: Star },
-      { path: "/career-dev", label: "Career Dev (AI)", icon: UserFocus },
+      { path: "/internal-mobility", label: "İç Mobilite", icon: UserSwitch },
+      { path: "/recruitment", label: "İşe Alım", icon: Funnel },
+      { path: "/performance", label: "Performans", icon: Target },
+      { path: "/learning", label: "Eğitim", icon: GraduationCap },
+      { path: "/compensation", label: "Ücretlendirme", icon: CurrencyDollar },
+      { path: "/engagement", label: "Bağlılık", icon: Smiley },
+      { path: "/career-talent", label: "Kariyer & Yetenek", icon: Star },
+      { path: "/career-dev", label: "Kariyer (AI)", icon: UserFocus },
     ],
   },
   {
-    label: "Insights",
+    label: "Öngörü",
     items: [
-      { path: "/action-center", label: "Action Center", icon: Bell },
-      { path: "/ai-forecast", label: "AI Forecast", icon: Brain },
-      { path: "/capability-forecast", label: "Capability", icon: Binoculars },
-      { path: "/burnout", label: "Burnout Alert", icon: Heartbeat },
-      { path: "/hr-operations", label: "HR Ops", icon: Gear },
+      { path: "/action-center", label: "Aksiyon Merkezi", icon: Bell },
+      { path: "/ai-forecast", label: "AI Tahmin", icon: Brain },
+      { path: "/capability-forecast", label: "Yetkinlik Tahm.", icon: Binoculars },
+      { path: "/burnout", label: "Tükenmişlik", icon: Heartbeat },
+      { path: "/hr-operations", label: "İK Operasyonları", icon: Gear },
     ],
   },
 ];
 
 const BOTTOM_ITEMS = [
-  { path: "/data-upload", label: "Data Management", icon: CloudArrowUp },
+  { path: "/data-upload", label: "Veri Yönetimi", icon: CloudArrowUp },
 ];
 
 export default function Sidebar({ open, onToggle }) {
@@ -76,7 +76,7 @@ export default function Sidebar({ open, onToggle }) {
               <h2 data-testid="sidebar-logo" className="text-lg font-bold text-slate-900 tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 HRlytic
               </h2>
-              <p className="text-[10px] tracking-[0.2em] uppercase text-slate-400">Analytics Platform</p>
+              <p className="text-[10px] tracking-[0.2em] uppercase text-slate-400">Analitik Platformu</p>
             </div>
           </div>
         </div>
@@ -108,7 +108,7 @@ export default function Sidebar({ open, onToggle }) {
         </nav>
 
         <div className="px-3 py-4 border-t border-slate-200">
-          <p className="px-3 mb-2 text-[10px] tracking-[0.2em] uppercase text-slate-400 font-medium">Settings</p>
+          <p className="px-3 mb-2 text-[10px] tracking-[0.2em] uppercase text-slate-400 font-medium">Ayarlar</p>
           {BOTTOM_ITEMS.map((item) => (
             <NavLink
               key={item.path}
