@@ -53,7 +53,7 @@ const PAGE_TITLES = {
   "/career-dev": "AI Kariyer Gelişimi",
   "/scenario-sim": "Senaryo Simülatörü",
   "/capability-forecast": "Yetkinlik Tahmini",
-  "/succession": "Halef Planlaması",
+  "/succession": "Yedekleme Planlaması",
   "/burnout": "Tükenmişlik Uyarısı",
   "/hr-operations": "İK Operasyonları",
   "/headcount-plan": "Kadro Planlama",

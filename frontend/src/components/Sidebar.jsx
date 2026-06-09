@@ -20,7 +20,7 @@ const NAV_SECTIONS = [
       { path: "/org-health", label: "Org. Sağlığı", icon: TreeStructure },
       { path: "/skills-map-v2", label: "Yetkinlik Haritası", icon: GridNine },
       { path: "/scenario-sim", label: "Senaryo Sim.", icon: Sliders },
-      { path: "/succession", label: "Halef Planı", icon: ShieldWarning },
+      { path: "/succession", label: "Yedekleme Planı", icon: ShieldWarning },
     ],
   },
   {

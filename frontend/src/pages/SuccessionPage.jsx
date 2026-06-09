@@ -28,7 +28,7 @@ export default function SuccessionPage({ year }) {
     <div data-testid="succession-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <KPICard title="Kritik Roller" value={kpis.critical_roles} icon={Users} color="blue" />
-        <KPICard title="Halef Yok" value={kpis.no_successor} icon={Warning} color="red" />
+        <KPICard title="Yedek Yok" value={kpis.no_successor} icon={Warning} color="red" />
         <KPICard title="Yüksek Bilgi Riski" value={kpis.high_knowledge_risk} icon={ShieldWarning} color="amber" />
         <KPICard title="Ort. Hazırlık" value={kpis.avg_readiness} icon={CheckCircle} color="green" format="percent" />
       </div>
@@ -52,7 +52,7 @@ export default function SuccessionPage({ year }) {
           </div>
         </ChartCard>
 
-        <ChartCard title="Halef Haritası" subtitle="Bilgi riskine göre sıralı kritik roller" className="lg:col-span-2" testId="chart-succession-map">
+        <ChartCard title="Yedekleme Haritası" subtitle="Bilgi riskine göre sıralı kritik roller" className="lg:col-span-2" testId="chart-succession-map">
           <div className="space-y-2 px-3 pb-2 max-h-[400px] overflow-y-auto">
             {data.succession_map?.slice(0, 12).map((role, i) => (
               <div key={i} className={`p-3 border rounded-md ${RISK_BG[role.risk_level]}`}>
@@ -84,7 +84,7 @@ export default function SuccessionPage({ year }) {
                   </div>
                 )}
                 {role.successors?.length === 0 && (
-                  <p className="text-[10px] text-red-500 ml-10 mt-1 font-medium">Halef belirlenmedi</p>
+                  <p className="text-[10px] text-red-500 ml-10 mt-1 font-medium">Yedek belirlenmedi</p>
                 )}
               </div>
             ))}
