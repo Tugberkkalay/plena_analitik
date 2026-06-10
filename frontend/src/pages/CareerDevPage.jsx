@@ -23,9 +23,12 @@ export default function CareerDevPage({ year }) {
     if (!q || q.length < 2) { setEmployees([]); return; }
     setSearching(true);
     try {
-      const res = await axios.get(`${API}/employees/search?q=${q}&limit=10`);
+      const res = await axios.get(`${API}/employees/search?q=${encodeURIComponent(q)}&limit=10`);
       setEmployees(res.data.employees || []);
-    } catch (_) { /* silenced */ }
+    } catch (err) {
+      console.error("Employee search error:", err);
+      setEmployees([]);
+    }
     finally { setSearching(false); }
   }, []);
 

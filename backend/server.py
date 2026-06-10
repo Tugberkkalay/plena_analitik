@@ -1045,13 +1045,21 @@ async def get_skills_map(year: int = 2025):
 # ---- Employee Search ----
 @api_router.get("/employees/search")
 async def search_employees(q: str = "", department: str = "", limit: int = 20):
-    query = {"status": "active"}
+    query = {"$or": [{"status": "active"}, {"status": {"$exists": False}}]}
     if q:
         query["name"] = {"$regex": q, "$options": "i"}
     if department:
         query["department"] = department
-    emps = await db.employees.find(query, {"_id": 0}).to_list(limit)
-    return {"employees": emps, "total": len(emps)}
+    try:
+        emps = await db.employees.find(query, {"_id": 0}).to_list(limit)
+        return {"employees": emps, "total": len(emps)}
+    except Exception as e:
+        logger.error(f"Employee search error: {e}")
+        # Fallback: simple search without regex
+        all_emps = await db.employees.find({"_id": 0}).to_list(500)
+        filtered = [e for e in all_emps if q.lower() in e.get('name','').lower()] if q else all_emps
+        active = [e for e in filtered if e.get('status','active') == 'active' or 'status' not in e]
+        return {"employees": active[:limit], "total": len(active)}
 
 # ---- AI Career Development Plan ----
 class CareerPlanRequest(BaseModel):
