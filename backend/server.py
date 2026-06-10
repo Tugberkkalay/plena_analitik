@@ -1094,24 +1094,21 @@ async def get_career_plan(body: CareerPlanRequest):
     }
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
-        prompt = f"""Bu çalışanın kariyer gelişim planını oluştur. Türkçe yanıt ver.
+        prompt = f"""Career plan for {emp['name']} ({emp['department']}, {emp['job_title']}, Band {emp['band']}).
+Performance: {emp.get('performance_score',0)}/5, Tenure: {emp.get('seniority_years',0)}y
+Skills: {skill_text}
+Strong: {', '.join(s['skill'] for s in strong_skills)}
+Weak: {', '.join(s['skill'] for s in weak_skills)}
 
-Çalışan: {emp['name']}
-Departman: {emp['department']} | Pozisyon: {emp['job_title']} | Band: {emp['band']}
-Performans: {emp.get('performance_score',0)}/5.0 | Kıdem: {emp.get('seniority_years',0)} yıl
-Mevcut Yetkinlikler: {skill_text}
-Güçlü Alanlar: {', '.join(s['skill'] for s in strong_skills)}
-Gelişim Alanları: {', '.join(s['skill'] for s in weak_skills)}
-
-Aşağıdaki başlıklarda detaylı öneriler sun:
-1. KAZANMASI GEREKEN YETKİNLİKLER: 3-4 yeni yetkinlik (Tech + Soft) ve neden önemli
-2. ÖNERİLEN EĞİTİMLER: 4-5 spesifik eğitim/kurs (AI, Prompt Engineering, teknik ve soft skill karışımı)
-3. GELİŞİM HEDEFLERİ: 3 SMART hedef (6 ay, 1 yıl, 2 yıl)
-4. KARİYER YOLU: Mevcut pozisyondan bir sonraki basamağa geçiş için aksiyon planı
-5. MENTORLUK ÖNERİSİ: İdeal mentor profili ve mentordan beklenen katkı alanları"""
+Provide in Turkish, be concise (max 800 words):
+1. YENİ YETKİNLİKLER (3 adet, kısa açıklama)
+2. ÖNERİLEN EĞİTİMLER (4 adet, spesifik kurs adı)
+3. GELİŞİM HEDEFLERİ (3 SMART hedef: 6ay/1yıl/2yıl)
+4. KARİYER YOLU (sonraki adım ve aksiyon planı)
+5. MENTORLUK (ideal mentor profili)"""
 
         chat = LlmChat(api_key=EMERGENT_KEY, session_id=str(uuid.uuid4()),
-                       system_message="Sen uzman bir İK kariyer danışmanısın. Organizasyonel planlama ve yetenek gelişimi konusunda derinlemesine bilgin var. Her öneriyi spesifik, uygulanabilir ve ölçülebilir yap.")
+                       system_message="Kısa ve öz İK kariyer danışmanısın. Spesifik, uygulanabilir öneriler ver. Kısa cümleler kullan.")
         chat.with_model("openai", "gpt-5.2")
         response = await chat.send_message(UserMessage(text=prompt))
         result["ai_recommendations"] = response

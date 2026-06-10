@@ -41,7 +41,7 @@ export default function CareerDevPage({ year }) {
     setLoading(true);
     setPlan(null);
     try {
-      const res = await axios.post(`${API}/employee/career-plan`, { employee_id: emp.id });
+      const res = await axios.post(`${API}/employee/career-plan`, { employee_id: emp.id }, { timeout: 60000 });
       setPlan(res.data);
     } catch (_) { /* silenced */ }
     finally { setLoading(false); }
@@ -58,14 +58,14 @@ export default function CareerDevPage({ year }) {
             <Brain size={22} weight="duotone" className="text-teal-600" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>AI Career Development Plan</h2>
-            <p className="text-xs text-slate-500">Search an employee to generate personalized career recommendations</p>
+            <h2 className="text-lg font-semibold text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>AI Kariyer Gelişim Planı</h2>
+            <p className="text-xs text-slate-500">Kişiselleştirilmiş kariyer önerileri için çalışan arayın</p>
           </div>
         </div>
         <div className="relative max-w-lg">
           <MagnifyingGlass size={16} className="absolute left-3 top-3 text-slate-400" />
           <Input data-testid="employee-search" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search employee name..." className="pl-9 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400" />
+            placeholder="Çalışan adı arayın..." className="pl-9 bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400" />
           {employees.length > 0 && (
             <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
               {employees.map((emp) => (
@@ -88,7 +88,7 @@ export default function CareerDevPage({ year }) {
       {loading && (
         <div className="flex flex-col items-center justify-center py-16 gap-3">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600" />
-          <p className="text-sm text-slate-500">AI analyzing career path...</p>
+          <p className="text-sm text-slate-500">AI kariyer yolunu analiz ediyor...</p>
         </div>
       )}
 
@@ -201,7 +201,7 @@ export default function CareerDevPage({ year }) {
           <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center">
             <User size={32} className="text-slate-400" />
           </div>
-          <p className="text-sm text-slate-500">Search and select an employee to generate their career development plan</p>
+          <p className="text-sm text-slate-500">Kariyer gelişim planı oluşturmak için çalışan arayın ve seçin</p>
         </div>
       )}
     </div>
