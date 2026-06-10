@@ -26,15 +26,15 @@ export default function LearningPage({ year }) {
   return (
     <div data-testid="learning-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <KPICard title="Programs" value={kpis.total_programs} icon={GraduationCap} color="blue" />
-        <KPICard title="Total Hours" value={kpis.total_hours} icon={Clock} color="amber" />
-        <KPICard title="Hours/Employee" value={kpis.hours_per_employee} icon={ChartBar} color="green" format="decimal" />
-        <KPICard title="Participation" value={kpis.participation_rate} icon={Target} color="orange" format="percent" />
-        <KPICard title="Completion" value={kpis.completion_rate} icon={CheckCircle} color="blue" format="percent" />
-        <KPICard title="Avg Score" value={kpis.avg_score} icon={Target} color="green" format="decimal" />
+        <KPICard title="Programlar" value={kpis.total_programs} icon={GraduationCap} color="blue" />
+        <KPICard title="Toplam Saat" value={kpis.total_hours} icon={Clock} color="amber" />
+        <KPICard title="Saat/Kişi" value={kpis.hours_per_employee} icon={ChartBar} color="green" format="decimal" />
+        <KPICard title="Katılım" value={kpis.participation_rate} icon={Target} color="orange" format="percent" />
+        <KPICard title="Tamamlanma" value={kpis.completion_rate} icon={CheckCircle} color="blue" format="percent" />
+        <KPICard title="Ort. Skor" value={kpis.avg_score} icon={Target} color="green" format="decimal" />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <ChartCard title="Training by Category" testId="chart-learn-cat">
+        <ChartCard title="Kategori Bazlı Eğitim" testId="chart-learn-cat">
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie data={data.by_category} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="value" nameKey="name" strokeWidth={0}>
@@ -49,7 +49,7 @@ export default function LearningPage({ year }) {
             ))}
           </div>
         </ChartCard>
-        <ChartCard title="Completion Status" testId="chart-learn-status">
+        <ChartCard title="Tamamlanma Durumu" testId="chart-learn-status">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.by_status}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -62,7 +62,7 @@ export default function LearningPage({ year }) {
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
-        <ChartCard title="Hours by Department" testId="chart-learn-dept">
+        <ChartCard title="Departman Bazlı Saatler" testId="chart-learn-dept">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.by_department} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -74,7 +74,7 @@ export default function LearningPage({ year }) {
           </ResponsiveContainer>
         </ChartCard>
       </div>
-      <ChartCard title="Top Courses" testId="chart-top-courses">
+      <ChartCard title="En Popüler Eğitimler" testId="chart-top-courses">
         <ResponsiveContainer width="100%" height={260}>
           <BarChart data={data.top_courses} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />

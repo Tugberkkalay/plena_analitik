@@ -26,14 +26,14 @@ export default function EngagementPage({ year }) {
   return (
     <div data-testid="engagement-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        <KPICard title="Engagement" value={kpis.avg_engagement} icon={Smiley} color="blue" format="decimal" subtitle="/10" />
+        <KPICard title="Bağlılık" value={kpis.avg_engagement} icon={Smiley} color="blue" format="decimal" subtitle="/10" />
         <KPICard title="eNPS" value={kpis.enps} icon={ThumbsUp} color={kpis.enps > 20 ? "green" : "amber"} format="decimal" />
         <KPICard title="Katılım" value={kpis.participation_rate} icon={ChartBar} color="green" format="percent" />
-        <KPICard title="Absenteeism" value={kpis.avg_absenteeism} icon={CalendarBlank} color="orange" format="decimal" subtitle="days/yr" />
-        <KPICard title="Surveys" value={kpis.total_surveys} icon={ThumbsDown} color="slate" />
+        <KPICard title="Devamsızlık" value={kpis.avg_absenteeism} icon={CalendarBlank} color="orange" format="decimal" subtitle="gün/yıl" />
+        <KPICard title="Anketler" value={kpis.total_surveys} icon={ThumbsDown} color="slate" />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <ChartCard title="Engagement Drivers" testId="chart-eng-drivers">
+        <ChartCard title="Bağlılık Etkenleri" testId="chart-eng-drivers">
           <ResponsiveContainer width="100%" height={280}>
             <RadarChart data={data.drivers} cx="50%" cy="50%" outerRadius={90}>
               <PolarGrid stroke="#E2E8F0" />
@@ -58,7 +58,7 @@ export default function EngagementPage({ year }) {
             ))}
           </div>
         </ChartCard>
-        <ChartCard title="Score Distribution" testId="chart-eng-score-dist">
+        <ChartCard title="Skor Dağılımı" testId="chart-eng-score-dist">
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={data.score_distribution}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -70,7 +70,7 @@ export default function EngagementPage({ year }) {
           </ResponsiveContainer>
         </ChartCard>
       </div>
-      <ChartCard title="Engagement by Department" testId="chart-eng-dept">
+      <ChartCard title="Departman Bazlı Bağlılık" testId="chart-eng-dept">
         <ResponsiveContainer width="100%" height={280}>
           <BarChart data={data.by_department}>
             <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />

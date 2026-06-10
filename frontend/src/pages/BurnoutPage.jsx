@@ -26,14 +26,14 @@ export default function BurnoutPage({ year }) {
   return (
     <div data-testid="burnout-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <KPICard title="At Risk" value={kpis.total_at_risk} icon={Warning} color="red" subtitle="Critical+Yüksek" />
-        <KPICard title="Critical" value={kpis.critical_count} icon={Lightning} color="red" />
-        <KPICard title="Avg Risk Score" value={kpis.avg_risk_score} icon={Heartbeat} color="amber" format="decimal" subtitle="/100" />
-        <KPICard title="Avg Engagement" value={kpis.avg_engagement} icon={Smiley} color="green" format="decimal" subtitle="/10" />
+        <KPICard title="Risk Altında" value={kpis.total_at_risk} icon={Warning} color="red" subtitle="Critical+Yüksek" />
+        <KPICard title="Kritik" value={kpis.critical_count} icon={Lightning} color="red" />
+        <KPICard title="Ort. Risk Skoru" value={kpis.avg_risk_score} icon={Heartbeat} color="amber" format="decimal" subtitle="/100" />
+        <KPICard title="Ort. Bağlılık" value={kpis.avg_engagement} icon={Smiley} color="green" format="decimal" subtitle="/10" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <ChartCard title="Risk Distribution" testId="chart-burnout-dist">
+        <ChartCard title="Risk Dağılımı" testId="chart-burnout-dist">
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie data={data.risk_distribution} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="count" nameKey="level" strokeWidth={0}>
@@ -51,7 +51,7 @@ export default function BurnoutPage({ year }) {
           </div>
         </ChartCard>
 
-        <ChartCard title="Department Risk Heatmap" className="lg:col-span-2" testId="chart-burnout-dept">
+        <ChartCard title="Departman Risk Isı Haritası" className="lg:col-span-2" testId="chart-burnout-dept">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.department_risk}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -78,7 +78,7 @@ export default function BurnoutPage({ year }) {
         </ChartCard>
       </div>
 
-      <ChartCard title="High Risk Employees" subtitle="Employees with critical or high burnout risk - immediate attention needed" testId="chart-burnout-list">
+      <ChartCard title="Yüksek Riskli Çalışanlar" subtitle="Kritik veya yüksek tükenmişlik riski — acil müdahale gerekli" testId="chart-burnout-list">
         <div className="space-y-2 px-3 pb-2 max-h-[450px] overflow-y-auto">
           {data.top_risk?.slice(0, 12).map((emp, i) => (
             <div key={`burn-${emp.name}`} className={`flex items-center gap-4 p-3 border rounded-md ${RISK_BG[emp.risk_level]}`}>

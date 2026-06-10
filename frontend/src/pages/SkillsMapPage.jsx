@@ -29,14 +29,14 @@ export default function SkillsMapPage({ year }) {
   return (
     <div data-testid="skills-map-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPICard title="Unique Skills" value={data.total_unique_skills} icon={Cube} color="blue" />
-        <KPICard title="Skill Gaps" value={data.skill_gaps?.length || 0} icon={Warning} color="red" subtitle="avg < 3.0" />
-        <KPICard title="Critical Needs" value={data.critical_needs?.length || 0} icon={Lightning} color="amber" subtitle="urgent" />
-        <KPICard title="Mobility Opps" value={mobility?.mobility_opportunities?.length || 0} icon={Compass} color="green" />
+        <KPICard title="Benzersiz Yetkinlik" value={data.total_unique_skills} icon={Cube} color="blue" />
+        <KPICard title="Yetkinlik Açığı" value={data.skill_gaps?.length || 0} icon={Warning} color="red" subtitle="avg < 3.0" />
+        <KPICard title="Kritik İhtiyaç" value={data.critical_needs?.length || 0} icon={Lightning} color="amber" subtitle="urgent" />
+        <KPICard title="Mobilite Fırsatı" value={mobility?.mobility_opportunities?.length || 0} icon={Compass} color="green" />
       </div>
 
       {/* Skill Heatmap */}
-      <ChartCard title="Department Skill Heatmap" subtitle="Average proficiency by department (1-5 scale)" testId="chart-skill-heatmap">
+      <ChartCard title="Departman Yetkinlik Isı Haritası" subtitle="Departman bazlı ort. yetkinlik (1-5)" testId="chart-skill-heatmap">
         <div className="overflow-x-auto px-2 pb-2">
           <table className="w-full text-xs">
             <thead>
@@ -73,7 +73,7 @@ export default function SkillsMapPage({ year }) {
       </ChartCard>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <ChartCard title="Top Skills (by coverage)" testId="chart-top-skills">
+        <ChartCard title="En Yaygın Yetkinlikler" testId="chart-top-skills">
           <ResponsiveContainer width="100%" height={320}>
             <BarChart data={data.all_skills?.slice(0, 12)} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -85,7 +85,7 @@ export default function SkillsMapPage({ year }) {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Skill Category Distribution" testId="chart-skill-cats">
+        <ChartCard title="Yetkinlik Kategori Dağılımı" testId="chart-skill-cats">
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie data={data.category_distribution} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="count" nameKey="category" strokeWidth={0}>
@@ -119,7 +119,7 @@ export default function SkillsMapPage({ year }) {
           </div>
         </ChartCard>
 
-        <ChartCard title="Internal Mobility Opportunities" subtitle="Skills transferable between departments" testId="chart-mobility">
+        <ChartCard title="İç Mobilite Fırsatları" subtitle="Departmanlar arası aktarılabilir yetkinlikler" testId="chart-mobility">
           <div className="space-y-2 px-3 pb-2 max-h-[380px] overflow-y-auto">
             {mobility?.mobility_opportunities?.slice(0, 10).map((opp, i) => (
               <div key={i} className="p-3 bg-slate-50 border border-slate-100 rounded-md">

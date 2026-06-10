@@ -26,15 +26,15 @@ export default function HROperationsPage({ year }) {
   return (
     <div data-testid="hr-operations-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <KPICard title="Employees" value={kpis.total_employees} icon={Users} color="blue" />
-        <KPICard title="Full-Time" value={kpis.full_time} icon={Gear} color="green" />
-        <KPICard title="Part-Time" value={kpis.part_time} icon={Gear} color="amber" />
-        <KPICard title="FT Ratio" value={kpis.ft_ratio} icon={ChartBar} color="blue" format="percent" />
-        <KPICard title="Disabled" value={kpis.disabled_rate} icon={Users} color="slate" format="percent" />
-        <KPICard title="Avg Seniority" value={kpis.avg_seniority} icon={GraduationCap} color="orange" format="decimal" subtitle="yrs" />
+        <KPICard title="Çalışanlar" value={kpis.total_employees} icon={Users} color="blue" />
+        <KPICard title="Tam Zamanlı" value={kpis.full_time} icon={Gear} color="green" />
+        <KPICard title="Yarı Zamanlı" value={kpis.part_time} icon={Gear} color="amber" />
+        <KPICard title="TZ Oranı" value={kpis.ft_ratio} icon={ChartBar} color="blue" format="percent" />
+        <KPICard title="Engelli" value={kpis.disabled_rate} icon={Users} color="slate" format="percent" />
+        <KPICard title="Ort. Kıdem" value={kpis.avg_seniority} icon={GraduationCap} color="orange" format="decimal" subtitle="yıl" />
       </div>
 
-      <ChartCard title="Operational Metrics" testId="chart-op-metrics">
+      <ChartCard title="Operasyonel Metrikler" testId="chart-op-metrics">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-4 pb-2">
           {data.operational_metrics?.map((m) => {
             const pct = Math.min(100, (m.value / m.target) * 100);
@@ -56,7 +56,7 @@ export default function HROperationsPage({ year }) {
       </ChartCard>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ChartCard title="Department Metrics" testId="chart-dept-metrics">
+        <ChartCard title="Departman Metrikleri" testId="chart-dept-metrics">
           <div className="overflow-x-auto px-2">
             <Table>
               <TableHeader><TableRow className="border-slate-100 hover:bg-transparent">
@@ -78,7 +78,7 @@ export default function HROperationsPage({ year }) {
             </Table>
           </div>
         </ChartCard>
-        <ChartCard title="Employees by City" testId="chart-ops-city">
+        <ChartCard title="Şehir Bazlı Çalışanlar" testId="chart-ops-city">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.by_city}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -89,7 +89,7 @@ export default function HROperationsPage({ year }) {
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
-        <ChartCard title="Gender Distribution" testId="chart-ops-gender">
+        <ChartCard title="Cinsiyet Dağılımı" testId="chart-ops-gender">
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie data={data.gender_distribution} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="value" nameKey="name" strokeWidth={0}>
@@ -104,7 +104,7 @@ export default function HROperationsPage({ year }) {
             ))}
           </div>
         </ChartCard>
-        <ChartCard title="Education Level" testId="chart-ops-edu">
+        <ChartCard title="Eğitim Düzeyi" testId="chart-ops-edu">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.by_education}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />

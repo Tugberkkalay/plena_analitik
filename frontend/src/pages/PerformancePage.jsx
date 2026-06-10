@@ -25,14 +25,14 @@ export default function PerformancePage({ year }) {
   return (
     <div data-testid="performance-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        <KPICard title="Avg Score" value={kpis.avg_score} icon={Target} color="blue" format="decimal" subtitle="/5.0" />
-        <KPICard title="High Performers" value={kpis.high_performers} icon={TrendUp} color="green" subtitle={`${kpis.high_pct}%`} />
-        <KPICard title="Low Performers" value={kpis.low_performers} icon={TrendDown} color="red" subtitle={`${kpis.low_pct}%`} />
-        <KPICard title="High Perf %" value={kpis.high_pct} icon={Star} color="amber" format="percent" />
-        <KPICard title="Low Perf %" value={kpis.low_pct} icon={ChartBar} color="slate" format="percent" />
+        <KPICard title="Ort. Skor" value={kpis.avg_score} icon={Target} color="blue" format="decimal" subtitle="/5.0" />
+        <KPICard title="Yüksek Performans" value={kpis.high_performers} icon={TrendUp} color="green" subtitle={`${kpis.high_pct}%`} />
+        <KPICard title="Düşük Performans" value={kpis.low_performers} icon={TrendDown} color="red" subtitle={`${kpis.low_pct}%`} />
+        <KPICard title="Yüksek Perf %" value={kpis.high_pct} icon={Star} color="amber" format="percent" />
+        <KPICard title="Düşük Perf %" value={kpis.low_pct} icon={ChartBar} color="slate" format="percent" />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ChartCard title="Performance Score Distribution" testId="chart-perf-dist">
+        <ChartCard title="Performans Skor Dağılımı" testId="chart-perf-dist">
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={data.distribution}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -45,7 +45,7 @@ export default function PerformancePage({ year }) {
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
-        <ChartCard title="Avg Performance by Department" testId="chart-perf-dept">
+        <ChartCard title="Departman Ort. Performansı" testId="chart-perf-dept">
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={data.by_department} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -56,7 +56,7 @@ export default function PerformancePage({ year }) {
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
-        <ChartCard title="Performance by Band" testId="chart-perf-band">
+        <ChartCard title="Band Bazlı Performans" testId="chart-perf-band">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.by_band}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -67,7 +67,7 @@ export default function PerformancePage({ year }) {
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
-        <ChartCard title="Top 10 Performers" testId="chart-top-perf">
+        <ChartCard title="En İyi 10 Çalışan" testId="chart-top-perf">
           <div className="overflow-x-auto px-2">
             <Table>
               <TableHeader><TableRow className="border-slate-100 hover:bg-transparent">

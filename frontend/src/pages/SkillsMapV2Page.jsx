@@ -44,8 +44,8 @@ export default function SkillsMapV2Page({ year }) {
             <XAxis type="number" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
             <YAxis dataKey="skill" type="category" tick={{ fill: "#64748B", fontSize: 9 }} axisLine={false} tickLine={false} width={120} />
             <Tooltip {...DARK_TOOLTIP} />
-            <Bar dataKey="current_capacity" name="Current Capacity" fill="#0E7490" barSize={10} radius={[0, 3, 3, 0]} />
-            <Bar dataKey="future_demand" name="Future Demand" fill="#E2E8F0" barSize={10} radius={[0, 3, 3, 0]} />
+            <Bar dataKey="current_capacity" name="Mevcut Kapasite" fill="#0E7490" barSize={10} radius={[0, 3, 3, 0]} />
+            <Bar dataKey="future_demand" name="Gelecek Talep" fill="#E2E8F0" barSize={10} radius={[0, 3, 3, 0]} />
           </BarChart>
         </ResponsiveContainer>
         <div className="flex justify-center gap-4 mt-1">

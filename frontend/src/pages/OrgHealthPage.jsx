@@ -53,18 +53,18 @@ export default function OrgHealthPage({ year, country }) {
               <XAxis dataKey="department" tick={{ fill: "#64748B", fontSize: 9 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} />
-              <Bar dataKey="span_of_control" name="Span of Control" radius={[3, 3, 0, 0]}>
+              <Bar dataKey="span_of_control" name="Kontrol Aralığı" radius={[3, 3, 0, 0]}>
                 {data.department_health.map((d) => (
                   <Cell key={d.department} fill={d.span_of_control < 3 ? "#EF4444" : d.span_of_control > 12 ? "#F59E0B" : "#0E7490"} />
                 ))}
               </Bar>
-              <Line type="monotone" dataKey={() => 5} name="Min Ideal" stroke="#14B8A6" strokeDasharray="5 5" strokeWidth={1.5} dot={false} />
-              <Line type="monotone" dataKey={() => 10} name="Max Ideal" stroke="#F59E0B" strokeDasharray="5 5" strokeWidth={1.5} dot={false} />
+              <Line type="monotone" dataKey={() => 5} name="Min İdeal" stroke="#14B8A6" strokeDasharray="5 5" strokeWidth={1.5} dot={false} />
+              <Line type="monotone" dataKey={() => 10} name="Maks İdeal" stroke="#F59E0B" strokeDasharray="5 5" strokeWidth={1.5} dot={false} />
             </ComposedChart>
           </ResponsiveContainer>
           <div className="flex justify-center gap-3 mt-1">
-            <span className="flex items-center gap-1 text-[10px] text-slate-500"><span className="w-5 h-px bg-teal-500 inline-block" style={{borderTop: "2px dashed #14B8A6"}} />Min Ideal (5)</span>
-            <span className="flex items-center gap-1 text-[10px] text-slate-500"><span className="w-5 h-px bg-amber-500 inline-block" style={{borderTop: "2px dashed #F59E0B"}} />Max Ideal (10)</span>
+            <span className="flex items-center gap-1 text-[10px] text-slate-500"><span className="w-5 h-px bg-teal-500 inline-block" style={{borderTop: "2px dashed #14B8A6"}} />Min İdeal (5)</span>
+            <span className="flex items-center gap-1 text-[10px] text-slate-500"><span className="w-5 h-px bg-amber-500 inline-block" style={{borderTop: "2px dashed #F59E0B"}} />Maks İdeal (10)</span>
           </div>
         </ChartCard>
 
@@ -75,13 +75,13 @@ export default function OrgHealthPage({ year, country }) {
               <XAxis dataKey="label" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
               <Tooltip {...DARK_TOOLTIP} formatter={(v, name) => [`${v}%`, name]} />
-              <Bar dataKey="pct" name="Actual %" fill="#0E7490" radius={[3, 3, 0, 0]} barSize={28} />
-              <Bar dataKey="ideal_pct" name="Ideal %" fill="#E2E8F0" radius={[3, 3, 0, 0]} barSize={28} />
+              <Bar dataKey="pct" name="Gerçek %" fill="#0E7490" radius={[3, 3, 0, 0]} barSize={28} />
+              <Bar dataKey="ideal_pct" name="İdeal %" fill="#E2E8F0" radius={[3, 3, 0, 0]} barSize={28} />
             </BarChart>
           </ResponsiveContainer>
           <div className="flex justify-center gap-4 mt-1">
-            <span className="flex items-center gap-1.5 text-xs text-slate-500"><span className="w-2.5 h-2.5 rounded-sm bg-teal-700" />Actual</span>
-            <span className="flex items-center gap-1.5 text-xs text-slate-500"><span className="w-2.5 h-2.5 rounded-sm bg-slate-200" />Ideal</span>
+            <span className="flex items-center gap-1.5 text-xs text-slate-500"><span className="w-2.5 h-2.5 rounded-sm bg-teal-700" />Gerçek</span>
+            <span className="flex items-center gap-1.5 text-xs text-slate-500"><span className="w-2.5 h-2.5 rounded-sm bg-slate-200" />İdeal</span>
           </div>
         </ChartCard>
       </div>
@@ -153,7 +153,7 @@ export default function OrgHealthPage({ year, country }) {
             <XAxis dataKey="department" tick={{ fill: "#64748B", fontSize: 9 }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
             <Tooltip {...DARK_TOOLTIP} formatter={(v) => `${v}%`} />
-            <Bar dataKey="manager_ratio" name="Manager %" radius={[3, 3, 0, 0]}>
+            <Bar dataKey="manager_ratio" name="Yönetici %" radius={[3, 3, 0, 0]}>
               {data.department_health.map((d) => (
                 <Cell key={d.department} fill={d.manager_ratio > 30 ? "#F59E0B" : d.manager_ratio < 8 ? "#EF4444" : "#0E7490"} />
               ))}

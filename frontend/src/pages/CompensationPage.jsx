@@ -24,14 +24,14 @@ export default function CompensationPage({ year }) {
   return (
     <div data-testid="compensation-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        <KPICard title="Avg Salary" value={`${Math.round(kpis.avg_salary/1000)}K`} icon={CurrencyDollar} color="blue" subtitle="TL/month" />
-        <KPICard title="Compa Ratio" value={kpis.compa_ratio} icon={Scales} color="amber" format="decimal" />
-        <KPICard title="Pay Gap" value={kpis.pay_gap} icon={GenderIntersex} color={kpis.pay_gap > 5 ? "red" : "green"} format="percent" subtitle="M vs F" />
-        <KPICard title="Male Avg" value={`${Math.round(kpis.male_avg/1000)}K`} icon={TrendUp} color="slate" />
-        <KPICard title="Female Avg" value={`${Math.round(kpis.female_avg/1000)}K`} icon={TrendUp} color="orange" />
+        <KPICard title="Ort. Maaş" value={`${Math.round(kpis.avg_salary/1000)}K`} icon={CurrencyDollar} color="blue" subtitle="TL/ay" />
+        <KPICard title="Piyasa Oranı" value={kpis.compa_ratio} icon={Scales} color="amber" format="decimal" />
+        <KPICard title="Ücret Farkı" value={kpis.pay_gap} icon={GenderIntersex} color={kpis.pay_gap > 5 ? "red" : "green"} format="percent" subtitle="E vs K" />
+        <KPICard title="Erkek Ort." value={`${Math.round(kpis.male_avg/1000)}K`} icon={TrendUp} color="slate" />
+        <KPICard title="Kadın Ort." value={`${Math.round(kpis.female_avg/1000)}K`} icon={TrendUp} color="orange" />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ChartCard title="Salary by Band (Avg vs Midpoint)" testId="chart-sal-band">
+        <ChartCard title="Band Bazlı Maaş (Ort vs Orta Nokta)" testId="chart-sal-band">
           <ResponsiveContainer width="100%" height={280}>
             <ComposedChart data={data.by_band}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -47,7 +47,7 @@ export default function CompensationPage({ year }) {
             <span className="flex items-center gap-1.5 text-xs text-slate-500"><span className="w-2.5 h-1 bg-red-500" />Midpoint</span>
           </div>
         </ChartCard>
-        <ChartCard title="Gender Pay Comparison by Band" testId="chart-gender-pay">
+        <ChartCard title="Band Bazlı Cinsiyet Ücret Karşılaştırması" testId="chart-gender-pay">
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={data.gender_by_band}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -63,7 +63,7 @@ export default function CompensationPage({ year }) {
             <span className="flex items-center gap-1.5 text-xs text-slate-500"><span className="w-2.5 h-2.5 rounded-sm bg-amber-500" />Female</span>
           </div>
         </ChartCard>
-        <ChartCard title="Salary Distribution" testId="chart-sal-dist">
+        <ChartCard title="Maaş Dağılımı" testId="chart-sal-dist">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.salary_distribution}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -74,7 +74,7 @@ export default function CompensationPage({ year }) {
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
-        <ChartCard title="Avg Salary by Department" testId="chart-sal-dept">
+        <ChartCard title="Departman Ort. Maaş" testId="chart-sal-dept">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.by_department} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />

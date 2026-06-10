@@ -30,10 +30,10 @@ export default function HiresLeavesPage({ year, country }) {
   return (
     <div data-testid="hires-leaves-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPICard title="Total Hires" value={hires.kpis.total_hires} icon={UserPlus} color="green" />
-        <KPICard title="Total Leaves" value={leaves.kpis.total_leaves} icon={UserMinus} color="red" />
-        <KPICard title="Avg Hire Age" value={hires.kpis.avg_age} icon={CalendarBlank} color="amber" format="decimal" />
-        <KPICard title="Retention Rate" value={hires.kpis.retention_rate} icon={ShieldCheck} color="blue" format="percent" />
+        <KPICard title="Toplam Alım" value={hires.kpis.total_hires} icon={UserPlus} color="green" />
+        <KPICard title="Toplam Ayrılma" value={leaves.kpis.total_leaves} icon={UserMinus} color="red" />
+        <KPICard title="Ort. Alım Yaşı" value={hires.kpis.avg_age} icon={CalendarBlank} color="amber" format="decimal" />
+        <KPICard title="Elde Tutma" value={hires.kpis.retention_rate} icon={ShieldCheck} color="blue" format="percent" />
       </div>
 
       <Tabs defaultValue="hires" className="w-full">
@@ -44,7 +44,7 @@ export default function HiresLeavesPage({ year, country }) {
 
         <TabsContent value="hires" className="space-y-4 mt-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <ChartCard title="Hires by Month" className="lg:col-span-2" testId="chart-hires-month">
+            <ChartCard title="Aylık Alımlar" className="lg:col-span-2" testId="chart-hires-month">
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={hires.hires_by_month}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -55,7 +55,7 @@ export default function HiresLeavesPage({ year, country }) {
                 </BarChart>
               </ResponsiveContainer>
             </ChartCard>
-            <ChartCard title="Gender Split" testId="chart-hire-gender">
+            <ChartCard title="Cinsiyet Dağılımı" testId="chart-hire-gender">
               <ResponsiveContainer width="100%" height={240}>
                 <PieChart>
                   <Pie data={hires.gender_distribution} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" nameKey="name" strokeWidth={0}>
@@ -72,7 +72,7 @@ export default function HiresLeavesPage({ year, country }) {
                 ))}
               </div>
             </ChartCard>
-            <ChartCard title="Hires by Department" testId="chart-hire-dept">
+            <ChartCard title="Departman Bazlı Alım" testId="chart-hire-dept">
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={hires.department_distribution} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -83,7 +83,7 @@ export default function HiresLeavesPage({ year, country }) {
                 </BarChart>
               </ResponsiveContainer>
             </ChartCard>
-            <ChartCard title="Education Level" testId="chart-hire-edu">
+            <ChartCard title="Eğitim Düzeyi" testId="chart-hire-edu">
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={hires.education_distribution}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -94,7 +94,7 @@ export default function HiresLeavesPage({ year, country }) {
                 </BarChart>
               </ResponsiveContainer>
             </ChartCard>
-            <ChartCard title="Band Distribution" testId="chart-hire-band">
+            <ChartCard title="Band Dağılımı" testId="chart-hire-band">
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={hires.band_distribution}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -106,7 +106,7 @@ export default function HiresLeavesPage({ year, country }) {
               </ResponsiveContainer>
             </ChartCard>
           </div>
-          <ChartCard title="Recent Hires" testId="chart-hire-list">
+          <ChartCard title="Son Alımlar" testId="chart-hire-list">
             <div className="overflow-x-auto px-2">
               <Table>
                 <TableHeader>

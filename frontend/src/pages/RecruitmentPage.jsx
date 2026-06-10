@@ -24,14 +24,14 @@ export default function RecruitmentPage({ year }) {
   return (
     <div data-testid="recruitment-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        <KPICard title="Total Candidates" value={kpis.total_candidates} icon={UserPlus} color="blue" />
-        <KPICard title="Hired" value={kpis.hired} icon={CheckCircle} color="green" />
-        <KPICard title="Time to Fill" value={kpis.time_to_fill} icon={Clock} color="amber" format="decimal" subtitle="days" />
-        <KPICard title="Cost per Hire" value={kpis.cost_per_hire} icon={CurrencyDollar} color="orange" subtitle="TL" />
-        <KPICard title="Offer Accept" value={kpis.offer_acceptance} icon={Funnel} color="slate" format="percent" />
+        <KPICard title="Toplam Aday" value={kpis.total_candidates} icon={UserPlus} color="blue" />
+        <KPICard title="İşe Alınan" value={kpis.hired} icon={CheckCircle} color="green" />
+        <KPICard title="Dolum Süresi" value={kpis.time_to_fill} icon={Clock} color="amber" format="decimal" subtitle="gün" />
+        <KPICard title="Alım Maliyeti" value={kpis.cost_per_hire} icon={CurrencyDollar} color="orange" subtitle="TL" />
+        <KPICard title="Teklif Kabul" value={kpis.offer_acceptance} icon={Funnel} color="slate" format="percent" />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ChartCard title="Recruitment Funnel" testId="chart-funnel">
+        <ChartCard title="İşe Alım Hunisi" testId="chart-funnel">
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={data.funnel} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -44,7 +44,7 @@ export default function RecruitmentPage({ year }) {
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
-        <ChartCard title="Applications by Month" testId="chart-recruit-month">
+        <ChartCard title="Aylık Başvurular" testId="chart-recruit-month">
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={data.applications_by_month}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -55,7 +55,7 @@ export default function RecruitmentPage({ year }) {
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
-        <ChartCard title="Candidates by Source" testId="chart-recruit-source">
+        <ChartCard title="Kaynak Bazlı Adaylar" testId="chart-recruit-source">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.by_source} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -66,7 +66,7 @@ export default function RecruitmentPage({ year }) {
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
-        <ChartCard title="Pipeline by Stage" testId="chart-pipeline">
+        <ChartCard title="Aşama Bazlı İş Hattı" testId="chart-pipeline">
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie data={data.pipeline_by_stage} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="count" nameKey="stage" strokeWidth={0}>

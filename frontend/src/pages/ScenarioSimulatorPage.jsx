@@ -101,8 +101,8 @@ export default function ScenarioSimulatorPage({ year }) {
                       <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
                       <Tooltip {...DARK_TOOLTIP} />
                       <Area type="monotone" dataKey="headcount" stroke="#0E7490" fill="url(#hcGrad)" strokeWidth={2.5} />
-                      <Bar dataKey="hires" name="Hires" fill="#14B8A6" opacity={0.6} radius={[2,2,0,0]} />
-                      <Bar dataKey="attrition" name="Attrition" fill="#EF4444" opacity={0.6} radius={[2,2,0,0]} />
+                      <Bar dataKey="hires" name="İşe Alım" fill="#14B8A6" opacity={0.6} radius={[2,2,0,0]} />
+                      <Bar dataKey="attrition" name="Ayrılma" fill="#EF4444" opacity={0.6} radius={[2,2,0,0]} />
                     </ComposedChart>
                   </ResponsiveContainer>
                 </ChartCard>
@@ -114,13 +114,13 @@ export default function ScenarioSimulatorPage({ year }) {
                       <XAxis dataKey="department" tick={{ fill: "#64748B", fontSize: 9 }} axisLine={false} tickLine={false} />
                       <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
                       <Tooltip {...DARK_TOOLTIP} />
-                      <Bar dataKey="current" name="Current" fill="#E2E8F0" radius={[3,3,0,0]} />
-                      <Bar dataKey="projected" name="Projected" fill="#0E7490" radius={[3,3,0,0]} />
+                      <Bar dataKey="current" name="Mevcut" fill="#E2E8F0" radius={[3,3,0,0]} />
+                      <Bar dataKey="projected" name="Projeksiyon" fill="#0E7490" radius={[3,3,0,0]} />
                     </BarChart>
                   </ResponsiveContainer>
                   <div className="flex justify-center gap-4 mt-1">
-                    <span className="flex items-center gap-1.5 text-xs text-slate-500"><span className="w-2.5 h-2.5 rounded-sm bg-slate-200" />Current</span>
-                    <span className="flex items-center gap-1.5 text-xs text-slate-500"><span className="w-2.5 h-2.5 rounded-sm bg-teal-700" />Projected</span>
+                    <span className="flex items-center gap-1.5 text-xs text-slate-500"><span className="w-2.5 h-2.5 rounded-sm bg-slate-200" />Mevcut</span>
+                    <span className="flex items-center gap-1.5 text-xs text-slate-500"><span className="w-2.5 h-2.5 rounded-sm bg-teal-700" />Projeksiyon</span>
                   </div>
                 </ChartCard>
               </div>

@@ -24,13 +24,13 @@ export default function CapabilityForecastPage({ year }) {
   return (
     <div data-testid="capability-forecast-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <KPICard title="Skills Tracked" value={data.total_skills} icon={Binoculars} color="blue" />
-        <KPICard title="Critical (6M)" value={data.critical_6m?.length || 0} icon={Lightning} color="red" />
-        <KPICard title="Warning (12M)" value={data.warning_12m?.length || 0} icon={Warning} color="amber" />
-        <KPICard title="Top Demand" value={data.top_demand?.length || 0} icon={TrendUp} color="green" subtitle="skills" />
+        <KPICard title="Takip Edilen" value={data.total_skills} icon={Binoculars} color="blue" />
+        <KPICard title="Kritik (6A)" value={data.critical_6m?.length || 0} icon={Lightning} color="red" />
+        <KPICard title="Uyarı (12A)" value={data.warning_12m?.length || 0} icon={Warning} color="amber" />
+        <KPICard title="En Çok Talep" value={data.top_demand?.length || 0} icon={TrendUp} color="green" subtitle="yetkinlik" />
       </div>
 
-      <ChartCard title="Top Skill Demand Forecast (12-Month Gap)" subtitle="Projected skill shortage based on attrition and growth" testId="chart-demand-forecast">
+      <ChartCard title="Yetkinlik Talep Tahmini (12 Aylık Açık)" subtitle="Ayrılma ve büyümeye dayalı yetkinlik açığı projeksiyonu" testId="chart-demand-forecast">
         <ResponsiveContainer width="100%" height={320}>
           <BarChart data={data.top_demand?.slice(0, 10)} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -58,7 +58,7 @@ export default function CapabilityForecastPage({ year }) {
       </ChartCard>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ChartCard title="Critical Skills (6-Month Horizon)" subtitle="Skills approaching critical shortage" testId="chart-critical-6m">
+        <ChartCard title="Kritik Yetkinlikler (6 Ay)" subtitle="Kritik açığa yaklaşan yetkinlikler" testId="chart-critical-6m">
           <div className="space-y-2 px-3 pb-2">
             {data.critical_6m?.length > 0 ? data.critical_6m.map((s, i) => (
               <div key={`cap-${s.skill}`} className="flex items-center justify-between p-3 bg-red-50 border border-red-100 rounded-md">
@@ -75,7 +75,7 @@ export default function CapabilityForecastPage({ year }) {
           </div>
         </ChartCard>
 
-        <ChartCard title="Warning Skills (12-Month Horizon)" subtitle="Skills requiring attention" testId="chart-warning-12m">
+        <ChartCard title="Uyarı Yetkinlikleri (12 Ay)" subtitle="Dikkat gerektiren yetkinlikler" testId="chart-warning-12m">
           <div className="space-y-2 px-3 pb-2 max-h-[300px] overflow-y-auto">
             {data.warning_12m?.length > 0 ? data.warning_12m.slice(0, 8).map((s, i) => (
               <div key={`warn-${s.skill}`} className="flex items-center justify-between p-3 bg-amber-50 border border-amber-100 rounded-md">

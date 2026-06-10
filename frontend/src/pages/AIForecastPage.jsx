@@ -87,7 +87,7 @@ export default function AIForecastPage({ year }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ChartCard title="Headcount Forecast (6 Months)" subtitle="Predicted with confidence interval" testId="chart-hc-forecast">
+        <ChartCard title="Kadro Tahmini (6 Ay)" subtitle="Güven aralığıyla tahmin" testId="chart-hc-forecast">
           <ResponsiveContainer width="100%" height={280}>
             <AreaChart data={data.headcount_forecast}>
               <defs>
@@ -111,7 +111,7 @@ export default function AIForecastPage({ year }) {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Department Risk Analysis" subtitle="Turnover risk by department" testId="chart-dept-risk">
+        <ChartCard title="Departman Risk Analizi" subtitle="Departman bazlı devir riski" testId="chart-dept-risk">
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={data.department_risks}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -139,7 +139,7 @@ export default function AIForecastPage({ year }) {
       )}
 
       {data.at_risk_employees?.length > 0 && (
-        <ChartCard title="At-Risk Employees" subtitle="Employees with high attrition or performance risk" testId="chart-at-risk">
+        <ChartCard title="Risk Altındaki Çalışanlar" subtitle="Yüksek ayrılma veya performans riski olan çalışanlar" testId="chart-at-risk">
           <div className="overflow-x-auto px-2">
             <Table>
               <TableHeader>

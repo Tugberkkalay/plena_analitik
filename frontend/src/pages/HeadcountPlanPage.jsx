@@ -52,13 +52,13 @@ export default function HeadcountPlanPage({ year, country }) {
               <XAxis type="number" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis dataKey="department" type="category" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} width={55} />
               <Tooltip {...DARK_TOOLTIP} />
-              <Bar dataKey="current" name="Current" fill="#0E7490" radius={[0, 3, 3, 0]} barSize={12} />
-              <Bar dataKey="target" name="Target" fill="#E2E8F0" radius={[0, 3, 3, 0]} barSize={12} />
+              <Bar dataKey="current" name="Mevcut" fill="#0E7490" radius={[0, 3, 3, 0]} barSize={12} />
+              <Bar dataKey="target" name="Hedef" fill="#E2E8F0" radius={[0, 3, 3, 0]} barSize={12} />
             </BarChart>
           </ResponsiveContainer>
           <div className="flex justify-center gap-4 mt-1">
-            <span className="flex items-center gap-1.5 text-xs text-slate-500"><span className="w-2.5 h-2.5 rounded-sm bg-teal-700" />Current</span>
-            <span className="flex items-center gap-1.5 text-xs text-slate-500"><span className="w-2.5 h-2.5 rounded-sm bg-slate-200" />Target</span>
+            <span className="flex items-center gap-1.5 text-xs text-slate-500"><span className="w-2.5 h-2.5 rounded-sm bg-teal-700" />Mevcut</span>
+            <span className="flex items-center gap-1.5 text-xs text-slate-500"><span className="w-2.5 h-2.5 rounded-sm bg-slate-200" />Hedef</span>
           </div>
         </ChartCard>
 
@@ -69,7 +69,7 @@ export default function HeadcountPlanPage({ year, country }) {
               <XAxis dataKey="department" tick={{ fill: "#64748B", fontSize: 9 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} formatter={(v) => [`${v} positions`, "Gap"]} />
-              <Bar dataKey="gap" name="Gap" radius={[3, 3, 0, 0]}>
+              <Bar dataKey="gap" name="Açık" radius={[3, 3, 0, 0]}>
                 {data.department_plan.map((d, i) => (
                   <Cell key={d.department} fill={GAP_COLOR(d.gap)} />
                 ))}
@@ -77,9 +77,9 @@ export default function HeadcountPlanPage({ year, country }) {
             </BarChart>
           </ResponsiveContainer>
           <div className="flex justify-center gap-3 mt-1">
-            <span className="flex items-center gap-1 text-[10px] text-slate-500"><span className="w-2 h-2 rounded-full bg-red-500" />Critical (&gt;8)</span>
-            <span className="flex items-center gap-1 text-[10px] text-slate-500"><span className="w-2 h-2 rounded-full bg-amber-500" />Moderate (4-8)</span>
-            <span className="flex items-center gap-1 text-[10px] text-slate-500"><span className="w-2 h-2 rounded-full bg-teal-500" />Low (1-3)</span>
+            <span className="flex items-center gap-1 text-[10px] text-slate-500"><span className="w-2 h-2 rounded-full bg-red-500" />Kritik (&gt;8)</span>
+            <span className="flex items-center gap-1 text-[10px] text-slate-500"><span className="w-2 h-2 rounded-full bg-amber-500" />Orta (4-8)</span>
+            <span className="flex items-center gap-1 text-[10px] text-slate-500"><span className="w-2 h-2 rounded-full bg-teal-500" />Düşük (1-3)</span>
           </div>
         </ChartCard>
       </div>
@@ -98,8 +98,8 @@ export default function HeadcountPlanPage({ year, country }) {
             <YAxis yAxisId="left" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
             <YAxis yAxisId="right" orientation="right" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
             <Tooltip {...DARK_TOOLTIP} />
-            <Bar yAxisId="left" dataKey="planned_hires" name="Planned Hires" fill="#14B8A6" radius={[3, 3, 0, 0]} />
-            <Area yAxisId="right" type="monotone" dataKey="cumulative_gap" name="Remaining Gap" stroke="#EF4444" fill="url(#gapGrad)" strokeWidth={2} />
+            <Bar yAxisId="left" dataKey="planned_hires" name="Planlanan Alım" fill="#14B8A6" radius={[3, 3, 0, 0]} />
+            <Area yAxisId="right" type="monotone" dataKey="cumulative_gap" name="Kalan Açık" stroke="#EF4444" fill="url(#gapGrad)" strokeWidth={2} />
           </ComposedChart>
         </ResponsiveContainer>
       </ChartCard>

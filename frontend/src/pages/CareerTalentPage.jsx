@@ -24,15 +24,15 @@ export default function CareerTalentPage({ year }) {
   return (
     <div data-testid="career-talent-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <KPICard title="Talent Pool" value={kpis.talent_pool} icon={Star} color="amber" />
-        <KPICard title="Talent Ratio" value={kpis.talent_ratio} icon={TrendUp} color="blue" format="percent" />
-        <KPICard title="Promotion Rate" value={kpis.promotion_rate} icon={ArrowsClockwise} color="green" format="percent" />
-        <KPICard title="Succession" value={kpis.succession_coverage} icon={ShieldCheck} color="orange" format="percent" />
-        <KPICard title="Mobility" value={kpis.internal_mobility} icon={Briefcase} color="slate" format="percent" />
-        <KPICard title="Managers" value={kpis.manager_count} icon={Users} color="blue" />
+        <KPICard title="Yetenek Havuzu" value={kpis.talent_pool} icon={Star} color="amber" />
+        <KPICard title="Yetenek Oranı" value={kpis.talent_ratio} icon={TrendUp} color="blue" format="percent" />
+        <KPICard title="Terfi Oranı" value={kpis.promotion_rate} icon={ArrowsClockwise} color="green" format="percent" />
+        <KPICard title="Yedekleme" value={kpis.succession_coverage} icon={ShieldCheck} color="orange" format="percent" />
+        <KPICard title="Mobilite" value={kpis.internal_mobility} icon={Briefcase} color="slate" format="percent" />
+        <KPICard title="Yöneticiler" value={kpis.manager_count} icon={Users} color="blue" />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <ChartCard title="Talent by Department" className="lg:col-span-2" testId="chart-talent-dept">
+        <ChartCard title="Departman Bazlı Yetenek" className="lg:col-span-2" testId="chart-talent-dept">
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={data.talent_by_department}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -48,7 +48,7 @@ export default function CareerTalentPage({ year }) {
             <span className="flex items-center gap-1.5 text-xs text-slate-500"><span className="w-2.5 h-2.5 rounded-sm bg-amber-500" />Talents</span>
           </div>
         </ChartCard>
-        <ChartCard title="Leadership Pipeline" testId="chart-leadership">
+        <ChartCard title="Liderlik İş Hattı" testId="chart-leadership">
           <ResponsiveContainer width="100%" height={280}>
             <PieChart>
               <Pie data={data.leadership_pipeline} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="count" nameKey="level" strokeWidth={0}>
@@ -63,7 +63,7 @@ export default function CareerTalentPage({ year }) {
             ))}
           </div>
         </ChartCard>
-        <ChartCard title="Talent by Band" className="lg:col-span-3" testId="chart-talent-band">
+        <ChartCard title="Band Bazlı Yetenek" className="lg:col-span-3" testId="chart-talent-band">
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={data.talent_by_band}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />

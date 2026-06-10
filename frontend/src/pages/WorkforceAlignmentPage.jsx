@@ -38,11 +38,11 @@ export default function WorkforceAlignmentPage({ year }) {
   return (
     <div data-testid="workforce-alignment-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        <KPICard title="Objectives" value={kpis.total_objectives} icon={Target} color="blue" />
-        <KPICard title="Overall Readiness" value={kpis.overall_readiness} icon={CheckCircle} color="green" format="percent" />
-        <KPICard title="On Track" value={kpis.on_track} icon={Lightning} color="green" />
-        <KPICard title="At Risk" value={kpis.at_risk_count} icon={Warning} color="red" />
-        <KPICard title="Skill Gaps" value={kpis.total_skill_gaps} icon={Crosshair} color="amber" />
+        <KPICard title="Hedefler" value={kpis.total_objectives} icon={Target} color="blue" />
+        <KPICard title="Genel Hazırlık" value={kpis.overall_readiness} icon={CheckCircle} color="green" format="percent" />
+        <KPICard title="Yolunda" value={kpis.on_track} icon={Lightning} color="green" />
+        <KPICard title="Risk Altında" value={kpis.at_risk_count} icon={Warning} color="red" />
+        <KPICard title="Yetkinlik Açığı" value={kpis.total_skill_gaps} icon={Crosshair} color="amber" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -52,14 +52,14 @@ export default function WorkforceAlignmentPage({ year }) {
               <PolarGrid stroke="#E2E8F0" />
               <PolarAngleAxis dataKey="name" tick={{ fill: "#64748B", fontSize: 9 }} />
               <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: "#94A3B8", fontSize: 9 }} />
-              <Radar name="Overall Readiness" dataKey="readiness" stroke="#0E7490" fill="#0E7490" fillOpacity={0.15} strokeWidth={2} />
-              <Radar name="Skill Coverage" dataKey="skill" stroke="#14B8A6" fill="#14B8A6" fillOpacity={0.1} strokeWidth={1.5} strokeDasharray="4 4" />
+              <Radar name="Genel Hazırlık" dataKey="readiness" stroke="#0E7490" fill="#0E7490" fillOpacity={0.15} strokeWidth={2} />
+              <Radar name="Yetkinlik Karşılanma" dataKey="skill" stroke="#14B8A6" fill="#14B8A6" fillOpacity={0.1} strokeWidth={1.5} strokeDasharray="4 4" />
               <Tooltip {...DARK_TOOLTIP} formatter={(v) => `${v}%`} />
             </RadarChart>
           </ResponsiveContainer>
           <div className="flex justify-center gap-4 mt-1">
-            <span className="flex items-center gap-1.5 text-xs text-slate-500"><span className="w-2.5 h-2.5 rounded-sm bg-teal-700" />Readiness</span>
-            <span className="flex items-center gap-1.5 text-xs text-slate-500"><span className="w-2.5 h-2.5 rounded-sm bg-teal-500" />Skill %</span>
+            <span className="flex items-center gap-1.5 text-xs text-slate-500"><span className="w-2.5 h-2.5 rounded-sm bg-teal-700" />Hazırlık</span>
+            <span className="flex items-center gap-1.5 text-xs text-slate-500"><span className="w-2.5 h-2.5 rounded-sm bg-teal-500" />Yetkinlik %</span>
           </div>
         </ChartCard>
 
@@ -70,13 +70,13 @@ export default function WorkforceAlignmentPage({ year }) {
               <XAxis type="number" domain={[0, 100]} tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
               <YAxis dataKey="name" type="category" tick={{ fill: "#64748B", fontSize: 9 }} axisLine={false} tickLine={false} width={120} />
               <Tooltip {...DARK_TOOLTIP} formatter={(v) => `${v}%`} />
-              <Bar dataKey="skill_fulfillment" name="Skill Readiness" fill="#14B8A6" radius={[0, 0, 0, 0]} stackId="a" barSize={16} />
-              <Bar dataKey="hc_fulfillment" name="HC Readiness" fill="#0E7490" radius={[0, 3, 3, 0]} stackId="b" barSize={16} />
+              <Bar dataKey="skill_fulfillment" name="Yetkinlik Hazırlığı" fill="#14B8A6" radius={[0, 0, 0, 0]} stackId="a" barSize={16} />
+              <Bar dataKey="hc_fulfillment" name="Kadro Hazırlığı" fill="#0E7490" radius={[0, 3, 3, 0]} stackId="b" barSize={16} />
             </BarChart>
           </ResponsiveContainer>
           <div className="flex justify-center gap-4 mt-1">
-            <span className="flex items-center gap-1.5 text-xs text-slate-500"><span className="w-2.5 h-2.5 rounded-sm bg-teal-500" />Skill Readiness</span>
-            <span className="flex items-center gap-1.5 text-xs text-slate-500"><span className="w-2.5 h-2.5 rounded-sm bg-teal-700" />HC Readiness</span>
+            <span className="flex items-center gap-1.5 text-xs text-slate-500"><span className="w-2.5 h-2.5 rounded-sm bg-teal-500" />Yetkinlik Hazırlığı</span>
+            <span className="flex items-center gap-1.5 text-xs text-slate-500"><span className="w-2.5 h-2.5 rounded-sm bg-teal-700" />Kadro Hazırlığı</span>
           </div>
         </ChartCard>
       </div>
@@ -118,7 +118,7 @@ export default function WorkforceAlignmentPage({ year }) {
               </div>
               {expandedObj === obj.id && (
                 <div className="px-4 pb-4 pt-0 border-t border-slate-100">
-                  <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium mb-2 mt-3">Skill Coverage</p>
+                  <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium mb-2 mt-3">Yetkinlik Karşılanması</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                     {obj.skill_coverage.map((sc) => (
                       <div key={sc.skill} className="flex items-center justify-between p-2 bg-slate-50 rounded border border-slate-100">

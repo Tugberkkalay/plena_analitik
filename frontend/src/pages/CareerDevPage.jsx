@@ -107,29 +107,29 @@ export default function CareerDevPage({ year }) {
                   <div className="flex items-center gap-2 mt-1">
                     <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-teal-50 text-teal-700">Band {plan.employee.band}</span>
                     <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700">Perf: {plan.employee.performance_score}/5</span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600">{plan.employee.seniority_years} yrs</span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600">{plan.employee.seniority_years} yıl</span>
                   </div>
                 </div>
               </div>
               {/* Career Path */}
               <div className="mt-4 p-3 bg-slate-50 rounded-md border border-slate-100">
-                <p className="text-[10px] tracking-[0.15em] uppercase text-slate-500 font-medium mb-2">Career Path</p>
+                <p className="text-[10px] tracking-[0.15em] uppercase text-slate-500 font-medium mb-2">Kariyer Yolu</p>
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-1 rounded text-xs font-bold bg-teal-700 text-white">Band {plan.career_path.current_band}</span>
                   <ArrowRight size={14} className="text-slate-400" />
                   <span className="px-2 py-1 rounded text-xs font-bold bg-amber-500 text-white">Band {plan.career_path.next_band}</span>
                   <span className="text-xs text-slate-500 ml-1">{plan.career_path.next_title}</span>
                 </div>
-                <p className="text-xs text-slate-500 mt-1">Timeline: {plan.career_path.timeline}</p>
+                <p className="text-xs text-slate-500 mt-1">Süre: {plan.career_path.timeline}</p>
               </div>
               {/* Skill Analysis */}
               <div className="mt-4">
-                <p className="text-[10px] tracking-[0.15em] uppercase text-slate-500 font-medium mb-2">Skill Summary</p>
+                <p className="text-[10px] tracking-[0.15em] uppercase text-slate-500 font-medium mb-2">Yetkinlik Özeti</p>
                 <div className="flex items-center gap-4 text-xs mb-3">
-                  <span className="text-slate-600">Total: <strong>{plan.skill_analysis.total}</strong></span>
-                  <span className="text-emerald-600">Strong: <strong>{plan.skill_analysis.strong.length}</strong></span>
-                  <span className="text-red-600">Weak: <strong>{plan.skill_analysis.weak.length}</strong></span>
-                  <span className="text-slate-600">Avg: <strong>{plan.skill_analysis.avg_proficiency}/5</strong></span>
+                  <span className="text-slate-600">Toplam: <strong>{plan.skill_analysis.total}</strong></span>
+                  <span className="text-emerald-600">Güçlü: <strong>{plan.skill_analysis.strong.length}</strong></span>
+                  <span className="text-red-600">Zayıf: <strong>{plan.skill_analysis.weak.length}</strong></span>
+                  <span className="text-slate-600">Ort: <strong>{plan.skill_analysis.avg_proficiency}/5</strong></span>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {plan.employee.skills?.map((s, i) => (
@@ -141,7 +141,7 @@ export default function CareerDevPage({ year }) {
               </div>
             </div>
 
-            <ChartCard title="Competency Radar" testId="chart-competency-radar">
+            <ChartCard title="Yetkinlik Radarı" testId="chart-competency-radar">
               <ResponsiveContainer width="100%" height={300}>
                 <RadarChart data={radarData} cx="50%" cy="50%" outerRadius={100}>
                   <PolarGrid stroke="#E2E8F0" />
@@ -176,7 +176,7 @@ export default function CareerDevPage({ year }) {
                       ))}
                     </div>
                   </div>
-                )) : <p className="text-xs text-slate-400 text-center py-4">No mentors found for current skill gaps</p>}
+                )) : <p className="text-xs text-slate-400 text-center py-4">Mevcut yetkinlik açıkları için mentor bulunamadı</p>}
               </div>
             </div>
           </div>
@@ -186,7 +186,7 @@ export default function CareerDevPage({ year }) {
             <div className="bg-white border border-slate-200 rounded-md p-6 shadow-sm">
               <div className="flex items-center gap-2 mb-4">
                 <Brain size={20} weight="duotone" className="text-teal-600" />
-                <h3 className="text-base font-semibold text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>AI-Powered Development Recommendations</h3>
+                <h3 className="text-base font-semibold text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>AI Destekli Gelişim Önerileri</h3>
               </div>
               <div className="prose prose-sm max-w-none text-slate-700 leading-relaxed whitespace-pre-wrap">
                 {plan.ai_recommendations}

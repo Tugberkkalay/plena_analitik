@@ -50,8 +50,8 @@ export default function TurnoverPage({ year, country }) {
               <XAxis dataKey="month" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} />
-              <Bar dataKey="rate" name="Monthly %" fill="#EF4444" radius={[3, 3, 0, 0]} />
-              <Area type="monotone" dataKey="cumulative" name="Cumulative %" stroke="#F59E0B" fill="url(#cumGrad)" strokeWidth={2} />
+              <Bar dataKey="rate" name="Aylık %" fill="#EF4444" radius={[3, 3, 0, 0]} />
+              <Area type="monotone" dataKey="cumulative" name="Kümülatif %" stroke="#F59E0B" fill="url(#cumGrad)" strokeWidth={2} />
             </ComposedChart>
           </ResponsiveContainer>
           <div className="flex justify-center gap-4 mt-1">
@@ -79,7 +79,7 @@ export default function TurnoverPage({ year, country }) {
               <XAxis dataKey="department" tick={{ fill: "#64748B", fontSize: 9 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} formatter={(v) => `${v}%`} />
-              <Bar dataKey="rate" name="Turnover %" fill="#0E7490" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="rate" name="Devir %" fill="#0E7490" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -91,7 +91,7 @@ export default function TurnoverPage({ year, country }) {
               <XAxis dataKey="range" tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} formatter={(v) => `${v}%`} />
-              <Bar dataKey="rate" name="Turnover %" fill="#F59E0B" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="rate" name="Devir %" fill="#F59E0B" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -103,7 +103,7 @@ export default function TurnoverPage({ year, country }) {
               <XAxis dataKey="gender" tick={{ fill: "#64748B", fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} formatter={(v) => `${v}%`} />
-              <Bar dataKey="rate" name="Turnover %" fill="#EF4444" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="rate" name="Devir %" fill="#EF4444" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -115,7 +115,7 @@ export default function TurnoverPage({ year, country }) {
               <XAxis dataKey="year" tick={{ fill: "#64748B", fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...DARK_TOOLTIP} formatter={(v) => `${v}%`} />
-              <Line type="monotone" dataKey="rate" name="Turnover %" stroke="#0E7490" strokeWidth={2.5} dot={{ fill: "#0E7490", r: 4 }} activeDot={{ r: 6 }} />
+              <Line type="monotone" dataKey="rate" name="Devir %" stroke="#0E7490" strokeWidth={2.5} dot={{ fill: "#0E7490", r: 4 }} activeDot={{ r: 6 }} />
             </LineChart>
           </ResponsiveContainer>
         </ChartCard>

@@ -27,14 +27,14 @@ export default function MovementPage({ year, country }) {
   return (
     <div data-testid="movement-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPICard title="Hires" value={kpis.hires} icon={UserPlus} color="green" />
-        <KPICard title="Leaves" value={kpis.leaves} icon={UserMinus} color="red" />
-        <KPICard title="Net Movement" value={kpis.net_movement} icon={ArrowsLeftRight} color={kpis.net_movement >= 0 ? "blue" : "amber"} />
+        <KPICard title="Alımlar" value={kpis.hires} icon={UserPlus} color="green" />
+        <KPICard title="Ayrılmalar" value={kpis.leaves} icon={UserMinus} color="red" />
+        <KPICard title="Net Hareket" value={kpis.net_movement} icon={ArrowsLeftRight} color={kpis.net_movement >= 0 ? "blue" : "amber"} />
         <KPICard title="180-Day Failure" value={kpis.failure_rate_180} icon={Warning} color="orange" format="percent" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ChartCard title="Hires vs Leaves by Month" testId="chart-hl-month">
+        <ChartCard title="Aylık Alım vs Ayrılma" testId="chart-hl-month">
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={data.hires_leaves_by_month}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -51,7 +51,7 @@ export default function MovementPage({ year, country }) {
           </div>
         </ChartCard>
 
-        <ChartCard title="Hires vs Leaves by Department" testId="chart-hl-dept">
+        <ChartCard title="Departman Bazlı Alım vs Ayrılma" testId="chart-hl-dept">
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={data.hires_leaves_by_department} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -68,7 +68,7 @@ export default function MovementPage({ year, country }) {
           </div>
         </ChartCard>
 
-        <ChartCard title="Retention Rate by Year" testId="chart-retention-year">
+        <ChartCard title="Yıllık Elde Tutma Oranı" testId="chart-retention-year">
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={data.retention_by_year}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -80,7 +80,7 @@ export default function MovementPage({ year, country }) {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Movement by Band" testId="chart-move-band">
+        <ChartCard title="Band Bazlı Hareket" testId="chart-move-band">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.movement_by_band}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
@@ -97,7 +97,7 @@ export default function MovementPage({ year, country }) {
           </div>
         </ChartCard>
 
-        <ChartCard title="Movement by Age Group" className="lg:col-span-2" testId="chart-move-age">
+        <ChartCard title="Yaş Grubu Bazlı Hareket" className="lg:col-span-2" testId="chart-move-age">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={data.movement_by_age}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
