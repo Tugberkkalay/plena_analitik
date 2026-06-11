@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Users, UserPlus, UserMinus, TrendDown, Wheelchair } from "@phosphor-icons/react";
+import { Users, UserPlus, UserMinus, TrendDown, Wheelchair, Buildings, Trophy, Warning } from "@phosphor-icons/react";
 import KPICard from "@/components/KPICard";
 import ChartCard, { CHART_COLORS, DARK_TOOLTIP } from "@/components/ChartCard";
 import {
@@ -24,15 +24,19 @@ const LoadingSkeleton = () => (
 export default function OverviewPage({ year, country }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [branchData, setBranchData] = useState(null);
 
   useEffect(() => {
     setLoading(true);
     const params = new URLSearchParams({ year });
     if (country) params.append("country", country);
-    axios.get(`${API}/dashboard/overview?${params}`)
-      .then((r) => setData(r.data))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    Promise.all([
+      axios.get(`${API}/dashboard/overview?${params}`),
+      axios.get(`${API}/branches/performance?period=${year}`).catch(() => null)
+    ]).then(([overview, branches]) => {
+      setData(overview.data);
+      if (branches) setBranchData(branches.data);
+    }).catch(() => {}).finally(() => setLoading(false));
   }, [year, country]);
 
   if (loading) return <LoadingSkeleton />;
@@ -161,6 +165,53 @@ export default function OverviewPage({ year, country }) {
           </div>
         </ChartCard>
       </div>
+
+      {/* Branch Performance Summary */}
+      {branchData && (
+        <ChartCard title="Şube Performans Özeti" testId="chart-branch-summary">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-3 pb-3">
+            <div className="bg-slate-50 rounded-md p-3 border border-slate-100">
+              <p className="text-[10px] text-slate-400 uppercase mb-1">Toplam Şube</p>
+              <p className="text-xl font-bold text-slate-800">{branchData.kpis.total_branches}</p>
+            </div>
+            <div className="bg-slate-50 rounded-md p-3 border border-slate-100">
+              <p className="text-[10px] text-slate-400 uppercase mb-1">Ort. Gerçekleşme</p>
+              <p className={`text-xl font-bold ${branchData.kpis.avg_achievement >= 100 ? "text-teal-700" : branchData.kpis.avg_achievement >= 85 ? "text-amber-600" : "text-red-600"}`}>
+                %{branchData.kpis.avg_achievement}
+              </p>
+            </div>
+            <div className="bg-emerald-50 rounded-md p-3 border border-emerald-100">
+              <p className="text-[10px] text-emerald-600 uppercase mb-1">Hedef Üstü</p>
+              <p className="text-xl font-bold text-emerald-700">{branchData.kpis.above_target}</p>
+            </div>
+            <div className="bg-red-50 rounded-md p-3 border border-red-100">
+              <p className="text-[10px] text-red-500 uppercase mb-1">Hedef Altı</p>
+              <p className="text-xl font-bold text-red-600">{branchData.kpis.below_target}</p>
+            </div>
+          </div>
+          <div className="px-3 pb-2">
+            <p className="text-[10px] text-slate-400 uppercase mb-2 font-medium">En İyi / En Kötü Şubeler</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                {branchData.leaderboard.slice(0, 3).map((b, i) => (
+                  <div key={b.branch_id} className="flex items-center justify-between p-1.5 bg-emerald-50 rounded border border-emerald-100">
+                    <span className="text-xs text-emerald-800"><Trophy size={10} className="inline mr-1" weight="bold" />{b.name.replace(" Şubesi","")}</span>
+                    <span className="text-xs font-bold text-emerald-700">%{b.achievement_pct}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="space-y-1">
+                {branchData.leaderboard.slice(-3).reverse().map((b, i) => (
+                  <div key={b.branch_id} className="flex items-center justify-between p-1.5 bg-red-50 rounded border border-red-100">
+                    <span className="text-xs text-red-800"><Warning size={10} className="inline mr-1" weight="bold" />{b.name.replace(" Şubesi","")}</span>
+                    <span className="text-xs font-bold text-red-600">%{b.achievement_pct}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </ChartCard>
+      )}
     </div>
   );
 }

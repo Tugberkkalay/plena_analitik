@@ -10,12 +10,18 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 export default function PerformancePage({ year }) {
   const [data, setData] = useState(null);
+  const [salesData, setSalesData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    axios.get(`${API}/dashboard/performance?year=${year}`)
-      .then((r) => setData(r.data)).catch(() => {}).finally(() => setLoading(false));
+    Promise.all([
+      axios.get(`${API}/dashboard/performance?year=${year}`),
+      axios.get(`${API}/sales/reps?period=${year}`).catch(() => null)
+    ]).then(([perf, sales]) => {
+      setData(perf.data);
+      if (sales) setSalesData(sales.data);
+    }).catch(() => {}).finally(() => setLoading(false));
   }, [year]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
@@ -71,20 +77,31 @@ export default function PerformancePage({ year }) {
           <div className="overflow-x-auto px-2">
             <Table>
               <TableHeader><TableRow className="border-slate-100 hover:bg-transparent">
-                <TableHead className="text-slate-500 text-xs">Name</TableHead>
-                <TableHead className="text-slate-500 text-xs">Department</TableHead>
+                <TableHead className="text-slate-500 text-xs">Ad Soyad</TableHead>
+                <TableHead className="text-slate-500 text-xs">Departman</TableHead>
                 <TableHead className="text-slate-500 text-xs">Band</TableHead>
-                <TableHead className="text-slate-500 text-xs text-right">Score</TableHead>
+                <TableHead className="text-slate-500 text-xs text-right">İK Skoru</TableHead>
+                <TableHead className="text-slate-500 text-xs text-right">Satış %</TableHead>
               </TableRow></TableHeader>
               <TableBody>
-                {data.top_performers?.map((e, i) => (
-                  <TableRow key={i} className="border-slate-100 hover:bg-slate-50">
-                    <TableCell className="text-slate-900 text-sm font-medium">{e.name}</TableCell>
-                    <TableCell className="text-slate-600 text-sm">{e.department}</TableCell>
-                    <TableCell><span className="px-2 py-0.5 rounded text-xs bg-slate-100 text-slate-700">{e.band}</span></TableCell>
-                    <TableCell className="text-right"><span className="text-sm font-semibold text-emerald-700">{e.score}</span></TableCell>
-                  </TableRow>
-                ))}
+                {data.top_performers?.map((e, i) => {
+                  const salesRep = salesData?.reps?.find(r => r.name === e.name);
+                  return (
+                    <TableRow key={i} className="border-slate-100 hover:bg-slate-50">
+                      <TableCell className="text-slate-900 text-sm font-medium">{e.name}</TableCell>
+                      <TableCell className="text-slate-600 text-sm">{e.department}</TableCell>
+                      <TableCell><span className="px-2 py-0.5 rounded text-xs bg-slate-100 text-slate-700">{e.band}</span></TableCell>
+                      <TableCell className="text-right"><span className="text-sm font-semibold text-emerald-700">{e.score}</span></TableCell>
+                      <TableCell className="text-right">
+                        {salesRep ? (
+                          <span className={`text-sm font-semibold ${salesRep.achievement_pct >= 100 ? "text-teal-700" : salesRep.achievement_pct >= 85 ? "text-amber-600" : "text-red-600"}`}>
+                            %{salesRep.achievement_pct}
+                          </span>
+                        ) : <span className="text-xs text-slate-300">—</span>}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>

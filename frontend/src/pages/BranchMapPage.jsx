@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from "react-simple-maps";
 import { Buildings, MapPin, Warning, ChartBar } from "@phosphor-icons/react";
@@ -6,7 +6,7 @@ import KPICard from "@/components/KPICard";
 import ChartCard from "@/components/ChartCard";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
-const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
+const GEO_URL = "/turkey-provinces.json";
 const PIN_COLORS = { teal: "#0E7490", amber: "#F59E0B", red: "#EF4444" };
 const METRICS = [
   { key: "performance", label: "Satış Performansı" },
@@ -14,17 +14,57 @@ const METRICS = [
   { key: "turnover", label: "Sirkülasyon" }
 ];
 
+// Region → province name mapping for coloring
+const REGION_PROVINCES = {
+  "Marmara": ["İstanbul","Kocaeli","Bursa","Tekirdağ","Edirne","Kırklareli","Çanakkale","Balıkesir","Yalova","Sakarya","Bilecik"],
+  "Ege": ["İzmir","Aydın","Denizli","Muğla","Manisa","Afyonkarahisar","Kütahya","Uşak"],
+  "Akdeniz": ["Antalya","Mersin","Adana","Hatay","Burdur","Isparta","Kahramanmaraş","Osmaniye"],
+  "İç Anadolu": ["Ankara","Konya","Kayseri","Eskişehir","Sivas","Yozgat","Kırşehir","Kırıkkale","Nevşehir","Aksaray","Niğde","Karaman","Çankırı"],
+  "Karadeniz": ["Trabzon","Samsun","Ordu","Giresun","Rize","Artvin","Sinop","Amasya","Tokat","Çorum","Kastamonu","Bartın","Karabük","Zonguldak","Bolu","Düzce","Gümüşhane","Bayburt"],
+  "Doğu Anadolu": ["Erzurum","Malatya","Van","Elazığ","Erzincan","Bingöl","Tunceli","Muş","Bitlis","Hakkari","Ağrı","Iğdır","Kars","Ardahan"],
+  "Güneydoğu Anadolu": ["Gaziantep","Diyarbakır","Şanlıurfa","Mardin","Batman","Şırnak","Siirt","Adıyaman","Kilis"],
+};
+
+const REGION_COLORS = {
+  "Marmara": { base: "#BAE6FD", hover: "#7DD3FC" },
+  "Ege": { base: "#BBF7D0", hover: "#86EFAC" },
+  "Akdeniz": { base: "#FDE68A", hover: "#FCD34D" },
+  "İç Anadolu": { base: "#E9D5FF", hover: "#D8B4FE" },
+  "Karadeniz": { base: "#A7F3D0", hover: "#6EE7B7" },
+  "Doğu Anadolu": { base: "#FECACA", hover: "#FCA5A5" },
+  "Güneydoğu Anadolu": { base: "#FED7AA", hover: "#FDBA74" },
+};
+
+function getRegionForProvince(provinceName) {
+  for (const [region, provinces] of Object.entries(REGION_PROVINCES)) {
+    if (provinces.some(p => provinceName.includes(p) || p.includes(provinceName))) return region;
+  }
+  return null;
+}
+
 export default function BranchMapPage({ year }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [metric, setMetric] = useState("performance");
   const [selBranch, setSelBranch] = useState(null);
+  const [hovRegion, setHovRegion] = useState(null);
 
   useEffect(() => {
     setLoading(true);
     axios.get(`${API}/branches/map?metric=${metric}&year=${year}`)
       .then(r => setData(r.data)).catch(() => {}).finally(() => setLoading(false));
   }, [year, metric]);
+
+  const regionPerf = useMemo(() => {
+    if (!data) return {};
+    const rp = {};
+    for (const p of data.pins) {
+      if (!rp[p.region]) rp[p.region] = { total: 0, count: 0 };
+      rp[p.region].total += p.achievement_pct;
+      rp[p.region].count += 1;
+    }
+    return rp;
+  }, [data]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
   if (!data) return <p className="text-slate-400">Veri bulunamadı.</p>;
@@ -38,7 +78,6 @@ export default function BranchMapPage({ year }) {
         <KPICard title="Dikkat Gerektiren" value={data.kpis.attention} icon={Warning} color="red" />
       </div>
 
-      {/* Metric toggle */}
       <div className="flex items-center gap-2">
         {METRICS.map(m => (
           <button key={m.key} data-testid={`metric-${m.key}`}
@@ -50,33 +89,39 @@ export default function BranchMapPage({ year }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Map */}
         <ChartCard title="Türkiye Şube Haritası" className="lg:col-span-3" testId="chart-turkey-map">
-          <div className="relative" style={{ height: 440 }}>
+          <div className="relative" style={{ height: 460 }}>
             <ComposableMap
               projection="geoMercator"
-              projectionConfig={{ center: [35, 39], scale: 2200 }}
+              projectionConfig={{ center: [35.5, 39.2], scale: 2600 }}
               style={{ width: "100%", height: "100%" }}
             >
               <ZoomableGroup>
                 <Geographies geography={GEO_URL}>
-                  {({ geographies }) => geographies
-                    .filter(g => g.properties.name === "Turkey")
-                    .map(geo => (
+                  {({ geographies }) => geographies.map(geo => {
+                    const name = geo.properties.name || "";
+                    const region = getRegionForProvince(name);
+                    const colors = region ? REGION_COLORS[region] : { base: "#E2E8F0", hover: "#D1D5DB" };
+                    const isHovered = hovRegion && hovRegion === region;
+                    return (
                       <Geography key={geo.rsmKey} geography={geo}
-                        fill="#E2E8F0" stroke="#CBD5E1" strokeWidth={0.5}
-                        style={{ default: { outline: "none" }, hover: { outline: "none", fill: "#D1D5DB" }, pressed: { outline: "none" } }} />
-                    ))
-                  }
+                        fill={isHovered ? colors.hover : colors.base}
+                        stroke="#fff" strokeWidth={0.5}
+                        onMouseEnter={() => setHovRegion(region)}
+                        onMouseLeave={() => setHovRegion(null)}
+                        style={{ default: { outline: "none" }, hover: { outline: "none", fill: colors.hover }, pressed: { outline: "none" } }}
+                      />
+                    );
+                  })}
                 </Geographies>
                 {data.pins?.map(pin => (
                   <Marker key={pin.branch_id} coordinates={[pin.lng, pin.lat]}
                     onClick={() => setSelBranch(pin)}>
-                    <circle r={Math.max(4, Math.min(10, pin.headcount / 3))}
-                      fill={PIN_COLORS[pin.color]} stroke="#fff" strokeWidth={1.5}
-                      style={{ cursor: "pointer", transition: "all 0.2s" }}
-                      opacity={0.85} />
-                    <text textAnchor="middle" y={-12} style={{ fontSize: 7, fill: "#475569", fontWeight: 600 }}>
+                    <circle r={Math.max(5, Math.min(11, pin.headcount / 2.5))}
+                      fill={PIN_COLORS[pin.color]} stroke="#fff" strokeWidth={2}
+                      style={{ cursor: "pointer", transition: "all 0.2s", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.3))" }}
+                      opacity={0.9} />
+                    <text textAnchor="middle" y={-14} style={{ fontSize: 7, fill: "#1E293B", fontWeight: 700, textShadow: "0 0 3px #fff, 0 0 3px #fff" }}>
                       {pin.name.replace(" Şubesi","")}
                     </text>
                   </Marker>
@@ -85,7 +130,16 @@ export default function BranchMapPage({ year }) {
             </ComposableMap>
           </div>
 
-          {/* Selected branch detail */}
+          {/* Legend */}
+          <div className="flex flex-wrap items-center justify-center gap-3 px-3 py-2 border-t border-slate-100">
+            {Object.entries(REGION_COLORS).map(([region, c]) => (
+              <span key={region} className="flex items-center gap-1 text-[10px] text-slate-500">
+                <span className="w-3 h-3 rounded-sm border border-slate-200" style={{ backgroundColor: c.base }} />
+                {region}
+              </span>
+            ))}
+          </div>
+
           {selBranch && (
             <div data-testid="branch-detail-card"
               className="mx-3 mb-3 p-4 bg-white border border-slate-200 rounded-md shadow-sm">
@@ -107,15 +161,22 @@ export default function BranchMapPage({ year }) {
           )}
         </ChartCard>
 
-        {/* Side panel */}
         <div className="space-y-4">
           <ChartCard title="Bölge Özeti" testId="chart-region-panel">
             <div className="space-y-1.5 px-3 pb-2">
               {data.regions?.map(r => (
-                <div key={r.region} className="flex items-center justify-between p-2 border border-slate-100 rounded hover:bg-slate-50">
-                  <div>
-                    <p className="text-xs font-medium text-slate-700">{r.region}</p>
-                    <p className="text-[10px] text-slate-400">{r.branches} şube · {r.headcount} kişi</p>
+                <div key={r.region}
+                  onMouseEnter={() => setHovRegion(r.region)}
+                  onMouseLeave={() => setHovRegion(null)}
+                  className={`flex items-center justify-between p-2 border rounded hover:bg-slate-50 cursor-pointer transition-colors ${
+                    hovRegion === r.region ? "border-teal-300 bg-teal-50" : "border-slate-100"
+                  }`}>
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: REGION_COLORS[r.region]?.base || "#E2E8F0" }} />
+                    <div>
+                      <p className="text-xs font-medium text-slate-700">{r.region}</p>
+                      <p className="text-[10px] text-slate-400">{r.branches} şube · {r.headcount} kişi</p>
+                    </div>
                   </div>
                   <span className={`text-xs font-bold ${r.avg_achievement >= 100 ? "text-teal-700" : r.avg_achievement >= 85 ? "text-amber-600" : "text-red-600"}`}>
                     %{r.avg_achievement}
