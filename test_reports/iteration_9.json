@@ -1,0 +1,55 @@
+{
+  "summary": "Iteration 9: Branch Performance + Commission Targets features fully verified. Backend pytest 12/12 PASSED. Frontend: /branch-performance renders 30 branches sorted by achievement, region+segment charts, KPIs (Toplam Şube=30, Ort. Gerçekleşme=92.4%, Hedef Üstü=13, Hedef Altı=2, Toplam Prim=769K, En İyi Şube=Kocaeli); clicking a branch loads 12-month target-vs-actual trend (ComposedChart with Area+Line). /commission-targets renders 126 reps sorted by achievement, KPIs (Avg=99.5%, Earners=125, Total Prim=769K, Best=Matteo Ferrari, Below=11), achievement-band chart (<%85, %85-100, %100-120, %120+), and on rep click shows all 4 commission tiers (Eşik Altı/Kısmi/Tam/Hızlandırıcı) plus Toplam Prim. Sidebar 'SATIŞ & ŞUBE' section with 'Şube Performansı' + 'Prim & Hedef' present. Regression: 6/6 existing /api/dashboard/* endpoints return 200.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Commission Targets KPI titles", "issues": ["KPICard CSS text-transform:uppercase renders Turkish 'Prim' as 'PRIM' (dotless I) instead of 'PRİM'. Same for 'Temsilci'→'TEMSILCI'. Minor i18n nit: use CSS `text-transform:uppercase` with `lang=tr` attribute on <html> or apply Turkish-aware capitalisation. Not blocking."]}
+    ]
+  },
+  "passed_tests": [
+    "GET /api/branches/list returns 30 branches across 7 regions, no _id leakage",
+    "GET /api/branches/performance?period=2025 returns kpis(total_branches=30, avg_achievement, above_target, below_target, total_commission, best_branch), 30-row leaderboard sorted DESC by achievement_pct, 7 regions, segments",
+    "GET /api/branches/performance?period=2025&region=Marmara filters correctly",
+    "GET /api/branches/{id}/trend returns 12 monthly rows with period/target/actual/achievement",
+    "GET /api/branches/{invalid_id}/trend returns empty trend (graceful)",
+    "GET /api/sales/reps?period=2025 returns 126 reps, kpis, achievement_bands (4 bands summing to 126), prim_tiers (4 tiers with labels Eşik Altı/Kısmi/Tam/Hızlandırıcı and rates 0/0.005/0.01/0.015)",
+    "Reps sorted DESC by achievement_pct",
+    "Regression: /api/dashboard/{overview,headcount,turnover,org-health,hires,leaves} all 200",
+    "Frontend /branch-performance: data-testid='branch-performance-page' renders, exactly 30 branch-{0..29} testids, KPIs visible, region chart shows 7 bars, segment chart present, branch click loads trend chart with Area+Line",
+    "Frontend /commission-targets: data-testid='commission-targets-page' renders, exactly 126 rep-{0..125} testids, all 5 KPIs visible, achievement-band chart with all 4 band labels, click rep-0 reveals all 4 tier rows + Toplam Prim",
+    "Sidebar: 'SATIŞ & ŞUBE' section present with 'Şube Performansı' and 'Prim & Hedef' nav items, both routes navigable",
+    "Regression: home/overview page still loads"
+  ],
+  "test_report_links": [
+    "/app/backend/tests/test_branch_sales.py",
+    "/app/test_reports/pytest/iteration_9.xml"
+  ],
+  "action_items": [
+    "(Optional polish) Turkish locale uppercase for KPICard titles: add lang='tr' to <html> or use a tr-aware uppercase helper so 'Prim' uppercases to 'PRİM' (with dot) and 'Temsilci' → 'TEMSİLCİ'. Currently shows 'PRIM' / 'TEMSILCI' — purely cosmetic.",
+    "(Code quality) server.py now ~2180 lines — earlier recommendation to split into routers (planning/insights/people/sales) still pending."
+  ],
+  "critical_code_review_comments": [
+    "Branch performance code computes leaderboard correctly but performs full table scan on sales_performance (await db.sales_performance.find({}).to_list(50000)) per request — for 126 reps × 12 months that's ~1500 rows, fine for seed but should be filtered server-side by period via Mongo query, not Python loop, for production scale.",
+    "PRIM_TIERS has tier[1].max=100 with tier[2].min=100, and break logic uses `if ach < tier['max']` — boundary ach=100.0 falls into 'Tam' correctly; but ach exactly at 85.0 falls into 'Kısmi'. Edge ach==999 would not match any tier (rare). Add explicit catch-all.",
+    "Branch trend endpoint has no period filter — always returns 2025. If multi-year data added later, period query param must be supported (parallel to /branches/performance).",
+    "/api/sales/reps response embeds `prim_tiers` config in every response (small payload but redundant). Consider /api/sales/config endpoint for tier definitions to enable caching.",
+    "Frontend BranchPerformancePage: catches axios errors silently with `.catch(() => {})` — user sees 'Veri bulunamadı' but no toast/log. Add error state UI for production.",
+    "Both new pages use ChartCard `testId` prop pattern consistent with rest of app — good. data-testids on dynamic list items (branch-N, rep-N) are stable for automation."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_branch_sales.py (new — 12 pytest tests covering branches/list, branches/performance, branches/{id}/trend, sales/reps, regression)"
+  ],
+  "success_rate": {
+    "backend": "100% (12/12 pytest)",
+    "frontend": "100% (both new pages, charts, click interactions, sidebar, regression all pass)"
+  },
+  "seed_data_creation": "Used existing seed: 30 branches across 7 regions, 126 sales reps, 1512 monthly sales records (126×12), avg achievement 99.5%, 125/126 earned commission.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Both Branch Performance and Commission Targets features are production-ready. Test file at /app/backend/tests/test_branch_sales.py is reusable as regression suite. Key testids: branch-performance-page, commission-targets-page, branch-0..branch-29, rep-0..rep-125, chart-branch-leaderboard, chart-region-compare, chart-branch-trend, chart-segment-compare, chart-rep-leaderboard, chart-ach-bands, chart-commission-detail. Only cosmetic Turkish locale uppercase issue remains."
+}

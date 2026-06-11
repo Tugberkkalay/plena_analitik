@@ -32,6 +32,8 @@ import OrgHealthPage from "@/pages/OrgHealthPage";
 import SkillsMapV2Page from "@/pages/SkillsMapV2Page";
 import InternalMobilityPage from "@/pages/InternalMobilityPage";
 import ActionCenterPage from "@/pages/ActionCenterPage";
+import BranchPerformancePage from "@/pages/BranchPerformancePage";
+import CommissionTargetsPage from "@/pages/CommissionTargetsPage";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -62,6 +64,8 @@ const PAGE_TITLES = {
   "/skills-map-v2": "Yetkinlik & Açık Analizi",
   "/internal-mobility": "İç Mobilite",
   "/action-center": "Aksiyon Merkezi",
+  "/branch-performance": "Şube Performansı",
+  "/commission-targets": "Prim & Hedef",
 };
 
 function TopBar({ year, setYear, years, country, setCountry }) {
@@ -165,6 +169,8 @@ function AppContent() {
             <Route path="/skills-map-v2" element={<SkillsMapV2Page year={year} />} />
             <Route path="/internal-mobility" element={<InternalMobilityPage year={year} />} />
             <Route path="/action-center" element={<ActionCenterPage year={year} />} />
+            <Route path="/branch-performance" element={<BranchPerformancePage year={year} />} />
+            <Route path="/commission-targets" element={<CommissionTargetsPage year={year} />} />
             <Route path="/ai-forecast" element={<AIForecastPage year={year} />} />
             <Route path="/data-upload" element={<DataUploadPage />} />
           </Routes>

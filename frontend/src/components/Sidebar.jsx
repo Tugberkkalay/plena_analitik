@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { ChartBar, Users, UserPlus, ArrowsClockwise, ArrowsLeftRight, Brain, CloudArrowUp, List, X, Funnel, Target, GraduationCap, CurrencyDollar, Smiley, Star, Gear, Compass, UserFocus, Sliders, Binoculars, ShieldWarning, Heartbeat, FilePdf, Crosshair, TreeStructure, Strategy, Bell, UserSwitch, GridNine } from "@phosphor-icons/react";
+import { ChartBar, Users, UserPlus, ArrowsClockwise, ArrowsLeftRight, Brain, CloudArrowUp, List, X, Funnel, Target, GraduationCap, CurrencyDollar, Smiley, Star, Gear, Compass, UserFocus, Sliders, Binoculars, ShieldWarning, Heartbeat, FilePdf, Crosshair, TreeStructure, Strategy, Bell, UserSwitch, GridNine, Buildings, Trophy } from "@phosphor-icons/react";
 
 const NAV_SECTIONS = [
   {
@@ -21,6 +21,13 @@ const NAV_SECTIONS = [
       { path: "/skills-map-v2", label: "Yetkinlik Haritası", icon: GridNine },
       { path: "/scenario-sim", label: "Senaryo Sim.", icon: Sliders },
       { path: "/succession", label: "Yedekleme Planı", icon: ShieldWarning },
+    ],
+  },
+  {
+    label: "Satış & Şube",
+    items: [
+      { path: "/branch-performance", label: "Şube Performansı", icon: Buildings },
+      { path: "/commission-targets", label: "Prim & Hedef", icon: Trophy },
     ],
   },
   {

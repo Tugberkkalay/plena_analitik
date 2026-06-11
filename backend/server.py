@@ -80,6 +80,102 @@ ITALIAN_MALE = ["Marco","Luca","Alessandro","Andrea","Giovanni","Matteo","France
 ITALIAN_FEMALE = ["Giulia","Francesca","Sara","Chiara","Valentina","Elena","Alessia","Marta","Laura","Anna"]
 ITALIAN_LAST = ["Rossi","Russo","Ferrari","Esposito","Bianchi","Romano","Colombo","Ricci","Marino","Greco"]
 
+# ---- Branch / Sales Constants ----
+REGIONS = ["Marmara","Ege","İç Anadolu","Akdeniz","Karadeniz","Doğu Anadolu","Güneydoğu Anadolu"]
+BRANCH_DATA = [
+    {"name":"Kadıköy","region":"Marmara","city":"Istanbul","lat":40.99,"lng":29.03,"segment":"Karma"},
+    {"name":"Levent","region":"Marmara","city":"Istanbul","lat":41.08,"lng":29.01,"segment":"Ticari"},
+    {"name":"Bakırköy","region":"Marmara","city":"Istanbul","lat":40.98,"lng":28.87,"segment":"Bireysel"},
+    {"name":"Beşiktaş","region":"Marmara","city":"Istanbul","lat":41.04,"lng":29.00,"segment":"Karma"},
+    {"name":"Ataşehir","region":"Marmara","city":"Istanbul","lat":40.99,"lng":29.12,"segment":"Ticari"},
+    {"name":"Üsküdar","region":"Marmara","city":"Istanbul","lat":41.02,"lng":29.02,"segment":"Bireysel"},
+    {"name":"Şişli","region":"Marmara","city":"Istanbul","lat":41.06,"lng":28.99,"segment":"Ticari"},
+    {"name":"Pendik","region":"Marmara","city":"Istanbul","lat":40.88,"lng":29.23,"segment":"Bireysel"},
+    {"name":"Bursa Merkez","region":"Marmara","city":"Bursa","lat":40.19,"lng":29.06,"segment":"Karma"},
+    {"name":"Kocaeli","region":"Marmara","city":"Kocaeli","lat":40.77,"lng":29.92,"segment":"Ticari"},
+    {"name":"Ankara Kızılay","region":"İç Anadolu","city":"Ankara","lat":39.92,"lng":32.85,"segment":"Karma"},
+    {"name":"Ankara Çankaya","region":"İç Anadolu","city":"Ankara","lat":39.90,"lng":32.86,"segment":"Ticari"},
+    {"name":"Ankara Eryaman","region":"İç Anadolu","city":"Ankara","lat":39.97,"lng":32.65,"segment":"Bireysel"},
+    {"name":"Eskişehir","region":"İç Anadolu","city":"Eskişehir","lat":39.77,"lng":30.52,"segment":"Bireysel"},
+    {"name":"Konya","region":"İç Anadolu","city":"Konya","lat":37.87,"lng":32.48,"segment":"Karma"},
+    {"name":"İzmir Alsancak","region":"Ege","city":"Izmir","lat":38.44,"lng":27.14,"segment":"Ticari"},
+    {"name":"İzmir Bornova","region":"Ege","city":"Izmir","lat":38.47,"lng":27.22,"segment":"Bireysel"},
+    {"name":"Denizli","region":"Ege","city":"Denizli","lat":37.77,"lng":29.09,"segment":"Karma"},
+    {"name":"Antalya Merkez","region":"Akdeniz","city":"Antalya","lat":36.90,"lng":30.70,"segment":"Karma"},
+    {"name":"Mersin","region":"Akdeniz","city":"Mersin","lat":36.80,"lng":34.63,"segment":"Ticari"},
+    {"name":"Adana","region":"Akdeniz","city":"Adana","lat":37.00,"lng":35.33,"segment":"Bireysel"},
+    {"name":"Gaziantep","region":"Güneydoğu Anadolu","city":"Gaziantep","lat":37.06,"lng":37.38,"segment":"Karma"},
+    {"name":"Diyarbakır","region":"Güneydoğu Anadolu","city":"Diyarbakır","lat":37.91,"lng":40.22,"segment":"Bireysel"},
+    {"name":"Şanlıurfa","region":"Güneydoğu Anadolu","city":"Şanlıurfa","lat":37.16,"lng":38.79,"segment":"Bireysel"},
+    {"name":"Trabzon","region":"Karadeniz","city":"Trabzon","lat":41.00,"lng":39.72,"segment":"Karma"},
+    {"name":"Samsun","region":"Karadeniz","city":"Samsun","lat":41.29,"lng":36.33,"segment":"Bireysel"},
+    {"name":"Erzurum","region":"Doğu Anadolu","city":"Erzurum","lat":39.91,"lng":41.27,"segment":"Bireysel"},
+    {"name":"Malatya","region":"Doğu Anadolu","city":"Malatya","lat":38.35,"lng":38.31,"segment":"Karma"},
+    {"name":"Van","region":"Doğu Anadolu","city":"Van","lat":38.49,"lng":43.38,"segment":"Bireysel"},
+    {"name":"Kayseri","region":"İç Anadolu","city":"Kayseri","lat":38.73,"lng":35.48,"segment":"Ticari"},
+]
+SEGMENTS = ["Bireysel","Ticari","Karma"]
+SEGMENT_WEIGHTS = {"Bireysel":0.8,"Ticari":1.2,"Karma":1.0}
+PRIM_TIERS = [
+    {"min":0,"max":85,"rate":0,"label":"Eşik Altı"},
+    {"min":85,"max":100,"rate":0.005,"label":"Kısmi"},
+    {"min":100,"max":120,"rate":0.01,"label":"Tam"},
+    {"min":120,"max":999,"rate":0.015,"label":"Hızlandırıcı"}
+]
+
+def generate_branches():
+    branches = []
+    for i, bd in enumerate(BRANCH_DATA):
+        branches.append({
+            "id": str(uuid.uuid5(uuid.NAMESPACE_DNS, f"branch-{bd['name']}")),
+            "name": f"{bd['name']} Şubesi",
+            "region": bd["region"], "city": bd["city"],
+            "lat": bd["lat"], "lng": bd["lng"],
+            "segment": bd["segment"],
+            "headcount": 0, "target_headcount": random.randint(8, 22),
+            "opened_date": f"{random.randint(2015,2023)}-{random.randint(1,12):02d}-01"
+        })
+    return branches
+
+def generate_sales_data(employees, branches):
+    random.seed(55)
+    sales = []
+    branch_map = {b["id"]: b for b in branches}
+    months = [f"2025-{m:02d}" for m in range(1, 13)]
+    for emp in employees:
+        if emp.get("role_type") != "sales" or emp.get("status") != "active":
+            continue
+        bid = emp.get("branch_id", "")
+        branch = branch_map.get(bid)
+        if not branch:
+            continue
+        seg_k = SEGMENT_WEIGHTS.get(branch.get("segment", "Karma"), 1.0)
+        base_target = random.uniform(400000, 1200000) * seg_k
+        # Each employee has a skill-based performance factor
+        perf_factor = 0.55 + (emp.get("performance_score", 3) / 5) * 0.65
+        for period in months:
+            monthly_target = round(base_target / 12, 2)
+            noise = random.gauss(1.0, 0.15)
+            monthly_actual = round(monthly_target * perf_factor * noise, 2)
+            ach = round(monthly_actual / monthly_target * 100, 1) if monthly_target else 0
+            # Tiered commission
+            comm = 0
+            for tier in PRIM_TIERS:
+                if ach >= tier["min"]:
+                    if ach < tier["max"]:
+                        comm = round(monthly_actual * tier["rate"], 2)
+                        break
+            sales.append({
+                "employee_id": emp["id"], "employee_name": emp["name"],
+                "branch_id": bid, "branch_name": branch["name"],
+                "region": branch["region"], "segment": branch["segment"],
+                "period": period,
+                "target": monthly_target, "actual": monthly_actual,
+                "achievement_pct": ach, "commission": comm,
+                "portfolio_size": random.randint(15, 120)
+            })
+    return sales
+
 def generate_seed_data(count=500):
     random.seed(42)
     employees = []
@@ -159,10 +255,35 @@ def generate_seed_data(count=500):
             "is_talent": is_talent, "is_manager": is_manager, "is_disabled": is_disabled,
             "is_full_time": is_full_time, "performance_score": perf, "seniority_years": seniority,
             "mobility_flag": random.random() < 0.35,
+            "branch_id": "", "region": "", "role_type": "support",
             "status": status, "leaving_reason": leaving_reason, "termination_type": termination_type,
             "data_source": "seed", "created_at": datetime.now(timezone.utc).isoformat()
         }
         employees.append(emp)
+    # Assign branches to employees
+    branches = generate_branches()
+    branch_ids = [b["id"] for b in branches]
+    branch_regions = {b["id"]: b["region"] for b in branches}
+    # Distribute employees across branches with weight toward larger cities
+    big_city_branches = [b["id"] for b in branches if b["city"] in ["Istanbul","Ankara","Izmir"]]
+    small_city_branches = [b["id"] for b in branches if b["city"] not in ["Istanbul","Ankara","Izmir"]]
+    for emp in employees:
+        if random.random() < 0.65:
+            bid = random.choice(big_city_branches)
+        else:
+            bid = random.choice(small_city_branches) if small_city_branches else random.choice(branch_ids)
+        emp["branch_id"] = bid
+        emp["region"] = branch_regions[bid]
+        # Role type based on department and band
+        if emp["department"] == "Sales" or (emp["band"] in ["A","B"] and random.random() < 0.4):
+            emp["role_type"] = "sales"
+        elif emp["is_manager"]:
+            emp["role_type"] = "manager"
+        else:
+            emp["role_type"] = "support"
+    # Update branch headcounts
+    for b in branches:
+        b["headcount"] = len([e for e in employees if e["branch_id"] == b["id"] and e["status"] == "active"])
     return employees
 
 # ---- New Module Constants ----
@@ -340,6 +461,17 @@ async def startup():
                 emp['skills'] = generate_employee_skills(emp.get('department',''), emp.get('band','B'))
             await db.employees.insert_many(emps)
             logger.info(f"Seeded {len(emps)} employees with skills")
+            # Seed branches
+            branches = generate_branches()
+            for b in branches:
+                b["headcount"] = len([e for e in emps if e["branch_id"] == b["id"] and e["status"] == "active"])
+            await db.branches.insert_many(branches)
+            logger.info(f"Seeded {len(branches)} branches")
+            # Seed sales performance
+            sales = generate_sales_data(emps, branches)
+            if sales:
+                await db.sales_performance.insert_many(sales)
+                logger.info(f"Seeded {len(sales)} sales records")
             cands = generate_recruitment_data(200)
             await db.recruitment.insert_many(cands)
             logger.info(f"Seeded {len(cands)} candidates")
@@ -794,12 +926,20 @@ async def reset_data():
     await db.recruitment.delete_many({})
     await db.training.delete_many({})
     await db.engagement.delete_many({})
+    await db.branches.delete_many({})
+    await db.sales_performance.delete_many({})
     emps = generate_seed_data(500)
-    # Add skills to employees
     for emp in emps:
         random.seed(hash(emp['id']) % 2**32)
         emp['skills'] = generate_employee_skills(emp.get('department',''), emp.get('band','B'))
     await db.employees.insert_many(emps)
+    branches = generate_branches()
+    for b in branches:
+        b["headcount"] = len([e for e in emps if e["branch_id"] == b["id"] and e["status"] == "active"])
+    await db.branches.insert_many(branches)
+    sales = generate_sales_data(emps, branches)
+    if sales:
+        await db.sales_performance.insert_many(sales)
     cands = generate_recruitment_data(200)
     await db.recruitment.insert_many(cands)
     trn = generate_training_data(emps, 300)
@@ -1890,6 +2030,144 @@ Keep each section concise (2-4 sentences). Use data from the alerts. Be specific
     except Exception as e:
         logger.error(f"AI alert scan error: {e}")
         return {"ai_brief": "AI analysis temporarily unavailable. Please review individual alert recommendations below.", "context": context, "status": "error"}
+
+# ---- Branch Performance ----
+@api_router.get("/branches/list")
+async def get_branches():
+    branches = await db.branches.find({}, {"_id": 0}).to_list(100)
+    return {"branches": branches, "regions": sorted(set(b["region"] for b in branches))}
+
+@api_router.get("/branches/performance")
+async def get_branch_performance(period: str = "2025", region: str = ""):
+    branches = await db.branches.find({}, {"_id": 0}).to_list(100)
+    sales = await db.sales_performance.find({}, {"_id": 0}).to_list(50000)
+    if region:
+        branches = [b for b in branches if b["region"] == region]
+        branch_ids = {b["id"] for b in branches}
+        sales = [s for s in sales if s["branch_id"] in branch_ids]
+    period_sales = [s for s in sales if s["period"].startswith(period[:4])]
+    # Branch-level aggregation
+    branch_perf = {}
+    for s in period_sales:
+        bid = s["branch_id"]
+        if bid not in branch_perf:
+            branch_perf[bid] = {"target": 0, "actual": 0, "commission": 0, "reps": set()}
+        branch_perf[bid]["target"] += s["target"]
+        branch_perf[bid]["actual"] += s["actual"]
+        branch_perf[bid]["commission"] += s["commission"]
+        branch_perf[bid]["reps"].add(s["employee_id"])
+    leaderboard = []
+    for b in branches:
+        bp = branch_perf.get(b["id"], {"target": 0, "actual": 0, "commission": 0, "reps": set()})
+        ach = round(bp["actual"] / bp["target"] * 100, 1) if bp["target"] else 0
+        status = "Hedef Üstü" if ach >= 100 else "Hedefe Yakın" if ach >= 85 else "Hedef Altı"
+        leaderboard.append({
+            "branch_id": b["id"], "name": b["name"], "region": b["region"],
+            "city": b["city"], "segment": b["segment"],
+            "headcount": b.get("headcount", 0), "reps": len(bp["reps"]),
+            "target": round(bp["target"]), "actual": round(bp["actual"]),
+            "achievement_pct": ach, "commission": round(bp["commission"]),
+            "status": status
+        })
+    leaderboard = sorted(leaderboard, key=lambda x: -x["achievement_pct"])
+    above = len([l for l in leaderboard if l["achievement_pct"] >= 100])
+    below = len([l for l in leaderboard if l["achievement_pct"] < 85])
+    avg_ach = round(sum(l["achievement_pct"] for l in leaderboard) / len(leaderboard), 1) if leaderboard else 0
+    total_comm = sum(l["commission"] for l in leaderboard)
+    best = leaderboard[0]["name"] if leaderboard else "-"
+    # Region comparison
+    region_perf = {}
+    for l in leaderboard:
+        r = l["region"]
+        if r not in region_perf:
+            region_perf[r] = {"total_ach": 0, "count": 0}
+        region_perf[r]["total_ach"] += l["achievement_pct"]
+        region_perf[r]["count"] += 1
+    regions = [{"region": r, "avg_achievement": round(v["total_ach"]/v["count"],1), "branches": v["count"]} for r,v in region_perf.items()]
+    regions = sorted(regions, key=lambda x: -x["avg_achievement"])
+    # Segment comparison
+    seg_perf = {}
+    for l in leaderboard:
+        sg = l["segment"]
+        if sg not in seg_perf:
+            seg_perf[sg] = {"total_ach": 0, "count": 0}
+        seg_perf[sg]["total_ach"] += l["achievement_pct"]
+        seg_perf[sg]["count"] += 1
+    segments = [{"segment": s, "avg_achievement": round(v["total_ach"]/v["count"],1)} for s,v in seg_perf.items()]
+    return {
+        "kpis": {"total_branches": len(leaderboard), "avg_achievement": avg_ach,
+                 "above_target": above, "below_target": below,
+                 "total_commission": round(total_comm), "best_branch": best},
+        "leaderboard": leaderboard, "regions": regions, "segments": segments
+    }
+
+@api_router.get("/branches/{branch_id}/trend")
+async def get_branch_trend(branch_id: str):
+    sales = await db.sales_performance.find({"branch_id": branch_id}, {"_id": 0}).to_list(10000)
+    monthly = {}
+    for s in sales:
+        p = s["period"]
+        if p not in monthly:
+            monthly[p] = {"target": 0, "actual": 0}
+        monthly[p]["target"] += s["target"]
+        monthly[p]["actual"] += s["actual"]
+    trend = [{"period": p, "target": round(v["target"]), "actual": round(v["actual"]),
+              "achievement": round(v["actual"]/v["target"]*100,1) if v["target"] else 0}
+             for p,v in sorted(monthly.items())]
+    return {"trend": trend}
+
+# ---- Commission & Targets ----
+@api_router.get("/sales/reps")
+async def get_sales_reps(period: str = "2025", branch: str = "", region: str = ""):
+    sales = await db.sales_performance.find({}, {"_id": 0}).to_list(50000)
+    period_sales = [s for s in sales if s["period"].startswith(period[:4])]
+    if branch:
+        period_sales = [s for s in period_sales if s["branch_id"] == branch]
+    if region:
+        period_sales = [s for s in period_sales if s["region"] == region]
+    # Aggregate by employee
+    rep_agg = {}
+    for s in period_sales:
+        eid = s["employee_id"]
+        if eid not in rep_agg:
+            rep_agg[eid] = {"name": s["employee_name"], "branch": s["branch_name"],
+                            "region": s["region"], "segment": s["segment"],
+                            "target": 0, "actual": 0, "commission": 0, "portfolio": 0, "months": 0}
+        rep_agg[eid]["target"] += s["target"]
+        rep_agg[eid]["actual"] += s["actual"]
+        rep_agg[eid]["commission"] += s["commission"]
+        rep_agg[eid]["portfolio"] = max(rep_agg[eid]["portfolio"], s["portfolio_size"])
+        rep_agg[eid]["months"] += 1
+    reps = []
+    for eid, r in rep_agg.items():
+        ach = round(r["actual"] / r["target"] * 100, 1) if r["target"] else 0
+        reps.append({
+            "employee_id": eid, "name": r["name"], "branch": r["branch"],
+            "region": r["region"], "segment": r["segment"],
+            "target": round(r["target"]), "actual": round(r["actual"]),
+            "achievement_pct": ach, "commission": round(r["commission"]),
+            "portfolio_size": r["portfolio"],
+            "status": "Hedef Üstü" if ach >= 100 else "Hedefe Yakın" if ach >= 85 else "Hedef Altı"
+        })
+    reps = sorted(reps, key=lambda x: -x["achievement_pct"])
+    avg_ach = round(sum(r["achievement_pct"] for r in reps)/len(reps),1) if reps else 0
+    earners = len([r for r in reps if r["commission"] > 0])
+    total_comm = sum(r["commission"] for r in reps)
+    below = len([r for r in reps if r["achievement_pct"] < 85])
+    best = reps[0]["name"] if reps else "-"
+    # Achievement band distribution
+    bands = [
+        {"band": "<%85", "count": len([r for r in reps if r["achievement_pct"] < 85])},
+        {"band": "%85-100", "count": len([r for r in reps if 85 <= r["achievement_pct"] < 100])},
+        {"band": "%100-120", "count": len([r for r in reps if 100 <= r["achievement_pct"] < 120])},
+        {"band": "%120+", "count": len([r for r in reps if r["achievement_pct"] >= 120])}
+    ]
+    return {
+        "kpis": {"avg_achievement": avg_ach, "commission_earners": earners,
+                 "total_commission": round(total_comm), "best_rep": best, "below_target": below},
+        "reps": reps, "achievement_bands": bands,
+        "prim_tiers": PRIM_TIERS
+    }
 
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True,
