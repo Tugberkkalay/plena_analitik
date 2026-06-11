@@ -52,7 +52,7 @@ def put_object(path, data, content_type):
 
 # ---- Seed Constants ----
 MALE_NAMES = ["Ahmet","Mehmet","Mustafa","Ali","Hasan","Ibrahim","Yusuf","Omer","Murat","Emre","Burak","Can","Serkan","Onur","Tolga","Kerem","Baris","Cem","Deniz","Oguz","Kaan","Arda","Berk","Efe","Furkan","Gokhan","Hakan","Tarik","Volkan","Selim"]
-FEMALE_NAMES = ["Ayse","Fatma","Zeynep","Elif","Merve","Selin","Esra","Busra","Derya","Gizem","Ebru","Pinar","Basak","Irem","Dilan","Ceren","Gamze","Hande","Nur","Sevgi","Asli","Defne","Eda","Hazal","Melis","Naz","Ozge","Tugce","Yagmur","Buse"]
+FEMALE_NAMES = ["Ayse","Fatma","Zeynep","Elif","Merve","Selin","Esra","Busra","Derya","Gizem","Ebru","Pinar","Basak","Irem","Cansu","Ceren","Gamze","Hande","Nur","Sevgi","Asli","Defne","Eda","Hazal","Melis","Naz","Ozge","Tugce","Yagmur","Buse"]
 LAST_NAMES = ["Yilmaz","Kaya","Demir","Celik","Sahin","Yildiz","Aydin","Ozdemir","Arslan","Dogan","Kilic","Aslan","Koc","Polat","Kurt","Ozturk","Eren","Acar","Cetin","Aksoy","Aktas","Basaran","Cengiz","Duran","Gunes","Karaca","Sari","Tunc","Unal","Tekin"]
 DEPARTMENTS = ["Information Technology","Human Resources","Finance","Marketing","Operations","Sales","Legal","Research & Development","Administration","Supply Chain"]
 DEPT_WEIGHTS = [15,8,10,10,14,13,5,12,6,7]
@@ -76,9 +76,6 @@ MARITAL_WEIGHTS = [35,55,10]
 LEAVING_REASONS_VOL = ["Resignation","Better Opportunity","Relocation","Personal Reasons","Career Change","Retirement"]
 LEAVING_REASONS_INVOL = ["Performance Issues","Restructuring","End of Contract"]
 SALARY_BY_BAND = {"A":(15000,30000),"B":(30000,50000),"C":(50000,80000),"D":(80000,130000),"E":(130000,250000)}
-ITALIAN_MALE = ["Marco","Luca","Alessandro","Andrea","Giovanni","Matteo","Francesco","Lorenzo","Davide","Giuseppe"]
-ITALIAN_FEMALE = ["Giulia","Francesca","Sara","Chiara","Valentina","Elena","Alessia","Marta","Laura","Anna"]
-ITALIAN_LAST = ["Rossi","Russo","Ferrari","Esposito","Bianchi","Romano","Colombo","Ricci","Marino","Greco"]
 
 # ---- Branch / Sales Constants ----
 REGIONS = ["Marmara","Ege","İç Anadolu","Akdeniz","Karadeniz","Doğu Anadolu","Güneydoğu Anadolu"]
@@ -195,12 +192,8 @@ def generate_seed_data(count=500):
         city = random.choices(CITIES, weights=CITY_WEIGHTS, k=1)[0]
         country = CITY_COUNTRY[city]
         gender = random.choices(["Male","Female"], weights=[55,45], k=1)[0]
-        if country == "Italy":
-            first = random.choice(ITALIAN_MALE if gender == "Male" else ITALIAN_FEMALE)
-            last = random.choice(ITALIAN_LAST)
-        else:
-            first = random.choice(MALE_NAMES if gender == "Male" else FEMALE_NAMES)
-            last = random.choice(LAST_NAMES)
+        first = random.choice(MALE_NAMES if gender == "Male" else FEMALE_NAMES)
+        last = random.choice(LAST_NAMES)
         band = random.choices(BANDS, weights=BAND_WEIGHTS, k=1)[0]
         age_min = {"A":22,"B":25,"C":28,"D":32,"E":38}[band]
         age_max = {"A":35,"B":42,"C":50,"D":55,"E":62}[band]
@@ -483,6 +476,34 @@ async def startup():
             logger.info(f"Seeded {len(eng)} engagement surveys")
             logger.info("Demo data seeding complete!")
         else:
+            if await db.branches.count_documents({}) == 0:
+                logger.info("Adding branches and sales data to existing DB...")
+                emps = await db.employees.find({}, {"_id": 0}).to_list(10000)
+                branches = generate_branches()
+                # Assign branches to employees that don't have one
+                from pymongo import UpdateOne
+                branch_ids = [b["id"] for b in branches]
+                branch_regions = {b["id"]: b["region"] for b in branches}
+                big_city_branches = [b["id"] for b in branches if b["city"] in ["Istanbul","Ankara","Izmir"]]
+                small_city_branches = [b["id"] for b in branches if b["city"] not in ["Istanbul","Ankara","Izmir"]]
+                ops = []
+                for emp in emps:
+                    if not emp.get("branch_id"):
+                        bid = random.choice(big_city_branches) if random.random() < 0.65 else random.choice(small_city_branches)
+                        role_type = "sales" if (emp.get("department") == "Sales" or (emp.get("band","C") in ["A","B"] and random.random() < 0.4)) else ("manager" if emp.get("is_manager") else "support")
+                        ops.append(UpdateOne({"id": emp["id"]}, {"$set": {"branch_id": bid, "region": branch_regions[bid], "role_type": role_type}}))
+                if ops:
+                    await db.employees.bulk_write(ops)
+                # Recount headcounts
+                active_emps = await db.employees.find({"status": "active"}, {"_id": 0}).to_list(10000)
+                for b in branches:
+                    b["headcount"] = len([e for e in active_emps if e.get("branch_id") == b["id"]])
+                await db.branches.insert_many(branches)
+                logger.info(f"Seeded {len(branches)} branches")
+                sales = generate_sales_data(active_emps, branches)
+                if sales:
+                    await db.sales_performance.insert_many(sales)
+                    logger.info(f"Seeded {len(sales)} sales records")
             if await db.recruitment.count_documents({}) == 0:
                 cands = generate_recruitment_data(200)
                 await db.recruitment.insert_many(cands)
