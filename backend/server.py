@@ -1943,6 +1943,44 @@ async def get_alerts(year: int = 2025):
                 "detail": f"Current: {current}, Target: {target['target']}. Gap of {target['target'] - current} positions.",
                 "suggested_action": f"Accelerate recruitment pipeline for {short}. Engage 2-3 additional sourcing channels. Consider contractor bridge staffing.",
                 "entity_ref": short, "status": "active"})
+    # Rule 6: Branch performance — below target
+    try:
+        branches = await db.branches.find({}, {"_id": 0}).to_list(100)
+        b_sales = await db.sales_performance.find({}, {"_id": 0}).to_list(50000)
+        for b in branches:
+            bid = b["id"]
+            bs = [s for s in b_sales if s["branch_id"] == bid and s["period"].startswith(str(year))]
+            t_t = sum(s["target"] for s in bs)
+            t_a = sum(s["actual"] for s in bs)
+            ach = round(t_a / t_t * 100, 1) if t_t else 0
+            b_active = len([e for e in active if e.get("branch_id") == bid])
+            b_left_count = len([e for e in left if e.get("branch_id") == bid])
+            b_turn = round(b_left_count / max(1, b_active) * 100, 1)
+            bname = b["name"].replace(" Şubesi","")
+            if ach < 85:
+                alert_id += 1
+                alerts.append({"id": str(alert_id), "source": "Şube Satış", "severity": "high" if ach < 75 else "med",
+                    "title": f"{bname} hedefin altında (%{ach})",
+                    "detail": f"{bname} şubesinin gerçekleşme oranı %{ach}. Hedef: {round(t_t/1000)}K, Gerçekleşen: {round(t_a/1000)}K.",
+                    "suggested_action": f"{bname} için satış koçluğu programı başlat. Bölge müdürü ile haftalık takip toplantısı kur. Kampanya desteği sağla.",
+                    "entity_ref": bname, "status": "active"})
+            if b_turn > 15 and b_active > 5:
+                alert_id += 1
+                alerts.append({"id": str(alert_id), "source": "Şube Sirkülasyon", "severity": "high" if b_turn > 25 else "med",
+                    "title": f"{bname} yüksek sirkülasyon (%{b_turn})",
+                    "detail": f"{bname} şubesinde {b_left_count} ayrılma ({b_active} aktif kadro). Sirkülasyon %{b_turn}.",
+                    "suggested_action": f"{bname} çalışanlarıyla bağlılık görüşmesi yap. Ücret benchmarkı kontrol et. Kariyer gelişim planları oluştur.",
+                    "entity_ref": bname, "status": "active"})
+            gap = b.get("target_headcount", b_active) - b_active
+            if gap > 3 and ach > 85:
+                alert_id += 1
+                alerts.append({"id": str(alert_id), "source": "Şube Kadro", "severity": "high" if gap > 5 else "med",
+                    "title": f"{bname} acil personel ihtiyacı ({gap} açık)",
+                    "detail": f"{bname}: Mevcut {b_active}, Hedef {b.get('target_headcount', b_active)}. Satış performansı %{ach} ama {gap} kadro açığı var.",
+                    "suggested_action": f"{bname} için işe alım sürecini hızlandır. İç mobilite havuzundan aday değerlendir. Geçici kadro desteği planla.",
+                    "entity_ref": bname, "status": "active"})
+    except Exception as e:
+        logger.error(f"Branch alert error: {e}")
     # Sort by severity
     sev_order = {"high": 0, "med": 1, "low": 2}
     alerts = sorted(alerts, key=lambda x: sev_order.get(x["severity"], 2))
@@ -2167,6 +2205,128 @@ async def get_sales_reps(period: str = "2025", branch: str = "", region: str = "
                  "total_commission": round(total_comm), "best_rep": best, "below_target": below},
         "reps": reps, "achievement_bands": bands,
         "prim_tiers": PRIM_TIERS
+    }
+
+# ---- Branch Staffing & Turnover ----
+@api_router.get("/branches/staffing")
+async def get_branch_staffing(year: int = 2025, region: str = ""):
+    branches = await db.branches.find({}, {"_id": 0}).to_list(100)
+    all_emp, active, hired, left = await get_filtered(year)
+    sales = await db.sales_performance.find({}, {"_id": 0}).to_list(50000)
+    if region:
+        branches = [b for b in branches if b["region"] == region]
+    branch_ids = {b["id"] for b in branches}
+    staffing = []
+    for b in branches:
+        bid = b["id"]
+        b_active = [e for e in active if e.get("branch_id") == bid]
+        b_left = [e for e in left if e.get("branch_id") == bid]
+        b_hired = [e for e in hired if e.get("branch_id") == bid]
+        current = len(b_active)
+        target = b.get("target_headcount", current)
+        gap = target - current
+        turnover = round(len(b_left) / max(1, current) * 100, 1)
+        # Sales achievement for this branch
+        b_sales = [s for s in sales if s["branch_id"] == bid and s["period"].startswith(str(year))]
+        total_target = sum(s["target"] for s in b_sales)
+        total_actual = sum(s["actual"] for s in b_sales)
+        ach = round(total_actual / total_target * 100, 1) if total_target else 0
+        # Staffing pressure
+        pressure = round(gap * 0.4 + (turnover / 100 * current * 0.4) + (max(0, ach - 100) / 100 * current * 0.2), 1)
+        monthly_plan = max(0, int(gap * 0.15) + int(turnover / 100 * current * 0.08))
+        urgency = "Acil" if gap > 3 and ach > 90 else "Yüksek" if gap > 2 or turnover > 15 else "Normal" if gap > 0 else "Yeterli"
+        staffing.append({
+            "branch_id": bid, "name": b["name"], "region": b["region"], "city": b["city"],
+            "segment": b["segment"], "current": current, "target": target, "gap": gap,
+            "turnover_pct": turnover, "achievement_pct": ach,
+            "hires_ytd": len(b_hired), "leaves_ytd": len(b_left),
+            "pressure": pressure, "monthly_plan": monthly_plan, "urgency": urgency
+        })
+    staffing = sorted(staffing, key=lambda x: -x["pressure"])
+    total_gap = sum(s["gap"] for s in staffing if s["gap"] > 0)
+    critical = len([s for s in staffing if s["urgency"] in ["Acil", "Yüksek"]])
+    avg_turnover = round(sum(s["turnover_pct"] for s in staffing) / len(staffing), 1) if staffing else 0
+    worst_turnover = max(staffing, key=lambda x: x["turnover_pct"])["name"] if staffing else "-"
+    urgent_hire = len([s for s in staffing if s["monthly_plan"] > 0])
+    fill_rate = round(sum(s["current"] for s in staffing) / max(1, sum(s["target"] for s in staffing)) * 100, 1)
+    # Turnover heatmap: branch × quarter
+    heatmap = []
+    quarters = {"Q1": ("01","03"), "Q2": ("04","06"), "Q3": ("07","09"), "Q4": ("10","12")}
+    for b in branches:
+        row = {"name": b["name"], "branch_id": b["id"]}
+        for qname, (qstart, qend) in quarters.items():
+            q_left = len([e for e in left if e.get("branch_id") == b["id"] and
+                         e.get("termination_date","")[:4] == str(year) and
+                         qstart <= e.get("termination_date","")[5:7] <= qend])
+            row[qname] = q_left
+        heatmap.append(row)
+    # Quadrant data: x=achievement, y=fill_rate
+    quadrant = [{"name": s["name"].replace(" Şubesi",""), "achievement": s["achievement_pct"],
+                 "fill_rate": round(s["current"]/max(1,s["target"])*100,1), "gap": s["gap"],
+                 "urgency": s["urgency"]} for s in staffing]
+    return {
+        "kpis": {"total_gap": total_gap, "critical_branches": critical, "avg_turnover": avg_turnover,
+                 "worst_turnover": worst_turnover, "urgent_hire": urgent_hire, "fill_rate": fill_rate},
+        "staffing": staffing, "heatmap": heatmap, "quadrant": quadrant
+    }
+
+# ---- Branch Map ----
+@api_router.get("/branches/map")
+async def get_branch_map(metric: str = "performance", year: int = 2025):
+    branches = await db.branches.find({}, {"_id": 0}).to_list(100)
+    _, active, _, left = await get_filtered(year)
+    sales = await db.sales_performance.find({}, {"_id": 0}).to_list(50000)
+    pins = []
+    for b in branches:
+        bid = b["id"]
+        b_active = [e for e in active if e.get("branch_id") == bid]
+        b_left = [e for e in left if e.get("branch_id") == bid]
+        current = len(b_active)
+        target = b.get("target_headcount", current)
+        turnover = round(len(b_left) / max(1, current) * 100, 1)
+        b_sales = [s for s in sales if s["branch_id"] == bid and s["period"].startswith(str(year))]
+        t_target = sum(s["target"] for s in b_sales)
+        t_actual = sum(s["actual"] for s in b_sales)
+        ach = round(t_actual / t_target * 100, 1) if t_target else 0
+        gap = target - current
+        fill = round(current / max(1, target) * 100, 1)
+        if metric == "performance":
+            value = ach
+            color = "teal" if ach >= 100 else "amber" if ach >= 85 else "red"
+        elif metric == "staffing":
+            value = fill
+            color = "teal" if fill >= 90 else "amber" if fill >= 70 else "red"
+        else:
+            value = turnover
+            color = "red" if turnover > 15 else "amber" if turnover > 8 else "teal"
+        pins.append({
+            "branch_id": bid, "name": b["name"], "region": b["region"],
+            "city": b["city"], "segment": b["segment"],
+            "lat": b["lat"], "lng": b["lng"],
+            "headcount": current, "target": target, "gap": gap,
+            "achievement_pct": ach, "turnover_pct": turnover, "fill_rate": fill,
+            "metric_value": value, "color": color
+        })
+    region_summary = {}
+    for p in pins:
+        r = p["region"]
+        if r not in region_summary:
+            region_summary[r] = {"branches": 0, "total_ach": 0, "total_hc": 0}
+        region_summary[r]["branches"] += 1
+        region_summary[r]["total_ach"] += p["achievement_pct"]
+        region_summary[r]["total_hc"] += p["headcount"]
+    regions = [{"region": r, "branches": v["branches"],
+                "avg_achievement": round(v["total_ach"]/v["branches"],1),
+                "headcount": v["total_hc"]} for r,v in region_summary.items()]
+    regions = sorted(regions, key=lambda x: -x["avg_achievement"])
+    attention = len([p for p in pins if p["color"] == "red"])
+    return {
+        "kpis": {"total_branches": len(pins), "regions": len(regions),
+                 "avg_achievement": round(sum(p["achievement_pct"] for p in pins)/len(pins),1) if pins else 0,
+                 "attention": attention},
+        "pins": pins, "regions": regions,
+        "best_5": sorted(pins, key=lambda x: -x["achievement_pct"])[:5],
+        "worst_5": sorted(pins, key=lambda x: x["achievement_pct"])[:5]
     }
 
 app.include_router(api_router)

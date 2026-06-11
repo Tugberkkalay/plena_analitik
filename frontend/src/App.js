@@ -34,6 +34,8 @@ import InternalMobilityPage from "@/pages/InternalMobilityPage";
 import ActionCenterPage from "@/pages/ActionCenterPage";
 import BranchPerformancePage from "@/pages/BranchPerformancePage";
 import CommissionTargetsPage from "@/pages/CommissionTargetsPage";
+import BranchStaffingPage from "@/pages/BranchStaffingPage";
+import BranchMapPage from "@/pages/BranchMapPage";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -66,6 +68,8 @@ const PAGE_TITLES = {
   "/action-center": "Aksiyon Merkezi",
   "/branch-performance": "Şube Performansı",
   "/commission-targets": "Prim & Hedef",
+  "/branch-staffing": "Şube Kadro Planlama",
+  "/branch-map": "Şube Haritası",
 };
 
 function TopBar({ year, setYear, years, country, setCountry }) {
@@ -171,6 +175,8 @@ function AppContent() {
             <Route path="/action-center" element={<ActionCenterPage year={year} />} />
             <Route path="/branch-performance" element={<BranchPerformancePage year={year} />} />
             <Route path="/commission-targets" element={<CommissionTargetsPage year={year} />} />
+            <Route path="/branch-staffing" element={<BranchStaffingPage year={year} />} />
+            <Route path="/branch-map" element={<BranchMapPage year={year} />} />
             <Route path="/ai-forecast" element={<AIForecastPage year={year} />} />
             <Route path="/data-upload" element={<DataUploadPage />} />
           </Routes>

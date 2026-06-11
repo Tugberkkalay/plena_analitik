@@ -10,7 +10,7 @@ const SEV_BORDER = { high: "border-l-red-500", med: "border-l-amber-500", low: "
 const SEV_BADGE = { high: "bg-red-50 text-red-700 border-red-200", med: "bg-amber-50 text-amber-700 border-amber-200", low: "bg-slate-100 text-slate-600 border-slate-200" };
 const SEV_LABEL = { high: "High", med: "Medium", low: "Low" };
 const SOURCE_ICON = { Turnover: "text-red-500", Succession: "text-orange-500", Skills: "text-blue-500", "Org Health": "text-amber-500", Headcount: "text-teal-600" };
-const SOURCES = ["All", "Turnover", "Succession", "Skills", "Org Health", "Headcount"];
+const SOURCES = ["All", "Turnover", "Succession", "Skills", "Org Health", "Headcount", "Şube Satış", "Şube Sirkülasyon", "Şube Kadro"];
 
 function AIBriefCard({ year }) {
   const [brief, setBrief] = useState(null);
