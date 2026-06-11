@@ -1,26 +1,30 @@
-# HRlytic — Enterprise HR Analytics Platform
+# Plenalitik — Enterprise HR & Sales Analytics Platform
 
 ## Problem Statement
-Develop an HR analytics application ("HRlytic") with professional corporate visual design for top management. Includes 25 modules for workforce analytics, organizational planning, talent management, and AI-powered insights. Supports custom data sources (Excel/CSV).
+HR analytics platform with branch/sales layer for financial sector (bank/factoring). 25+ HR modules + 2 branch/sales modules. Turkish UI, multi-location (Turkey + Italy).
 
 ## Architecture
-- **Frontend**: React 18, Tailwind CSS, Recharts, Shadcn UI, React Router, Phosphor Icons
-- **Backend**: FastAPI, Python, Motor (async MongoDB driver)
-- **Database**: MongoDB
-- **AI**: OpenAI GPT-5.2 via Emergent LLM Key
-- **Theme**: Corporate light theme (teal + slate + white)
-- **UI Language**: Turkish (Feb 2026)
+- Frontend: React 18, Tailwind CSS, Recharts, Shadcn UI
+- Backend: FastAPI, Python, Motor (MongoDB)
+- AI: OpenAI GPT-5.2 via Emergent LLM Key
+- Theme: Corporate light (teal + slate)
 
-## Features
-- 25 analytics modules across 5 categories
-- Multi-location support (Turkey + Italy) with global country filter
-- Q-o-Q trend indicators on KPI cards
-- AI Executive Brief (GPT-5.2) in Action Center
-- AI Career Development plans
-- Scenario Simulator with location impact
-- 5-source prescriptive alert engine
+## Modules (27 total)
+### İşgücü (5): Overview, Kadro, Alım & Ayrılma, Devir, Hareket
+### Planlama (6): HC Planning, WF Alignment, Org Health, Skills Map, Scenario Sim, Succession
+### Satış & Şube (2 - NEW): Şube Performansı, Prim & Hedef
+### Yetenek (8): İç Mobilite, İşe Alım, Performans, Eğitim, Ücret, Bağlılık, Kariyer, AI Kariyer
+### Öngörü (5): Aksiyon Merkezi (AI), AI Tahmin, Yetkinlik Tahmin, Tükenmişlik, İK Ops
+### Ayarlar (1): Veri Yönetimi
 
-## Upcoming
-- Alert resolve DB persistence
-- Detailed Q-o-Q trend pages
-- server.py modularization
+## Branch/Sales Layer
+- 30 branches across 7 regions (Marmara, Ege, İç Anadolu, Akdeniz, Karadeniz, Doğu/Güneydoğu)
+- 126 sales reps with monthly target/actual/commission data
+- Tiered commission: <85%=0, 85-100%=0.5%, 100-120%=1%, 120%+=1.5%
+- Segments: Bireysel, Ticari, Karma
+
+## Upcoming (Faz 2)
+- Şube Kadro Planlama (staffing + turnover heatmap + quadrant)
+- Şube Haritası (Türkiye haritası with interactive pins)
+- Aksiyon Merkezi'ne şube uyarıları entegrasyonu
+- Genel Bakış'a şube performans özet kartı
