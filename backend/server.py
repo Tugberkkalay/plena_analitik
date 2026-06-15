@@ -528,6 +528,39 @@ async def startup():
                 if ops:
                     await db.employees.bulk_write(ops)
                 logger.info(f"Skills added to {no_skills} employees")
+            # Migration: replace Italian names with Turkish names
+            italian_firsts = {"Marco","Luca","Alessandro","Andrea","Giovanni","Matteo","Francesco","Lorenzo","Davide","Giuseppe",
+                              "Giulia","Francesca","Sara","Chiara","Valentina","Elena","Alessia","Marta","Laura","Anna"}
+            italian_lasts = {"Rossi","Russo","Ferrari","Esposito","Bianchi","Romano","Colombo","Ricci","Marino","Greco"}
+            all_emps = await db.employees.find({}, {"_id": 0, "name": 1}).to_list(10000)
+            from pymongo import UpdateOne as UO
+            name_ops = []
+            for emp in all_emps:
+                name = emp.get("name","")
+                parts = name.split()
+                if len(parts) >= 2:
+                    first, last = parts[0], parts[-1]
+                    changed = False
+                    if first in italian_firsts:
+                        first = random.choice(MALE_NAMES if random.random() < 0.55 else FEMALE_NAMES)
+                        changed = True
+                    if last in italian_lasts:
+                        last = random.choice(LAST_NAMES)
+                        changed = True
+                    if "Dilan" in name:
+                        first = "Cansu"
+                        changed = True
+                    if changed:
+                        new_name = f"{first} {last}"
+                        name_ops.append(UO({"name": name}, {"$set": {"name": new_name}}))
+            if name_ops:
+                await db.employees.bulk_write(name_ops)
+                # Also update sales_performance employee_name
+                for op in name_ops:
+                    old_name = op._filter["name"]
+                    new_name = op._doc["$set"]["name"]
+                    await db.sales_performance.update_many({"employee_name": old_name}, {"$set": {"employee_name": new_name}})
+                logger.info(f"Migrated {len(name_ops)} Italian/unwanted names to Turkish")
     except Exception as e:
         logger.error(f"Startup seed error: {e}")
     try:
@@ -1263,21 +1296,34 @@ async def get_career_plan(body: CareerPlanRequest):
     }
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
-        prompt = f"""Career plan for {emp['name']} ({emp['department']}, {emp['job_title']}, Band {emp['band']}).
-Performance: {emp.get('performance_score',0)}/5, Tenure: {emp.get('seniority_years',0)}y
-Skills: {skill_text}
-Strong: {', '.join(s['skill'] for s in strong_skills)}
-Weak: {', '.join(s['skill'] for s in weak_skills)}
+        prompt = f"""{emp['name']} için kariyer gelişim planı hazırla.
+Pozisyon: {emp['department']}, {emp['job_title']}, Band {emp['band']}
+Performans: {emp.get('performance_score',0)}/5, Kıdem: {emp.get('seniority_years',0)} yıl
+Yetkinlikler: {skill_text}
+Güçlü: {', '.join(s['skill'] for s in strong_skills)}
+Gelişim: {', '.join(s['skill'] for s in weak_skills)}
 
-Provide in Turkish, be concise (max 800 words):
-1. YENİ YETKİNLİKLER (3 adet, kısa açıklama)
-2. ÖNERİLEN EĞİTİMLER (4 adet, spesifik kurs adı)
-3. GELİŞİM HEDEFLERİ (3 SMART hedef: 6ay/1yıl/2yıl)
-4. KARİYER YOLU (sonraki adım ve aksiyon planı)
-5. MENTORLUK (ideal mentor profili)"""
+Aşağıdaki başlıklarda profesyonel İK diliyle, düz metin olarak yaz. Markdown kullanma, yıldız veya özel karakter kullanma. Her başlığı büyük harfle yaz ve alt satıra geç.
+
+KAZANILMASI GEREKEN YETKİNLİKLER
+Bu pozisyon ve kariyer hedefi için kritik 3 yetkinliği, neden gerekli olduğunu ve nasıl kazanılacağını açıkla.
+
+ÖNERİLEN EĞİTİMLER
+4 spesifik eğitim/sertifika programı öner. Her biri için süre ve hedef çıktıyı belirt.
+
+GELİŞİM HEDEFLERİ
+3 SMART hedef yaz: 6 ay, 1 yıl ve 2 yıl için. Ölçülebilir ve gerçekçi olsun.
+
+KARİYER YOLU
+Mevcut pozisyondan sonraki adımı ve geçiş için yapılması gerekenleri somut şekilde anlat.
+
+MENTORLUK ÖNERİSİ
+İdeal mentor profili ve mentorluk sürecinde odaklanılacak 2-3 alanı belirt.
+
+Kısa, somut ve uygulanabilir öneriler ver. Her cümle aksiyona dönüştürülebilir olsun."""
 
         chat = LlmChat(api_key=EMERGENT_KEY, session_id=str(uuid.uuid4()),
-                       system_message="Kısa ve öz İK kariyer danışmanısın. Spesifik, uygulanabilir öneriler ver. Kısa cümleler kullan.")
+                       system_message="Deneyimli bir İK kariyer danışmanısın. Profesyonel, sade Türkçe kullan. Markdown formatı kullanma. Somut, ölçülebilir öneriler ver.")
         chat.with_model("openai", "gpt-5.2")
         response = await chat.send_message(UserMessage(text=prompt))
         result["ai_recommendations"] = response
@@ -1424,30 +1470,57 @@ async def get_capability_forecast(year: int = 2025):
 @api_router.get("/dashboard/succession")
 async def get_succession(year: int = 2025):
     _, active, _, _ = await get_filtered(year)
-    # Critical roles: Band E + Band D with high performance/talent (5-10% of HC)
+    band_order = {"A": 1, "B": 2, "C": 3, "D": 4, "E": 5}
+    # Critical roles: Band E + Band D with high performance/talent
     critical_roles = [e for e in active if e.get('band') == 'E' or
                       (e.get('band') == 'D' and e.get('is_talent') and e.get('performance_score', 0) >= 4.0)]
-    successors_pool = [e for e in active if e.get('band') in ['C','D'] and e.get('performance_score',0) >= 3.5]
+    # Successor pool: one band below the role, same or adjacent department
     results = []
     for role in critical_roles:
+        role_band = band_order.get(role.get('band','E'), 5)
+        role_dept = role['department']
         role_skills = {s['skill'] for s in role.get('skills',[])}
+        role_title = role.get('job_title','')
         candidates = []
-        for s in successors_pool:
+        for s in active:
             if s['id'] == role['id']: continue
-            if s['department'] != role['department'] and s.get('band','A') < role.get('band','E'): continue
+            s_band = band_order.get(s.get('band','A'), 1)
+            # Successor must be 1-2 bands below (not same or higher)
+            if s_band >= role_band or s_band < role_band - 2: continue
+            # Same department strongly preferred (cross-dept only if band D→E)
+            same_dept = s['department'] == role_dept
+            if not same_dept and role_band < 5: continue  # Cross-dept only for E roles
+            # Performance gate
+            if s.get('performance_score', 0) < 3.5: continue
+            # Skill match
             s_skills = {sk['skill'] for sk in s.get('skills',[])}
             overlap = len(role_skills & s_skills)
-            readiness = min(100, int((overlap / max(1,len(role_skills))) * 60 + (s.get('performance_score',3)/5)*40))
-            if readiness >= 55:
-                candidates.append({"name": s['name'], "band": s['band'], "department": s['department'], "performance": s.get('performance_score',0), "readiness": readiness, "skill_match": overlap})
-        candidates = sorted(candidates, key=lambda x: -x['readiness'])[:3]
+            skill_pct = overlap / max(1, len(role_skills))
+            # Readiness: 50% skills + 30% performance + 20% department fit
+            dept_bonus = 20 if same_dept else 5
+            readiness = min(100, int(skill_pct * 50 + (s.get('performance_score',3)/5) * 30 + dept_bonus))
+            if readiness >= 40:
+                candidates.append({
+                    "name": s['name'], "band": s['band'],
+                    "department": shorten_dept(s['department']),
+                    "job_title": s.get('job_title',''),
+                    "performance": s.get('performance_score',0),
+                    "readiness": readiness, "skill_match": overlap,
+                    "same_dept": same_dept
+                })
+        # Sort: same dept first, then by readiness
+        candidates = sorted(candidates, key=lambda x: (-x['same_dept'], -x['readiness']))[:3]
         unique_skills = len([s for s in role.get('skills',[]) if s['proficiency'] >= 4])
         seniority = role.get('seniority_years',0)
         knowledge_risk = min(100, int(unique_skills * 10 + seniority * 4 + (3 - len(candidates)) * 15))
         risk_level = "Critical" if knowledge_risk >= 75 else "High" if knowledge_risk >= 55 else "Medium" if knowledge_risk >= 35 else "Low"
-        results.append({"name": role['name'], "department": role['department'], "job_title": role['job_title'], "band": role['band'],
-                        "seniority": seniority, "performance": role.get('performance_score',0),
-                        "knowledge_risk": knowledge_risk, "risk_level": risk_level, "successors": candidates, "successor_count": len(candidates)})
+        results.append({
+            "name": role['name'], "department": shorten_dept(role['department']),
+            "job_title": role['job_title'], "band": role['band'],
+            "seniority": seniority, "performance": role.get('performance_score',0),
+            "knowledge_risk": knowledge_risk, "risk_level": risk_level,
+            "successors": candidates, "successor_count": len(candidates)
+        })
     results = sorted(results, key=lambda x: -x['knowledge_risk'])
     no_successor = len([r for r in results if r['successor_count']==0])
     high_risk = len([r for r in results if r['risk_level'] in ['Critical','High']])
@@ -2053,36 +2126,36 @@ async def ai_alert_scan(body: AIAlertScanRequest):
     }
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
-        prompt = f"""You are a senior HR strategy advisor analyzing organizational health signals. Based on the following data, provide a concise executive brief with prioritized action recommendations.
+        prompt = f"""Organizasyonel sağlık sinyallerini analiz et ve yönetim için özet brief hazırla. Türkçe yaz, markdown veya yıldız kullanma, düz metin olsun.
 
-## Organization Context ({year})
-- Headcount: {hc} ({country_dist})
-- Turnover Rate: {turnover_rate}%
-- Avg Performance Score: {avg_perf}/5.0
-- Avg Engagement: {avg_eng}/10
-- YTD Hires: {len(hired)}, Leaves: {len(left)}
+KURUM BİLGİLERİ ({year})
+Kadro: {hc} ({country_dist})
+Devir Oranı: %{turnover_rate}
+Ort. Performans: {avg_perf}/5.0
+Ort. Bağlılık: {avg_eng}/10
+Yılbaşından Bu Yana: {len(hired)} alım, {len(left)} ayrılma
 
-## Active Alerts ({len(alerts)} total, {len(high_alerts)} high priority)
+AKTİF UYARILAR ({len(alerts)} toplam, {len(high_alerts)} yüksek öncelik)
 {alert_summary}
 
-Provide your analysis in this EXACT format:
+Aşağıdaki başlıklarda profesyonel İK diliyle analiz yap:
 
-**EXECUTIVE SUMMARY**
-2-3 sentence overview of the organization's health and most critical risks.
+YÖNETİCİ ÖZETİ
+Organizasyonun genel sağlık durumu ve en kritik 2-3 risk hakkında kısa değerlendirme.
 
-**TOP 3 PRIORITY ACTIONS**
-For each: specific action, expected impact, timeline, and owner (HR/Leadership/Department).
+ÖNCELİKLİ 3 AKSİYON
+Her biri için: ne yapılacak, beklenen etki, zaman çerçevesi ve sorumlu birim.
 
-**RISK OUTLOOK**
-Brief assessment: what happens if no action is taken in the next 90 days?
+RİSK GÖRÜNÜMÜ
+90 gün içinde aksiyon alınmazsa ne olur, kısa değerlendirme.
 
-**QUICK WINS**
-2-3 actions that can be implemented this week with minimal cost.
+HIZLI KAZANIMLAR
+Bu hafta düşük maliyetle uygulanabilecek 2-3 aksiyon.
 
-Keep each section concise (2-4 sentences). Use data from the alerts. Be specific, not generic."""
+Her bölüm 2-4 cümle olsun. Uyarılardaki verileri referans al. Somut öneriler ver."""
 
         chat = LlmChat(api_key=EMERGENT_KEY, session_id=str(uuid.uuid4()),
-                       system_message="You are a world-class HR analytics advisor. Provide data-driven, specific, actionable insights. Never use generic advice. Always reference the specific numbers and departments from the data.")
+                       system_message="Deneyimli İK analitik danışmanısın. Veri odaklı, somut, uygulanabilir öneriler ver. Markdown formatı kullanma, düz metin yaz. Her zaman verideki sayıları ve departmanları referans al.")
         chat.with_model("openai", "gpt-5.2")
         response = await chat.send_message(UserMessage(text=prompt))
         return {"ai_brief": response, "context": context, "status": "success"}

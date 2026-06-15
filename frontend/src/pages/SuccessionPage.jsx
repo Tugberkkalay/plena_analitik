@@ -63,7 +63,7 @@ export default function SuccessionPage({ year }) {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-slate-800">{role.name}</p>
-                      <p className="text-[10px] text-slate-500">{role.department} · {role.job_title} · Band {role.band} · {role.seniority}yrs</p>
+                      <p className="text-[10px] text-slate-500">{role.department} · {role.job_title} · Band {role.band} · {role.seniority} yıl</p>
                     </div>
                   </div>
                   <div className="text-right">
@@ -71,14 +71,14 @@ export default function SuccessionPage({ year }) {
                       <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${RISK_TEXT[role.risk_level]}`}>{role.knowledge_risk}%</span>
                       <ShieldWarning size={14} style={{ color: RISK_COLOR[role.risk_level] }} />
                     </div>
-                    <p className="text-[10px] text-slate-400">{role.successor_count} successor{role.successor_count !== 1 ? 's' : ''}</p>
+                    <p className="text-[10px] text-slate-400">{role.successor_count} yedek</p>
                   </div>
                 </div>
                 {role.successors?.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mt-1 ml-10">
                     {role.successors.map((s, j) => (
                       <span key={j} className="px-2 py-0.5 rounded text-[10px] bg-white border border-slate-200 text-slate-700">
-                        <UserSwitch size={10} className="inline mr-1" weight="bold" />{s.name} ({s.readiness}% ready)
+                        <UserSwitch size={10} className="inline mr-1" weight="bold" />{s.name} · {s.department} · {s.job_title} · Band {s.band} ({s.readiness}% hazır)
                       </span>
                     ))}
                   </div>

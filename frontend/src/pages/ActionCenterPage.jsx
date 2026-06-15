@@ -28,28 +28,22 @@ function AIBriefCard({ year }) {
 
   const formatBrief = (text) => {
     if (!text) return null;
-    const renderInline = (str) => {
-      const parts = str.split(/(\*\*[^*]+\*\*)/g);
-      return parts.map((part, j) => {
-        if (part.startsWith('**') && part.endsWith('**')) {
-          return <strong key={j} className="text-slate-800 font-semibold">{part.slice(2, -2)}</strong>;
-        }
-        return part;
-      });
-    };
-    return text.split('\n').map((line, i) => {
+    // Clean markdown artifacts
+    const clean = text.replace(/\*\*/g, '').replace(/\*/g, '').replace(/#{1,4}\s/g, '');
+    return clean.split('\n').map((line, i) => {
       const trimmed = line.trim();
       if (!trimmed) return null;
-      if (trimmed.startsWith('**') && trimmed.endsWith('**') && !trimmed.slice(2, -2).includes('**')) {
-        return <h4 key={i} className="text-sm font-bold text-slate-800 mt-4 mb-1 first:mt-0 border-b border-slate-100 pb-1">{trimmed.replace(/\*\*/g, '')}</h4>;
+      // Section headers (all caps Turkish)
+      if (/^[A-ZÇĞIİÖŞÜ\s]{8,}$/.test(trimmed) || /^(YÖNETİCİ|ÖNCELİKLİ|RİSK|HIZLI|KAZANILMASI|ÖNERİLEN|GELİŞİM|KARİYER|MENTORLUK)/.test(trimmed)) {
+        return <h4 key={i} className="text-sm font-bold text-slate-800 mt-4 mb-1.5 first:mt-0 border-b border-slate-100 pb-1">{trimmed}</h4>;
       }
       if (trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
-        return <li key={i} className="text-xs text-slate-600 leading-relaxed ml-3 mb-0.5 list-disc">{renderInline(trimmed.slice(2))}</li>;
+        return <li key={i} className="text-xs text-slate-600 leading-relaxed ml-3 mb-0.5 list-disc">{trimmed.slice(2)}</li>;
       }
-      if (/^\d+\)/.test(trimmed)) {
-        return <div key={i} className="text-xs text-slate-600 leading-relaxed ml-1 mb-2 pl-3 border-l-2 border-teal-200">{renderInline(trimmed)}</div>;
+      if (/^\d+[\.\)]/.test(trimmed)) {
+        return <div key={i} className="text-xs text-slate-600 leading-relaxed ml-1 mb-2 pl-3 border-l-2 border-teal-200">{trimmed}</div>;
       }
-      return <p key={i} className="text-xs text-slate-600 leading-relaxed mb-1">{renderInline(trimmed)}</p>;
+      return <p key={i} className="text-xs text-slate-600 leading-relaxed mb-1">{trimmed}</p>;
     });
   };
 
