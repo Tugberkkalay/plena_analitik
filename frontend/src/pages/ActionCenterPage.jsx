@@ -8,9 +8,9 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const SEV_BORDER = { high: "border-l-red-500", med: "border-l-amber-500", low: "border-l-slate-400" };
 const SEV_BADGE = { high: "bg-red-50 text-red-700 border-red-200", med: "bg-amber-50 text-amber-700 border-amber-200", low: "bg-slate-100 text-slate-600 border-slate-200" };
-const SEV_LABEL = { high: "High", med: "Medium", low: "Low" };
-const SOURCE_ICON = { Turnover: "text-red-500", Succession: "text-orange-500", Skills: "text-blue-500", "Org Health": "text-amber-500", Headcount: "text-teal-600" };
-const SOURCES = ["All", "Turnover", "Succession", "Skills", "Org Health", "Headcount", "Şube Satış", "Şube Sirkülasyon", "Şube Kadro"];
+const SEV_LABEL = { high: "Yüksek", med: "Orta", low: "Düşük" };
+const SOURCE_ICON = { "Devir": "text-red-500", "Yedekleme": "text-orange-500", "Yetkinlik": "text-blue-500", "Org. Sağlığı": "text-amber-500", "Kadro": "text-teal-600", "Şube Satış": "text-rose-500", "Şube Sirkülasyon": "text-violet-500", "Şube Kadro": "text-indigo-500" };
+const SOURCES = ["Tümü", "Devir", "Yedekleme", "Yetkinlik", "Org. Sağlığı", "Kadro", "Şube Satış", "Şube Sirkülasyon", "Şube Kadro"];
 
 function AIBriefCard({ year }) {
   const [brief, setBrief] = useState(null);
@@ -97,7 +97,7 @@ function AIBriefCard({ year }) {
 export default function ActionCenterPage({ year }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("All");
+  const [filter, setFilter] = useState("Tümü");
   const [resolvedIds, setResolvedIds] = useState(new Set());
 
   useEffect(() => {
@@ -118,7 +118,7 @@ export default function ActionCenterPage({ year }) {
 
   const { kpis } = data;
   const activeAlerts = (data.alerts || []).filter(a => !resolvedIds.has(a.id));
-  const filtered = filter === "All" ? activeAlerts : activeAlerts.filter(a => a.source === filter);
+  const filtered = filter === "Tümü" ? activeAlerts : activeAlerts.filter(a => a.source === filter);
   const resolvedCount = (kpis.resolved_this_month || 0) + resolvedIds.size;
 
   return (

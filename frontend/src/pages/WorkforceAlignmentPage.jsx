@@ -7,9 +7,9 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
-const STATUS_COLORS = { "On Track": "#14B8A6", "At Risk": "#F59E0B", "Critical": "#EF4444" };
-const STATUS_BG = { "On Track": "bg-emerald-50 border-emerald-200 text-emerald-700", "At Risk": "bg-amber-50 border-amber-200 text-amber-700", "Critical": "bg-red-50 border-red-200 text-red-700" };
-const PRIORITY_BG = { "Critical": "bg-red-100 text-red-800", "High": "bg-amber-100 text-amber-800", "Medium": "bg-blue-100 text-blue-800" };
+const STATUS_COLORS = { "Yolunda": "#14B8A6", "Risk Altında": "#F59E0B", "Kritik": "#EF4444" };
+const STATUS_BG = { "Yolunda": "bg-emerald-50 border-emerald-200 text-emerald-700", "Risk Altında": "bg-amber-50 border-amber-200 text-amber-700", "Kritik": "bg-red-50 border-red-200 text-red-700" };
+const PRIORITY_BG = { "Kritik": "bg-red-100 text-red-800", "Yüksek": "bg-amber-100 text-amber-800", "Orta": "bg-blue-100 text-blue-800" };
 const SKILL_DOT = { "Strong": "bg-emerald-500", "Adequate": "bg-amber-500", "Gap": "bg-red-500" };
 
 export default function WorkforceAlignmentPage({ year }) {
@@ -96,9 +96,9 @@ export default function WorkforceAlignmentPage({ year }) {
                     </div>
                     <p className="text-xs text-slate-500 mb-2">{obj.description}</p>
                     <div className="flex items-center gap-4 text-[10px] text-slate-400">
-                      <span>Timeline: {obj.timeline}</span>
-                      <span>HC: {obj.current_headcount}/{obj.required_headcount}</span>
-                      <span>Skill Gaps: {obj.gap_count}</span>
+                      <span>Süre: {obj.timeline}</span>
+                      <span>Kadro: {obj.current_headcount}/{obj.required_headcount}</span>
+                      <span>Yetkinlik Açığı: {obj.gap_count}</span>
                     </div>
                   </div>
                   <div className="text-right ml-4">

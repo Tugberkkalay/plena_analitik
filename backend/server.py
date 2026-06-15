@@ -911,7 +911,7 @@ def _build_at_risk_list(active):
     at_risk = sorted([e for e in active if e.get('performance_score', 3) < 2.5], key=lambda x: x.get('performance_score', 3))[:10]
     return [{"name": e['name'], "department": e['department'], "performance": e.get('performance_score', 0),
              "seniority": e.get('seniority_years', 0),
-             "risk_level": "High" if e.get('performance_score', 3) < 2 else "Medium"} for e in at_risk]
+             "risk_level": "Yüksek" if e.get('performance_score', 3) < 2 else "Orta"} for e in at_risk]
 
 @api_router.post("/ai/forecast")
 async def ai_forecast(body: ForecastRequest):
@@ -925,10 +925,10 @@ async def ai_forecast(body: ForecastRequest):
     dept_risks = _compute_dept_risks(active, left)
     at_risk_list = _build_at_risk_list(active)
 
-    attrition_level = "Low" if turnover_rate < 0.1 else "Medium" if turnover_rate < 0.2 else "High"
+    attrition_level = "Düşük" if turnover_rate < 0.1 else "Orta" if turnover_rate < 0.2 else "Yüksek"
     avg_perf = safe_avg(active, 'performance_score')
     burnout = max(0, min(1, (5 - avg_perf) / 5 * 0.6))
-    burnout_level = "Low" if burnout < 0.3 else "Medium" if burnout < 0.6 else "High"
+    burnout_level = "Düşük" if burnout < 0.3 else "Orta" if burnout < 0.6 else "Yüksek"
 
     result = {
         "attrition_risk": {"score": round(turnover_rate, 2), "level": attrition_level},
@@ -937,11 +937,11 @@ async def ai_forecast(body: ForecastRequest):
         "department_risks": dept_risks[:6],
         "at_risk_employees": at_risk_list,
         "recommendations": [
-            "Focus retention on high-turnover departments",
-            "Implement mentoring for new hires to reduce 180-day failure rate",
-            "Review compensation for talent retention",
-            "Develop career pathways for high performers",
-            "Enhance onboarding process",
+            "Yüksek devir oranına sahip departmanlarda tutma stratejilerine odaklan",
+            "Yeni işe alınanlar için 180 gün başarısızlık oranını azaltacak mentorluk programı uygula",
+            "Yetenek tutma için ücret politikasını gözden geçir",
+            "Yüksek performanslı çalışanlar için kariyer gelişim yolları oluştur",
+            "Oryantasyon sürecini iyileştir",
         ],
         "ai_summary": "",
     }
@@ -952,9 +952,9 @@ async def ai_forecast(body: ForecastRequest):
                         "avg_age": safe_avg(active, 'age'), "avg_seniority": safe_avg(active, 'seniority_years'),
                         "top_risk_depts": [d['department'] for d in dept_risks[:3]]}
         chat = LlmChat(api_key=EMERGENT_KEY, session_id=str(uuid.uuid4()),
-                       system_message="You are an expert HR analytics advisor. Provide concise actionable insights. Respond in 150 words max.")
+                       system_message="Deneyimli bir İK analitiği danışmanısın. Kısa ve uygulanabilir içgörüler ver. Türkçe yaz. En fazla 150 kelime.")
         chat.with_model("openai", "gpt-5.2")
-        msg = UserMessage(text=f"Analyze this HR data for {year} and give key workforce insights and predictions:\n{json.dumps(summary_data)}")
+        msg = UserMessage(text=f"{year} yılı İK verilerini analiz et ve temel işgücü öngörülerini sun:\n{json.dumps(summary_data)}")
         response = await chat.send_message(msg)
         result["ai_summary"] = response
     except Exception as e:
@@ -1611,7 +1611,7 @@ async def get_capability_forecast(year: int = 2025):
             demand_growth = int(data["current_count"] * 0.08 * (horizon/12))
             gap = projected_loss + demand_growth
             remaining = data["current_count"] - projected_loss
-            status = "Critical" if remaining < data["current_count"]*0.6 else "Warning" if remaining < data["current_count"]*0.8 else "Stable"
+            status = "Kritik" if remaining < data["current_count"]*0.6 else "Uyarı" if remaining < data["current_count"]*0.8 else "Stabil"
             if horizon == 6:
                 forecasts.append({**data, "horizon_6m": {"gap": gap, "remaining": remaining, "status": status},
                     "horizon_12m": {}, "horizon_24m": {}})
@@ -1622,10 +1622,10 @@ async def get_capability_forecast(year: int = 2025):
                     projected_loss = int(data["current_count"] * loss_rate)
                     demand_growth = int(data["current_count"] * 0.08 * (horizon/12))
                     remaining = data["current_count"] - projected_loss
-                    status = "Critical" if remaining < data["current_count"]*0.6 else "Warning" if remaining < data["current_count"]*0.8 else "Stable"
+                    status = "Kritik" if remaining < data["current_count"]*0.6 else "Uyarı" if remaining < data["current_count"]*0.8 else "Stabil"
                     f[f"horizon_{horizon}m"] = {"gap": projected_loss + demand_growth, "remaining": remaining, "status": status}
-    critical_6m = [f for f in forecasts if f.get("horizon_6m",{}).get("status")=="Critical"]
-    warning_12m = [f for f in forecasts if f.get("horizon_12m",{}).get("status") in ["Critical","Warning"]]
+    critical_6m = [f for f in forecasts if f.get("horizon_6m",{}).get("status")=="Kritik"]
+    warning_12m = [f for f in forecasts if f.get("horizon_12m",{}).get("status") in ["Kritik","Uyarı"]]
     top_demand = sorted(forecasts, key=lambda x: -x.get("horizon_12m",{}).get("gap",0))[:10]
     return {"forecasts": forecasts[:20], "critical_6m": critical_6m[:5], "warning_12m": warning_12m[:8], "top_demand": top_demand, "total_skills": len(forecasts)}
 
@@ -1676,7 +1676,7 @@ async def get_succession(year: int = 2025):
         unique_skills = len([s for s in role.get('skills',[]) if s['proficiency'] >= 4])
         seniority = role.get('seniority_years',0)
         knowledge_risk = min(100, int(unique_skills * 10 + seniority * 4 + (3 - len(candidates)) * 15))
-        risk_level = "Critical" if knowledge_risk >= 75 else "High" if knowledge_risk >= 55 else "Medium" if knowledge_risk >= 35 else "Low"
+        risk_level = "Kritik" if knowledge_risk >= 75 else "Yüksek" if knowledge_risk >= 55 else "Orta" if knowledge_risk >= 35 else "Düşük"
         results.append({
             "name": role['name'], "department": shorten_dept(role['department']),
             "job_title": role['job_title'], "band": role['band'],
@@ -1686,9 +1686,9 @@ async def get_succession(year: int = 2025):
         })
     results = sorted(results, key=lambda x: -x['knowledge_risk'])
     no_successor = len([r for r in results if r['successor_count']==0])
-    high_risk = len([r for r in results if r['risk_level'] in ['Critical','High']])
+    high_risk = len([r for r in results if r['risk_level'] in ['Kritik','Yüksek']])
     return {"kpis": {"critical_roles": len(critical_roles), "no_successor": no_successor, "high_knowledge_risk": high_risk, "avg_readiness": round(sum(c['readiness'] for r in results for c in r['successors'])/(sum(r['successor_count'] for r in results) or 1),1)},
-            "succession_map": results[:20], "risk_summary": [{"level": lv, "count": len([r for r in results if r['risk_level']==lv])} for lv in ["Critical","High","Medium","Low"]]}
+            "succession_map": results[:20], "risk_summary": [{"level": lv, "count": len([r for r in results if r['risk_level']==lv])} for lv in ["Kritik","Yüksek","Orta","Düşük"]]}
 
 # ---- Burnout Early Warning ----
 @api_router.get("/dashboard/burnout")
@@ -1710,7 +1710,7 @@ async def get_burnout(year: int = 2025):
         perf_factor = max(0, (3.5 - perf) / 3.5 * 15)
         tenure_factor = 10 if seniority < 1 else 5 if seniority > 8 else 0
         risk_score = min(100, int(eng_factor + absent_factor + wlb_factor + perf_factor + tenure_factor))
-        risk_level = "Critical" if risk_score >= 70 else "High" if risk_score >= 50 else "Medium" if risk_score >= 30 else "Low"
+        risk_level = "Kritik" if risk_score >= 70 else "Yüksek" if risk_score >= 50 else "Orta" if risk_score >= 30 else "Düşük"
         risk_list.append({"name": emp['name'], "department": emp['department'], "job_title": emp['job_title'], "band": emp['band'],
                           "risk_score": risk_score, "risk_level": risk_level, "engagement": engagement, "absenteeism": absent,
                           "work_life_balance": wlb, "performance": perf, "seniority": seniority})
@@ -1720,10 +1720,10 @@ async def get_burnout(year: int = 2025):
         de = [r for r in risk_list if r['department']==dept]
         short = dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
         if de:
-            dept_risk.append({"department": short, "avg_risk": round(sum(r['risk_score'] for r in de)/len(de),1), "critical": len([r for r in de if r['risk_level']=='Critical']), "high": len([r for r in de if r['risk_level']=='High']), "count": len(de)})
-    dist = [{"level": lv, "count": len([r for r in risk_list if r['risk_level']==lv])} for lv in ["Critical","High","Medium","Low"]]
-    return {"kpis": {"total_at_risk": len([r for r in risk_list if r['risk_level'] in ['Critical','High']]),
-                     "critical_count": len([r for r in risk_list if r['risk_level']=='Critical']),
+            dept_risk.append({"department": short, "avg_risk": round(sum(r['risk_score'] for r in de)/len(de),1), "critical": len([r for r in de if r['risk_level']=='Kritik']), "high": len([r for r in de if r['risk_level']=='Yüksek']), "count": len(de)})
+    dist = [{"level": lv, "count": len([r for r in risk_list if r['risk_level']==lv])} for lv in ["Kritik","Yüksek","Orta","Düşük"]]
+    return {"kpis": {"total_at_risk": len([r for r in risk_list if r['risk_level'] in ['Kritik','Yüksek']]),
+                     "critical_count": len([r for r in risk_list if r['risk_level']=='Kritik']),
                      "avg_risk_score": round(sum(r['risk_score'] for r in risk_list)/len(risk_list),1) if risk_list else 0,
                      "avg_engagement": round(sum(r['engagement'] for r in risk_list)/len(risk_list),1) if risk_list else 0},
             "top_risk": risk_list[:15], "department_risk": sorted(dept_risk, key=lambda x: -x['avg_risk']), "risk_distribution": dist}
@@ -1762,11 +1762,11 @@ async def get_headcount_plan(year: int = 2025, country: str = None):
             "department": short, "current": current, "target": target,
             "gap": gap, "fill_rate": fill_rate,
             "critical_roles": target_info["critical_roles"],
-            "status": "Over" if gap < 0 else "On Track" if gap == 0 else "Under" if gap <= 5 else "Critical Gap"
+            "status": "Fazla" if gap < 0 else "Yolunda" if gap == 0 else "Eksik" if gap <= 5 else "Kritik Açık"
         })
         if gap > 3:
             for role in target_info["critical_roles"]:
-                critical_gaps.append({"department": short, "role": role, "urgency": "High" if gap > 8 else "Medium"})
+                critical_gaps.append({"department": short, "role": role, "urgency": "Yüksek" if gap > 8 else "Orta"})
     monthly_plan = []
     remaining = total_gap
     for mi, mn in enumerate(MONTHS):
@@ -1776,7 +1776,7 @@ async def get_headcount_plan(year: int = 2025, country: str = None):
     return {
         "kpis": {"total_headcount": hc, "target_headcount": total_target, "total_gap": total_gap,
                  "fill_rate": round(hc / total_target * 100, 1) if total_target else 100,
-                 "critical_gaps_count": len(critical_gaps), "depts_under": len([d for d in dept_plan if d["status"] in ["Under", "Critical Gap"]])},
+                 "critical_gaps_count": len(critical_gaps), "depts_under": len([d for d in dept_plan if d["status"] in ["Eksik", "Kritik Açık"]])},
         "department_plan": sorted(dept_plan, key=lambda x: x["gap"], reverse=True),
         "critical_gaps": critical_gaps[:15],
         "monthly_hiring_plan": monthly_plan
@@ -1787,7 +1787,7 @@ STRATEGIC_OBJECTIVES = [
     {
         "id": "dijital_donusum", "name": "Dijital Bankacılık Dönüşümü",
         "description": "Dijital kanalların güçlendirilmesi, mobil bankacılık ve open banking altyapısı",
-        "priority": "Critical",
+        "priority": "Kritik",
         "required_skills": ["Mobil Bankacılık Ürün Yönetimi", "Open Banking ve API Ekosistemi", "Dijital Ödeme Sistemleri ve QR", "Dijital Müşteri Yolculuğu", "RPA ve Süreç Otomasyonu", "Makine Öğrenmesi ve Modelleme", "BI Dashboard ve Veri Görselleştirme"],
         "required_headcount": 40, "target_departments": ["Dijital Bankacılık", "Veri ve Analitik"],
         "timeline": "Q1-Q4 2025"
@@ -1795,7 +1795,7 @@ STRATEGIC_OBJECTIVES = [
     {
         "id": "risk_yonetimi", "name": "Gelişmiş Risk ve Uyum Yönetimi",
         "description": "Basel IV uyumluluğu, stres testi altyapısı ve BDDK mevzuat adaptasyonu",
-        "priority": "Critical",
+        "priority": "Kritik",
         "required_skills": ["Basel III/IV Uygulamaları", "Stres Testi ve Senaryo Analizi", "Risk Modeli Validasyonu", "BDDK Mevzuatı ve Bankacılık Düzenlemeleri", "MASAK ve Suç Gelirleri Aklanması ile Mücadele", "Sermaye Yeterliliği ve RWA Hesaplama"],
         "required_headcount": 35, "target_departments": ["Kredi ve Risk", "Uyum ve Mevzuat"],
         "timeline": "Q1-Q3 2025"
@@ -1803,7 +1803,7 @@ STRATEGIC_OBJECTIVES = [
     {
         "id": "musteri_deneyimi", "name": "Müşteri Deneyimi İyileştirme",
         "description": "NPS artışı, müşteri segmentasyonu ve CRM modernizasyonu",
-        "priority": "High",
+        "priority": "Yüksek",
         "required_skills": ["Müşteri Segmentasyonu", "NPS, CES ve Deneyim Ölçümü", "Kampanya Yönetimi ve Next-Best-Action", "Müşteri Yolculuğu Haritalama", "Şikayet Yönetimi ve Closed-Loop Feedback"],
         "required_headcount": 30, "target_departments": ["Dijital Bankacılık", "Bireysel Bankacılık"],
         "timeline": "Q2-Q4 2025"
@@ -1811,7 +1811,7 @@ STRATEGIC_OBJECTIVES = [
     {
         "id": "liderlik_gelistirme", "name": "Liderlik ve Yetenek Geliştirme",
         "description": "Yeni nesil yöneticilerin yetiştirilmesi ve yetenek havuzu oluşturma",
-        "priority": "Medium",
+        "priority": "Orta",
         "required_skills": ["Ekip Yönetimi ve İnsan Kaynakları", "Stratejik Düşünme ve Karar Verme", "Değişim Yönetimi", "Koçluk ve Mentorluk", "Performans Yönetimi ve Geri Bildirim"],
         "required_headcount": 25, "target_departments": ["İnsan Kaynakları"],
         "timeline": "Q1-Q4 2025"
@@ -1819,7 +1819,7 @@ STRATEGIC_OBJECTIVES = [
     {
         "id": "sube_verimlilik", "name": "Şube Ağı Optimizasyonu",
         "description": "Şube verimliliğini artırma, satış hedeflerini güçlendirme ve operasyonel iyileştirme",
-        "priority": "High",
+        "priority": "Yüksek",
         "required_skills": ["Şube Satış ve Hedef Yönetimi", "Şube Yönetimi", "Gişe ve Nakit Yönetimi", "Müşteri Kazanımı ve Onboarding", "Süreç Tasarımı ve İyileştirme", "Bireysel Kredi Ürünleri (İhtiyaç, Konut, Taşıt)"],
         "required_headcount": 50, "target_departments": ["Şube Operasyonları", "Bireysel Bankacılık"],
         "timeline": "Q1-Q4 2025"
@@ -1859,13 +1859,13 @@ async def get_workforce_alignment(year: int = 2025):
             "skill_fulfillment": fulfillment, "overall_readiness": overall,
             "skill_coverage": list(skill_coverage.values()),
             "gap_count": len(gap_skills), "strong_count": len(strong_skills),
-            "status": "On Track" if overall >= 75 else "At Risk" if overall >= 50 else "Critical"
+            "status": "Yolunda" if overall >= 75 else "Risk Altında" if overall >= 50 else "Kritik"
         })
     overall_readiness = round(sum(o["overall_readiness"] for o in objectives) / len(objectives), 1) if objectives else 0
-    at_risk = len([o for o in objectives if o["status"] in ["Critical", "At Risk"]])
+    at_risk = len([o for o in objectives if o["status"] in ["Kritik", "Risk Altında"]])
     return {
         "kpis": {"total_objectives": len(objectives), "overall_readiness": overall_readiness,
-                 "at_risk_count": at_risk, "on_track": len([o for o in objectives if o["status"] == "On Track"]),
+                 "at_risk_count": at_risk, "on_track": len([o for o in objectives if o["status"] == "Yolunda"]),
                  "total_skill_gaps": sum(o["gap_count"] for o in objectives)},
         "objectives": objectives
     }
@@ -2159,10 +2159,10 @@ async def get_alerts(year: int = 2025):
         rate = round(len(dept_left) / len(dept_active) * 100, 1) if dept_active else 0
         if rate > 10:
             alert_id += 1
-            alerts.append({"id": str(alert_id), "source": "Turnover", "severity": "high" if rate > 18 else "med",
-                "title": f"High turnover in {short} ({rate}%)",
-                "detail": f"{short} department has {len(dept_left)} departures ({rate}% rate) this year. Industry avg is 10-12%.",
-                "suggested_action": f"Conduct stay interviews in {short}, review compensation bands, establish mentoring program for at-risk employees.",
+            alerts.append({"id": str(alert_id), "source": "Devir", "severity": "high" if rate > 18 else "med",
+                "title": f"{short} departmanında yüksek devir oranı (%{rate})",
+                "detail": f"{short} departmanında {len(dept_left)} ayrılma (%{rate} oran). Sektör ortalaması %10-12.",
+                "suggested_action": f"{short} departmanında bağlılık görüşmeleri yap, ücret bantlarını gözden geçir, risk altındaki çalışanlar için mentorluk programı başlat.",
                 "entity_ref": short, "status": "active"})
     # Rule 2: Succession — roles without high-readiness successors
     _, s_active, _, _ = await get_filtered(year)
@@ -2183,11 +2183,11 @@ async def get_alerts(year: int = 2025):
     for role, best_r in weak_succ_roles[:5]:
         alert_id += 1
         sev = "high" if best_r < 65 else "med"
-        title = f"No qualified successor for {role['job_title']} ({shorten_dept(role['department'])})" if best_r < 65 else f"Weak successor pipeline for {role['job_title']} ({shorten_dept(role['department'])})"
-        alerts.append({"id": str(alert_id), "source": "Succession", "severity": sev,
+        title = f"{role['job_title']} ({shorten_dept(role['department'])}) için nitelikli halef yok" if best_r < 65 else f"{role['job_title']} ({shorten_dept(role['department'])}) için zayıf halef hattı"
+        alerts.append({"id": str(alert_id), "source": "Yedekleme", "severity": sev,
             "title": title,
-            "detail": f"{role['name']} (Band {role['band']}, {role.get('seniority_years',0)} yrs). Best successor readiness: {best_r}%.",
-            "suggested_action": f"Evaluate internal mobility candidates from adjacent bands/departments. Launch accelerated development program for potential successors.",
+            "detail": f"{role['name']} (Band {role['band']}, {role.get('seniority_years',0)} yıl). En iyi halef hazırlığı: %{best_r}.",
+            "suggested_action": f"Komşu band ve departmanlardan iç mobilite adaylarını değerlendir. Potansiyel halefler için hızlandırılmış gelişim programı başlat.",
             "entity_ref": role['name'], "status": "active"})
     # Rule 3: Skills gap — critical coverage
     skill_demand = {}
@@ -2205,10 +2205,10 @@ async def get_alerts(year: int = 2025):
         cov = round(supply / demand * 100) if demand else 100
         if cov < 50:
             alert_id += 1
-            alerts.append({"id": str(alert_id), "source": "Skills", "severity": "high" if cov < 30 else "med",
-                "title": f"Critical skill gap: {sk} ({cov}% coverage)",
-                "detail": f"Only {supply} proficient employees vs {demand} demand. Coverage at {cov}%.",
-                "suggested_action": f"Launch targeted {sk} training program (8-week intensive). Prioritize hiring with {sk} as mandatory requirement.",
+            alerts.append({"id": str(alert_id), "source": "Yetkinlik", "severity": "high" if cov < 30 else "med",
+                "title": f"Kritik yetkinlik açığı: {sk} (%{cov} karşılanma)",
+                "detail": f"Yalnızca {supply} yetkin çalışan, {demand} talep var. Karşılanma %{cov}.",
+                "suggested_action": f"Hedefli {sk} eğitim programı başlat (8 haftalık yoğun). İşe alımda {sk} yetkinliğini zorunlu kriter yap.",
                 "entity_ref": sk, "status": "active"})
     # Rule 4: Org Health — narrow span or high manager ratio
     for dept_name in DEPARTMENTS:
@@ -2220,17 +2220,17 @@ async def get_alerts(year: int = 2025):
         mgr_ratio = round(len(managers) / len(dept_emps) * 100, 1) if dept_emps else 0
         if span < 4 and len(dept_emps) > 10:
             alert_id += 1
-            alerts.append({"id": str(alert_id), "source": "Org Health", "severity": "med",
-                "title": f"Narrow span of control in {short} (1:{span})",
-                "detail": f"{short} has {len(managers)} managers for {len(ics)} ICs. Span of control {span} is below optimal range (5-10).",
-                "suggested_action": f"Evaluate team consolidation in {short}. Consider merging sub-teams or converting managerial roles to senior IC tracks.",
+            alerts.append({"id": str(alert_id), "source": "Org. Sağlığı", "severity": "med",
+                "title": f"{short} departmanında dar kontrol alanı (1:{span})",
+                "detail": f"{short}: {len(managers)} yönetici, {len(ics)} uzman. Kontrol alanı {span}, optimal aralık 5-10.",
+                "suggested_action": f"{short} departmanında takım birleştirmesini değerlendir. Alt takımları birleştirmeyi veya yöneticilik rollerini kıdemli uzman rolüne dönüştürmeyi planla.",
                 "entity_ref": short, "status": "active"})
         if mgr_ratio > 30:
             alert_id += 1
-            alerts.append({"id": str(alert_id), "source": "Org Health", "severity": "med",
-                "title": f"High manager ratio in {short} ({mgr_ratio}%)",
-                "detail": f"{len(managers)} of {len(dept_emps)} employees ({mgr_ratio}%) are in managerial roles. Benchmark is 15-20%.",
-                "suggested_action": f"Review {short} organizational design. Transition some managerial roles to technical leadership or senior specialist tracks.",
+            alerts.append({"id": str(alert_id), "source": "Org. Sağlığı", "severity": "med",
+                "title": f"{short} departmanında yüksek yönetici oranı (%{mgr_ratio})",
+                "detail": f"{len(dept_emps)} çalışanın {len(managers)} tanesi (%{mgr_ratio}) yöneticilik rolünde. Benchmark %15-20.",
+                "suggested_action": f"{short} organizasyon tasarımını gözden geçir. Bazı yöneticilik rollerini teknik liderlik veya kıdemli uzmanlık rolüne dönüştür.",
                 "entity_ref": short, "status": "active"})
     # Rule 5: Headcount gap — critical departments
     for dept_name, target in TARGET_HEADCOUNT.items():
@@ -2239,10 +2239,10 @@ async def get_alerts(year: int = 2025):
         fill_rate = round(current / target["target"] * 100, 1) if target["target"] else 100
         if fill_rate < 65:
             alert_id += 1
-            alerts.append({"id": str(alert_id), "source": "Headcount", "severity": "high" if fill_rate < 55 else "med",
-                "title": f"{short} understaffed ({fill_rate}% fill rate)",
-                "detail": f"Current: {current}, Target: {target['target']}. Gap of {target['target'] - current} positions.",
-                "suggested_action": f"Accelerate recruitment pipeline for {short}. Engage 2-3 additional sourcing channels. Consider contractor bridge staffing.",
+            alerts.append({"id": str(alert_id), "source": "Kadro", "severity": "high" if fill_rate < 55 else "med",
+                "title": f"{short} kadro yetersiz (%{fill_rate} doluluk)",
+                "detail": f"Mevcut: {current}, Hedef: {target['target']}. {target['target'] - current} pozisyon açığı.",
+                "suggested_action": f"{short} için işe alım sürecini hızlandır. 2-3 ek kaynak kanalı devreye al. Geçici taşeron kadro desteği planla.",
                 "entity_ref": short, "status": "active"})
     # Rule 6: Branch performance — below target
     try:
@@ -2368,7 +2368,7 @@ Her bölüm 2-4 cümle olsun. Uyarılardaki verileri referans al. Somut önerile
         return {"ai_brief": response, "context": context, "status": "success"}
     except Exception as e:
         logger.error(f"AI alert scan error: {e}")
-        return {"ai_brief": "AI analysis temporarily unavailable. Please review individual alert recommendations below.", "context": context, "status": "error"}
+        return {"ai_brief": "AI analizi geçici olarak kullanılamıyor. Lütfen aşağıdaki bireysel uyarı önerilerini inceleyin.", "context": context, "status": "error"}
 
 # ---- Branch Performance ----
 @api_router.get("/branches/list")

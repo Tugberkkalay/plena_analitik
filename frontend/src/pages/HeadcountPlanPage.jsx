@@ -8,10 +8,10 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const STATUS_STYLE = {
-  "Critical Gap": "bg-red-50 text-red-700 border-red-200",
-  "Under": "bg-amber-50 text-amber-700 border-amber-200",
-  "On Track": "bg-emerald-50 text-emerald-700 border-emerald-200",
-  "Over": "bg-blue-50 text-blue-700 border-blue-200",
+  "Kritik Açık": "bg-red-50 text-red-700 border-red-200",
+  "Eksik": "bg-amber-50 text-amber-700 border-amber-200",
+  "Yolunda": "bg-emerald-50 text-emerald-700 border-emerald-200",
+  "Fazla": "bg-blue-50 text-blue-700 border-blue-200",
 };
 
 const GAP_COLOR = (gap) => gap > 8 ? "#EF4444" : gap > 3 ? "#F59E0B" : gap > 0 ? "#14B8A6" : "#6366F1";
@@ -141,13 +141,13 @@ export default function HeadcountPlanPage({ year, country }) {
               <div key={i} data-testid={`critical-gap-${i}`}
                 className="flex items-center justify-between p-2.5 border border-slate-100 rounded-md hover:bg-slate-50 transition-colors">
                 <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full ${gap.urgency === "High" ? "bg-red-500" : "bg-amber-500"}`} />
+                  <div className={`w-2 h-2 rounded-full ${gap.urgency === "Yüksek" ? "bg-red-500" : "bg-amber-500"}`} />
                   <div>
                     <p className="text-sm font-medium text-slate-700">{gap.role}</p>
                     <p className="text-[10px] text-slate-400">{gap.department}</p>
                   </div>
                 </div>
-                <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${gap.urgency === "High" ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700"}`}>
+                <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${gap.urgency === "Yüksek" ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700"}`}>
                   {gap.urgency}
                 </span>
               </div>

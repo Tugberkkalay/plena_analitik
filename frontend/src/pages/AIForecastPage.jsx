@@ -11,9 +11,9 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const RiskGauge = ({ score, level, label }) => {
   const pct = Math.round(score * 100);
-  const color = level === "Low" ? "#22C55E" : level === "Medium" ? "#F59E0B" : "#EF4444";
-  const bgColor = level === "Low" ? "bg-emerald-50" : level === "Medium" ? "bg-amber-50" : "bg-red-50";
-  const textColor = level === "Low" ? "text-emerald-700" : level === "Medium" ? "text-amber-700" : "text-red-700";
+  const color = level === "Düşük" ? "#22C55E" : level === "Orta" ? "#F59E0B" : "#EF4444";
+  const bgColor = level === "Düşük" ? "bg-emerald-50" : level === "Orta" ? "bg-amber-50" : "bg-red-50";
+  const textColor = level === "Düşük" ? "text-emerald-700" : level === "Orta" ? "text-amber-700" : "text-red-700";
 
   return (
     <div className="bg-white border border-slate-200 rounded-md p-5 shadow-sm flex flex-col items-center">
@@ -157,10 +157,10 @@ export default function AIForecastPage({ year }) {
                     <TableCell className="text-slate-800 text-sm font-medium">{e.name}</TableCell>
                     <TableCell className="text-slate-600 text-sm">{e.department}</TableCell>
                     <TableCell className="text-slate-600 text-sm">{e.performance}</TableCell>
-                    <TableCell className="text-slate-600 text-sm">{e.seniority} yrs</TableCell>
+                    <TableCell className="text-slate-600 text-sm">{e.seniority} yıl</TableCell>
                     <TableCell>
                       <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                        e.risk_level === "High" ? "bg-red-50 text-red-600" : "bg-amber-50 text-amber-600"
+                        e.risk_level === "Yüksek" ? "bg-red-50 text-red-600" : "bg-amber-50 text-amber-600"
                       }`}>{e.risk_level}</span>
                     </TableCell>
                   </TableRow>
