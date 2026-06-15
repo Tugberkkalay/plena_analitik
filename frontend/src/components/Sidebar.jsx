@@ -42,14 +42,14 @@ const NAV_SECTIONS = [
       { path: "/compensation", label: "Ücretlendirme", icon: CurrencyDollar },
       { path: "/engagement", label: "Bağlılık", icon: Smiley },
       { path: "/career-talent", label: "Kariyer & Yetenek", icon: Star },
-      { path: "/career-dev", label: "Kariyer (AI)", icon: UserFocus },
+      { path: "/career-dev", label: "Kariyer (Plena AI)", icon: UserFocus },
     ],
   },
   {
     label: "Öngörü",
     items: [
       { path: "/action-center", label: "Aksiyon Merkezi", icon: Bell },
-      { path: "/ai-forecast", label: "AI Tahmin", icon: Brain },
+      { path: "/ai-forecast", label: "Plena AI Tahmin", icon: Brain },
       { path: "/capability-forecast", label: "Yetkinlik Tahm.", icon: Binoculars },
       { path: "/burnout", label: "Tükenmişlik", icon: Heartbeat },
       { path: "/hr-operations", label: "İK Operasyonları", icon: Gear },

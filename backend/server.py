@@ -1788,41 +1788,57 @@ STRATEGIC_OBJECTIVES = [
         "id": "dijital_donusum", "name": "Dijital Bankacılık Dönüşümü",
         "description": "Dijital kanalların güçlendirilmesi, mobil bankacılık ve open banking altyapısı",
         "priority": "Kritik",
-        "required_skills": ["Mobil Bankacılık Ürün Yönetimi", "Open Banking ve API Ekosistemi", "Dijital Ödeme Sistemleri ve QR", "Dijital Müşteri Yolculuğu", "RPA ve Süreç Otomasyonu", "Makine Öğrenmesi ve Modelleme", "BI Dashboard ve Veri Görselleştirme"],
-        "required_headcount": 40, "target_departments": ["Dijital Bankacılık", "Veri ve Analitik"],
+        "required_skills": ["Mobil Bankacılık Ürün Yönetimi", "Open Banking ve API Ekosistemi", "Dijital Ödeme Sistemleri ve QR", "Dijital Müşteri Yolculuğu", "RPA ve Süreç Otomasyonu", "Makine Öğrenmesi ve Modelleme", "BI Dashboard ve Veri Görselleştirme", "Derin Öğrenme ve Sinir Ağları", "Veri Mühendisliği ve ETL"],
+        "required_headcount": 120, "target_departments": ["Dijital Bankacılık", "Veri ve Analitik"],
         "timeline": "Q1-Q4 2025"
     },
     {
         "id": "risk_yonetimi", "name": "Gelişmiş Risk ve Uyum Yönetimi",
         "description": "Basel IV uyumluluğu, stres testi altyapısı ve BDDK mevzuat adaptasyonu",
         "priority": "Kritik",
-        "required_skills": ["Basel III/IV Uygulamaları", "Stres Testi ve Senaryo Analizi", "Risk Modeli Validasyonu", "BDDK Mevzuatı ve Bankacılık Düzenlemeleri", "MASAK ve Suç Gelirleri Aklanması ile Mücadele", "Sermaye Yeterliliği ve RWA Hesaplama"],
-        "required_headcount": 35, "target_departments": ["Kredi ve Risk", "Uyum ve Mevzuat"],
+        "required_skills": ["Basel III/IV Uygulamaları", "Stres Testi ve Senaryo Analizi", "Risk Modeli Validasyonu", "BDDK Mevzuatı ve Bankacılık Düzenlemeleri", "MASAK ve Suç Gelirleri Aklanması ile Mücadele", "Sermaye Yeterliliği ve RWA Hesaplama", "Erken Uyarı Sistemleri (EWS)", "GES/RES ve Enerji Projeleri Kredilendirme"],
+        "required_headcount": 100, "target_departments": ["Kredi ve Risk", "Uyum ve Mevzuat"],
         "timeline": "Q1-Q3 2025"
     },
     {
         "id": "musteri_deneyimi", "name": "Müşteri Deneyimi İyileştirme",
         "description": "NPS artışı, müşteri segmentasyonu ve CRM modernizasyonu",
         "priority": "Yüksek",
-        "required_skills": ["Müşteri Segmentasyonu", "NPS, CES ve Deneyim Ölçümü", "Kampanya Yönetimi ve Next-Best-Action", "Müşteri Yolculuğu Haritalama", "Şikayet Yönetimi ve Closed-Loop Feedback"],
-        "required_headcount": 30, "target_departments": ["Dijital Bankacılık", "Bireysel Bankacılık"],
+        "required_skills": ["Müşteri Segmentasyonu", "NPS, CES ve Deneyim Ölçümü", "Kampanya Yönetimi ve Next-Best-Action", "Müşteri Yolculuğu Haritalama", "Şikayet Yönetimi ve Closed-Loop Feedback", "Çağrı Merkezi Operasyonları", "Müşteri Odaklılık"],
+        "required_headcount": 65, "target_departments": ["Dijital Bankacılık", "Bireysel Bankacılık"],
         "timeline": "Q2-Q4 2025"
     },
     {
         "id": "liderlik_gelistirme", "name": "Liderlik ve Yetenek Geliştirme",
         "description": "Yeni nesil yöneticilerin yetiştirilmesi ve yetenek havuzu oluşturma",
         "priority": "Orta",
-        "required_skills": ["Ekip Yönetimi ve İnsan Kaynakları", "Stratejik Düşünme ve Karar Verme", "Değişim Yönetimi", "Koçluk ve Mentorluk", "Performans Yönetimi ve Geri Bildirim"],
-        "required_headcount": 25, "target_departments": ["İnsan Kaynakları"],
+        "required_skills": ["Ekip Yönetimi ve İnsan Kaynakları", "Stratejik Düşünme ve Karar Verme", "Değişim Yönetimi", "Koçluk ve Mentorluk", "Performans Yönetimi ve Geri Bildirim", "Kriz Yönetimi", "Çapraz Fonksiyonel Liderlik", "Bütçe ve P&L Yönetimi"],
+        "required_headcount": 90, "target_departments": ["İnsan Kaynakları"],
         "timeline": "Q1-Q4 2025"
     },
     {
         "id": "sube_verimlilik", "name": "Şube Ağı Optimizasyonu",
         "description": "Şube verimliliğini artırma, satış hedeflerini güçlendirme ve operasyonel iyileştirme",
         "priority": "Yüksek",
-        "required_skills": ["Şube Satış ve Hedef Yönetimi", "Şube Yönetimi", "Gişe ve Nakit Yönetimi", "Müşteri Kazanımı ve Onboarding", "Süreç Tasarımı ve İyileştirme", "Bireysel Kredi Ürünleri (İhtiyaç, Konut, Taşıt)"],
-        "required_headcount": 50, "target_departments": ["Şube Operasyonları", "Bireysel Bankacılık"],
+        "required_skills": ["Şube Satış ve Hedef Yönetimi", "Şube Yönetimi", "Gişe ve Nakit Yönetimi", "Müşteri Kazanımı ve Onboarding", "Süreç Tasarımı ve İyileştirme", "Bireysel Kredi Ürünleri (İhtiyaç, Konut, Taşıt)", "Şube Müşteri İlişkileri"],
+        "required_headcount": 90, "target_departments": ["Şube Operasyonları", "Bireysel Bankacılık"],
         "timeline": "Q1-Q4 2025"
+    },
+    {
+        "id": "veri_analitigi", "name": "Veri Odaklı Karar Alma Altyapısı",
+        "description": "Gelişmiş analitik, yapay zeka modelleri ve iş zekası kapasitesi oluşturma",
+        "priority": "Kritik",
+        "required_skills": ["SQL ve Veri Sorgulama", "İstatistik ve Risk Modellemesi", "Makine Öğrenmesi ve Modelleme", "Derin Öğrenme ve Sinir Ağları", "Veri Mühendisliği ve ETL", "BI Dashboard ve Veri Görselleştirme"],
+        "required_headcount": 85, "target_departments": ["Veri ve Analitik", "Dijital Bankacılık"],
+        "timeline": "Q1-Q4 2025"
+    },
+    {
+        "id": "uyum_guclen", "name": "Regülasyon Uyum Güçlendirme",
+        "description": "KVKK, MASAK ve uluslararası yaptırım uyumu güçlendirme",
+        "priority": "Yüksek",
+        "required_skills": ["KVKK ve Kişisel Veri Yönetimi", "Yaptırım Listeleri ve Sanksiyon Takibi", "İç Kontrol ve İç Denetim", "BDDK Mevzuatı ve Bankacılık Düzenlemeleri", "MASAK ve Suç Gelirleri Aklanması ile Mücadele"],
+        "required_headcount": 45, "target_departments": ["Uyum ve Mevzuat"],
+        "timeline": "Q2-Q4 2025"
     }
 ]
 

@@ -411,7 +411,7 @@ export default function CareerDevPage({ year }) {
       {loading && (
         <div className="flex flex-col items-center justify-center py-16 gap-3">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600" />
-          <p className="text-sm text-slate-500">AI kariyer yolunu analiz ediyor...</p>
+          <p className="text-sm text-slate-500">Plena AI kariyer yolunu analiz ediyor...</p>
         </div>
       )}
 
@@ -514,7 +514,7 @@ export default function CareerDevPage({ year }) {
             <div className="bg-white border border-slate-200 rounded-md p-6 shadow-sm">
               <div className="flex items-center gap-2 mb-4">
                 <Brain size={20} weight="duotone" className="text-teal-600" />
-                <h3 className="text-base font-semibold text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>AI Destekli Gelişim Önerileri</h3>
+                <h3 className="text-base font-semibold text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Plena AI Destekli Gelişim Önerileri</h3>
               </div>
               <div className="prose prose-sm max-w-none text-slate-700 leading-relaxed whitespace-pre-wrap">
                 {plan.ai_recommendations}

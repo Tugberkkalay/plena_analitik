@@ -51,15 +51,15 @@ export default function AIForecastPage({ year }) {
           <Brain size={40} weight="duotone" className="text-teal-600" />
         </div>
         <div className="text-center max-w-md">
-          <h2 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>AI Workforce Forecast</h2>
-          <p className="text-slate-600 text-sm">Analyze your workforce data with AI to predict attrition risks, headcount forecasts, and get actionable recommendations.</p>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Plena AI İşgücü Tahmini</h2>
+          <p className="text-slate-600 text-sm">Plena AI ile işgücü verilerinizi analiz edin: devir riski, kadro tahminleri ve uygulanabilir öneriler.</p>
         </div>
         <Button data-testid="run-forecast-btn" onClick={runForecast} disabled={loading}
           className="bg-teal-700 hover:bg-teal-600 text-white px-6 py-3 text-sm font-medium rounded-md">
           {loading ? (
             <span className="flex items-center gap-2"><span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />Analyzing...</span>
           ) : (
-            <span className="flex items-center gap-2"><Lightning size={18} weight="bold" />Generate Forecast</span>
+            <span className="flex items-center gap-2"><Lightning size={18} weight="bold" />Tahmin Oluştur</span>
           )}
         </Button>
       </div>
@@ -71,10 +71,10 @@ export default function AIForecastPage({ year }) {
   return (
     <div data-testid="ai-forecast-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <RiskGauge score={data.attrition_risk.score} level={data.attrition_risk.level} label="Attrition Risk" />
-        <RiskGauge score={data.burnout_risk.score} level={data.burnout_risk.level} label="Burnout Risk" />
+        <RiskGauge score={data.attrition_risk.score} level={data.attrition_risk.level} label="Devir Riski" />
+        <RiskGauge score={data.burnout_risk.score} level={data.burnout_risk.level} label="Tükenmişlik Riski" />
         <div className="bg-white border border-slate-200 rounded-md p-5">
-          <p className="text-xs tracking-[0.15em] uppercase text-slate-500 font-medium mb-3">AI Recommendations</p>
+          <p className="text-xs tracking-[0.15em] uppercase text-slate-500 font-medium mb-3">Plena AI Önerileri</p>
           <ul className="space-y-2">
             {data.recommendations?.map((r, i) => (
               <li key={`rec-${i}`} className="flex items-start gap-2 text-sm text-slate-600">
@@ -132,7 +132,7 @@ export default function AIForecastPage({ year }) {
         <div className="bg-white border border-slate-200 rounded-md p-5">
           <div className="flex items-center gap-2 mb-3">
             <Brain size={18} weight="duotone" className="text-teal-600" />
-            <h3 className="text-sm font-medium text-slate-800">AI Analysis Summary</h3>
+            <h3 className="text-sm font-medium text-slate-800">Plena AI Analiz Özeti</h3>
           </div>
           <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{data.ai_summary}</p>
         </div>
@@ -145,10 +145,10 @@ export default function AIForecastPage({ year }) {
               <TableHeader>
                 <TableRow className="border-slate-100 hover:bg-transparent">
                   <TableHead className="text-slate-400 text-xs">Name</TableHead>
-                  <TableHead className="text-slate-400 text-xs">Department</TableHead>
-                  <TableHead className="text-slate-400 text-xs">Performance</TableHead>
-                  <TableHead className="text-slate-400 text-xs">Seniority</TableHead>
-                  <TableHead className="text-slate-400 text-xs">Risk Level</TableHead>
+                  <TableHead className="text-slate-400 text-xs">Departman</TableHead>
+                  <TableHead className="text-slate-400 text-xs">Performans</TableHead>
+                  <TableHead className="text-slate-400 text-xs">Kıdem</TableHead>
+                  <TableHead className="text-slate-400 text-xs">Risk Seviyesi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -174,7 +174,7 @@ export default function AIForecastPage({ year }) {
       <div className="flex justify-center">
         <Button data-testid="regenerate-forecast-btn" onClick={runForecast} disabled={loading} variant="outline"
           className="border-slate-700 text-slate-600 hover:bg-slate-800 hover:text-slate-100">
-          {loading ? "Regenerating..." : "Regenerate Forecast"}
+          {loading ? "Yeniden oluşturuluyor..." : "Tahmini Yenile"}
         </Button>
       </div>
     </div>

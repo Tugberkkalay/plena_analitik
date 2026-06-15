@@ -56,7 +56,7 @@ function AIBriefCard({ year }) {
           </div>
           <div>
             <h3 className="text-sm font-semibold text-slate-800">AI Yönetici Özeti</h3>
-            <p className="text-[10px] text-slate-500">GPT-5.2 destekli tüm aktif uyarı analizi</p>
+            <p className="text-[10px] text-slate-500">Plena AI destekli tüm aktif uyarı analizi</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
