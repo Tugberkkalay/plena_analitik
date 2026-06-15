@@ -1,0 +1,111 @@
+{
+  "metadata": {
+    "ad": "Yetkinlik Seviyeleri",
+    "dosya": "01-proficiency-levels.json",
+    "aciklama": "Her beceri için ortak 5 kademeli yetkinlik skalası",
+    "versiyon": "1.0.0",
+    "son_guncelleme": "2026-05"
+  },
+  "seviyeler": [
+    {
+      "id": "farkindalik",
+      "ad": "Farkındalık",
+      "seviye": 1,
+      "renk": "94A3B8",
+      "kisa_aciklama": "Konunun varlığından haberdar, temel kavramları tanır",
+      "gozlemlenebilir_kriterler": [
+        "Becerinin ne olduğunu kendi kelimeleriyle açıklayabilir",
+        "İlgili terminolojiyi tanır",
+        "Süreçlerin akışını genel hatlarıyla bilir",
+        "Sorulduğunda doğru kaynağa yönlendirebilir"
+      ],
+      "ornek_davranislar": [
+        "Eğitim modüllerini tamamlamıştır",
+        "İşin yapılış biçimini gözlemlemiştir",
+        "Kapsamlı denetim altında basit görevlerde destek olabilir"
+      ],
+      "tipik_kazanim_suresi_ay": 3
+    },
+    {
+      "id": "uygulayici",
+      "ad": "Uygulayıcı",
+      "seviye": 2,
+      "renk": "60A5FA",
+      "kisa_aciklama": "Standart durumlarda görevi yerine getirebilir, yardım talep ettiğinde uygun yere yöneltir",
+      "gozlemlenebilir_kriterler": [
+        "Rutin görevleri tek başına yapabilir",
+        "Standart prosedürleri uygulayabilir",
+        "Karşılaştığı sıradan durumları çözebilir",
+        "Anormal durumları tespit edip raporlayabilir"
+      ],
+      "ornek_davranislar": [
+        "Günlük operasyonları sorunsuz yürütür",
+        "Belirli bir prosedüre göre işlem yapabilir",
+        "Yanlışları kendi kontrolüyle yakalayabilir"
+      ],
+      "tipik_kazanim_suresi_ay": 12
+    },
+    {
+      "id": "ileri",
+      "ad": "İleri",
+      "seviye": 3,
+      "renk": "635BFF",
+      "kisa_aciklama": "Karmaşık durumları analiz edip uygun çözüm geliştirebilir; standart dışı durumları yönetir",
+      "gozlemlenebilir_kriterler": [
+        "Standart dışı, karmaşık durumlarda karar verebilir",
+        "Birden fazla çözüm seçeneğini karşılaştırabilir",
+        "Bağlam ve risk değerlendirmesi yapabilir",
+        "Müşteri/iş ortağıyla etkili iletişim kurabilir"
+      ],
+      "ornek_davranislar": [
+        "Kompleks vakaları sahiplenir ve sonuca taşır",
+        "Kendi bağlamında alternatif önerebilir",
+        "İstisnai durumlarda doğru karar üretebilir",
+        "Daha az deneyimli arkadaşlarına yardım edebilir"
+      ],
+      "tipik_kazanim_suresi_ay": 36
+    },
+    {
+      "id": "uzman",
+      "ad": "Uzman",
+      "seviye": 4,
+      "renk": "8B5CF6",
+      "kisa_aciklama": "Konuya hakim, başkalarına yön gösterir, en zor vakalarda referans noktasıdır",
+      "gozlemlenebilir_kriterler": [
+        "Stratejik kararlarda referans alınır",
+        "En karmaşık vakaları sahiplenir ve çözer",
+        "Süreç iyileştirme önerileri geliştirir",
+        "Kurum içi standartları belirleyebilir",
+        "Düzenleyici otorite/denetim süreçlerinde temsil eder"
+      ],
+      "ornek_davranislar": [
+        "Yönetim kademesine bağımsız görüş verebilir",
+        "Çapraz fonksiyonel projelerde liderlik yapar",
+        "Sektörde fikir önderi konumundadır",
+        "İç eğitim materyali üretebilir"
+      ],
+      "tipik_kazanim_suresi_ay": 72
+    },
+    {
+      "id": "mentor",
+      "ad": "Mentor",
+      "seviye": 5,
+      "renk": "EC4899",
+      "kisa_aciklama": "Başkalarını uzmanlık seviyesine taşıyabilen, kurumsal birikimin aktarıcısı",
+      "gozlemlenebilir_kriterler": [
+        "Diğer çalışanları sistematik olarak geliştirebilir",
+        "Öğretme/aktarma metodolojisi geliştirebilir",
+        "Kurumsal hafızanın taşıyıcısıdır",
+        "Yeni nesil uzmanlar yetiştirmiştir (kanıtlı çıktı)",
+        "Sektör/banka düzeyinde bilgi paylaşımı yapar"
+      ],
+      "ornek_davranislar": [
+        "Resmi/gayri resmi koçluk yapar",
+        "En az 3 kişiyi uzman seviyesine taşımıştır",
+        "Eğitim programları tasarlamış ve uygulamıştır",
+        "Düzenli olarak konuşmacı/eğitmen olarak görev alır"
+      ],
+      "tipik_kazanim_suresi_ay": 120
+    }
+  ]
+}

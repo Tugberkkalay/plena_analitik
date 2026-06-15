@@ -51,27 +51,59 @@ def put_object(path, data, content_type):
     return resp.json()
 
 # ---- Seed Constants ----
+import json as _json, os as _os
+_DATA_DIR = _os.path.join(_os.path.dirname(__file__), "data")
+def _load_json(fname):
+    path = _os.path.join(_DATA_DIR, fname)
+    if _os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            return _json.load(f)
+    return {}
+SKILL_TAXONOMY = _load_json("skills.json").get("beceriler", [])
+ROLE_TAXONOMY = _load_json("roles.json").get("roller", [])
+CAREER_PATHS = _load_json("career-paths.json").get("kariyer_yollari", [])
+CLUSTER_TAXONOMY = _load_json("skill-clusters.json").get("kumeler", [])
+PROFICIENCY_LEVELS = _load_json("proficiency-levels.json").get("seviyeler", [])
+SKILL_MAP = {s["id"]: s for s in SKILL_TAXONOMY}
+ROLE_MAP = {r["id"]: r for r in ROLE_TAXONOMY}
+
 MALE_NAMES = ["Ahmet","Mehmet","Mustafa","Ali","Hasan","Ibrahim","Yusuf","Omer","Murat","Emre","Burak","Can","Serkan","Onur","Tolga","Kerem","Baris","Cem","Deniz","Oguz","Kaan","Arda","Berk","Efe","Furkan","Gokhan","Hakan","Tarik","Volkan","Selim"]
 FEMALE_NAMES = ["Ayse","Fatma","Zeynep","Elif","Merve","Selin","Esra","Busra","Derya","Gizem","Ebru","Pinar","Basak","Irem","Cansu","Ceren","Gamze","Hande","Nur","Sevgi","Asli","Defne","Eda","Hazal","Melis","Naz","Ozge","Tugce","Yagmur","Buse"]
 LAST_NAMES = ["Yilmaz","Kaya","Demir","Celik","Sahin","Yildiz","Aydin","Ozdemir","Arslan","Dogan","Kilic","Aslan","Koc","Polat","Kurt","Ozturk","Eren","Acar","Cetin","Aksoy","Aktas","Basaran","Cengiz","Duran","Gunes","Karaca","Sari","Tunc","Unal","Tekin"]
-DEPARTMENTS = ["Information Technology","Human Resources","Finance","Marketing","Operations","Sales","Legal","Research & Development","Administration","Supply Chain"]
-DEPT_WEIGHTS = [15,8,10,10,14,13,5,12,6,7]
+# Departments mapped to role families
+DEPARTMENTS = ["Kredi ve Risk","Hazine","Bireysel Bankacılık","Kurumsal Bankacılık","Şube Operasyonları","Dijital Bankacılık","Uyum ve Mevzuat","Veri ve Analitik","İnsan Kaynakları","Operasyon ve Süreç"]
+DEPT_WEIGHTS = [15,8,14,10,16,9,6,8,6,8]
+# Map departments to role taxonomy families
+DEPT_ROLE_FAMILIES = {
+    "Kredi ve Risk": ["Kredi ve Risk"],
+    "Hazine": ["Hazine ve Sermaye Piyasaları"],
+    "Bireysel Bankacılık": ["Bireysel Bankacılık","Şube ve Bireysel Bankacılık"],
+    "Kurumsal Bankacılık": ["Kurumsal Bankacılık","Şube ve KOBİ Bankacılığı"],
+    "Şube Operasyonları": ["Şube Operasyonları"],
+    "Dijital Bankacılık": ["Dijital Bankacılık","Müşteri Deneyimi ve CRM"],
+    "Uyum ve Mevzuat": ["Uyum ve Mevzuat"],
+    "Veri ve Analitik": ["Veri ve Analitik"],
+    "İnsan Kaynakları": ["İnsan Kaynakları"],
+    "Operasyon ve Süreç": ["Operasyon ve Süreç"],
+}
+# Kademe → Band mapping
+KADEME_BAND = {1: "A", 2: "B", 3: "C", 4: "D", 5: "E", 6: "E"}
 POSITIONS_BY_BAND = {
-    "A": ["Junior Analyst","Assistant","Trainee","Junior Specialist","Associate"],
-    "B": ["Specialist","Coordinator","Analyst","Developer","Consultant"],
-    "C": ["Senior Specialist","Senior Analyst","Senior Developer","Lead Consultant","Engineer"],
-    "D": ["Manager","Team Lead","Department Head","Project Director"],
-    "E": ["Director","Vice President","SVP","Chief Officer","General Manager"]
+    "A": ["Uzman Yardımcısı","Yetkili","Stajyer","Asistan"],
+    "B": ["Uzman","Analist","Koordinatör","Temsilci"],
+    "C": ["Kıdemli Uzman","Kıdemli Analist","Birim Yöneticisi","Takım Lideri"],
+    "D": ["Müdür","Bölüm Başkanı","Müdür Yardımcısı","Grup Müdürü"],
+    "E": ["Direktör","Genel Müdür Yardımcısı","Genel Müdür","Başkan"]
 }
 BANDS = ["A","B","C","D","E"]
 BAND_WEIGHTS = [20,30,25,15,10]
-CITIES = ["Istanbul","Ankara","Izmir","Bursa","Antalya","Genova","Villanova d'Asti"]
-CITY_WEIGHTS = [35,15,10,7,5,18,10]
-CITY_COUNTRY = {"Istanbul":"Turkey","Ankara":"Turkey","Izmir":"Turkey","Bursa":"Turkey","Antalya":"Turkey","Genova":"Italy","Villanova d'Asti":"Italy"}
-EDUCATION_LEVELS = ["High School","Bachelor","Master","PhD"]
+CITIES = ["Istanbul","Ankara","Izmir","Bursa","Antalya","Kocaeli","Eskişehir","Konya","Gaziantep","Kayseri"]
+CITY_WEIGHTS = [35,15,12,7,5,6,4,5,6,5]
+CITY_COUNTRY = {c: "Turkey" for c in CITIES}
+EDUCATION_LEVELS = ["Lise","Lisans","Yüksek Lisans","Doktora"]
 EDUCATION_WEIGHTS = [10,50,30,10]
-UNIVERSITIES = ["Bogazici University","Istanbul Technical University","METU","Bilkent University","Koc University","Sabanci University","Istanbul University","Galatasaray University","Hacettepe University","Yildiz Technical University","Marmara University","Ege University","Dokuz Eylul University","Gazi University","Anadolu University","Politecnico di Torino","Universita di Genova","Politecnico di Milano"]
-MARITAL_STATUS = ["Single","Married","Divorced"]
+UNIVERSITIES = ["Boğaziçi Üniversitesi","İTÜ","ODTÜ","Bilkent Üniversitesi","Koç Üniversitesi","Sabancı Üniversitesi","İstanbul Üniversitesi","Galatasaray Üniversitesi","Hacettepe Üniversitesi","Yıldız Teknik Üniversitesi","Marmara Üniversitesi","Ege Üniversitesi","Dokuz Eylül Üniversitesi","Gazi Üniversitesi","Anadolu Üniversitesi"]
+MARITAL_STATUS = ["Bekar","Evli","Boşanmış"]
 MARITAL_WEIGHTS = [35,55,10]
 LEAVING_REASONS_VOL = ["Resignation","Better Opportunity","Relocation","Personal Reasons","Career Change","Retirement"]
 LEAVING_REASONS_INVOL = ["Performance Issues","Restructuring","End of Contract"]
@@ -205,7 +237,7 @@ def generate_seed_data(count=500):
         hire_date = f"{hy}-{hm:02d}-{hd:02d}"
         seniority = max(0, round(2025 - hy + random.uniform(-0.5, 0.5), 1))
         dept = random.choices(DEPARTMENTS, weights=DEPT_WEIGHTS, k=1)[0]
-        pos = random.choice(POSITIONS_BY_BAND[band])
+        pos = get_role_for_employee(dept, band)
         edu = random.choices(EDUCATION_LEVELS, weights=EDUCATION_WEIGHTS, k=1)[0]
         uni = random.choice(UNIVERSITIES) if edu != "High School" else None
         marital = random.choices(MARITAL_STATUS, weights=MARITAL_WEIGHTS, k=1)[0]
@@ -289,42 +321,67 @@ TECH_SKILLS = ["Python","JavaScript","React","Data Analytics","Cloud Computing",
 SOFT_SKILLS = ["Leadership","Communication","Problem Solving","Strategic Thinking","Team Management","Negotiation","Presentation","Critical Thinking","Creativity","Emotional Intelligence","Conflict Resolution","Time Management","Mentoring","Cross-functional Collaboration","Change Management"]
 DOMAIN_SKILLS = ["Financial Analysis","HR Management","Project Management","Digital Marketing","Legal Compliance","Supply Chain","Sales Strategy","Business Intelligence","Risk Management","Quality Assurance","Talent Development","Organizational Design"]
 
-DEPT_SKILL_FOCUS = {
-    "Information Technology": {"tech": ["Python","JavaScript","React","Cloud Computing","DevOps","SQL","AI/ML","Cybersecurity"], "soft": ["Problem Solving","Team Management"], "domain": ["Project Management"]},
-    "Human Resources": {"tech": ["Data Analytics","SQL"], "soft": ["Communication","Leadership","Emotional Intelligence","Change Management","Mentoring"], "domain": ["HR Management","Talent Development","Organizational Design"]},
-    "Finance": {"tech": ["SQL","Data Analytics","Python"], "soft": ["Critical Thinking","Presentation"], "domain": ["Financial Analysis","Risk Management","Business Intelligence"]},
-    "Marketing": {"tech": ["Data Analytics","UX Design","JavaScript"], "soft": ["Creativity","Communication","Presentation"], "domain": ["Digital Marketing","Business Intelligence"]},
-    "Operations": {"tech": ["Data Analytics","SQL","Agile"], "soft": ["Problem Solving","Team Management","Time Management"], "domain": ["Project Management","Quality Assurance","Supply Chain"]},
-    "Sales": {"tech": ["Data Analytics"], "soft": ["Negotiation","Communication","Presentation","Strategic Thinking"], "domain": ["Sales Strategy","Business Intelligence"]},
-    "Legal": {"tech": ["SQL"], "soft": ["Critical Thinking","Communication","Negotiation"], "domain": ["Legal Compliance","Risk Management"]},
-    "Research & Development": {"tech": ["Python","AI/ML","Machine Learning","Deep Learning","NLP","Embedded Systems","Systems Engineering","Autonomous Systems"], "soft": ["Problem Solving","Critical Thinking","Creativity"], "domain": ["Project Management"]},
-    "Administration": {"tech": ["SQL","Data Analytics"], "soft": ["Communication","Time Management","Conflict Resolution"], "domain": ["Project Management"]},
-    "Supply Chain": {"tech": ["Data Analytics","SQL"], "soft": ["Negotiation","Problem Solving"], "domain": ["Supply Chain","Quality Assurance","Risk Management"]}
+# Departman bazlı yetkinlik kümeleri (taxonomy'den)
+DEPT_SKILL_CLUSTERS = {
+    "Kredi ve Risk": ["kredi-risk-yonetimi","veri-analitigi-bi","uyum-mevzuat-hukuk"],
+    "Hazine": ["hazine-sermaye-piyasalari","veri-analitigi-bi"],
+    "Bireysel Bankacılık": ["bireysel-bankacilik","sube-operasyonlari","musteri-deneyimi-crm"],
+    "Kurumsal Bankacılık": ["kurumsal-ticari-bankacilik","kredi-risk-yonetimi"],
+    "Şube Operasyonları": ["sube-operasyonlari","bireysel-bankacilik","musteri-deneyimi-crm"],
+    "Dijital Bankacılık": ["dijital-bankacilik","musteri-deneyimi-crm","veri-analitigi-bi"],
+    "Uyum ve Mevzuat": ["uyum-mevzuat-hukuk","operasyon-sureç-yonetimi"],
+    "Veri ve Analitik": ["veri-analitigi-bi","dijital-bankacilik"],
+    "İnsan Kaynakları": ["liderlik-yonetim","davranissal-iletisim","operasyon-sureç-yonetimi"],
+    "Operasyon ve Süreç": ["operasyon-sureç-yonetimi","sube-operasyonlari","uyum-mevzuat-hukuk"],
 }
-PROFICIENCY_LABELS = {1: "Beginner", 2: "Developing", 3: "Proficient", 4: "Advanced", 5: "Expert"}
-CAREER_PATHS = {
-    "A": {"next": "B", "title": "Specialist", "timeline": "12-18 months"},
-    "B": {"next": "C", "title": "Senior Specialist", "timeline": "18-24 months"},
-    "C": {"next": "D", "title": "Manager/Team Lead", "timeline": "24-36 months"},
-    "D": {"next": "E", "title": "Director", "timeline": "36-48 months"},
-    "E": {"next": "E", "title": "Executive", "timeline": "ongoing"}
+PROFICIENCY_LABELS = {1: "Farkında", 2: "Uygulayıcı", 3: "Yetkin", 4: "İleri", 5: "Uzman"}
+CAREER_PATH_BANDS = {
+    "A": {"next": "B", "title": "Uzman", "timeline": "12-18 ay"},
+    "B": {"next": "C", "title": "Kıdemli Uzman", "timeline": "18-24 ay"},
+    "C": {"next": "D", "title": "Müdür", "timeline": "24-36 ay"},
+    "D": {"next": "E", "title": "Direktör", "timeline": "36-48 ay"},
+    "E": {"next": "E", "title": "Üst Yönetim", "timeline": "devam eden"}
 }
 
 def generate_employee_skills(department, band):
-    focus = DEPT_SKILL_FOCUS.get(department, {"tech": ["Data Analytics"], "soft": ["Communication"], "domain": ["Project Management"]})
+    """Generate skills from real banking taxonomy for an employee."""
+    clusters = DEPT_SKILL_CLUSTERS.get(department, ["liderlik-yonetim","davranissal-iletisim"])
+    # Always add leadership/behavioral for managers
+    all_clusters = list(set(clusters + ["liderlik-yonetim","davranissal-iletisim"]))
+    # Get skills from relevant clusters
+    dept_skills = [s for s in SKILL_TAXONOMY if s["kume_id"] in all_clusters]
+    primary_skills = [s for s in SKILL_TAXONOMY if s["kume_id"] in clusters]
+    if not dept_skills:
+        dept_skills = SKILL_TAXONOMY[:20]
+        primary_skills = dept_skills
     band_range = {"A": (1,3), "B": (2,4), "C": (2,5), "D": (3,5), "E": (3,5)}
     mn, mx = band_range.get(band, (1,5))
     skills = []
-    for s in focus.get("tech", [])[:random.randint(3,5)]:
-        skills.append({"skill": s, "category": "Tech", "proficiency": random.randint(mn, mx)})
-    for s in focus.get("soft", [])[:random.randint(2,4)]:
-        skills.append({"skill": s, "category": "Soft", "proficiency": random.randint(mn, mx)})
-    for s in focus.get("domain", [])[:random.randint(1,3)]:
-        skills.append({"skill": s, "category": "Domain", "proficiency": random.randint(mn, mx)})
-    extra_tech = random.sample([s for s in TECH_SKILLS if s not in [x['skill'] for x in skills]], min(2, len(TECH_SKILLS)))
-    for s in extra_tech:
-        skills.append({"skill": s, "category": "Tech", "proficiency": random.randint(1, max(2, mn))})
+    # Primary skills (from department clusters)
+    n_primary = min(len(primary_skills), random.randint(4, 7))
+    for s in random.sample(primary_skills, n_primary):
+        skills.append({"skill": s["ad"], "skill_id": s["id"], "category": s["kume_id"], "proficiency": random.randint(mn, mx)})
+    # Soft/leadership skills
+    soft_skills = [s for s in SKILL_TAXONOMY if s["kume_id"] in ["liderlik-yonetim","davranissal-iletisim"]]
+    n_soft = min(len(soft_skills), random.randint(2, 4))
+    for s in random.sample(soft_skills, n_soft):
+        if s["ad"] not in [sk["skill"] for sk in skills]:
+            skills.append({"skill": s["ad"], "skill_id": s["id"], "category": s["kume_id"], "proficiency": random.randint(max(1,mn-1), mx)})
     return skills
+
+def get_role_for_employee(department, band):
+    """Get a matching role title from taxonomy based on department and band."""
+    families = DEPT_ROLE_FAMILIES.get(department, [])
+    matching_roles = [r for r in ROLE_TAXONOMY if r["aile"] in families]
+    band_kademe = {"A": [1], "B": [2], "C": [3], "D": [4], "E": [5,6]}
+    target_kademeler = band_kademe.get(band, [1,2])
+    exact = [r for r in matching_roles if r["kademe_seviyesi"] in target_kademeler]
+    if exact:
+        return random.choice(exact)["unvan"]
+    if matching_roles:
+        return random.choice(matching_roles)["unvan"]
+    return random.choice(POSITIONS_BY_BAND.get(band, ["Uzman"]))
+
 
 def generate_recruitment_data(count=200):
     random.seed(43)
@@ -1282,7 +1339,17 @@ async def get_career_plan(body: CareerPlanRequest):
                             "matching_skills": [{"skill": s['skill'], "proficiency": s['proficiency']} for s in matching[:4]],
                             "match_score": len(matching)})
     mentors = sorted(mentors, key=lambda x: -x['match_score'])[:5]
-    career = CAREER_PATHS.get(emp.get('band','A'), {})
+    career = CAREER_PATH_BANDS.get(emp.get('band','A'), {})
+    # Find matching career paths from taxonomy
+    emp_dept = emp.get('department','')
+    emp_role_families = DEPT_ROLE_FAMILIES.get(emp_dept, [])
+    taxonomy_paths = [p for p in CAREER_PATHS if any(fam in str(p) for fam in emp_role_families)]
+    career_path_info = ""
+    if taxonomy_paths:
+        tp = taxonomy_paths[0]
+        career_path_info = f"\nKariyer Yolu: {tp.get('ad','')} ({tp.get('tur','')})"
+        for a in tp.get('adimlar', [])[:5]:
+            career_path_info += f"\n  {a.get('sira','')}. {a.get('rol_id','')}: {a.get('aciklama','')[:60]}"
     result = {
         "employee": {"name": emp['name'], "department": emp['department'], "job_title": emp['job_title'], "band": emp['band'],
                       "performance_score": emp.get('performance_score',0), "seniority_years": emp.get('seniority_years',0),

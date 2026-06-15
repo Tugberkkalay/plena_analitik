@@ -1,0 +1,1358 @@
+{
+  "metadata": {
+    "ad": "Banka Rolleri ve Unvanları",
+    "dosya": "04-roles.json",
+    "aciklama": "Büyük ölçekli Türk bankası için 60+ unvan haritası, her rolün gerekli becerileri ve kademe seviyesi",
+    "versiyon": "1.0.0",
+    "kademe_sistemi": {
+      "1": "Uzman Yardımcısı / Yetkili (entry level)",
+      "2": "Uzman / Yardımcı Müdür / Müşteri Temsilcisi",
+      "3": "Kıdemli Uzman / Müdür Yardımcısı",
+      "4": "Müdür / Şube Müdürü",
+      "5": "Direktör / Birim Müdürü / Bölge Müdürü",
+      "6": "Genel Müdür Yardımcısı (GMY)",
+      "7": "Genel Müdür / İcra Kurulu Üyesi"
+    }
+  },
+  "roller": [
+    {
+      "id": "kredi-analisti-yardimcisi",
+      "unvan": "Kredi Analisti Yardımcısı",
+      "aile": "Kredi ve Risk",
+      "kademe": "uzman-yardimcisi",
+      "kademe_seviyesi": 1,
+      "kisa_aciklama": "Kredi başvurularının ön analizi, dosya hazırlığı, kıdemli analistin desteklenmesi",
+      "ana_sorumluluklar": [
+        "Kredi başvuru dosyalarının evraklarını tamamlama",
+        "Bireysel/KOBİ kredi başvurularını ön analiz",
+        "Mali tabloları çıkartma ve oran analizi yapma",
+        "Sektör araştırması yapma"
+      ],
+      "deneyim_yili_min": 0,
+      "deneyim_yili_max": 3,
+      "gerekli_beceriler": [
+        {"skill_id": "krk-bireysel-kredi-skorlama", "gerekli_seviye": 2, "agirlik": 0.2, "zorunlu": true},
+        {"skill_id": "krk-kobi-kredi-skorlama", "gerekli_seviye": 1, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "krk-teminat-degerlemesi", "gerekli_seviye": 1, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ver-sql", "gerekli_seviye": 1, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 2, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-takim-calismasi", "gerekli_seviye": 2, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "uyu-bddk-mevzuati", "gerekli_seviye": 1, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-kritik-dusunme", "gerekli_seviye": 2, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-etik-durusu", "gerekli_seviye": 2, "agirlik": 0.1, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "kredi-analisti",
+      "unvan": "Kredi Analisti",
+      "aile": "Kredi ve Risk",
+      "kademe": "uzman",
+      "kademe_seviyesi": 2,
+      "kisa_aciklama": "Kurumsal/KOBİ kredi başvurularının analizi, tahsis önerisi, risk değerlendirmesi",
+      "ana_sorumluluklar": [
+        "Bağımsız kredi analizi yapma",
+        "Tahsis komitesine rapor sunma",
+        "Müşteri ziyareti ve değerlendirmesi",
+        "Risk faktörlerini belirleyip dokümante etme"
+      ],
+      "deneyim_yili_min": 2,
+      "deneyim_yili_max": 5,
+      "gerekli_beceriler": [
+        {"skill_id": "krk-kobi-kredi-skorlama", "gerekli_seviye": 3, "agirlik": 0.2, "zorunlu": true},
+        {"skill_id": "krk-kurumsal-kredi-tahsis", "gerekli_seviye": 2, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "krk-teminat-degerlemesi", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "krk-kredi-izleme", "gerekli_seviye": 2, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ver-sql", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "ver-bi-dashboard", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "uyu-bddk-mevzuati", "gerekli_seviye": 2, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-kritik-dusunme", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-etik-durusu", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "kidemli-kredi-analisti",
+      "unvan": "Kıdemli Kredi Analisti",
+      "aile": "Kredi ve Risk",
+      "kademe": "kidemli-uzman",
+      "kademe_seviyesi": 3,
+      "kisa_aciklama": "Büyük kurumsal ve karmaşık kredi başvuruları, yapılandırılmış kredi tasarımı",
+      "ana_sorumluluklar": [
+        "Büyük kurumsal kredi analizleri",
+        "Yapılandırılmış finansman çözümleri tasarımı",
+        "Tahsis komitesinde aktif rol",
+        "Junior analistlere mentorluk"
+      ],
+      "deneyim_yili_min": 5,
+      "deneyim_yili_max": 10,
+      "gerekli_beceriler": [
+        {"skill_id": "krk-kurumsal-kredi-tahsis", "gerekli_seviye": 4, "agirlik": 0.2, "zorunlu": true},
+        {"skill_id": "krk-portfoy-risk-yonetimi", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "krk-ifrs9", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "krk-basel-uygulamalari", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "krk-yesil-finansman-esg", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "ktb-proje-finansmani", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-koçluk-mentorluk", "gerekli_seviye": 2, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-stratejik-dusunme", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-kritik-dusunme", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "kredi-mudur-yardimcisi",
+      "unvan": "Kredi Müdür Yardımcısı",
+      "aile": "Kredi ve Risk",
+      "kademe": "mudur-yardimcisi",
+      "kademe_seviyesi": 3,
+      "kisa_aciklama": "Kredi takımının yönetilmesi, tahsis süreçlerinin koordinasyonu",
+      "ana_sorumluluklar": [
+        "Kredi analistlerinin yönetimi",
+        "Tahsis politikalarının uygulanması",
+        "Sorunlu kredi takibi",
+        "Üst yönetime raporlama"
+      ],
+      "deneyim_yili_min": 6,
+      "deneyim_yili_max": 12,
+      "gerekli_beceriler": [
+        {"skill_id": "krk-kurumsal-kredi-tahsis", "gerekli_seviye": 4, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "krk-portfoy-risk-yonetimi", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "krk-kredi-izleme", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "krk-tahsilat-icra", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-ekip-yonetimi", "gerekli_seviye": 3, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "lid-performans-yonetimi", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-butce-pnl", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-muzakere", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-koçluk-mentorluk", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "kredi-mudur",
+      "unvan": "Kredi Müdürü",
+      "aile": "Kredi ve Risk",
+      "kademe": "mudur",
+      "kademe_seviyesi": 4,
+      "kisa_aciklama": "Kredi birimini bütünsel yöneten, tahsis kararlarında yetkili",
+      "ana_sorumluluklar": [
+        "Kredi politikalarının belirlenmesi",
+        "Önemli tahsis kararlarının verilmesi",
+        "Bütçe ve hedeflerin yönetimi",
+        "Komite üyeliği"
+      ],
+      "deneyim_yili_min": 8,
+      "deneyim_yili_max": 15,
+      "gerekli_beceriler": [
+        {"skill_id": "krk-kurumsal-kredi-tahsis", "gerekli_seviye": 5, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "krk-portfoy-risk-yonetimi", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "krk-basel-uygulamalari", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "krk-konsantrasyon-risk", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-ekip-yonetimi", "gerekli_seviye": 4, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "lid-stratejik-dusunme", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-butce-pnl", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-yedekleme-kariyer-planlama", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-yonetim-kurulu-sunum", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "dav-muzakere", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "risk-uzmani",
+      "unvan": "Risk Uzmanı",
+      "aile": "Kredi ve Risk",
+      "kademe": "uzman",
+      "kademe_seviyesi": 2,
+      "kisa_aciklama": "Banka risk modelleri ve sermaye yeterliliği hesaplamalarında çalışan uzman",
+      "ana_sorumluluklar": [
+        "RWA ve SYR hesaplamaları",
+        "Stres testi senaryolarının hazırlanması",
+        "BDDK raporlamaları",
+        "Risk modelleri geliştirme/validasyon"
+      ],
+      "deneyim_yili_min": 2,
+      "deneyim_yili_max": 6,
+      "gerekli_beceriler": [
+        {"skill_id": "krk-basel-uygulamalari", "gerekli_seviye": 3, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "krk-sermaye-yeterliligi", "gerekli_seviye": 3, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "krk-ifrs9", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "krk-stres-testi", "gerekli_seviye": 2, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ver-istatistik-modelleme", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ver-python-programlama", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "ver-sql", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "uyu-banka-mevzuat-raporlama", "gerekli_seviye": 2, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-kritik-dusunme", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "risk-yoneticisi",
+      "unvan": "Risk Yöneticisi",
+      "aile": "Kredi ve Risk",
+      "kademe": "mudur",
+      "kademe_seviyesi": 4,
+      "kisa_aciklama": "Risk yönetimi biriminin yönetimi, üst yönetime risk raporlamaları",
+      "ana_sorumluluklar": [
+        "Risk yönetimi politikalarının belirlenmesi",
+        "ALCO ve Risk Komitesi üyeliği",
+        "Stres testi sonuçlarının değerlendirilmesi",
+        "Sermaye planlama (ICAAP)"
+      ],
+      "deneyim_yili_min": 8,
+      "deneyim_yili_max": 15,
+      "gerekli_beceriler": [
+        {"skill_id": "krk-portfoy-risk-yonetimi", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "krk-basel-uygulamalari", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "krk-stres-testi", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "krk-model-validasyonu", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "krk-konsantrasyon-risk", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-ekip-yonetimi", "gerekli_seviye": 4, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "lid-stratejik-dusunme", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-yonetim-kurulu-sunum", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "uyu-bddk-mevzuati", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-kritik-dusunme", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "kredi-direktoru",
+      "unvan": "Kredi Direktörü",
+      "aile": "Kredi ve Risk",
+      "kademe": "direktor",
+      "kademe_seviyesi": 5,
+      "kisa_aciklama": "Bankanın tüm kredi politikalarından sorumlu üst düzey yönetici",
+      "ana_sorumluluklar": [
+        "Banka kredi stratejisinin belirlenmesi",
+        "Kredi komitesi başkanlığı",
+        "Bütçe ve hedeflerin tasarımı",
+        "GMY'ye raporlama"
+      ],
+      "deneyim_yili_min": 12,
+      "deneyim_yili_max": 20,
+      "gerekli_beceriler": [
+        {"skill_id": "krk-kurumsal-kredi-tahsis", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "krk-portfoy-risk-yonetimi", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-stratejik-dusunme", "gerekli_seviye": 5, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "lid-cesitlilik-kapsayicilik", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "lid-yonetim-kurulu-sunum", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-kriz-yonetimi", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-degisim-yonetimi", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-butce-pnl", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-çapraz-fonksiyonel-liderlik", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-muzakere", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-yedekleme-kariyer-planlama", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+
+    {
+      "id": "hazine-uzman-yardimcisi",
+      "unvan": "Hazine Uzman Yardımcısı",
+      "aile": "Hazine ve Sermaye Piyasaları",
+      "kademe": "uzman-yardimcisi",
+      "kademe_seviyesi": 1,
+      "kisa_aciklama": "Hazine biriminde operasyonel destek, junior dealer",
+      "ana_sorumluluklar": [
+        "FX ve para piyasası işlemlerinde destek",
+        "Pozisyon raporlarının hazırlanması",
+        "Piyasa verilerinin takibi"
+      ],
+      "deneyim_yili_min": 0,
+      "deneyim_yili_max": 2,
+      "gerekli_beceriler": [
+        {"skill_id": "hsp-fx-para-piyasalari", "gerekli_seviye": 2, "agirlik": 0.2, "zorunlu": true},
+        {"skill_id": "hsp-sabit-getirili", "gerekli_seviye": 1, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "hsp-piyasa-analizi", "gerekli_seviye": 2, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "hsp-spk-mevzuati", "gerekli_seviye": 1, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ver-sql", "gerekli_seviye": 2, "agirlik": 0.1, "zorunlu": false},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 2, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-kritik-dusunme", "gerekli_seviye": 2, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-zaman-yonetimi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-etik-durusu", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "hazine-uzmani-dealer",
+      "unvan": "Hazine Uzmanı (Dealer)",
+      "aile": "Hazine ve Sermaye Piyasaları",
+      "kademe": "uzman",
+      "kademe_seviyesi": 2,
+      "kisa_aciklama": "Aktif dealer, banka pozisyon yönetiminden sorumlu",
+      "ana_sorumluluklar": [
+        "Spot/forward FX işlemleri yürütme",
+        "Para piyasası işlemleri",
+        "Müşteri trading hizmetleri",
+        "Risk limitleri içinde kalma"
+      ],
+      "deneyim_yili_min": 2,
+      "deneyim_yili_max": 6,
+      "gerekli_beceriler": [
+        {"skill_id": "hsp-fx-para-piyasalari", "gerekli_seviye": 4, "agirlik": 0.2, "zorunlu": true},
+        {"skill_id": "hsp-sabit-getirili", "gerekli_seviye": 3, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "hsp-turev-araclar", "gerekli_seviye": 2, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "hsp-tcmb-iliskileri", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "krk-piyasa-riski", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "hsp-spk-mevzuati", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-stres-yonetimi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-etik-durusu", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-zaman-yonetimi", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "kidemli-hazine-uzmani",
+      "unvan": "Kıdemli Hazine Uzmanı",
+      "aile": "Hazine ve Sermaye Piyasaları",
+      "kademe": "kidemli-uzman",
+      "kademe_seviyesi": 3,
+      "kisa_aciklama": "Senior dealer, türev araçlarda uzman, müşteri trading",
+      "ana_sorumluluklar": [
+        "Türev araç işlemleri",
+        "Kurumsal müşteri hedge çözümleri",
+        "Yapılandırılmış ürün tasarımı",
+        "Junior dealer'lere mentorluk"
+      ],
+      "deneyim_yili_min": 5,
+      "deneyim_yili_max": 10,
+      "gerekli_beceriler": [
+        {"skill_id": "hsp-fx-para-piyasalari", "gerekli_seviye": 5, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "hsp-turev-araclar", "gerekli_seviye": 4, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "hsp-yapilandirilmis-urunler", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "krk-piyasa-riski", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "krk-karsi-taraf-riski", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "hsp-katilim-bankaciligi-urunleri", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "lid-koçluk-mentorluk", "gerekli_seviye": 2, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-muzakere", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-stres-yonetimi", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "hazine-mudur",
+      "unvan": "Hazine Müdürü",
+      "aile": "Hazine ve Sermaye Piyasaları",
+      "kademe": "mudur",
+      "kademe_seviyesi": 4,
+      "kisa_aciklama": "Hazine biriminin yönetimi, ALM ve pozisyon yönetimi",
+      "ana_sorumluluklar": [
+        "Hazine ekibinin yönetimi",
+        "ALCO sunumları ve önerileri",
+        "ALM stratejisi yürütme",
+        "TCMB ve düzenleyici otoritelerle ilişki"
+      ],
+      "deneyim_yili_min": 10,
+      "deneyim_yili_max": 18,
+      "gerekli_beceriler": [
+        {"skill_id": "hsp-alm", "gerekli_seviye": 5, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "hsp-tcmb-iliskileri", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "hsp-fx-para-piyasalari", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "krk-likidite-yonetimi", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "krk-piyasa-riski", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-ekip-yonetimi", "gerekli_seviye": 4, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "lid-stratejik-dusunme", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-yonetim-kurulu-sunum", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-butce-pnl", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-stres-yonetimi", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true}
+      ]
+    },
+
+    {
+      "id": "musteri-temsilcisi-bireysel",
+      "unvan": "Müşteri Temsilcisi (Bireysel)",
+      "aile": "Şube ve Bireysel Bankacılık",
+      "kademe": "uzman",
+      "kademe_seviyesi": 2,
+      "kisa_aciklama": "Şubede bireysel müşteri portföyü yönetimi, ürün satışı",
+      "ana_sorumluluklar": [
+        "Atanmış müşteri portföyünün yönetimi",
+        "Bireysel kredi, kart, mevduat satışı",
+        "Müşteri ihtiyaç analizi",
+        "Cross-sell ve up-sell"
+      ],
+      "deneyim_yili_min": 1,
+      "deneyim_yili_max": 5,
+      "gerekli_beceriler": [
+        {"skill_id": "bir-portfoy-yonetimi", "gerekli_seviye": 3, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "bir-bireysel-kredi-urunleri", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "bir-mevduat-birikim", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "bir-kart-odeme-sistemleri", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "bir-emeklilik-sigorta", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "bir-ihtiyac-analizi", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "sub-musteri-iliskileri", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "sub-bireysel-satis", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-musteri-odaklilik", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "uyu-masak", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-etik-durusu", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "musteri-temsilcisi-kobi",
+      "unvan": "Müşteri Temsilcisi (KOBİ)",
+      "aile": "Şube ve KOBİ Bankacılığı",
+      "kademe": "uzman",
+      "kademe_seviyesi": 2,
+      "kisa_aciklama": "Şubede KOBİ müşteri portföyü yönetimi",
+      "ana_sorumluluklar": [
+        "KOBİ müşterilerine kredi, nakit yönetimi, dış ticaret çözümleri",
+        "Şube içi tahsis ön analizi",
+        "KOBİ portföyünün büyütülmesi"
+      ],
+      "deneyim_yili_min": 2,
+      "deneyim_yili_max": 6,
+      "gerekli_beceriler": [
+        {"skill_id": "ktb-kobi-bankaciligi", "gerekli_seviye": 3, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "krk-kobi-kredi-skorlama", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ktb-dis-ticaret", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "ktb-nakit-yonetimi", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "ktb-cek-senet", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "sub-kobi-satis-sube", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "sub-musteri-iliskileri", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-musteri-odaklilik", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-muzakere", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "uyu-masak", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-etik-durusu", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "ozel-bankacilik-musteri-temsilcisi",
+      "unvan": "Özel Bankacılık Müşteri Temsilcisi",
+      "aile": "Bireysel Bankacılık",
+      "kademe": "kidemli-uzman",
+      "kademe_seviyesi": 3,
+      "kisa_aciklama": "Yüksek varlıklı müşterilerin portföy yöneticisi",
+      "ana_sorumluluklar": [
+        "HNW müşteri portföyü yönetimi",
+        "Varlık planlama danışmanlığı",
+        "Yapılandırılmış yatırım ürünleri sunumu",
+        "Müşteri yaşam döngüsü hizmetleri"
+      ],
+      "deneyim_yili_min": 5,
+      "deneyim_yili_max": 12,
+      "gerekli_beceriler": [
+        {"skill_id": "bir-ozel-bankacilik", "gerekli_seviye": 4, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "sub-ozel-musteri-iliskileri", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "bir-ihtiyac-analizi", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "hsp-aracilik-broker", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "hsp-fon-yonetimi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "hsp-yapilandirilmis-urunler", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "bir-emeklilik-sigorta", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-musteri-odaklilik", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-multi-cultural-iletisim", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "dav-etik-durusu", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "uyu-masak", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "hsp-spk-mevzuati", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "kurumsal-musteri-temsilcisi",
+      "unvan": "Kurumsal Müşteri Temsilcisi (RM)",
+      "aile": "Kurumsal Bankacılık",
+      "kademe": "kidemli-uzman",
+      "kademe_seviyesi": 3,
+      "kisa_aciklama": "Büyük kurumsal müşteri portföyü RM'i",
+      "ana_sorumluluklar": [
+        "Atanmış kurumsal müşterilerle ilişki yönetimi",
+        "Çok ürünlü çözüm önerileri",
+        "Tahsis süreçlerinin yönlendirilmesi",
+        "Portföy büyütme"
+      ],
+      "deneyim_yili_min": 5,
+      "deneyim_yili_max": 12,
+      "gerekli_beceriler": [
+        {"skill_id": "ktb-kurumsal-bankacilik", "gerekli_seviye": 4, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "ktb-banka-musteri-iliskileri", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ktb-nakit-yonetimi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "ktb-dis-ticaret", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "ktb-sendikasyon", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "ktb-tedarik-zinciri-finansmani", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "krk-kurumsal-kredi-tahsis", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-çapraz-fonksiyonel-liderlik", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-muzakere", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-musteri-odaklilik", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-multi-cultural-iletisim", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "dav-etik-durusu", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "uyu-masak", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "veznedar",
+      "unvan": "Veznedar",
+      "aile": "Şube Operasyonları",
+      "kademe": "uzman-yardimcisi",
+      "kademe_seviyesi": 1,
+      "kisa_aciklama": "Şube gişe işlemleri, nakit yönetimi",
+      "ana_sorumluluklar": [
+        "Para yatırma/çekme işlemleri",
+        "Kasa mutabakatı",
+        "Müşteri yönlendirme"
+      ],
+      "deneyim_yili_min": 0,
+      "deneyim_yili_max": 3,
+      "gerekli_beceriler": [
+        {"skill_id": "sub-gise-nakit", "gerekli_seviye": 3, "agirlik": 0.25, "zorunlu": true},
+        {"skill_id": "sub-musteri-iliskileri", "gerekli_seviye": 2, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ops-eft-havale", "gerekli_seviye": 2, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ops-takas-mutabakat", "gerekli_seviye": 1, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "uyu-masak", "gerekli_seviye": 2, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "uyu-kvkk", "gerekli_seviye": 1, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-musteri-odaklilik", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-zaman-yonetimi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-etik-durusu", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-takim-calismasi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "sube-operasyon-yetkilisi",
+      "unvan": "Şube Operasyon Yetkilisi",
+      "aile": "Şube Operasyonları",
+      "kademe": "uzman",
+      "kademe_seviyesi": 2,
+      "kisa_aciklama": "Şube içi operasyonel süreçlerin yürütülmesi",
+      "ana_sorumluluklar": [
+        "Onboarding ve KYC süreçleri",
+        "EFT, havale ve tahsilat operasyonları",
+        "Şube içi denetim hazırlıkları"
+      ],
+      "deneyim_yili_min": 2,
+      "deneyim_yili_max": 5,
+      "gerekli_beceriler": [
+        {"skill_id": "sub-gise-nakit", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "sub-musteri-kazanimi", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "sub-sube-risk-denetim", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ops-eft-havale", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ops-takas-mutabakat", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "uyu-masak", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "uyu-kvkk", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "uyu-ic-kontrol", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-musteri-odaklilik", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-takim-calismasi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-etik-durusu", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "sube-mudur-yardimcisi",
+      "unvan": "Şube Müdür Yardımcısı",
+      "aile": "Şube Operasyonları",
+      "kademe": "mudur-yardimcisi",
+      "kademe_seviyesi": 3,
+      "kisa_aciklama": "Şubede satış ve operasyon koordinasyonu",
+      "ana_sorumluluklar": [
+        "Satış ekibinin desteklenmesi",
+        "Müşteri portföyü büyütme",
+        "Şube hedeflerinin takibi",
+        "Şube müdürünün yokluğunda yetki"
+      ],
+      "deneyim_yili_min": 4,
+      "deneyim_yili_max": 8,
+      "gerekli_beceriler": [
+        {"skill_id": "sub-musteri-iliskileri", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "sub-satis-hedef", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "sub-musteri-kazanimi", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "bir-portfoy-yonetimi", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ktb-kobi-bankaciligi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "krk-bireysel-kredi-skorlama", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "krk-kobi-kredi-skorlama", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "sub-sube-risk-denetim", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-ekip-yonetimi", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-performans-yonetimi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-koçluk-mentorluk", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-musteri-odaklilik", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-etik-durusu", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "sube-muduru",
+      "unvan": "Şube Müdürü",
+      "aile": "Şube Operasyonları",
+      "kademe": "mudur",
+      "kademe_seviyesi": 4,
+      "kisa_aciklama": "Şubenin bütünsel yönetimi - satış, risk, ekip, P&L",
+      "ana_sorumluluklar": [
+        "Şubenin tüm operasyonu",
+        "Şube P&L yönetimi",
+        "Ekip liderliği ve gelişimi",
+        "Bölge müdürlüğüne raporlama"
+      ],
+      "deneyim_yili_min": 8,
+      "deneyim_yili_max": 15,
+      "gerekli_beceriler": [
+        {"skill_id": "sub-sube-yonetimi", "gerekli_seviye": 5, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "sub-satis-hedef", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "sub-musteri-iliskileri", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "sub-sube-risk-denetim", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "bir-portfoy-yonetimi", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "ktb-kobi-bankaciligi", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "krk-kredi-izleme", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-ekip-yonetimi", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-performans-yonetimi", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-koçluk-mentorluk", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-butce-pnl", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-yedekleme-kariyer-planlama", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-musteri-odaklilik", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-kriz-yonetimi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "bolge-muduru",
+      "unvan": "Bölge Müdürü",
+      "aile": "Şube Operasyonları",
+      "kademe": "direktor",
+      "kademe_seviyesi": 5,
+      "kisa_aciklama": "Coğrafi bölge altındaki tüm şubelerin yönetimi",
+      "ana_sorumluluklar": [
+        "Bölgedeki şube müdürlerinin yönetimi",
+        "Bölge hedeflerinin belirlenmesi",
+        "Bölge P&L sorumluluğu",
+        "Stratejik müşteri ilişkileri"
+      ],
+      "deneyim_yili_min": 12,
+      "deneyim_yili_max": 20,
+      "gerekli_beceriler": [
+        {"skill_id": "sub-bolge-yonetimi", "gerekli_seviye": 5, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "sub-sube-yonetimi", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-stratejik-dusunme", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-ekip-yonetimi", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-çapraz-fonksiyonel-liderlik", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-butce-pnl", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-degisim-yonetimi", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-koçluk-mentorluk", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-yedekleme-kariyer-planlama", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-yonetim-kurulu-sunum", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-muzakere", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-kriz-yonetimi", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "krk-kredi-izleme", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+
+    {
+      "id": "dijital-urun-uzmani",
+      "unvan": "Dijital Ürün Uzmanı",
+      "aile": "Dijital Bankacılık",
+      "kademe": "uzman",
+      "kademe_seviyesi": 2,
+      "kisa_aciklama": "Dijital bankacılık ürünlerinin yönetimi (mobil, web, dijital ödeme)",
+      "ana_sorumluluklar": [
+        "Ürün backlog yönetimi",
+        "Kullanıcı geri bildirimi toplama",
+        "A/B testleri yürütme",
+        "Çapraz fonksiyonel koordinasyon"
+      ],
+      "deneyim_yili_min": 2,
+      "deneyim_yili_max": 6,
+      "gerekli_beceriler": [
+        {"skill_id": "dij-mobil-bankacilik", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dij-internet-bankaciligi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dij-musteri-yolculugu", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dij-cx-tasarim", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "dij-musteri-analitigi-dijital", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ver-bi-dashboard", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "ops-proje-yonetimi", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-çapraz-fonksiyonel-liderlik", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-kritik-dusunme", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-yaraticilik-inovasyon", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "uyu-bddk-mevzuati", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "dijital-urun-yoneticisi",
+      "unvan": "Dijital Ürün Yöneticisi",
+      "aile": "Dijital Bankacılık",
+      "kademe": "kidemli-uzman",
+      "kademe_seviyesi": 3,
+      "kisa_aciklama": "Dijital ürün stratejisi ve yol haritası sahibi",
+      "ana_sorumluluklar": [
+        "Ürün vizyon ve stratejisi",
+        "Yol haritası planlaması",
+        "Stakeholder yönetimi",
+        "İş hedeflerine bağlı ürün metrikleri"
+      ],
+      "deneyim_yili_min": 5,
+      "deneyim_yili_max": 10,
+      "gerekli_beceriler": [
+        {"skill_id": "dij-mobil-bankacilik", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dij-musteri-yolculugu", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dij-cx-tasarim", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dij-musteri-analitigi-dijital", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dij-fintech-ortakliklari", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "dij-superapp-stratejisi", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "lid-stratejik-dusunme", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-çapraz-fonksiyonel-liderlik", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ops-proje-yonetimi", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "ver-musteri-analitigi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-yaraticilik-inovasyon", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-kritik-dusunme", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-yetenek-kazanim", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false}
+      ]
+    },
+    {
+      "id": "dijital-kanal-muduru",
+      "unvan": "Dijital Kanal Müdürü",
+      "aile": "Dijital Bankacılık",
+      "kademe": "mudur",
+      "kademe_seviyesi": 4,
+      "kisa_aciklama": "Dijital kanal portföyünün stratejik yönetimi",
+      "ana_sorumluluklar": [
+        "Mobil/internet bankacılık stratejisi",
+        "Dijital kanal ekibi yönetimi",
+        "FinTech ortaklıkları geliştirme",
+        "Dijital dönüşüm projeleri"
+      ],
+      "deneyim_yili_min": 8,
+      "deneyim_yili_max": 15,
+      "gerekli_beceriler": [
+        {"skill_id": "dij-mobil-bankacilik", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dij-musteri-yolculugu", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dij-fintech-ortakliklari", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dij-open-banking", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dij-superapp-stratejisi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dij-baas", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "lid-stratejik-dusunme", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-ekip-yonetimi", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-degisim-yonetimi", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-butce-pnl", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-çapraz-fonksiyonel-liderlik", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-yonetim-kurulu-sunum", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-yaraticilik-inovasyon", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-muzakere", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "dijital-bankacilik-direktoru",
+      "unvan": "Dijital Bankacılık Direktörü",
+      "aile": "Dijital Bankacılık",
+      "kademe": "direktor",
+      "kademe_seviyesi": 5,
+      "kisa_aciklama": "Bankanın tüm dijital varlıkları ve dönüşüm stratejisi",
+      "ana_sorumluluklar": [
+        "Dijital dönüşüm vizyonu",
+        "Tüm dijital ekiplerin yönetimi",
+        "Dijital P&L sorumluluğu",
+        "GMY'ye raporlama"
+      ],
+      "deneyim_yili_min": 12,
+      "deneyim_yili_max": 22,
+      "gerekli_beceriler": [
+        {"skill_id": "dij-mobil-bankacilik", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dij-superapp-stratejisi", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dij-fintech-ortakliklari", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dij-baas", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dij-kripto-dijital-varlik", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "lid-stratejik-dusunme", "gerekli_seviye": 5, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "lid-ekip-yonetimi", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-degisim-yonetimi", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-yonetim-kurulu-sunum", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-butce-pnl", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-yedekleme-kariyer-planlama", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-cesitlilik-kapsayicilik", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "dav-yaraticilik-inovasyon", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-muzakere", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-kriz-yonetimi", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+
+    {
+      "id": "veri-analisti",
+      "unvan": "Veri Analisti",
+      "aile": "Veri ve Analitik",
+      "kademe": "uzman",
+      "kademe_seviyesi": 2,
+      "kisa_aciklama": "Veri analizi, raporlama, BI dashboard tasarımı",
+      "ana_sorumluluklar": [
+        "Düzenli ve ad-hoc raporlamalar",
+        "BI dashboard tasarımı",
+        "İş birimlerine analitik destek",
+        "Veri kalitesi kontrolü"
+      ],
+      "deneyim_yili_min": 1,
+      "deneyim_yili_max": 5,
+      "gerekli_beceriler": [
+        {"skill_id": "ver-sql", "gerekli_seviye": 4, "agirlik": 0.2, "zorunlu": true},
+        {"skill_id": "ver-bi-dashboard", "gerekli_seviye": 3, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "ver-python-programlama", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "ver-istatistik-modelleme", "gerekli_seviye": 2, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ver-musteri-analitigi", "gerekli_seviye": 2, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ver-veri-yonetisimi", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "uyu-kvkk", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-kritik-dusunme", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-takim-calismasi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-etik-durusu", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "veri-bilimci",
+      "unvan": "Veri Bilimci",
+      "aile": "Veri ve Analitik",
+      "kademe": "uzman",
+      "kademe_seviyesi": 2,
+      "kisa_aciklama": "Makine öğrenmesi modelleri geliştirme",
+      "ana_sorumluluklar": [
+        "ML model geliştirme",
+        "Müşteri analitiği (churn, LTV, segmentasyon)",
+        "Üretime model deployment",
+        "Model performans takibi"
+      ],
+      "deneyim_yili_min": 2,
+      "deneyim_yili_max": 6,
+      "gerekli_beceriler": [
+        {"skill_id": "ver-python-programlama", "gerekli_seviye": 4, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "ver-ml-modelleme", "gerekli_seviye": 4, "agirlik": 0.2, "zorunlu": true},
+        {"skill_id": "ver-istatistik-modelleme", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ver-sql", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "ver-deep-learning", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "ver-musteri-analitigi", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ver-mlops", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "ver-ai-etik-bias", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "uyu-kvkk", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-kritik-dusunme", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-takim-calismasi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "kidemli-veri-bilimci",
+      "unvan": "Kıdemli Veri Bilimci",
+      "aile": "Veri ve Analitik",
+      "kademe": "kidemli-uzman",
+      "kademe_seviyesi": 3,
+      "kisa_aciklama": "İleri ML/AI uygulamaları, ekibe teknik liderlik",
+      "ana_sorumluluklar": [
+        "Karmaşık ML/Deep Learning projeleri",
+        "AI/LLM uygulamaları",
+        "Junior veri bilimcilere teknik mentorluk",
+        "Teknik mimari kararları"
+      ],
+      "deneyim_yili_min": 5,
+      "deneyim_yili_max": 12,
+      "gerekli_beceriler": [
+        {"skill_id": "ver-python-programlama", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ver-ml-modelleme", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ver-deep-learning", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ver-ai-llm-uygulamalari", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ver-mlops", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ver-big-data-platformlari", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "ver-bulut-veri-platformlari", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "ver-ai-etik-bias", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "ver-veri-mahremiyeti", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-koçluk-mentorluk", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-kritik-dusunme", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-yaraticilik-inovasyon", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "veri-muhendisi",
+      "unvan": "Veri Mühendisi",
+      "aile": "Veri ve Analitik",
+      "kademe": "uzman",
+      "kademe_seviyesi": 2,
+      "kisa_aciklama": "Veri pipeline ve altyapı geliştirme",
+      "ana_sorumluluklar": [
+        "ETL/ELT pipeline geliştirme",
+        "Data warehouse yönetimi",
+        "Veri kalitesi süreçleri",
+        "Veri platform mimarisi"
+      ],
+      "deneyim_yili_min": 2,
+      "deneyim_yili_max": 6,
+      "gerekli_beceriler": [
+        {"skill_id": "ver-veri-muhendisligi", "gerekli_seviye": 4, "agirlik": 0.2, "zorunlu": true},
+        {"skill_id": "ver-sql", "gerekli_seviye": 5, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "ver-big-data-platformlari", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ver-bulut-veri-platformlari", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ver-python-programlama", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "ver-veri-yonetisimi", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ver-mlops", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "uyu-kvkk", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "ops-bilgi-sistemleri-mimari", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "dav-kritik-dusunme", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-takim-calismasi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "veri-analitik-muduru",
+      "unvan": "Veri ve Analitik Müdürü",
+      "aile": "Veri ve Analitik",
+      "kademe": "mudur",
+      "kademe_seviyesi": 4,
+      "kisa_aciklama": "Veri ve analitik biriminin yönetimi",
+      "ana_sorumluluklar": [
+        "Veri ve analitik ekiplerinin yönetimi",
+        "Veri stratejisi belirleme",
+        "İş birimleri ile öncelik koordinasyonu",
+        "Veri yönetişimi sağlama"
+      ],
+      "deneyim_yili_min": 8,
+      "deneyim_yili_max": 15,
+      "gerekli_beceriler": [
+        {"skill_id": "ver-ml-modelleme", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "ver-musteri-analitigi", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "ver-veri-yonetisimi", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ver-ai-llm-uygulamalari", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "ver-ai-etik-bias", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "ver-mlops", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "uyu-kvkk", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-ekip-yonetimi", "gerekli_seviye": 4, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "lid-stratejik-dusunme", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-çapraz-fonksiyonel-liderlik", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-butce-pnl", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-koçluk-mentorluk", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-yaraticilik-inovasyon", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+
+    {
+      "id": "uyum-uzmani",
+      "unvan": "Uyum Uzmanı",
+      "aile": "Uyum ve Mevzuat",
+      "kademe": "uzman",
+      "kademe_seviyesi": 2,
+      "kisa_aciklama": "Bankacılık mevzuatı ve düzenleme uyum süreçleri",
+      "ana_sorumluluklar": [
+        "Mevzuat değişikliklerinin takibi",
+        "İç süreçlerin uyum kontrolü",
+        "MASAK ve KVKK uyum işleri",
+        "Düzenleyici raporlamalar"
+      ],
+      "deneyim_yili_min": 2,
+      "deneyim_yili_max": 6,
+      "gerekli_beceriler": [
+        {"skill_id": "uyu-bddk-mevzuati", "gerekli_seviye": 4, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "uyu-masak", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "uyu-kvkk", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "uyu-yaptirim-listeleri", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "uyu-ic-kontrol", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "uyu-davranissal-kontrol", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "uyu-tuketici-haklari", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "uyu-banka-mevzuat-raporlama", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-kritik-dusunme", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-etik-durusu", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-zaman-yonetimi", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "ic-kontrol-yetkilisi",
+      "unvan": "İç Kontrol Yetkilisi",
+      "aile": "Uyum ve Mevzuat",
+      "kademe": "uzman",
+      "kademe_seviyesi": 2,
+      "kisa_aciklama": "İç kontrol süreçlerinin yürütülmesi ve denetim hazırlığı",
+      "ana_sorumluluklar": [
+        "İç kontrol denetimleri",
+        "Operasyonel risk değerlendirmesi",
+        "Süreç kontrol noktaları belirleme"
+      ],
+      "deneyim_yili_min": 2,
+      "deneyim_yili_max": 6,
+      "gerekli_beceriler": [
+        {"skill_id": "uyu-ic-kontrol", "gerekli_seviye": 4, "agirlik": 0.2, "zorunlu": true},
+        {"skill_id": "krk-operasyonel-risk", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ops-sox-uyumlu-süreçler", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "uyu-bddk-mevzuati", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "uyu-mali-suclar-arastirma", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "ver-sql", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "dav-kritik-dusunme", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-etik-durusu", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-zaman-yonetimi", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-anlasmazlik-cozumu", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "uyu-etik-davranis-kurallari", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "uyum-muduru",
+      "unvan": "Uyum Müdürü",
+      "aile": "Uyum ve Mevzuat",
+      "kademe": "mudur",
+      "kademe_seviyesi": 4,
+      "kisa_aciklama": "Bankanın uyum biriminin yönetimi",
+      "ana_sorumluluklar": [
+        "Uyum politikalarının belirlenmesi",
+        "Düzenleyici ilişkiler",
+        "İç ve dış denetim koordinasyonu",
+        "Üst yönetime risk raporlamaları"
+      ],
+      "deneyim_yili_min": 8,
+      "deneyim_yili_max": 15,
+      "gerekli_beceriler": [
+        {"skill_id": "uyu-bddk-mevzuati", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "uyu-masak", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "uyu-kvkk", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "uyu-ic-kontrol", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "uyu-banka-mevzuat-raporlama", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "uyu-davranissal-kontrol", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "uyu-mali-suclar-arastirma", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "uyu-bankacilik-hukuku", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-ekip-yonetimi", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-yonetim-kurulu-sunum", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-kriz-yonetimi", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-etik-durusu", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+
+    {
+      "id": "musteri-deneyimi-uzmani",
+      "unvan": "Müşteri Deneyimi Uzmanı",
+      "aile": "Müşteri Deneyimi ve CRM",
+      "kademe": "uzman",
+      "kademe_seviyesi": 2,
+      "kisa_aciklama": "Müşteri deneyimi tasarımı ve ölçüm",
+      "ana_sorumluluklar": [
+        "Müşteri yolculuğu haritalama",
+        "NPS, CES ölçümleri",
+        "VOC programı yönetimi",
+        "Şikayet kök neden analizi"
+      ],
+      "deneyim_yili_min": 2,
+      "deneyim_yili_max": 6,
+      "gerekli_beceriler": [
+        {"skill_id": "mdx-musteri-yolculugu", "gerekli_seviye": 4, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "mdx-nps-cx-olcumu", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "mdx-sikayet-yonetimi", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "mdx-segmentasyon", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "mdx-cinema-tasarim-thinking", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "mdx-cocreation-musteri-paneli", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "ver-sql", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "ver-musteri-analitigi", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "dav-musteri-odaklilik", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-yaraticilik-inovasyon", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-kritik-dusunme", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-takim-calismasi", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "crm-uzmani",
+      "unvan": "CRM ve Kampanya Uzmanı",
+      "aile": "Müşteri Deneyimi ve CRM",
+      "kademe": "uzman",
+      "kademe_seviyesi": 2,
+      "kisa_aciklama": "Kampanya tasarımı ve uygulaması",
+      "ana_sorumluluklar": [
+        "Çok kanallı kampanya tasarımı",
+        "CRM platform yönetimi",
+        "Müşteri segmentasyonu uygulama",
+        "Kampanya performans analizi"
+      ],
+      "deneyim_yili_min": 2,
+      "deneyim_yili_max": 6,
+      "gerekli_beceriler": [
+        {"skill_id": "mdx-crm-platformlari", "gerekli_seviye": 4, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "mdx-kampanya-yonetimi", "gerekli_seviye": 4, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "mdx-pazarlama-kanallari", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "mdx-segmentasyon", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ver-musteri-analitigi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "mdx-test-merge-veri-yonetimi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "ver-sql", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "uyu-kvkk", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-yaraticilik-inovasyon", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-musteri-odaklilik", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-takim-calismasi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-kritik-dusunme", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+
+    {
+      "id": "operasyon-uzmani",
+      "unvan": "Operasyon Uzmanı",
+      "aile": "Operasyon ve Süreç",
+      "kademe": "uzman",
+      "kademe_seviyesi": 2,
+      "kisa_aciklama": "Operasyonel süreçlerin yürütülmesi",
+      "ana_sorumluluklar": [
+        "Takas-mutabakat süreçleri",
+        "EFT/Havale operasyonları",
+        "Kart operasyonları",
+        "Süreç dokümantasyonu"
+      ],
+      "deneyim_yili_min": 1,
+      "deneyim_yili_max": 5,
+      "gerekli_beceriler": [
+        {"skill_id": "ops-takas-mutabakat", "gerekli_seviye": 4, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "ops-eft-havale", "gerekli_seviye": 4, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "ops-kart-operasyonlari", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "ops-sureç-iyilestirme", "gerekli_seviye": 2, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ops-arsiv-dokuman-yonetimi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "krk-operasyonel-risk", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "uyu-ic-kontrol", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-zaman-yonetimi", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-takim-calismasi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-etik-durusu", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-kritik-dusunme", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "ver-sql", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false}
+      ]
+    },
+    {
+      "id": "surec-uzmani",
+      "unvan": "Süreç İyileştirme Uzmanı",
+      "aile": "Operasyon ve Süreç",
+      "kademe": "uzman",
+      "kademe_seviyesi": 2,
+      "kisa_aciklama": "Banka süreçlerinin iyileştirilmesi, RPA projeleri",
+      "ana_sorumluluklar": [
+        "Süreç haritalama",
+        "İyileştirme projeleri yürütme",
+        "RPA fizibilite ve geliştirme",
+        "Lean Six Sigma uygulamaları"
+      ],
+      "deneyim_yili_min": 2,
+      "deneyim_yili_max": 6,
+      "gerekli_beceriler": [
+        {"skill_id": "ops-sureç-iyilestirme", "gerekli_seviye": 4, "agirlik": 0.2, "zorunlu": true},
+        {"skill_id": "ops-otomasyon-rpa", "gerekli_seviye": 3, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "ops-proje-yonetimi", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ops-sox-uyumlu-süreçler", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "ver-sql", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "ver-bi-dashboard", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "lid-degisim-yonetimi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-çapraz-fonksiyonel-liderlik", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-kritik-dusunme", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-yaraticilik-inovasyon", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-takim-calismasi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-zaman-yonetimi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "operasyon-muduru",
+      "unvan": "Operasyon Müdürü",
+      "aile": "Operasyon ve Süreç",
+      "kademe": "mudur",
+      "kademe_seviyesi": 4,
+      "kisa_aciklama": "Banka operasyonlarının bütünsel yönetimi",
+      "ana_sorumluluklar": [
+        "Operasyonel verimlilik",
+        "Dijital dönüşüm projeleri",
+        "Maliyet optimizasyonu",
+        "BCP/DR planlaması"
+      ],
+      "deneyim_yili_min": 8,
+      "deneyim_yili_max": 15,
+      "gerekli_beceriler": [
+        {"skill_id": "ops-sureç-iyilestirme", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "ops-otomasyon-rpa", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "ops-proje-yonetimi", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "ops-bilgi-sistemleri-mimari", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "ops-is-surekliligi", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "ops-call-center-yonetimi", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "krk-operasyonel-risk", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-ekip-yonetimi", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-degisim-yonetimi", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-butce-pnl", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-çapraz-fonksiyonel-liderlik", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-stratejik-dusunme", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-kriz-yonetimi", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-takim-calismasi", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+
+    {
+      "id": "ik-uzmani",
+      "unvan": "İnsan Kaynakları Uzmanı",
+      "aile": "İnsan Kaynakları",
+      "kademe": "uzman",
+      "kademe_seviyesi": 2,
+      "kisa_aciklama": "İK operasyonel süreçleri ve çalışan ilişkileri",
+      "ana_sorumluluklar": [
+        "İşe alım süreçleri",
+        "Çalışan onboarding",
+        "Performans yönetimi destekleme",
+        "Eğitim ve gelişim koordinasyonu"
+      ],
+      "deneyim_yili_min": 2,
+      "deneyim_yili_max": 5,
+      "gerekli_beceriler": [
+        {"skill_id": "lid-yetenek-kazanim", "gerekli_seviye": 3, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "lid-performans-yonetimi", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-koçluk-mentorluk", "gerekli_seviye": 2, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-cesitlilik-kapsayicilik", "gerekli_seviye": 2, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "uyu-sürekli-mesleki-egitim", "gerekli_seviye": 3, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "uyu-kvkk", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "uyu-etik-davranis-kurallari", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-takim-calismasi", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-musteri-odaklilik", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-etik-durusu", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-anlasmazlik-cozumu", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "ik-muduru",
+      "unvan": "İnsan Kaynakları Müdürü",
+      "aile": "İnsan Kaynakları",
+      "kademe": "mudur",
+      "kademe_seviyesi": 4,
+      "kisa_aciklama": "İK biriminin yönetimi ve stratejik İK kararları",
+      "ana_sorumluluklar": [
+        "İK ekibinin yönetimi",
+        "İşe alım stratejisi",
+        "Performans yönetim sistemi",
+        "Yetenek havuzu ve yedekleme planlaması"
+      ],
+      "deneyim_yili_min": 8,
+      "deneyim_yili_max": 15,
+      "gerekli_beceriler": [
+        {"skill_id": "lid-yetenek-kazanim", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-performans-yonetimi", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-yedekleme-kariyer-planlama", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-koçluk-mentorluk", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-degisim-yonetimi", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-cesitlilik-kapsayicilik", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-ekip-yonetimi", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-stratejik-dusunme", "gerekli_seviye": 4, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "uyu-sürekli-mesleki-egitim", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "uyu-davranissal-kontrol", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": false},
+        {"skill_id": "lid-butce-pnl", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-anlasmazlik-cozumu", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-etik-durusu", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-multi-cultural-iletisim", "gerekli_seviye": 3, "agirlik": 0.05, "zorunlu": false}
+      ]
+    },
+    {
+      "id": "ik-direktoru",
+      "unvan": "İnsan Kaynakları Direktörü (CHRO benzeri)",
+      "aile": "İnsan Kaynakları",
+      "kademe": "direktor",
+      "kademe_seviyesi": 5,
+      "kisa_aciklama": "Banka geneli İK stratejisi sorumlusu",
+      "ana_sorumluluklar": [
+        "İK stratejisi ve dönüşümü",
+        "Çalışan deneyimi",
+        "Liderlik gelişimi",
+        "Ödüllendirme ve maaş yapısı"
+      ],
+      "deneyim_yili_min": 12,
+      "deneyim_yili_max": 22,
+      "gerekli_beceriler": [
+        {"skill_id": "lid-stratejik-dusunme", "gerekli_seviye": 5, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "lid-yedekleme-kariyer-planlama", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-cesitlilik-kapsayicilik", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-degisim-yonetimi", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-yonetim-kurulu-sunum", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-ekip-yonetimi", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-koçluk-mentorluk", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-butce-pnl", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-kriz-yonetimi", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-çapraz-fonksiyonel-liderlik", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-muzakere", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-etik-durusu", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-anlasmazlik-cozumu", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+
+    {
+      "id": "perakende-bankacilik-gmy",
+      "unvan": "Perakende Bankacılık Genel Müdür Yardımcısı",
+      "aile": "Genel Müdürlük",
+      "kademe": "genel-mudur-yardimcisi",
+      "kademe_seviyesi": 6,
+      "kisa_aciklama": "Bireysel ve şube bankacılığından sorumlu üst düzey",
+      "ana_sorumluluklar": [
+        "Bireysel bankacılık stratejisi",
+        "Şube ağı yönetimi",
+        "Müşteri segmentasyon stratejisi",
+        "Yönetim Kurulu raporlaması"
+      ],
+      "deneyim_yili_min": 18,
+      "deneyim_yili_max": 30,
+      "gerekli_beceriler": [
+        {"skill_id": "bir-portfoy-yonetimi", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "sub-sube-yonetimi", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "sub-bolge-yonetimi", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-stratejik-dusunme", "gerekli_seviye": 5, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "lid-yonetim-kurulu-sunum", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-butce-pnl", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-degisim-yonetimi", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-kriz-yonetimi", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-çapraz-fonksiyonel-liderlik", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-yedekleme-kariyer-planlama", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-cesitlilik-kapsayicilik", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "mdx-musteri-yolculugu", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-muzakere", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-yaraticilik-inovasyon", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": false}
+      ]
+    },
+    {
+      "id": "kurumsal-bankacilik-gmy",
+      "unvan": "Kurumsal Bankacılık Genel Müdür Yardımcısı",
+      "aile": "Genel Müdürlük",
+      "kademe": "genel-mudur-yardimcisi",
+      "kademe_seviyesi": 6,
+      "kisa_aciklama": "Kurumsal ve ticari bankacılıktan sorumlu üst düzey",
+      "ana_sorumluluklar": [
+        "Kurumsal bankacılık stratejisi",
+        "Büyük müşteri ilişkileri",
+        "Kredi tahsis komitesi",
+        "Yapılandırılmış finansman"
+      ],
+      "deneyim_yili_min": 18,
+      "deneyim_yili_max": 30,
+      "gerekli_beceriler": [
+        {"skill_id": "ktb-kurumsal-bankacilik", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "krk-kurumsal-kredi-tahsis", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "ktb-sendikasyon", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "ktb-proje-finansmani", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-stratejik-dusunme", "gerekli_seviye": 5, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "lid-yonetim-kurulu-sunum", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-butce-pnl", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-çapraz-fonksiyonel-liderlik", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-yedekleme-kariyer-planlama", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-muzakere", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-multi-cultural-iletisim", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-kriz-yonetimi", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true}
+      ]
+    },
+    {
+      "id": "risk-gmy",
+      "unvan": "Risk Yönetimi Genel Müdür Yardımcısı (CRO)",
+      "aile": "Genel Müdürlük",
+      "kademe": "genel-mudur-yardimcisi",
+      "kademe_seviyesi": 6,
+      "kisa_aciklama": "Banka bütünsel risk yönetiminden sorumlu (CRO)",
+      "ana_sorumluluklar": [
+        "Risk iştahı ve risk politikaları",
+        "Sermaye yeterliliği",
+        "Kredi, piyasa, operasyonel risk",
+        "BDDK ilişkileri"
+      ],
+      "deneyim_yili_min": 18,
+      "deneyim_yili_max": 30,
+      "gerekli_beceriler": [
+        {"skill_id": "krk-portfoy-risk-yonetimi", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "krk-basel-uygulamalari", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "krk-stres-testi", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "krk-likidite-yonetimi", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "krk-sermaye-yeterliligi", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-stratejik-dusunme", "gerekli_seviye": 5, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "lid-yonetim-kurulu-sunum", "gerekli_seviye": 5, "agirlik": 0.15, "zorunlu": true},
+        {"skill_id": "lid-kriz-yonetimi", "gerekli_seviye": 5, "agirlik": 0.1, "zorunlu": true},
+        {"skill_id": "lid-degisim-yonetimi", "gerekli_seviye": 4, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "lid-çapraz-fonksiyonel-liderlik", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "uyu-bddk-mevzuati", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-iletisim", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-kritik-dusunme", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true},
+        {"skill_id": "dav-etik-durusu", "gerekli_seviye": 5, "agirlik": 0.05, "zorunlu": true}
+      ]
+    }
+  ]
+}

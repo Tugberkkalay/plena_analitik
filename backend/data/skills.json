@@ -1,0 +1,3923 @@
+{
+  "metadata": {
+    "ad": "Beceriler (Skills) - Birleşik",
+    "dosya": "03-skills.json",
+    "aciklama": "Büyük ölçekli Türk bankası için spesifik beceriler - 12 küme altında, 200+ beceri",
+    "versiyon": "1.1.0",
+    "beceri_sayisi": 175
+  },
+  "beceriler": [
+    {
+      "id": "krk-bireysel-kredi-skorlama",
+      "ad": "Bireysel Kredi Skorlama",
+      "kume_id": "kredi-risk-yonetimi",
+      "aciklama": "Bireysel müşterilerin kredi başvurularını skorlama modellerini kullanarak değerlendirme; içsel ve dışsal (KKB) skorlama sistemleri.",
+      "anahtar_kelimeler": [
+        "kredi skoru",
+        "KKB",
+        "Findeks",
+        "scorecard",
+        "bireysel kredi"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "proje",
+        "performans-yorumu",
+        "tamamlanan-vaka-sayisi"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 6,
+      "ilgili_beceriler": [
+        "krk-kobi-kredi-skorlama",
+        "krk-erken-uyari-sistemleri",
+        "ver-istatistik-modelleme"
+      ]
+    },
+    {
+      "id": "krk-kobi-kredi-skorlama",
+      "ad": "KOBİ Kredi Skorlama ve Değerlendirmesi",
+      "kume_id": "kredi-risk-yonetimi",
+      "aciklama": "KOBİ müşterilerinin finansal tablo analizi, sektörel risk değerlendirmesi ve kredi limiti belirleme.",
+      "anahtar_kelimeler": [
+        "KOBİ kredi",
+        "finansal analiz",
+        "bilanço analizi",
+        "sektör risk"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "proje",
+        "performans-yorumu",
+        "kredi-tahsis-sayisi"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "krk-bireysel-kredi-skorlama",
+        "ktb-kobi-bankaciligi",
+        "krk-kurumsal-kredi-tahsis"
+      ]
+    },
+    {
+      "id": "krk-kurumsal-kredi-tahsis",
+      "ad": "Kurumsal Kredi Tahsis ve Yapılandırma",
+      "kume_id": "kredi-risk-yonetimi",
+      "aciklama": "Büyük kurumsal müşteriler için kredi tahsisi, yapılandırılmış finansman çözümleri ve syndication.",
+      "anahtar_kelimeler": [
+        "kurumsal kredi",
+        "tahsis",
+        "syndication",
+        "structured finance"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "tamamlanan-tahsis",
+        "performans-yorumu",
+        "portföy-büyüklüğü"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "krk-portfoy-risk-yonetimi",
+        "ktb-kurumsal-bankacilik",
+        "hsp-yatirim-bankaciligi"
+      ]
+    },
+    {
+      "id": "krk-portfoy-risk-yonetimi",
+      "ad": "Portföy Risk Yönetimi",
+      "kume_id": "kredi-risk-yonetimi",
+      "aciklama": "Kredi portföyünün konsantrasyon, sektör ve müşteri bazında risk analizi; portföy seviyesinde sermaye allocation.",
+      "anahtar_kelimeler": [
+        "portföy risk",
+        "konsantrasyon",
+        "RWA",
+        "sektör analizi"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "proje",
+        "rapor-üretimi",
+        "ALCO-katılım"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "krk-basel-uygulamalari",
+        "krk-stres-testi",
+        "krk-sermaye-yeterliligi"
+      ]
+    },
+    {
+      "id": "krk-basel-uygulamalari",
+      "ad": "Basel III/IV Uygulamaları",
+      "kume_id": "kredi-risk-yonetimi",
+      "aciklama": "Basel komitesi düzenlemelerinin banka süreçlerine uygulanması; sermaye, likidite ve kaldıraç oranları.",
+      "anahtar_kelimeler": [
+        "Basel III",
+        "Basel IV",
+        "CET1",
+        "LCR",
+        "NSFR"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "rapor-üretimi",
+        "denetim-katılım"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "krk-sermaye-yeterliligi",
+        "uyu-bddk-mevzuati",
+        "krk-ifrs9"
+      ]
+    },
+    {
+      "id": "krk-ifrs9",
+      "ad": "IFRS 9 ve Beklenen Kredi Zararı (ECL) Hesaplama",
+      "kume_id": "kredi-risk-yonetimi",
+      "aciklama": "IFRS 9 standartlarına göre ECL hesaplama metodolojisi, stage 1/2/3 sınıflandırması, PD/LGD/EAD modelleri.",
+      "anahtar_kelimeler": [
+        "IFRS 9",
+        "ECL",
+        "PD",
+        "LGD",
+        "EAD",
+        "beklenen kredi zararı"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "proje",
+        "model-validasyonu"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "ver-istatistik-modelleme",
+        "krk-stres-testi",
+        "krk-sermaye-yeterliligi"
+      ]
+    },
+    {
+      "id": "krk-sermaye-yeterliligi",
+      "ad": "Sermaye Yeterliliği ve RWA Hesaplama",
+      "kume_id": "kredi-risk-yonetimi",
+      "aciklama": "Risk Ağırlıklı Aktif (RWA) hesaplama, standart ve içsel modeller, sermaye optimizasyonu.",
+      "anahtar_kelimeler": [
+        "RWA",
+        "sermaye yeterliliği",
+        "SYR",
+        "IRB",
+        "standart yaklaşım"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "rapor-üretimi",
+        "model-validasyonu"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "krk-basel-uygulamalari",
+        "krk-ifrs9",
+        "uyu-bddk-mevzuati"
+      ]
+    },
+    {
+      "id": "krk-stres-testi",
+      "ad": "Stres Testi ve Senaryo Analizi",
+      "kume_id": "kredi-risk-yonetimi",
+      "aciklama": "Banka portföyünün ekstrem senaryolar altında dayanıklılığını ölçen modeller; düzenleyici ve içsel stres testleri.",
+      "anahtar_kelimeler": [
+        "stres testi",
+        "senaryo analizi",
+        "ICAAP",
+        "ILAAP"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "rapor-üretimi",
+        "denetim-katılım"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "krk-portfoy-risk-yonetimi",
+        "ver-istatistik-modelleme",
+        "krk-piyasa-riski"
+      ]
+    },
+    {
+      "id": "krk-erken-uyari-sistemleri",
+      "ad": "Erken Uyarı Sistemleri (EWS)",
+      "kume_id": "kredi-risk-yonetimi",
+      "aciklama": "Kredi portföyünde sorunlu kredilere dönüşebilecek müşterilerin erken tespit edilmesi için EWS modelleri.",
+      "anahtar_kelimeler": [
+        "erken uyarı",
+        "EWS",
+        "sorunlu kredi",
+        "watch list"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "tespit-doğruluk-oranı",
+        "model-validasyonu"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "krk-portfoy-risk-yonetimi",
+        "ver-ml-modelleme",
+        "krk-kredi-izleme"
+      ]
+    },
+    {
+      "id": "krk-kredi-izleme",
+      "ad": "Kredi İzleme ve Yeniden Yapılandırma",
+      "kume_id": "kredi-risk-yonetimi",
+      "aciklama": "Mevcut kredi portföyünün izlenmesi, sorunlu kredilerin tespit edilmesi ve yapılandırma süreçleri.",
+      "anahtar_kelimeler": [
+        "kredi izleme",
+        "yapılandırma",
+        "NPL",
+        "tahsilat"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "performans-yorumu",
+        "tahsilat-orani"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "krk-erken-uyari-sistemleri",
+        "krk-portfoy-risk-yonetimi"
+      ]
+    },
+    {
+      "id": "krk-piyasa-riski",
+      "ad": "Piyasa Riski Yönetimi",
+      "kume_id": "kredi-risk-yonetimi",
+      "aciklama": "Faiz, kur, hisse senedi ve emtia fiyat hareketlerinin banka portföyüne etkilerini ölçme ve yönetme.",
+      "anahtar_kelimeler": [
+        "piyasa riski",
+        "VaR",
+        "duration",
+        "FRTB"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "model-validasyonu",
+        "rapor-üretimi"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "hsp-alm",
+        "krk-stres-testi",
+        "hsp-turev-araclar"
+      ]
+    },
+    {
+      "id": "krk-operasyonel-risk",
+      "ad": "Operasyonel Risk Yönetimi",
+      "kume_id": "kredi-risk-yonetimi",
+      "aciklama": "İç süreç, insan, sistem ve dış olaylardan kaynaklanan operasyonel risklerin yönetimi; kayıp veri toplama ve RCSA.",
+      "anahtar_kelimeler": [
+        "operasyonel risk",
+        "RCSA",
+        "KRI",
+        "loss data"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "denetim-katılım",
+        "RCSA-uygulamasi"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "ops-sureç-iyilestirme",
+        "uyu-ic-kontrol"
+      ]
+    },
+    {
+      "id": "krk-likidite-yonetimi",
+      "ad": "Likidite Riski Yönetimi",
+      "kume_id": "kredi-risk-yonetimi",
+      "aciklama": "Banka likidite pozisyonunun yönetimi, LCR ve NSFR rasyolarının izlenmesi, likidite stres testleri.",
+      "anahtar_kelimeler": [
+        "likidite",
+        "LCR",
+        "NSFR",
+        "likidite riski"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "rapor-üretimi",
+        "model-validasyonu"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "hsp-alm",
+        "krk-stres-testi",
+        "krk-basel-uygulamalari"
+      ]
+    },
+    {
+      "id": "krk-karsi-taraf-riski",
+      "ad": "Karşı Taraf Kredi Riski (CCR)",
+      "kume_id": "kredi-risk-yonetimi",
+      "aciklama": "Türev işlemler ve repo işlemlerinde karşı taraf kredi riskinin ölçümü ve yönetimi (CVA, EAD).",
+      "anahtar_kelimeler": [
+        "CCR",
+        "CVA",
+        "EAD",
+        "karşı taraf riski"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "model-validasyonu"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "hsp-turev-araclar",
+        "krk-piyasa-riski",
+        "krk-basel-uygulamalari"
+      ]
+    },
+    {
+      "id": "krk-model-validasyonu",
+      "ad": "Risk Modeli Validasyonu",
+      "kume_id": "kredi-risk-yonetimi",
+      "aciklama": "Banka içi risk modellerinin (PD, LGD, EAD, EWS, scorecard) bağımsız validasyonu; backtesting ve benchmarking.",
+      "anahtar_kelimeler": [
+        "model validasyonu",
+        "backtesting",
+        "benchmarking",
+        "model risk"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "validasyon-raporu",
+        "denetim-katılım"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "ver-istatistik-modelleme",
+        "krk-ifrs9",
+        "krk-piyasa-riski"
+      ]
+    },
+    {
+      "id": "hsp-alm",
+      "ad": "Aktif-Pasif Yönetimi (ALM)",
+      "kume_id": "hazine-sermaye-piyasalari",
+      "aciklama": "Bankanın aktif ve pasif kalemlerinin vade, faiz ve likidite uyumunu yönetme; ALCO süreçleri.",
+      "anahtar_kelimeler": [
+        "ALM",
+        "asset-liability",
+        "ALCO",
+        "duration gap"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "ALCO-katılım",
+        "model-validasyonu"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "krk-likidite-yonetimi",
+        "krk-piyasa-riski",
+        "hsp-sabit-getirili"
+      ]
+    },
+    {
+      "id": "hsp-fx-para-piyasalari",
+      "ad": "FX ve Para Piyasaları İşlemleri",
+      "kume_id": "hazine-sermaye-piyasalari",
+      "aciklama": "Spot ve forward döviz işlemleri, para piyasası araçları, swap işlemleri.",
+      "anahtar_kelimeler": [
+        "FX",
+        "döviz",
+        "spot",
+        "forward",
+        "swap",
+        "money market"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "dealer-pozisyon",
+        "performans-yorumu"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "hsp-turev-araclar",
+        "hsp-alm",
+        "krk-piyasa-riski"
+      ]
+    },
+    {
+      "id": "hsp-sabit-getirili",
+      "ad": "Sabit Getirili Menkul Kıymetler",
+      "kume_id": "hazine-sermaye-piyasalari",
+      "aciklama": "Tahvil, bono, eurobond piyasaları; getiri eğrisi analizi; duration ve convexity hesaplamaları.",
+      "anahtar_kelimeler": [
+        "tahvil",
+        "bono",
+        "eurobond",
+        "yield curve",
+        "duration"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "trading-performans"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "hsp-alm",
+        "hsp-turev-araclar",
+        "krk-piyasa-riski"
+      ]
+    },
+    {
+      "id": "hsp-turev-araclar",
+      "ad": "Türev Araçlar ve Hedging",
+      "kume_id": "hazine-sermaye-piyasalari",
+      "aciklama": "Futures, options, swaps; opsiyon fiyatlama, delta-gamma hedging; müşteri için türev çözümler.",
+      "anahtar_kelimeler": [
+        "türev",
+        "opsiyon",
+        "futures",
+        "swap",
+        "hedging"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "yapılandırılan-işlem-sayısı"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "hsp-fx-para-piyasalari",
+        "krk-karsi-taraf-riski",
+        "krk-piyasa-riski"
+      ]
+    },
+    {
+      "id": "hsp-yatirim-bankaciligi",
+      "ad": "Yatırım Bankacılığı (IB)",
+      "kume_id": "hazine-sermaye-piyasalari",
+      "aciklama": "Halka arz, M&A danışmanlığı, kurumsal finansman, syndicated lending.",
+      "anahtar_kelimeler": [
+        "yatırım bankacılığı",
+        "M&A",
+        "halka arz",
+        "IPO"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "kapatılan-işlem",
+        "deal-değeri"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 36,
+      "ilgili_beceriler": [
+        "krk-kurumsal-kredi-tahsis",
+        "hsp-sabit-getirili",
+        "ktb-proje-finansmani"
+      ]
+    },
+    {
+      "id": "hsp-aracilik-broker",
+      "ad": "Aracılık ve Broker Hizmetleri",
+      "kume_id": "hazine-sermaye-piyasalari",
+      "aciklama": "BIST ve diğer borsalarda aracılık, müşteri portföy yönetimi, broker hizmetleri.",
+      "anahtar_kelimeler": [
+        "aracılık",
+        "broker",
+        "BIST",
+        "portföy yönetimi"
+      ],
+      "kanit_kaynaklari": [
+        "SPK-lisans",
+        "müşteri-portföy"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "hsp-sabit-getirili",
+        "bir-ozel-bankacilik"
+      ]
+    },
+    {
+      "id": "hsp-yapilandirilmis-urunler",
+      "ad": "Yapılandırılmış Ürünler",
+      "kume_id": "hazine-sermaye-piyasalari",
+      "aciklama": "Kurumsal ve özel bankacılık müşterileri için yapılandırılmış yatırım ürünleri tasarımı.",
+      "anahtar_kelimeler": [
+        "structured products",
+        "yapılandırılmış ürün",
+        "exotic options"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "tasarlanan-ürün-sayısı"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "hsp-turev-araclar",
+        "hsp-yatirim-bankaciligi",
+        "bir-ozel-bankacilik"
+      ]
+    },
+    {
+      "id": "hsp-spk-mevzuati",
+      "ad": "SPK Mevzuatı ve Sermaye Piyasası Düzenlemeleri",
+      "kume_id": "hazine-sermaye-piyasalari",
+      "aciklama": "Sermaye Piyasası Kurulu düzenlemeleri, lisanslama gereklilikleri, MiFID II uyumlu işlemler.",
+      "anahtar_kelimeler": [
+        "SPK",
+        "MiFID",
+        "sermaye piyasası mevzuatı"
+      ],
+      "kanit_kaynaklari": [
+        "SPK-lisans",
+        "sertifika",
+        "uyum-denetimi"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "uyu-bddk-mevzuati",
+        "hsp-aracilik-broker"
+      ]
+    },
+    {
+      "id": "bir-bireysel-kredi-urunleri",
+      "ad": "Bireysel Kredi Ürünleri (İhtiyaç, Konut, Taşıt)",
+      "kume_id": "bireysel-bankacilik",
+      "aciklama": "İhtiyaç kredisi, konut kredisi, taşıt kredisi ürün yönetimi ve müşteri tahsisi.",
+      "anahtar_kelimeler": [
+        "ihtiyaç kredisi",
+        "konut kredisi",
+        "taşıt kredisi",
+        "bireysel kredi"
+      ],
+      "kanit_kaynaklari": [
+        "satış-hedefi",
+        "performans-yorumu",
+        "müşteri-portföy"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 6,
+      "ilgili_beceriler": [
+        "krk-bireysel-kredi-skorlama",
+        "sub-musteri-iliskileri",
+        "bir-mortgage"
+      ]
+    },
+    {
+      "id": "bir-mortgage",
+      "ad": "Mortgage ve Konut Finansmanı",
+      "kume_id": "bireysel-bankacilik",
+      "aciklama": "Konut kredisi süreçleri, ekspertiz, ipotek işlemleri, konut kredisi tahsis politikaları.",
+      "anahtar_kelimeler": [
+        "mortgage",
+        "konut kredisi",
+        "ipotek",
+        "ekspertiz"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "tahsis-sayisi",
+        "performans-yorumu"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "bir-bireysel-kredi-urunleri",
+        "krk-bireysel-kredi-skorlama"
+      ]
+    },
+    {
+      "id": "bir-mevduat-birikim",
+      "ad": "Mevduat ve Birikim Ürünleri",
+      "kume_id": "bireysel-bankacilik",
+      "aciklama": "Vadeli/vadesiz mevduat, döviz tevdiat, altın hesap, gelir paylaşımı ve katılım fonları.",
+      "anahtar_kelimeler": [
+        "mevduat",
+        "vadeli hesap",
+        "döviz tevdiat",
+        "altın hesap"
+      ],
+      "kanit_kaynaklari": [
+        "satış-hedefi",
+        "portföy-büyüklüğü"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 6,
+      "ilgili_beceriler": [
+        "bir-portfoy-yonetimi",
+        "hsp-fx-para-piyasalari"
+      ]
+    },
+    {
+      "id": "bir-kart-odeme-sistemleri",
+      "ad": "Kart ve Ödeme Sistemleri",
+      "kume_id": "bireysel-bankacilik",
+      "aciklama": "Kredi kartı, banka kartı, prepaid kart ürünleri; POS, QR ve mobil ödeme sistemleri.",
+      "anahtar_kelimeler": [
+        "kredi kartı",
+        "POS",
+        "ödeme sistemleri",
+        "QR ödeme"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "ürün-portföyü",
+        "performans-yorumu"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "bir-bireysel-kredi-urunleri",
+        "dij-dijital-odeme",
+        "ops-kart-operasyonlari"
+      ]
+    },
+    {
+      "id": "bir-emeklilik-sigorta",
+      "ad": "Bireysel Emeklilik ve Sigorta Ürünleri",
+      "kume_id": "bireysel-bankacilik",
+      "aciklama": "BES, hayat sigortası ve diğer bankasürans ürünlerinin müşterilere sunumu ve tahsisi.",
+      "anahtar_kelimeler": [
+        "BES",
+        "bireysel emeklilik",
+        "hayat sigortası",
+        "bankasürans"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "satış-hedefi",
+        "müşteri-portföy"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 6,
+      "ilgili_beceriler": [
+        "bir-mevduat-birikim",
+        "bir-portfoy-yonetimi"
+      ]
+    },
+    {
+      "id": "bir-ozel-bankacilik",
+      "ad": "Özel Bankacılık (Private Banking)",
+      "kume_id": "bireysel-bankacilik",
+      "aciklama": "Yüksek varlıklı müşterilere yönelik portföy yönetimi, varlık planlaması, kişiselleştirilmiş hizmetler.",
+      "anahtar_kelimeler": [
+        "özel bankacılık",
+        "private banking",
+        "varlık yönetimi",
+        "HNW"
+      ],
+      "kanit_kaynaklari": [
+        "SPK-lisans",
+        "müşteri-portföy-büyüklüğü"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 36,
+      "ilgili_beceriler": [
+        "hsp-aracilik-broker",
+        "bir-portfoy-yonetimi",
+        "hsp-yapilandirilmis-urunler"
+      ]
+    },
+    {
+      "id": "bir-portfoy-yonetimi",
+      "ad": "Bireysel Müşteri Portföy Yönetimi",
+      "kume_id": "bireysel-bankacilik",
+      "aciklama": "Atanmış müşteri portföyünün yönetimi, cross-sell, müşteri ilişkilerinin sürdürülmesi.",
+      "anahtar_kelimeler": [
+        "portföy yönetimi",
+        "RM",
+        "cross-sell",
+        "müşteri sadakati"
+      ],
+      "kanit_kaynaklari": [
+        "satış-hedefi",
+        "müşteri-sayısı",
+        "NPS"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "dav-musteri-odaklilik",
+        "sub-musteri-iliskileri",
+        "mdx-musteri-yolculugu"
+      ]
+    },
+    {
+      "id": "bir-fatura-odeme-altyapilari",
+      "ad": "Fatura, Vergi ve Tahsilat Altyapıları",
+      "kume_id": "bireysel-bankacilik",
+      "aciklama": "Fatura ödeme, vergi ödeme, çeşitli tahsilat anlaşmalarının yönetimi ve operasyonel süreçleri.",
+      "anahtar_kelimeler": [
+        "fatura ödeme",
+        "tahsilat",
+        "vergi ödemeleri",
+        "otomatik ödeme"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "anlaşma-sayisi"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 6,
+      "ilgili_beceriler": [
+        "ops-eft-havale",
+        "dij-dijital-odeme"
+      ]
+    },
+    {
+      "id": "ktb-kobi-bankaciligi",
+      "ad": "KOBİ Bankacılığı",
+      "kume_id": "kurumsal-ticari-bankacilik",
+      "aciklama": "KOBİ segmentine yönelik finansal çözümler, kredi tahsisi, hesap ilişkileri ve sektörel uzmanlık.",
+      "anahtar_kelimeler": [
+        "KOBİ",
+        "ticari bankacılık",
+        "esnaf",
+        "küçük işletme"
+      ],
+      "kanit_kaynaklari": [
+        "portföy-büyüklüğü",
+        "satış-hedefi",
+        "performans-yorumu"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "krk-kobi-kredi-skorlama",
+        "ktb-dis-ticaret",
+        "ktb-nakit-yonetimi"
+      ]
+    },
+    {
+      "id": "ktb-kurumsal-bankacilik",
+      "ad": "Kurumsal Bankacılık (Büyük Müşteri)",
+      "kume_id": "kurumsal-ticari-bankacilik",
+      "aciklama": "Büyük kurumsal müşterilere ilişki yönetimi, kapsamlı bankacılık çözümleri ve portföy büyütme.",
+      "anahtar_kelimeler": [
+        "kurumsal bankacılık",
+        "büyük müşteri",
+        "RM",
+        "wholesale"
+      ],
+      "kanit_kaynaklari": [
+        "portföy-büyüklüğü",
+        "performans-yorumu",
+        "deal-sayısı"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "krk-kurumsal-kredi-tahsis",
+        "ktb-nakit-yonetimi",
+        "ktb-proje-finansmani"
+      ]
+    },
+    {
+      "id": "ktb-nakit-yonetimi",
+      "ad": "Nakit Yönetimi (Cash Management)",
+      "kume_id": "kurumsal-ticari-bankacilik",
+      "aciklama": "Kurumsal müşterilerin nakit akışı, toplama, ödeme ve likidite yönetimi çözümleri.",
+      "anahtar_kelimeler": [
+        "nakit yönetimi",
+        "cash management",
+        "toplama",
+        "ödeme çözümleri"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "ürün-portföyü",
+        "müşteri-sayısı"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "ktb-kurumsal-bankacilik",
+        "ops-eft-havale",
+        "dij-open-banking"
+      ]
+    },
+    {
+      "id": "ktb-dis-ticaret",
+      "ad": "Dış Ticaret Finansmanı ve Akreditif",
+      "kume_id": "kurumsal-ticari-bankacilik",
+      "aciklama": "İthalat/ihracat finansmanı, akreditif, teminat mektubu, dış ticaret işlemleri.",
+      "anahtar_kelimeler": [
+        "dış ticaret",
+        "akreditif",
+        "L/C",
+        "teminat mektubu",
+        "ithalat",
+        "ihracat"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "işlem-sayisi",
+        "portföy"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "ktb-kobi-bankaciligi",
+        "ops-takas-mutabakat",
+        "uyu-masak"
+      ]
+    },
+    {
+      "id": "ktb-proje-finansmani",
+      "ad": "Proje Finansmanı",
+      "kume_id": "kurumsal-ticari-bankacilik",
+      "aciklama": "Altyapı, enerji ve büyük yatırım projelerinin uzun vadeli finansmanı.",
+      "anahtar_kelimeler": [
+        "proje finansmanı",
+        "altyapı",
+        "enerji",
+        "PPP"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "tamamlanan-proje",
+        "kredi-büyüklüğü"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 36,
+      "ilgili_beceriler": [
+        "krk-kurumsal-kredi-tahsis",
+        "hsp-yatirim-bankaciligi",
+        "ktb-sendikasyon"
+      ]
+    },
+    {
+      "id": "ktb-sendikasyon",
+      "ad": "Sendikasyon ve Yapılandırılmış Finansman",
+      "kume_id": "kurumsal-ticari-bankacilik",
+      "aciklama": "Birden fazla bankanın katıldığı büyük kredilerin yapılandırılması ve lider banka rolü.",
+      "anahtar_kelimeler": [
+        "sendikasyon",
+        "syndicated loan",
+        "club deal",
+        "structured finance"
+      ],
+      "kanit_kaynaklari": [
+        "tamamlanan-deal",
+        "underwriting-büyüklüğü"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 36,
+      "ilgili_beceriler": [
+        "ktb-proje-finansmani",
+        "hsp-yatirim-bankaciligi",
+        "krk-kurumsal-kredi-tahsis"
+      ]
+    },
+    {
+      "id": "ktb-tarim-bankaciligi",
+      "ad": "Tarım Bankacılığı",
+      "kume_id": "kurumsal-ticari-bankacilik",
+      "aciklama": "Tarım sektörüne özel kredi ürünleri, çiftçi finansmanı ve agribusiness çözümleri.",
+      "anahtar_kelimeler": [
+        "tarım kredisi",
+        "çiftçi",
+        "agribusiness"
+      ],
+      "kanit_kaynaklari": [
+        "portföy-büyüklüğü",
+        "performans-yorumu"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "ktb-kobi-bankaciligi",
+        "krk-kobi-kredi-skorlama"
+      ]
+    },
+    {
+      "id": "sub-gise-nakit",
+      "ad": "Gişe ve Nakit Yönetimi",
+      "kume_id": "sube-operasyonlari",
+      "aciklama": "Şube gişe işlemleri, nakit kasası yönetimi, günlük açılış ve kapanış işlemleri.",
+      "anahtar_kelimeler": [
+        "gişe",
+        "veznedar",
+        "nakit",
+        "kasa"
+      ],
+      "kanit_kaynaklari": [
+        "performans-yorumu",
+        "hata-oranı",
+        "kasa-mutabakat"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 3,
+      "ilgili_beceriler": [
+        "sub-musteri-iliskileri",
+        "ops-takas-mutabakat"
+      ]
+    },
+    {
+      "id": "sub-musteri-iliskileri",
+      "ad": "Şube Müşteri İlişkileri",
+      "kume_id": "sube-operasyonlari",
+      "aciklama": "Şubeye gelen müşterilere ihtiyaç analizi, ürün önerme, ilişki kurma ve şikayet yönetimi.",
+      "anahtar_kelimeler": [
+        "müşteri ilişkileri",
+        "şube satış",
+        "müşteri temsilcisi"
+      ],
+      "kanit_kaynaklari": [
+        "satış-hedefi",
+        "NPS",
+        "performans-yorumu"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 6,
+      "ilgili_beceriler": [
+        "bir-portfoy-yonetimi",
+        "dav-musteri-odaklilik",
+        "mdx-sikayet-yonetimi"
+      ]
+    },
+    {
+      "id": "sub-satis-hedef",
+      "ad": "Şube Satış ve Hedef Yönetimi",
+      "kume_id": "sube-operasyonlari",
+      "aciklama": "Şube satış hedeflerinin ekibe yayılması, takibi, koçluk ve hedef gerçekleştirme süreçleri.",
+      "anahtar_kelimeler": [
+        "şube satışı",
+        "hedef yönetimi",
+        "ekip satışı"
+      ],
+      "kanit_kaynaklari": [
+        "hedef-gerçekleşme",
+        "performans-yorumu"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "lid-ekip-yonetimi",
+        "lid-performans-yonetimi",
+        "sub-musteri-iliskileri"
+      ]
+    },
+    {
+      "id": "sub-musteri-kazanimi",
+      "ad": "Müşteri Kazanımı ve Onboarding",
+      "kume_id": "sube-operasyonlari",
+      "aciklama": "Yeni müşteri açma süreçleri, KYC, ilk ürün tahsisi ve aktif kullanıma geçiş.",
+      "anahtar_kelimeler": [
+        "müşteri kazanımı",
+        "onboarding",
+        "KYC",
+        "müşteri açma"
+      ],
+      "kanit_kaynaklari": [
+        "yeni-müşteri-sayisi",
+        "aktivasyon-orani"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 6,
+      "ilgili_beceriler": [
+        "uyu-masak",
+        "sub-musteri-iliskileri",
+        "uyu-kvkk"
+      ]
+    },
+    {
+      "id": "sub-sube-yonetimi",
+      "ad": "Şube Yönetimi",
+      "kume_id": "sube-operasyonlari",
+      "aciklama": "Bir şubenin operasyonel, satış, risk ve insan kaynakları açısından bütünsel yönetimi.",
+      "anahtar_kelimeler": [
+        "şube müdürü",
+        "şube yönetimi",
+        "P&L"
+      ],
+      "kanit_kaynaklari": [
+        "şube-performans",
+        "P&L",
+        "denetim-sonuçları"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 60,
+      "ilgili_beceriler": [
+        "lid-ekip-yonetimi",
+        "sub-satis-hedef",
+        "sub-sube-risk-denetim"
+      ]
+    },
+    {
+      "id": "sub-sube-risk-denetim",
+      "ad": "Şube Risk ve Denetim",
+      "kume_id": "sube-operasyonlari",
+      "aciklama": "Şube içi operasyonel risklerin izlenmesi, iç kontrol süreçlerine uyum, denetim hazırlıkları.",
+      "anahtar_kelimeler": [
+        "şube risk",
+        "iç kontrol",
+        "şube denetim"
+      ],
+      "kanit_kaynaklari": [
+        "denetim-sonuçları",
+        "uyum-skoru"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "uyu-ic-kontrol",
+        "krk-operasyonel-risk",
+        "uyu-masak"
+      ]
+    },
+    {
+      "id": "sub-cagri-merkezi",
+      "ad": "Çağrı Merkezi Operasyonları",
+      "kume_id": "sube-operasyonlari",
+      "aciklama": "Çağrı merkezi müşteri temsilciliği, IVR, satış, şikayet ve teknik destek süreçleri.",
+      "anahtar_kelimeler": [
+        "çağrı merkezi",
+        "müşteri temsilcisi",
+        "IVR",
+        "inbound",
+        "outbound"
+      ],
+      "kanit_kaynaklari": [
+        "çağrı-kalite",
+        "FCR",
+        "AHT"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 6,
+      "ilgili_beceriler": [
+        "sub-musteri-iliskileri",
+        "mdx-sikayet-yonetimi",
+        "dav-iletisim"
+      ]
+    },
+    {
+      "id": "dij-mobil-bankacilik",
+      "ad": "Mobil Bankacılık Ürün Yönetimi",
+      "kume_id": "dijital-bankacilik",
+      "aciklama": "Mobil bankacılık uygulamasının ürün stratejisi, yol haritası, müşteri deneyimi ve fonksiyonel geliştirmeler.",
+      "anahtar_kelimeler": [
+        "mobil bankacılık",
+        "ürün yönetimi",
+        "mobile app"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "MAU/DAU",
+        "lansman-sayisi"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "dij-musteri-yolculugu",
+        "dij-cx-tasarim",
+        "ver-musteri-analitigi"
+      ]
+    },
+    {
+      "id": "dij-internet-bankaciligi",
+      "ad": "İnternet Bankacılığı",
+      "kume_id": "dijital-bankacilik",
+      "aciklama": "Web tabanlı bankacılık platformunun ürün ve operasyon yönetimi.",
+      "anahtar_kelimeler": [
+        "internet bankacılığı",
+        "web bankacılığı",
+        "online banking"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "kullanıcı-sayısı"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "dij-mobil-bankacilik",
+        "dij-cx-tasarim"
+      ]
+    },
+    {
+      "id": "dij-dijital-odeme",
+      "ad": "Dijital Ödeme Sistemleri ve QR",
+      "kume_id": "dijital-bankacilik",
+      "aciklama": "TR Karekod, FAST, BKM Express, mobil ödeme cüzdanları, anlık ödeme sistemleri.",
+      "anahtar_kelimeler": [
+        "QR ödeme",
+        "FAST",
+        "TR Karekod",
+        "BKM",
+        "dijital cüzdan"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "işlem-hacmi"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "bir-kart-odeme-sistemleri",
+        "dij-open-banking"
+      ]
+    },
+    {
+      "id": "dij-open-banking",
+      "ad": "Open Banking ve API Ekosistemi",
+      "kume_id": "dijital-bankacilik",
+      "aciklama": "Open banking düzenlemeleri (BDDK), API stratejisi, üçüncü taraf entegrasyonları (TPP).",
+      "anahtar_kelimeler": [
+        "open banking",
+        "API",
+        "PSD2",
+        "TPP",
+        "ekosistem"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "API-sayisi",
+        "ortak-sayisi"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "dij-fintech-ortakliklari",
+        "uyu-bddk-mevzuati",
+        "dij-baas"
+      ]
+    },
+    {
+      "id": "dij-musteri-yolculugu",
+      "ad": "Dijital Müşteri Yolculuğu",
+      "kume_id": "dijital-bankacilik",
+      "aciklama": "Müşterinin dijital kanallardaki uçtan uca yolculuğunun tasarımı, ölçümü ve iyileştirilmesi.",
+      "anahtar_kelimeler": [
+        "customer journey",
+        "müşteri yolculuğu",
+        "dijital deneyim"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "conversion-orani",
+        "NPS"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "mdx-musteri-yolculugu",
+        "dij-cx-tasarim",
+        "ver-musteri-analitigi"
+      ]
+    },
+    {
+      "id": "dij-cx-tasarim",
+      "ad": "UX/UI Tasarım (Bankacılık)",
+      "kume_id": "dijital-bankacilik",
+      "aciklama": "Bankacılık uygulamaları için kullanıcı arayüzü ve deneyim tasarımı, prototipleme, kullanılabilirlik testleri.",
+      "anahtar_kelimeler": [
+        "UX",
+        "UI",
+        "tasarım",
+        "Figma",
+        "prototip"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "kullanıcı-testi",
+        "portfolyo"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "dij-musteri-yolculugu",
+        "dij-mobil-bankacilik"
+      ]
+    },
+    {
+      "id": "dij-fintech-ortakliklari",
+      "ad": "FinTech Ortaklıkları ve İş Geliştirme",
+      "kume_id": "dijital-bankacilik",
+      "aciklama": "FinTech şirketleriyle stratejik ortaklıklar, iş modeli tasarımı, entegrasyon süreçleri.",
+      "anahtar_kelimeler": [
+        "fintech",
+        "iş geliştirme",
+        "BD",
+        "ortaklık"
+      ],
+      "kanit_kaynaklari": [
+        "yapılan-ortaklık",
+        "ciro-etkisi"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "dij-open-banking",
+        "dij-baas"
+      ]
+    },
+    {
+      "id": "dij-baas",
+      "ad": "Banking-as-a-Service (BaaS)",
+      "kume_id": "dijital-bankacilik",
+      "aciklama": "Banka altyapısının üçüncü taraflara servis olarak sunulması; BaaS iş modelleri ve operasyon.",
+      "anahtar_kelimeler": [
+        "BaaS",
+        "embedded finance",
+        "servisleştirme"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "müşteri-partner-sayısı"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "dij-open-banking",
+        "dij-fintech-ortakliklari"
+      ]
+    },
+    {
+      "id": "uyu-bddk-mevzuati",
+      "ad": "BDDK Mevzuatı ve Bankacılık Düzenlemeleri",
+      "kume_id": "uyum-mevzuat-hukuk",
+      "aciklama": "5411 sayılı Bankacılık Kanunu, BDDK düzenlemeleri, yönetmelikler ve genelgeleri uygulama bilgisi.",
+      "anahtar_kelimeler": [
+        "BDDK",
+        "5411",
+        "bankacılık mevzuatı",
+        "yönetmelik"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "uyum-denetimi",
+        "rapor-üretimi"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "uyu-ic-kontrol",
+        "krk-basel-uygulamalari",
+        "hsp-spk-mevzuati"
+      ]
+    },
+    {
+      "id": "uyu-masak",
+      "ad": "MASAK ve Suç Gelirleri Aklanması ile Mücadele",
+      "kume_id": "uyum-mevzuat-hukuk",
+      "aciklama": "MASAK düzenlemelerine uyum, müşteri tanıma (KYC), şüpheli işlem bildirimi, AML/CFT süreçleri.",
+      "anahtar_kelimeler": [
+        "MASAK",
+        "AML",
+        "KYC",
+        "şüpheli işlem",
+        "CFT"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "MASAK-eğitimi",
+        "şüpheli-işlem-tespit"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "uyu-kvkk",
+        "sub-musteri-kazanimi",
+        "uyu-yaptirim-listeleri"
+      ]
+    },
+    {
+      "id": "uyu-kvkk",
+      "ad": "KVKK ve Kişisel Veri Yönetimi",
+      "kume_id": "uyum-mevzuat-hukuk",
+      "aciklama": "6698 sayılı Kişisel Verilerin Korunması Kanunu, GDPR, veri envanteri, açık rıza, veri ihlali yönetimi.",
+      "anahtar_kelimeler": [
+        "KVKK",
+        "GDPR",
+        "kişisel veri",
+        "açık rıza",
+        "veri ihlali"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "KVKK-uyum-projesi"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "uyu-masak",
+        "uyu-bilgi-guvenligi",
+        "ver-veri-yonetisimi"
+      ]
+    },
+    {
+      "id": "uyu-yaptirim-listeleri",
+      "ad": "Yaptırım Listeleri ve Sanksiyon Takibi",
+      "kume_id": "uyum-mevzuat-hukuk",
+      "aciklama": "OFAC, AB, BM yaptırım listeleri ile uyum, ekran tarama (screening) süreçleri.",
+      "anahtar_kelimeler": [
+        "sanctions",
+        "OFAC",
+        "yaptırım listeleri",
+        "screening"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "screening-uygulamasi"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "uyu-masak",
+        "ktb-dis-ticaret"
+      ]
+    },
+    {
+      "id": "uyu-ic-kontrol",
+      "ad": "İç Kontrol ve İç Denetim",
+      "kume_id": "uyum-mevzuat-hukuk",
+      "aciklama": "İç kontrol sistemi tasarımı, iç denetim metodolojisi, COSO çerçevesi, risk bazlı denetim.",
+      "anahtar_kelimeler": [
+        "iç kontrol",
+        "iç denetim",
+        "COSO",
+        "risk bazlı denetim"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "CIA",
+        "denetim-raporu"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "krk-operasyonel-risk",
+        "uyu-bddk-mevzuati"
+      ]
+    },
+    {
+      "id": "uyu-bilgi-guvenligi",
+      "ad": "Bilgi Güvenliği ve Siber Risk Uyumu",
+      "kume_id": "uyum-mevzuat-hukuk",
+      "aciklama": "ISO 27001, COBIT, BDDK Bilgi Sistemleri Yönetmeliği uyumu, siber güvenlik politikaları.",
+      "anahtar_kelimeler": [
+        "bilgi güvenliği",
+        "ISO 27001",
+        "siber güvenlik",
+        "BDDK BS"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "CISA",
+        "denetim-raporu"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "uyu-kvkk",
+        "uyu-bddk-mevzuati"
+      ]
+    },
+    {
+      "id": "uyu-bankacilik-hukuku",
+      "ad": "Bankacılık Hukuku",
+      "kume_id": "uyum-mevzuat-hukuk",
+      "aciklama": "Bankacılık işlemleri, sözleşmeler, teminat hukuku, icra-iflas hukuku, dava süreçleri.",
+      "anahtar_kelimeler": [
+        "bankacılık hukuku",
+        "sözleşme",
+        "teminat",
+        "icra"
+      ],
+      "kanit_kaynaklari": [
+        "barolar-üyelik",
+        "dava-takip",
+        "sözleşme-hazırlama"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 36,
+      "ilgili_beceriler": [
+        "uyu-bddk-mevzuati",
+        "krk-kredi-izleme"
+      ]
+    },
+    {
+      "id": "uyu-etik-davranis-kurallari",
+      "ad": "Etik ve Davranış Kuralları",
+      "kume_id": "uyum-mevzuat-hukuk",
+      "aciklama": "Banka etik kurallarına uyum, çıkar çatışması yönetimi, etik ihlali bildirim süreçleri.",
+      "anahtar_kelimeler": [
+        "etik",
+        "code of conduct",
+        "çıkar çatışması",
+        "whistleblowing"
+      ],
+      "kanit_kaynaklari": [
+        "eğitim",
+        "etik-komitesi-katılım"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 6,
+      "ilgili_beceriler": [
+        "uyu-ic-kontrol"
+      ]
+    },
+    {
+      "id": "ver-sql",
+      "ad": "SQL ve Veri Sorgulama",
+      "kume_id": "veri-analitigi-bi",
+      "aciklama": "İleri SQL sorgulama, performans optimizasyonu, ETL süreçlerinde veri çıkarımı.",
+      "anahtar_kelimeler": [
+        "SQL",
+        "Oracle",
+        "PostgreSQL",
+        "veri sorgulama"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "proje",
+        "kod-örneği"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 6,
+      "ilgili_beceriler": [
+        "ver-veri-muhendisligi",
+        "ver-bi-dashboard",
+        "ver-musteri-analitigi"
+      ]
+    },
+    {
+      "id": "ver-bi-dashboard",
+      "ad": "BI Dashboard ve Veri Görselleştirme",
+      "kume_id": "veri-analitigi-bi",
+      "aciklama": "Power BI, Tableau, QlikView gibi araçlarla yönetici dashboard tasarımı ve self-service BI.",
+      "anahtar_kelimeler": [
+        "BI",
+        "Power BI",
+        "Tableau",
+        "QlikView",
+        "dashboard"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "üretilen-dashboard",
+        "kullanıcı-sayısı"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "ver-sql",
+        "ver-musteri-analitigi"
+      ]
+    },
+    {
+      "id": "ver-istatistik-modelleme",
+      "ad": "İstatistik ve Risk Modellemesi",
+      "kume_id": "veri-analitigi-bi",
+      "aciklama": "İstatistiksel analiz, regresyon, hipotez testi, kredi/risk modellerinin matematiksel temelleri.",
+      "anahtar_kelimeler": [
+        "istatistik",
+        "regresyon",
+        "R",
+        "SAS",
+        "hipotez testi"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "model-örneği",
+        "publikasyon"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "ver-ml-modelleme",
+        "krk-ifrs9",
+        "krk-model-validasyonu"
+      ]
+    },
+    {
+      "id": "ver-ml-modelleme",
+      "ad": "Makine Öğrenmesi ve Modelleme",
+      "kume_id": "veri-analitigi-bi",
+      "aciklama": "Python/R ile ML modelleri (sınıflandırma, regresyon, gradient boosting, neural networks).",
+      "anahtar_kelimeler": [
+        "ML",
+        "Python",
+        "scikit-learn",
+        "XGBoost",
+        "deep learning"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "üretime-alınan-model",
+        "Kaggle"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "ver-istatistik-modelleme",
+        "ver-veri-muhendisligi",
+        "krk-erken-uyari-sistemleri"
+      ]
+    },
+    {
+      "id": "ver-veri-muhendisligi",
+      "ad": "Veri Mühendisliği ve ETL",
+      "kume_id": "veri-analitigi-bi",
+      "aciklama": "Veri pipeline'ları, ETL/ELT, data warehouse, Spark, Airflow, veri kalitesi.",
+      "anahtar_kelimeler": [
+        "data engineering",
+        "ETL",
+        "Spark",
+        "Airflow",
+        "DWH"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "üretim-pipeline",
+        "data-quality-projesi"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "ver-sql",
+        "ver-veri-yonetisimi",
+        "ver-bulut-veri-platformlari"
+      ]
+    },
+    {
+      "id": "ver-musteri-analitigi",
+      "ad": "Müşteri Analitiği ve Segmentasyon",
+      "kume_id": "veri-analitigi-bi",
+      "aciklama": "Müşteri davranış analizi, RFM, churn prediction, LTV hesaplama, segmentasyon modelleri.",
+      "anahtar_kelimeler": [
+        "customer analytics",
+        "segmentasyon",
+        "RFM",
+        "churn",
+        "LTV"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "üretime-alınan-model",
+        "iş-etkisi"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "ver-ml-modelleme",
+        "mdx-segmentasyon",
+        "mdx-kampanya-yonetimi"
+      ]
+    },
+    {
+      "id": "ver-ai-llm-uygulamalari",
+      "ad": "Yapay Zeka ve LLM Uygulamaları",
+      "kume_id": "veri-analitigi-bi",
+      "aciklama": "Generative AI, LLM tabanlı chatbot, doküman özetleme, RAG mimarileri, AI agent geliştirme.",
+      "anahtar_kelimeler": [
+        "AI",
+        "LLM",
+        "GPT",
+        "RAG",
+        "agent",
+        "Generative AI"
+      ],
+      "kanit_kaynaklari": [
+        "üretime-alınan-uygulama",
+        "Sertifika",
+        "proje"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "ver-ml-modelleme",
+        "dij-mobil-bankacilik"
+      ]
+    },
+    {
+      "id": "ver-veri-yonetisimi",
+      "ad": "Veri Yönetişimi ve Veri Kalitesi",
+      "kume_id": "veri-analitigi-bi",
+      "aciklama": "Veri sözlüğü, master data management, veri kalitesi metrikleri, veri sahipliği modelleri.",
+      "anahtar_kelimeler": [
+        "data governance",
+        "veri kalitesi",
+        "MDM",
+        "data dictionary"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "MDM-projesi"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "ver-veri-muhendisligi",
+        "uyu-kvkk"
+      ]
+    },
+    {
+      "id": "ver-bulut-veri-platformlari",
+      "ad": "Bulut Veri Platformları (AWS/Azure/GCP)",
+      "kume_id": "veri-analitigi-bi",
+      "aciklama": "Bulut tabanlı veri platformları (Snowflake, Redshift, BigQuery, Databricks) ile çalışma.",
+      "anahtar_kelimeler": [
+        "cloud",
+        "AWS",
+        "Azure",
+        "Snowflake",
+        "Databricks"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "bulut-projesi"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "ver-veri-muhendisligi",
+        "ver-veri-yonetisimi"
+      ]
+    },
+    {
+      "id": "mdx-segmentasyon",
+      "ad": "Müşteri Segmentasyonu",
+      "kume_id": "musteri-deneyimi-crm",
+      "aciklama": "Davranışsal, demografik ve değer bazlı segmentasyon modelleri; segment bazlı strateji.",
+      "anahtar_kelimeler": [
+        "segmentasyon",
+        "müşteri segmentasyonu",
+        "RFM"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "üretime-alınan-segmentasyon"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "ver-musteri-analitigi",
+        "mdx-kampanya-yonetimi"
+      ]
+    },
+    {
+      "id": "mdx-kampanya-yonetimi",
+      "ad": "Kampanya Yönetimi ve Next-Best-Action",
+      "kume_id": "musteri-deneyimi-crm",
+      "aciklama": "Çok kanallı kampanyaların tasarımı, A/B test, NBA motorları, real-time decisioning.",
+      "anahtar_kelimeler": [
+        "kampanya",
+        "NBA",
+        "next best action",
+        "A/B test"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "kampanya-ROI",
+        "uplift"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "ver-musteri-analitigi",
+        "mdx-segmentasyon",
+        "dij-musteri-yolculugu"
+      ]
+    },
+    {
+      "id": "mdx-nps-cx-olcumu",
+      "ad": "NPS, CES ve Deneyim Ölçümü",
+      "kume_id": "musteri-deneyimi-crm",
+      "aciklama": "Müşteri deneyimi metriklerinin (NPS, CES, CSAT) ölçümü, voice of customer programı.",
+      "anahtar_kelimeler": [
+        "NPS",
+        "CES",
+        "CSAT",
+        "VOC",
+        "deneyim ölçümü"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "anket-programı"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "mdx-musteri-yolculugu",
+        "mdx-sikayet-yonetimi"
+      ]
+    },
+    {
+      "id": "mdx-musteri-yolculugu",
+      "ad": "Müşteri Yolculuğu Haritalama",
+      "kume_id": "musteri-deneyimi-crm",
+      "aciklama": "Müşteri yolculuğu (CJM) tasarımı, pain point analizi, deneyim iyileştirme önerileri.",
+      "anahtar_kelimeler": [
+        "CJM",
+        "müşteri yolculuğu",
+        "service design"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "üretilen-CJM"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "mdx-nps-cx-olcumu",
+        "dij-musteri-yolculugu",
+        "mdx-sikayet-yonetimi"
+      ]
+    },
+    {
+      "id": "mdx-sikayet-yonetimi",
+      "ad": "Şikayet Yönetimi ve Closed-Loop Feedback",
+      "kume_id": "musteri-deneyimi-crm",
+      "aciklama": "Müşteri şikayetlerinin sistematik yönetimi, kök neden analizi, closed-loop feedback süreçleri.",
+      "anahtar_kelimeler": [
+        "şikayet yönetimi",
+        "closed loop",
+        "kök neden"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "şikayet-çözüm-süresi",
+        "tekrar-şikayet-orani"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 6,
+      "ilgili_beceriler": [
+        "sub-musteri-iliskileri",
+        "mdx-nps-cx-olcumu"
+      ]
+    },
+    {
+      "id": "mdx-sadakat-programlari",
+      "ad": "Sadakat Programları",
+      "kume_id": "musteri-deneyimi-crm",
+      "aciklama": "Sadakat programı tasarımı (puanlar, ödüller), maliyet-değer analizi, program operasyonu.",
+      "anahtar_kelimeler": [
+        "sadakat",
+        "loyalty",
+        "World Puan",
+        "Maximil"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "program-üye-sayısı"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "bir-kart-odeme-sistemleri",
+        "mdx-kampanya-yonetimi"
+      ]
+    },
+    {
+      "id": "mdx-crm-platformlari",
+      "ad": "CRM Platformları (Salesforce, Microsoft Dynamics)",
+      "kume_id": "musteri-deneyimi-crm",
+      "aciklama": "CRM sistemlerinin yapılandırılması, müşteri 360 görünümü, satış otomasyonu.",
+      "anahtar_kelimeler": [
+        "CRM",
+        "Salesforce",
+        "Dynamics",
+        "müşteri 360"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "implementasyon-projesi"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "mdx-segmentasyon",
+        "mdx-kampanya-yonetimi"
+      ]
+    },
+    {
+      "id": "ops-sureç-iyilestirme",
+      "ad": "Süreç Tasarımı ve İyileştirme",
+      "kume_id": "operasyon-sureç-yonetimi",
+      "aciklama": "Mevcut süreçlerin haritalanması, darboğaz analizi, Lean Six Sigma yaklaşımıyla iyileştirme.",
+      "anahtar_kelimeler": [
+        "süreç iyileştirme",
+        "Lean",
+        "Six Sigma",
+        "BPM"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "iyileştirme-projesi",
+        "tasarruf"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "ops-otomasyon-rpa",
+        "krk-operasyonel-risk"
+      ]
+    },
+    {
+      "id": "ops-otomasyon-rpa",
+      "ad": "RPA ve Süreç Otomasyonu",
+      "kume_id": "operasyon-sureç-yonetimi",
+      "aciklama": "Robotic Process Automation (UiPath, Blue Prism), iş akışı otomasyonu, intelligent automation.",
+      "anahtar_kelimeler": [
+        "RPA",
+        "otomasyon",
+        "UiPath",
+        "Blue Prism",
+        "IDP"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "üretime-alınan-bot"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "ops-sureç-iyilestirme",
+        "ver-ai-llm-uygulamalari"
+      ]
+    },
+    {
+      "id": "ops-takas-mutabakat",
+      "ad": "Takas ve Mutabakat (Settlement)",
+      "kume_id": "operasyon-sureç-yonetimi",
+      "aciklama": "Banka içi ve dışı mutabakat süreçleri, SWIFT, takas operasyonları.",
+      "anahtar_kelimeler": [
+        "mutabakat",
+        "settlement",
+        "SWIFT",
+        "takas"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "mutabakat-doğruluk"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "ops-eft-havale",
+        "ktb-dis-ticaret"
+      ]
+    },
+    {
+      "id": "ops-eft-havale",
+      "ad": "EFT, Havale ve FAST Operasyonları",
+      "kume_id": "operasyon-sureç-yonetimi",
+      "aciklama": "EFT/Havale operasyonları, FAST anlık ödeme sistemi, takas dışı yönlendirmeler.",
+      "anahtar_kelimeler": [
+        "EFT",
+        "havale",
+        "FAST",
+        "ödeme operasyonları"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "işlem-doğruluk"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 6,
+      "ilgili_beceriler": [
+        "ops-takas-mutabakat",
+        "dij-dijital-odeme"
+      ]
+    },
+    {
+      "id": "ops-kart-operasyonlari",
+      "ad": "Kart Operasyonları",
+      "kume_id": "operasyon-sureç-yonetimi",
+      "aciklama": "Kart üretim, kişiselleştirme, hot-list, chargeback, dispute süreçleri.",
+      "anahtar_kelimeler": [
+        "kart operasyonları",
+        "chargeback",
+        "dispute",
+        "BKM"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "dispute-çözüm-orani"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "bir-kart-odeme-sistemleri",
+        "ops-sureç-iyilestirme"
+      ]
+    },
+    {
+      "id": "ops-proje-yonetimi",
+      "ad": "Proje Yönetimi (PMP/Agile)",
+      "kume_id": "operasyon-sureç-yonetimi",
+      "aciklama": "Banka projelerinin yönetimi - waterfall, Agile, Scrum, PMP metodolojileri.",
+      "anahtar_kelimeler": [
+        "proje yönetimi",
+        "PMP",
+        "Agile",
+        "Scrum",
+        "Kanban"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "PMP",
+        "tamamlanan-proje"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "lid-degisim-yonetimi",
+        "ops-sureç-iyilestirme"
+      ]
+    },
+    {
+      "id": "ops-tedarikçi-yonetimi",
+      "ad": "Tedarikçi ve Outsourcing Yönetimi",
+      "kume_id": "operasyon-sureç-yonetimi",
+      "aciklama": "Banka tedarikçileri ile sözleşme, SLA, performans takibi; outsourcing risklerinin yönetimi.",
+      "anahtar_kelimeler": [
+        "tedarikçi yönetimi",
+        "outsourcing",
+        "SLA",
+        "vendor management"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "tedarikçi-değerlendirme"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "uyu-bilgi-guvenligi",
+        "lid-butce-pnl"
+      ]
+    },
+    {
+      "id": "lid-ekip-yonetimi",
+      "ad": "Ekip Yönetimi ve İnsan Kaynakları",
+      "kume_id": "liderlik-yonetim",
+      "aciklama": "Doğrudan raporların yönetimi, işe alım, oryantasyon, performans değerlendirmesi, ayrılma yönetimi.",
+      "anahtar_kelimeler": [
+        "ekip yönetimi",
+        "yönetim",
+        "people management"
+      ],
+      "kanit_kaynaklari": [
+        "raporlu-çalışan-sayısı",
+        "engagement-skoru",
+        "elde-tutma-orani"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "lid-performans-yonetimi",
+        "lid-koçluk-mentorluk",
+        "dav-iletisim"
+      ]
+    },
+    {
+      "id": "lid-stratejik-dusunme",
+      "ad": "Stratejik Düşünme ve Karar Verme",
+      "kume_id": "liderlik-yonetim",
+      "aciklama": "Uzun vadeli düşünce, stratejik planlama, belirsizlik altında karar verme, sistem düşüncesi.",
+      "anahtar_kelimeler": [
+        "stratejik düşünme",
+        "karar verme",
+        "vizyon",
+        "OKR"
+      ],
+      "kanit_kaynaklari": [
+        "stratejik-plan-üretimi",
+        "MBA",
+        "yönetim-eğitimi"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 36,
+      "ilgili_beceriler": [
+        "lid-degisim-yonetimi",
+        "lid-butce-pnl",
+        "dav-kritik-dusunme"
+      ]
+    },
+    {
+      "id": "lid-performans-yonetimi",
+      "ad": "Performans Yönetimi ve Geri Bildirim",
+      "kume_id": "liderlik-yonetim",
+      "aciklama": "Hedef belirleme, yıl içi takip, performans değerlendirmesi, yapıcı geri bildirim verme.",
+      "anahtar_kelimeler": [
+        "performans yönetimi",
+        "OKR",
+        "KPI",
+        "geri bildirim",
+        "feedback"
+      ],
+      "kanit_kaynaklari": [
+        "değerlendirme-süreci",
+        "engagement-skoru"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "lid-ekip-yonetimi",
+        "lid-koçluk-mentorluk"
+      ]
+    },
+    {
+      "id": "lid-koçluk-mentorluk",
+      "ad": "Koçluk ve Mentorluk",
+      "kume_id": "liderlik-yonetim",
+      "aciklama": "Bireysel koçluk teknikleri, mentorluk programları, GROW modeli, gelişimsel geri bildirim.",
+      "anahtar_kelimeler": [
+        "koçluk",
+        "mentorluk",
+        "GROW",
+        "gelişim"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "mentor-edilen-sayisi",
+        "ICF"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "lid-performans-yonetimi",
+        "lid-ekip-yonetimi"
+      ]
+    },
+    {
+      "id": "lid-degisim-yonetimi",
+      "ad": "Değişim Yönetimi",
+      "kume_id": "liderlik-yonetim",
+      "aciklama": "Organizasyonel değişim süreçleri (ADKAR, Kotter), direnç yönetimi, iletişim planları.",
+      "anahtar_kelimeler": [
+        "change management",
+        "değişim",
+        "ADKAR",
+        "Kotter"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "sertifika",
+        "Prosci"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "lid-stratejik-dusunme",
+        "ops-proje-yonetimi"
+      ]
+    },
+    {
+      "id": "lid-butce-pnl",
+      "ad": "Bütçe ve P&L Yönetimi",
+      "kume_id": "liderlik-yonetim",
+      "aciklama": "Bütçe hazırlama, takip, varyans analizi, P&L sorumluluğu, finansal raporlama.",
+      "anahtar_kelimeler": [
+        "bütçe",
+        "P&L",
+        "varyans",
+        "finansal raporlama"
+      ],
+      "kanit_kaynaklari": [
+        "bütçe-yönetimi",
+        "P&L-sorumluluk"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "lid-stratejik-dusunme"
+      ]
+    },
+    {
+      "id": "lid-çapraz-fonksiyonel-liderlik",
+      "ad": "Çapraz Fonksiyonel Liderlik",
+      "kume_id": "liderlik-yonetim",
+      "aciklama": "Doğrudan raporlanmayan ekipleri etkileme, matris yapılarda liderlik, paydaş yönetimi.",
+      "anahtar_kelimeler": [
+        "matris liderlik",
+        "paydaş yönetimi",
+        "influence without authority"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "çapraz-fonksiyonel-iş"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "dav-muzakere",
+        "lid-stratejik-dusunme"
+      ]
+    },
+    {
+      "id": "lid-yedekleme-kariyer-planlama",
+      "ad": "Yedekleme ve Kariyer Planlama (Yönetici Olarak)",
+      "kume_id": "liderlik-yonetim",
+      "aciklama": "Ekip için yedekleme planları yapma, çalışanların kariyerini destekleme, ardıl hazırlama.",
+      "anahtar_kelimeler": [
+        "succession",
+        "yedekleme",
+        "kariyer planlama"
+      ],
+      "kanit_kaynaklari": [
+        "yedekleme-planı",
+        "iç-terfi-orani"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "lid-koçluk-mentorluk",
+        "lid-performans-yonetimi"
+      ]
+    },
+    {
+      "id": "dav-iletisim",
+      "ad": "Yazılı ve Sözlü İletişim",
+      "kume_id": "davranissal-iletisim",
+      "aciklama": "Etkili e-posta, rapor yazımı, sunum becerileri, açık ve net konuşma.",
+      "anahtar_kelimeler": [
+        "iletişim",
+        "sunum",
+        "yazılı iletişim"
+      ],
+      "kanit_kaynaklari": [
+        "360-feedback",
+        "sunum-değerlendirme"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "dav-muzakere",
+        "dav-musteri-odaklilik"
+      ]
+    },
+    {
+      "id": "dav-muzakere",
+      "ad": "Müzakere ve Etki Becerileri",
+      "kume_id": "davranissal-iletisim",
+      "aciklama": "Win-win müzakere, anlaşmazlık çözümü, müşteri ve iç paydaşlarla müzakere.",
+      "anahtar_kelimeler": [
+        "müzakere",
+        "negotiation",
+        "etki",
+        "ikna"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "tamamlanan-müzakere"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "dav-iletisim",
+        "lid-çapraz-fonksiyonel-liderlik"
+      ]
+    },
+    {
+      "id": "dav-takim-calismasi",
+      "ad": "Takım Çalışması ve İşbirliği",
+      "kume_id": "davranissal-iletisim",
+      "aciklama": "Çok kişili takımlarda etkili çalışma, çatışma yönetimi, ortak sorumluluk üstlenme.",
+      "anahtar_kelimeler": [
+        "takım çalışması",
+        "işbirliği",
+        "collaboration"
+      ],
+      "kanit_kaynaklari": [
+        "360-feedback",
+        "ekip-projeleri"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 6,
+      "ilgili_beceriler": [
+        "dav-iletisim",
+        "dav-esneklik"
+      ]
+    },
+    {
+      "id": "dav-musteri-odaklilik",
+      "ad": "Müşteri Odaklılık",
+      "kume_id": "davranissal-iletisim",
+      "aciklama": "Müşteri ihtiyaçlarını anlama, beklentilerin ötesine geçme, müşteri için çözüm üretme.",
+      "anahtar_kelimeler": [
+        "müşteri odaklılık",
+        "müşteri deneyimi"
+      ],
+      "kanit_kaynaklari": [
+        "NPS",
+        "müşteri-feedback",
+        "360-feedback"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "sub-musteri-iliskileri",
+        "mdx-musteri-yolculugu"
+      ]
+    },
+    {
+      "id": "dav-kritik-dusunme",
+      "ad": "Eleştirel Düşünme ve Problem Çözme",
+      "kume_id": "davranissal-iletisim",
+      "aciklama": "Analitik düşünce, problem yapılandırma, kök neden analizi, alternatif değerlendirme.",
+      "anahtar_kelimeler": [
+        "eleştirel düşünme",
+        "problem çözme",
+        "analitik"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "iyileştirme-katkısı"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "lid-stratejik-dusunme",
+        "ops-sureç-iyilestirme"
+      ]
+    },
+    {
+      "id": "dav-esneklik",
+      "ad": "Esneklik ve Adaptasyon",
+      "kume_id": "davranissal-iletisim",
+      "aciklama": "Belirsizlik altında çalışma, değişen önceliklere uyum, dirençlilik (resilience).",
+      "anahtar_kelimeler": [
+        "esneklik",
+        "adaptasyon",
+        "resilience",
+        "dirençlilik"
+      ],
+      "kanit_kaynaklari": [
+        "360-feedback",
+        "değişim-projeleri"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "lid-degisim-yonetimi",
+        "dav-takim-calismasi"
+      ]
+    },
+    {
+      "id": "dav-zaman-yonetimi",
+      "ad": "Zaman ve Önceliklendirme Yönetimi",
+      "kume_id": "davranissal-iletisim",
+      "aciklama": "Etkili zaman yönetimi, önceliklendirme, çoklu görev yürütme, terminlere uyum.",
+      "anahtar_kelimeler": [
+        "zaman yönetimi",
+        "önceliklendirme",
+        "time management"
+      ],
+      "kanit_kaynaklari": [
+        "360-feedback",
+        "termin-uyumu"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 6,
+      "ilgili_beceriler": [
+        "ops-proje-yonetimi"
+      ]
+    },
+    {
+      "id": "dav-ogrenmeye-aciklik",
+      "ad": "Öğrenmeye Açıklık ve Sürekli Gelişim",
+      "kume_id": "davranissal-iletisim",
+      "aciklama": "Yeni bilgi ve becerilere açık olma, geri bildirimi öğrenme fırsatı görme, growth mindset.",
+      "anahtar_kelimeler": [
+        "öğrenme",
+        "growth mindset",
+        "self-development"
+      ],
+      "kanit_kaynaklari": [
+        "tamamlanan-eğitim",
+        "sertifika",
+        "360-feedback"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 6,
+      "ilgili_beceriler": [
+        "dav-esneklik"
+      ]
+    },
+    {
+      "id": "dav-etik-durusu",
+      "ad": "Etik Duruş ve Güvenilirlik",
+      "kume_id": "davranissal-iletisim",
+      "aciklama": "Banka etik kurallarına uyum, gizliliğe saygı, güven inşa etme, dürüst iletişim.",
+      "anahtar_kelimeler": [
+        "etik",
+        "güvenilirlik",
+        "integrity"
+      ],
+      "kanit_kaynaklari": [
+        "360-feedback",
+        "etik-uyum-skoru"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 6,
+      "ilgili_beceriler": [
+        "uyu-etik-davranis-kurallari"
+      ]
+    },
+    {
+      "id": "krk-tcmb-reeskont",
+      "ad": "TCMB Reeskont Kredileri",
+      "kume_id": "kredi-risk-yonetimi",
+      "aciklama": "TCMB reeskont kredisi süreçleri, ihracat reeskont, döviz kazandırıcı işlemler.",
+      "anahtar_kelimeler": [
+        "TCMB",
+        "reeskont",
+        "ihracat kredisi"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "işlem-sayisi"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "ktb-dis-ticaret",
+        "krk-kobi-kredi-skorlama"
+      ]
+    },
+    {
+      "id": "krk-eximbank-kredileri",
+      "ad": "Eximbank Kredileri ve Devlet Destekleri",
+      "kume_id": "kredi-risk-yonetimi",
+      "aciklama": "Türk Eximbank kredileri, KOSGEB, TÜBİTAK destekleri, devlet destekli kredi paketleri.",
+      "anahtar_kelimeler": [
+        "Eximbank",
+        "KOSGEB",
+        "devlet destekli kredi"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "tahsis-sayisi"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "ktb-dis-ticaret",
+        "krk-kobi-kredi-skorlama"
+      ]
+    },
+    {
+      "id": "krk-yesil-finansman-esg",
+      "ad": "Yeşil Finansman ve ESG Risk",
+      "kume_id": "kredi-risk-yonetimi",
+      "aciklama": "Sürdürülebilirlik bağlantılı krediler (SLL), yeşil tahvil, ESG risk değerlendirmesi.",
+      "anahtar_kelimeler": [
+        "ESG",
+        "yeşil finansman",
+        "SLL",
+        "sürdürülebilirlik"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "ESG-projesi"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "ktb-proje-finansmani",
+        "krk-kurumsal-kredi-tahsis"
+      ]
+    },
+    {
+      "id": "krk-ges-res-kredilendirme",
+      "ad": "GES/RES ve Enerji Projeleri Kredilendirme",
+      "kume_id": "kredi-risk-yonetimi",
+      "aciklama": "Güneş, rüzgar enerjisi santralleri için proje finansmanı, fizibilite analizi, off-taker analizi.",
+      "anahtar_kelimeler": [
+        "GES",
+        "RES",
+        "enerji projesi",
+        "yenilenebilir"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "tamamlanan-proje"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "ktb-proje-finansmani",
+        "krk-yesil-finansman-esg"
+      ]
+    },
+    {
+      "id": "krk-tahsilat-icra",
+      "ad": "Tahsilat ve İcra Süreçleri",
+      "kume_id": "kredi-risk-yonetimi",
+      "aciklama": "Sorunlu kredilerin tahsilatı, hukuki süreçler, varlık satışı, NPL portföy yönetimi.",
+      "anahtar_kelimeler": [
+        "tahsilat",
+        "icra",
+        "NPL",
+        "varlık yönetim"
+      ],
+      "kanit_kaynaklari": [
+        "tahsilat-orani",
+        "performans-yorumu"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "krk-kredi-izleme",
+        "uyu-bankacilik-hukuku"
+      ]
+    },
+    {
+      "id": "krk-teminat-degerlemesi",
+      "ad": "Teminat Değerlemesi ve Yönetimi",
+      "kume_id": "kredi-risk-yonetimi",
+      "aciklama": "Gayrimenkul, taşıt, hisse senedi teminatlarının değerlemesi; LTV hesaplama, teminat takibi.",
+      "anahtar_kelimeler": [
+        "teminat",
+        "ekspertiz",
+        "LTV",
+        "değerleme"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "değerleme-sayisi"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "krk-kurumsal-kredi-tahsis",
+        "bir-mortgage"
+      ]
+    },
+    {
+      "id": "krk-konsantrasyon-risk",
+      "ad": "Konsantrasyon Riski Yönetimi",
+      "kume_id": "kredi-risk-yonetimi",
+      "aciklama": "Sektör, müşteri, ürün, coğrafya bazında konsantrasyon limitlerinin belirlenmesi ve takibi.",
+      "anahtar_kelimeler": [
+        "konsantrasyon",
+        "limit yönetimi",
+        "sektör risk"
+      ],
+      "kanit_kaynaklari": [
+        "rapor-üretimi",
+        "ALCO-katılım"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "krk-portfoy-risk-yonetimi",
+        "krk-basel-uygulamalari"
+      ]
+    },
+    {
+      "id": "hsp-bist-islemleri",
+      "ad": "BIST İşlemleri ve Aracılık",
+      "kume_id": "hazine-sermaye-piyasalari",
+      "aciklama": "BIST pay piyasası, VİOP, BISTECH platformu, müşteri emir yönetimi.",
+      "anahtar_kelimeler": [
+        "BIST",
+        "VİOP",
+        "pay piyasası",
+        "BISTECH"
+      ],
+      "kanit_kaynaklari": [
+        "SPK-lisans",
+        "işlem-hacmi"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "hsp-aracilik-broker",
+        "hsp-spk-mevzuati"
+      ]
+    },
+    {
+      "id": "hsp-fon-yonetimi",
+      "ad": "Fon Yönetimi ve Portföy Yönetim Şirketi",
+      "kume_id": "hazine-sermaye-piyasalari",
+      "aciklama": "Yatırım fonu yönetimi, portföy yönetim şirketi süreçleri, fon performans analizi.",
+      "anahtar_kelimeler": [
+        "fon yönetimi",
+        "portföy yönetim",
+        "yatırım fonu"
+      ],
+      "kanit_kaynaklari": [
+        "SPK-lisans",
+        "yönetilen-portföy"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "hsp-yapilandirilmis-urunler",
+        "bir-ozel-bankacilik"
+      ]
+    },
+    {
+      "id": "hsp-emtia-altin",
+      "ad": "Emtia ve Altın İşlemleri",
+      "kume_id": "hazine-sermaye-piyasalari",
+      "aciklama": "Altın, gümüş, petrol gibi emtia piyasası işlemleri, altın depo hesapları, BIST Kıymetli Madenler.",
+      "anahtar_kelimeler": [
+        "emtia",
+        "altın",
+        "BIST KM",
+        "kıymetli madenler"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "işlem-hacmi"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "hsp-fx-para-piyasalari",
+        "bir-mevduat-birikim"
+      ]
+    },
+    {
+      "id": "hsp-tcmb-iliskileri",
+      "ad": "TCMB İşlemleri ve Para Politikası",
+      "kume_id": "hazine-sermaye-piyasalari",
+      "aciklama": "TCMB açık piyasa işlemleri, swap işlemleri, zorunlu karşılıklar, para politikası takibi.",
+      "anahtar_kelimeler": [
+        "TCMB",
+        "açık piyasa",
+        "zorunlu karşılık",
+        "para politikası"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "rapor-üretimi"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "hsp-alm",
+        "krk-likidite-yonetimi"
+      ]
+    },
+    {
+      "id": "hsp-kurumsal-finansman",
+      "ad": "Kurumsal Finansman Danışmanlığı",
+      "kume_id": "hazine-sermaye-piyasalari",
+      "aciklama": "Sermaye yapılandırma, dividend politikası, IPO/SPO hazırlığı, satın alma finansmanı danışmanlığı.",
+      "anahtar_kelimeler": [
+        "kurumsal finansman",
+        "IPO",
+        "M&A",
+        "danışmanlık"
+      ],
+      "kanit_kaynaklari": [
+        "tamamlanan-deal",
+        "mandate-sayisi"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 36,
+      "ilgili_beceriler": [
+        "hsp-yatirim-bankaciligi",
+        "ktb-kurumsal-bankacilik"
+      ]
+    },
+    {
+      "id": "hsp-katilim-bankaciligi-urunleri",
+      "ad": "Katılım Bankacılığı Ürünleri",
+      "kume_id": "hazine-sermaye-piyasalari",
+      "aciklama": "Sukuk, murabaha, ijara, müşareke gibi katılım bankacılığı araçları.",
+      "anahtar_kelimeler": [
+        "sukuk",
+        "katılım bankacılığı",
+        "murabaha",
+        "ijara"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "tamamlanan-işlem"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "hsp-sabit-getirili",
+        "ktb-kurumsal-bankacilik"
+      ]
+    },
+    {
+      "id": "hsp-piyasa-analizi",
+      "ad": "Piyasa Analizi ve Ekonomik Araştırma",
+      "kume_id": "hazine-sermaye-piyasalari",
+      "aciklama": "Makroekonomik veriler, teknik analiz, temel analiz, piyasa raporları üretimi.",
+      "anahtar_kelimeler": [
+        "piyasa analizi",
+        "ekonomik araştırma",
+        "teknik analiz"
+      ],
+      "kanit_kaynaklari": [
+        "rapor-üretimi",
+        "publikasyon"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "hsp-sabit-getirili",
+        "ver-istatistik-modelleme"
+      ]
+    },
+    {
+      "id": "bir-tarim-bireysel",
+      "ad": "Tarım Kartı ve Çiftçi Bankacılığı",
+      "kume_id": "bireysel-bankacilik",
+      "aciklama": "Tarım Kart ürünleri, çiftçi kayıt sistemi, tarımsal kredi tahsisleri.",
+      "anahtar_kelimeler": [
+        "tarım kartı",
+        "çiftçi",
+        "ÇKS"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "portföy-büyüklüğü"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "ktb-tarim-bankaciligi",
+        "bir-bireysel-kredi-urunleri"
+      ]
+    },
+    {
+      "id": "bir-genç-segment-yonetimi",
+      "ad": "Genç ve Öğrenci Segmenti Yönetimi",
+      "kume_id": "bireysel-bankacilik",
+      "aciklama": "Z kuşağı/öğrenci müşteri segmentine özel ürünler (genç hesap, bursiyer, dijital ürünler).",
+      "anahtar_kelimeler": [
+        "genç segment",
+        "öğrenci",
+        "Z kuşağı",
+        "bursiyer"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "müşteri-kazanım"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 6,
+      "ilgili_beceriler": [
+        "bir-bireysel-kredi-urunleri",
+        "mdx-segmentasyon"
+      ]
+    },
+    {
+      "id": "bir-ucretli-segment",
+      "ad": "Maaş Müşterileri ve Toplu Anlaşmalar",
+      "kume_id": "bireysel-bankacilik",
+      "aciklama": "Kurumsal maaş anlaşmaları, toplu kart/hesap açma, maaş müşterisi cross-sell.",
+      "anahtar_kelimeler": [
+        "maaş anlaşması",
+        "toplu açılım",
+        "cross-sell"
+      ],
+      "kanit_kaynaklari": [
+        "anlaşma-sayisi",
+        "müşteri-kazanım"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "ktb-kobi-bankaciligi",
+        "bir-portfoy-yonetimi"
+      ]
+    },
+    {
+      "id": "bir-ihtiyac-analizi",
+      "ad": "Bireysel İhtiyaç Analizi",
+      "kume_id": "bireysel-bankacilik",
+      "aciklama": "Müşteri risk profili belirleme, yatırım danışmanlığı, finansal planlama yaklaşımı.",
+      "anahtar_kelimeler": [
+        "ihtiyaç analizi",
+        "risk profili",
+        "yatırım danışmanlığı"
+      ],
+      "kanit_kaynaklari": [
+        "SPK-lisans",
+        "müşteri-anket"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "bir-portfoy-yonetimi",
+        "bir-ozel-bankacilik"
+      ]
+    },
+    {
+      "id": "bir-mevduat-fiyatlama",
+      "ad": "Mevduat Fiyatlama ve Kampanya",
+      "kume_id": "bireysel-bankacilik",
+      "aciklama": "Mevduat faiz fiyatlama stratejisi, kampanya tasarımı, elastikiyet analizi.",
+      "anahtar_kelimeler": [
+        "mevduat fiyatlama",
+        "faiz kampanyası",
+        "elastikiyet"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "ürün-portföyü"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "bir-mevduat-birikim",
+        "ver-musteri-analitigi"
+      ]
+    },
+    {
+      "id": "bir-kart-fiyatlama-kampanya",
+      "ad": "Kredi Kartı Fiyatlama ve Kampanya",
+      "kume_id": "bireysel-bankacilik",
+      "aciklama": "Kredi kartı faiz, ücret yapısı, kampanya tasarımı, taksit kampanyaları.",
+      "anahtar_kelimeler": [
+        "kart fiyatlama",
+        "taksit kampanyası",
+        "ücret yapısı"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "ciro-katkısı"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "bir-kart-odeme-sistemleri",
+        "mdx-kampanya-yonetimi"
+      ]
+    },
+    {
+      "id": "bir-sigortacilik-broker",
+      "ad": "Sigorta Brokerajı ve Bankasürans",
+      "kume_id": "bireysel-bankacilik",
+      "aciklama": "Hayat dışı sigortalar, sağlık sigortası, kasko brokerajı, kombine ürün satışı.",
+      "anahtar_kelimeler": [
+        "sigorta broker",
+        "bankasürans",
+        "sağlık sigortası"
+      ],
+      "kanit_kaynaklari": [
+        "SBM-lisans",
+        "satış-hedefi"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "bir-emeklilik-sigorta",
+        "bir-portfoy-yonetimi"
+      ]
+    },
+    {
+      "id": "ktb-leasing-faktoring",
+      "ad": "Leasing ve Faktoring",
+      "kume_id": "kurumsal-ticari-bankacilik",
+      "aciklama": "Finansal kiralama, operasyonel kiralama, faktoring işlemleri ve ürün yönetimi.",
+      "anahtar_kelimeler": [
+        "leasing",
+        "faktoring",
+        "kiralama"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "portföy-büyüklüğü"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "krk-kurumsal-kredi-tahsis",
+        "ktb-kobi-bankaciligi"
+      ]
+    },
+    {
+      "id": "ktb-cek-senet",
+      "ad": "Çek-Senet İşlemleri",
+      "kume_id": "kurumsal-ticari-bankacilik",
+      "aciklama": "Çek tahsilat, çek karnesi, senet işlemleri, KKB Risk Merkezi sorgulamaları.",
+      "anahtar_kelimeler": [
+        "çek",
+        "senet",
+        "KKB",
+        "Risk Merkezi"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "işlem-hacmi"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 6,
+      "ilgili_beceriler": [
+        "ktb-kobi-bankaciligi",
+        "ops-takas-mutabakat"
+      ]
+    },
+    {
+      "id": "ktb-kobi-sektorel-uzmanlik",
+      "ad": "KOBİ Sektörel Uzmanlık (Tekstil/İnşaat/Lojistik)",
+      "kume_id": "kurumsal-ticari-bankacilik",
+      "aciklama": "Belirli sektörlere (tekstil, inşaat, lojistik, gıda vb.) özelleşmiş bankacılık çözümleri.",
+      "anahtar_kelimeler": [
+        "sektörel bankacılık",
+        "tekstil",
+        "inşaat",
+        "lojistik"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "sektör-portföy"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "ktb-kobi-bankaciligi",
+        "krk-kobi-kredi-skorlama"
+      ]
+    },
+    {
+      "id": "ktb-tedarik-zinciri-finansmani",
+      "ad": "Tedarik Zinciri Finansmanı (SCF)",
+      "kume_id": "kurumsal-ticari-bankacilik",
+      "aciklama": "Buyer/supplier finansman platformları, dynamic discounting, reverse factoring.",
+      "anahtar_kelimeler": [
+        "SCF",
+        "tedarik zinciri",
+        "reverse factoring",
+        "dinamik iskonto"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "platform-hacmi"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "ktb-nakit-yonetimi",
+        "ktb-leasing-faktoring"
+      ]
+    },
+    {
+      "id": "ktb-ticari-mevduat-fiyatlama",
+      "ad": "Ticari Mevduat ve Yapılandırılmış Mevduat",
+      "kume_id": "kurumsal-ticari-bankacilik",
+      "aciklama": "Kurumsal müşteri mevduat çözümleri, yapılandırılmış mevduat, swap'lı mevduat.",
+      "anahtar_kelimeler": [
+        "ticari mevduat",
+        "yapılandırılmış mevduat",
+        "swap mevduat"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "portföy-büyüklüğü"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "hsp-fx-para-piyasalari",
+        "ktb-kurumsal-bankacilik"
+      ]
+    },
+    {
+      "id": "ktb-banka-musteri-iliskileri",
+      "ad": "Kurumsal Müşteri İlişkileri (RM)",
+      "kume_id": "kurumsal-ticari-bankacilik",
+      "aciklama": "Kurumsal müşterilerle uzun vadeli ilişki yönetimi, üst düzey iletişim, çoklu ürün satışı.",
+      "anahtar_kelimeler": [
+        "RM",
+        "ilişki yönetimi",
+        "kurumsal müşteri"
+      ],
+      "kanit_kaynaklari": [
+        "müşteri-NPS",
+        "portföy-büyüme"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "ktb-kurumsal-bankacilik",
+        "dav-iletisim"
+      ]
+    },
+    {
+      "id": "ktb-sat-finansmani",
+      "ad": "Satış Finansmanı (Dealer Finance)",
+      "kume_id": "kurumsal-ticari-bankacilik",
+      "aciklama": "Bayi/dealer finansmanı, otomotiv bayi finansmanı, distributor finance programları.",
+      "anahtar_kelimeler": [
+        "dealer finance",
+        "bayi finansmanı",
+        "satış finansmanı"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "portföy-büyüklüğü"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "ktb-kobi-bankaciligi",
+        "ktb-tedarik-zinciri-finansmani"
+      ]
+    },
+    {
+      "id": "sub-bireysel-satis",
+      "ad": "Bireysel Şube Satış",
+      "kume_id": "sube-operasyonlari",
+      "aciklama": "Şubede bireysel müşterilere kredi, kart, mevduat, BES ürünleri satışı.",
+      "anahtar_kelimeler": [
+        "şube satış",
+        "bireysel satış",
+        "cross-sell"
+      ],
+      "kanit_kaynaklari": [
+        "satış-hedefi",
+        "müşteri-portföy"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 6,
+      "ilgili_beceriler": [
+        "bir-bireysel-kredi-urunleri",
+        "sub-musteri-iliskileri"
+      ]
+    },
+    {
+      "id": "sub-kobi-satis-sube",
+      "ad": "Şubede KOBİ Müşteri İlişkileri",
+      "kume_id": "sube-operasyonlari",
+      "aciklama": "Şubeye atanmış KOBİ portföyünün yönetimi, ürün satışı, kredi tahsisi öncesi analiz.",
+      "anahtar_kelimeler": [
+        "KOBİ satış",
+        "şube KOBİ",
+        "RM şube"
+      ],
+      "kanit_kaynaklari": [
+        "portföy-büyüklüğü",
+        "satış-hedefi"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "ktb-kobi-bankaciligi",
+        "krk-kobi-kredi-skorlama"
+      ]
+    },
+    {
+      "id": "sub-ozel-musteri-iliskileri",
+      "ad": "Şubede Özel Bankacılık Müşterileri",
+      "kume_id": "sube-operasyonlari",
+      "aciklama": "Yüksek varlıklı şube müşterileri için kişiselleştirilmiş hizmet, bütüncül finansal planlama.",
+      "anahtar_kelimeler": [
+        "özel bankacılık",
+        "VIP müşteri",
+        "HNW"
+      ],
+      "kanit_kaynaklari": [
+        "portföy-büyüklüğü",
+        "müşteri-NPS"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "bir-ozel-bankacilik",
+        "bir-portfoy-yonetimi"
+      ]
+    },
+    {
+      "id": "sub-bolge-yonetimi",
+      "ad": "Bölge Yönetimi (Çok Şubeli)",
+      "kume_id": "sube-operasyonlari",
+      "aciklama": "Birden fazla şubenin koordinasyonu, bölge hedeflerinin takibi, şube müdürlerinin yönetimi.",
+      "anahtar_kelimeler": [
+        "bölge müdürü",
+        "çok şubeli yönetim"
+      ],
+      "kanit_kaynaklari": [
+        "bölge-performans",
+        "şube-sayisi"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 48,
+      "ilgili_beceriler": [
+        "sub-sube-yonetimi",
+        "lid-çapraz-fonksiyonel-liderlik",
+        "lid-butce-pnl"
+      ]
+    },
+    {
+      "id": "sub-cikis-mulakati-elde-tutma",
+      "ad": "Şube Müşterisi Elde Tutma",
+      "kume_id": "sube-operasyonlari",
+      "aciklama": "Şubeden ayrılan müşterilerin tespiti, müşteri kaybı önleme, retention programları.",
+      "anahtar_kelimeler": [
+        "retention",
+        "müşteri kaybı",
+        "winback"
+      ],
+      "kanit_kaynaklari": [
+        "retention-orani",
+        "winback-skor"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "mdx-musteri-yolculugu",
+        "ver-musteri-analitigi"
+      ]
+    },
+    {
+      "id": "dij-chatbot-asistan",
+      "ad": "Chatbot ve Sanal Asistan",
+      "kume_id": "dijital-bankacilik",
+      "aciklama": "Bankacılık chatbot'larının tasarımı (dialog flow, NLP, intent yönetimi), sesli asistan.",
+      "anahtar_kelimeler": [
+        "chatbot",
+        "sanal asistan",
+        "NLP",
+        "Voice"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "kullanıcı-sayısı",
+        "FCR"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "ver-ai-llm-uygulamalari",
+        "dij-cx-tasarim"
+      ]
+    },
+    {
+      "id": "dij-dijital-onboarding",
+      "ad": "Dijital Müşteri Onboarding (Uzaktan Müşteri Edinme)",
+      "kume_id": "dijital-bankacilik",
+      "aciklama": "Uzaktan kimlik tespiti, video KYC, dijital sözleşme, BDDK uzaktan müşteri edinme.",
+      "anahtar_kelimeler": [
+        "dijital onboarding",
+        "uzaktan müşteri",
+        "video KYC"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "dönüşüm-orani"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "sub-musteri-kazanimi",
+        "uyu-bddk-mevzuati",
+        "uyu-masak"
+      ]
+    },
+    {
+      "id": "dij-musteri-analitigi-dijital",
+      "ad": "Dijital Müşteri Analitiği",
+      "kume_id": "dijital-bankacilik",
+      "aciklama": "Web/mobil analytics, kullanıcı davranış analizi, A/B test platformları, conversion optimizasyonu.",
+      "anahtar_kelimeler": [
+        "digital analytics",
+        "Google Analytics",
+        "Adobe Analytics",
+        "A/B test"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "conversion-uplift"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "ver-musteri-analitigi",
+        "dij-musteri-yolculugu"
+      ]
+    },
+    {
+      "id": "dij-mobil-guvenlik-dolandiricilik",
+      "ad": "Dijital Güvenlik ve Dolandırıcılık (Fraud)",
+      "kume_id": "dijital-bankacilik",
+      "aciklama": "Dijital kanal fraud önleme, biyometrik kimlik doğrulama, davranışsal biyometri, OTP.",
+      "anahtar_kelimeler": [
+        "fraud",
+        "biyometri",
+        "OTP",
+        "fraud önleme"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "fraud-azalış"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "uyu-bilgi-guvenligi",
+        "uyu-masak"
+      ]
+    },
+    {
+      "id": "dij-dijital-yatirim",
+      "ad": "Dijital Yatırım Platformları",
+      "kume_id": "dijital-bankacilik",
+      "aciklama": "Mobil/web yatırım platformları, robo-advisor, dijital varlık yönetimi.",
+      "anahtar_kelimeler": [
+        "dijital yatırım",
+        "robo-advisor",
+        "trading app"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "AUM"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "bir-ozel-bankacilik",
+        "dij-mobil-bankacilik"
+      ]
+    },
+    {
+      "id": "dij-superapp-stratejisi",
+      "ad": "Süper Uygulama (Super-App) Stratejisi",
+      "kume_id": "dijital-bankacilik",
+      "aciklama": "Bankacılığın ötesinde finansal ekosistem (alışveriş, ulaşım, fatura) entegrasyonu, super-app modelleri.",
+      "anahtar_kelimeler": [
+        "super-app",
+        "ekosistem",
+        "lifestyle banking"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "ekosistem-büyüklüğü"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "dij-mobil-bankacilik",
+        "dij-fintech-ortakliklari"
+      ]
+    },
+    {
+      "id": "dij-kripto-dijital-varlik",
+      "ad": "Kripto ve Dijital Varlık Bankacılığı",
+      "kume_id": "dijital-bankacilik",
+      "aciklama": "Kripto varlık saklama, dijital TL pilotları (Merkez Bankası), dijital varlık operasyonları.",
+      "anahtar_kelimeler": [
+        "kripto",
+        "dijital TL",
+        "CBDC",
+        "blockchain"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "proje"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "dij-open-banking",
+        "uyu-bddk-mevzuati"
+      ]
+    },
+    {
+      "id": "uyu-sürekli-mesleki-egitim",
+      "ad": "Sürekli Mesleki Eğitim Yönetimi",
+      "kume_id": "uyum-mevzuat-hukuk",
+      "aciklama": "Çalışanların düzenleyici eğitim yükümlülüklerinin takibi, eğitim programları planlaması.",
+      "anahtar_kelimeler": [
+        "mesleki eğitim",
+        "SPK eğitimi",
+        "BDDK eğitimi"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "eğitim-tamamlama-orani"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "uyu-bddk-mevzuati",
+        "uyu-etik-davranis-kurallari"
+      ]
+    },
+    {
+      "id": "uyu-vergi-mevzuati",
+      "ad": "Vergi Mevzuatı ve Banka Vergi Uygulamaları",
+      "kume_id": "uyum-mevzuat-hukuk",
+      "aciklama": "BSMV, KKDF, stopaj, KDV uygulamaları, FATCA, CRS raporlamaları.",
+      "anahtar_kelimeler": [
+        "vergi",
+        "BSMV",
+        "KKDF",
+        "FATCA",
+        "CRS"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "rapor-üretimi"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "uyu-bddk-mevzuati",
+        "hsp-spk-mevzuati"
+      ]
+    },
+    {
+      "id": "uyu-mali-suclar-arastirma",
+      "ad": "Mali Suçlar Soruşturma ve Forensic",
+      "kume_id": "uyum-mevzuat-hukuk",
+      "aciklama": "İç soruşturma, fraud araştırması, forensic accounting, kanıt toplama.",
+      "anahtar_kelimeler": [
+        "fraud investigation",
+        "forensic",
+        "iç soruşturma"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "CFE",
+        "soruşturma-sayisi"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "uyu-ic-kontrol",
+        "uyu-masak"
+      ]
+    },
+    {
+      "id": "uyu-tuketici-haklari",
+      "ad": "Tüketici Hakları ve TKHK",
+      "kume_id": "uyum-mevzuat-hukuk",
+      "aciklama": "Tüketicinin Korunması Hakkında Kanun, banka şikayet hakem heyetleri, tüketici davalar.",
+      "anahtar_kelimeler": [
+        "tüketici hakları",
+        "TKHK",
+        "hakem heyeti"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "şikayet-çözüm"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "mdx-sikayet-yonetimi",
+        "uyu-bankacilik-hukuku"
+      ]
+    },
+    {
+      "id": "uyu-banka-mevzuat-raporlama",
+      "ad": "Düzenleyici Raporlama (BDDK, TCMB, TBB)",
+      "kume_id": "uyum-mevzuat-hukuk",
+      "aciklama": "BDDK, TCMB, TBB ve diğer düzenleyici otoritelere yapılan periyodik raporlamalar.",
+      "anahtar_kelimeler": [
+        "regulatory reporting",
+        "BDDK raporlama",
+        "TCMB raporlama"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "rapor-doğruluk"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "uyu-bddk-mevzuati",
+        "krk-sermaye-yeterliligi",
+        "ver-veri-yonetisimi"
+      ]
+    },
+    {
+      "id": "uyu-davranissal-kontrol",
+      "ad": "Davranışsal Kontrol ve Conduct Risk",
+      "kume_id": "uyum-mevzuat-hukuk",
+      "aciklama": "Çalışan davranış riskleri, mis-selling, conduct risk yönetimi.",
+      "anahtar_kelimeler": [
+        "conduct risk",
+        "mis-selling",
+        "davranışsal kontrol"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "denetim-skor"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "uyu-etik-davranis-kurallari",
+        "uyu-ic-kontrol"
+      ]
+    },
+    {
+      "id": "ver-python-programlama",
+      "ad": "Python Programlama (Veri)",
+      "kume_id": "veri-analitigi-bi",
+      "aciklama": "Pandas, NumPy, scikit-learn ile veri analizi; Jupyter ortamında çalışma.",
+      "anahtar_kelimeler": [
+        "Python",
+        "pandas",
+        "NumPy",
+        "Jupyter"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "GitHub",
+        "kod-örneği"
+      ],
+      "kritiklik_seviyesi": "cekirdek",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "ver-ml-modelleme",
+        "ver-istatistik-modelleme"
+      ]
+    },
+    {
+      "id": "ver-r-programlama",
+      "ad": "R Programlama (İstatistik)",
+      "kume_id": "veri-analitigi-bi",
+      "aciklama": "R ile istatistiksel modelleme, tidyverse, ileri analitik.",
+      "anahtar_kelimeler": [
+        "R",
+        "tidyverse",
+        "ggplot"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "kod-örneği"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "ver-istatistik-modelleme",
+        "ver-ml-modelleme"
+      ]
+    },
+    {
+      "id": "ver-deep-learning",
+      "ad": "Derin Öğrenme ve Sinir Ağları",
+      "kume_id": "veri-analitigi-bi",
+      "aciklama": "TensorFlow, PyTorch ile derin öğrenme; CNN, RNN, Transformer mimarileri.",
+      "anahtar_kelimeler": [
+        "deep learning",
+        "PyTorch",
+        "TensorFlow",
+        "neural network"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "proje",
+        "publikasyon"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "ver-ml-modelleme",
+        "ver-ai-llm-uygulamalari"
+      ]
+    },
+    {
+      "id": "ver-mlops",
+      "ad": "MLOps ve Model Deployment",
+      "kume_id": "veri-analitigi-bi",
+      "aciklama": "ML modellerinin üretime alınması, monitoring, CI/CD, model versiyonlama.",
+      "anahtar_kelimeler": [
+        "MLOps",
+        "model deployment",
+        "MLflow",
+        "Kubeflow"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "üretim-model-sayisi"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "ver-ml-modelleme",
+        "ver-bulut-veri-platformlari"
+      ]
+    },
+    {
+      "id": "ver-big-data-platformlari",
+      "ad": "Big Data Platformları (Hadoop/Spark)",
+      "kume_id": "veri-analitigi-bi",
+      "aciklama": "Hadoop ekosistemi, Spark, Hive, büyük veri işleme.",
+      "anahtar_kelimeler": [
+        "Hadoop",
+        "Spark",
+        "Hive",
+        "big data"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "proje"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "ver-veri-muhendisligi",
+        "ver-bulut-veri-platformlari"
+      ]
+    },
+    {
+      "id": "ver-veri-mahremiyeti",
+      "ad": "Veri Mahremiyeti (Privacy) ve Anonimleştirme",
+      "kume_id": "veri-analitigi-bi",
+      "aciklama": "Differential privacy, k-anonymity, sentetik veri üretimi, mahremiyet koruyan ML.",
+      "anahtar_kelimeler": [
+        "differential privacy",
+        "anonimleştirme",
+        "synthetic data"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "proje"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "uyu-kvkk",
+        "ver-veri-yonetisimi"
+      ]
+    },
+    {
+      "id": "ver-ai-etik-bias",
+      "ad": "AI Etik ve Bias Yönetimi",
+      "kume_id": "veri-analitigi-bi",
+      "aciklama": "AI modellerinde bias tespit ve giderme, explainable AI (XAI), fairness metrikleri.",
+      "anahtar_kelimeler": [
+        "AI etik",
+        "bias",
+        "explainable AI",
+        "fairness"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "audit-raporu"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "ver-ml-modelleme",
+        "uyu-etik-davranis-kurallari"
+      ]
+    },
+    {
+      "id": "mdx-cinema-tasarim-thinking",
+      "ad": "Hizmet Tasarımı ve Design Thinking",
+      "kume_id": "musteri-deneyimi-crm",
+      "aciklama": "Service design, design thinking metodolojisi, müşteri co-creation atölyeleri.",
+      "anahtar_kelimeler": [
+        "service design",
+        "design thinking",
+        "co-creation"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "atölye-yönetimi"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "mdx-musteri-yolculugu",
+        "dij-cx-tasarim"
+      ]
+    },
+    {
+      "id": "mdx-pazarlama-kanallari",
+      "ad": "Çok Kanallı Pazarlama (Omnichannel)",
+      "kume_id": "musteri-deneyimi-crm",
+      "aciklama": "SMS, e-posta, push notification, sosyal medya, şube koordineli kampanyalar.",
+      "anahtar_kelimeler": [
+        "omnichannel",
+        "çok kanallı pazarlama",
+        "marketing automation"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "kampanya-ROI"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "mdx-kampanya-yonetimi",
+        "dij-musteri-yolculugu"
+      ]
+    },
+    {
+      "id": "mdx-marka-yonetimi",
+      "ad": "Marka ve İletişim Yönetimi",
+      "kume_id": "musteri-deneyimi-crm",
+      "aciklama": "Banka marka stratejisi, reklam, halkla ilişkiler, dijital iletişim.",
+      "anahtar_kelimeler": [
+        "marka yönetimi",
+        "PR",
+        "reklam"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "marka-skor"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "mdx-pazarlama-kanallari"
+      ]
+    },
+    {
+      "id": "mdx-pricing-analitigi",
+      "ad": "Fiyatlama Analitiği",
+      "kume_id": "musteri-deneyimi-crm",
+      "aciklama": "Ürün fiyatlama stratejisi, elastikiyet modelleme, dynamic pricing, müşteri segmenti bazlı fiyatlama.",
+      "anahtar_kelimeler": [
+        "fiyatlama",
+        "pricing analytics",
+        "elastikiyet"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "fiyat-optimizasyon"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "ver-musteri-analitigi",
+        "bir-mevduat-fiyatlama"
+      ]
+    },
+    {
+      "id": "mdx-cocreation-musteri-paneli",
+      "ad": "Müşteri Paneli ve Co-creation Yönetimi",
+      "kume_id": "musteri-deneyimi-crm",
+      "aciklama": "Müşteri panellerinin oluşturulması, ürün geliştirme sürecinde müşteri katılımı.",
+      "anahtar_kelimeler": [
+        "müşteri paneli",
+        "co-creation",
+        "user research"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "panel-sayisi"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "mdx-cinema-tasarim-thinking",
+        "dij-cx-tasarim"
+      ]
+    },
+    {
+      "id": "mdx-test-merge-veri-yonetimi",
+      "ad": "Müşteri Verisi Yönetimi (CDP)",
+      "kume_id": "musteri-deneyimi-crm",
+      "aciklama": "Customer Data Platform implementasyonu, 360 müşteri görünümü, real-time müşteri verisi.",
+      "anahtar_kelimeler": [
+        "CDP",
+        "müşteri 360",
+        "Customer Data Platform"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "platform-implementasyon"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "mdx-crm-platformlari",
+        "ver-veri-muhendisligi"
+      ]
+    },
+    {
+      "id": "ops-sox-uyumlu-süreçler",
+      "ad": "SOX/COSO Uyumlu Süreç Tasarımı",
+      "kume_id": "operasyon-sureç-yonetimi",
+      "aciklama": "İç kontrol çerçevesinde süreçlerin SOX/COSO standartlarına göre tasarımı.",
+      "anahtar_kelimeler": [
+        "SOX",
+        "COSO",
+        "iç kontrol süreçleri"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "denetim-temizliği"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 18,
+      "ilgili_beceriler": [
+        "uyu-ic-kontrol",
+        "ops-sureç-iyilestirme"
+      ]
+    },
+    {
+      "id": "ops-bilgi-sistemleri-mimari",
+      "ad": "Bilgi Sistemleri Mimarisi (Banka)",
+      "kume_id": "operasyon-sureç-yonetimi",
+      "aciklama": "Core banking sistemler, mikroservis mimarisi, API mimarisi, sistem entegrasyonları.",
+      "anahtar_kelimeler": [
+        "core banking",
+        "mimari",
+        "mikroservis",
+        "system integration"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "sertifika"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "dij-open-banking",
+        "ver-bulut-veri-platformlari"
+      ]
+    },
+    {
+      "id": "ops-is-surekliligi",
+      "ad": "İş Sürekliliği ve Felaket Kurtarma (BCP/DR)",
+      "kume_id": "operasyon-sureç-yonetimi",
+      "aciklama": "BCP/DR planlaması, RPO/RTO hedefleri, kriz yönetimi, tatbikat senaryoları.",
+      "anahtar_kelimeler": [
+        "BCP",
+        "DR",
+        "iş sürekliliği",
+        "felaket kurtarma"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "tatbikat-katılım"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "krk-operasyonel-risk",
+        "ops-bilgi-sistemleri-mimari"
+      ]
+    },
+    {
+      "id": "ops-arsiv-dokuman-yonetimi",
+      "ad": "Arşiv ve Doküman Yönetimi",
+      "kume_id": "operasyon-sureç-yonetimi",
+      "aciklama": "Fiziksel ve dijital arşiv, doküman yaşam döngüsü, e-imza, e-fatura entegrasyonu.",
+      "anahtar_kelimeler": [
+        "arşiv",
+        "doküman yönetimi",
+        "e-imza"
+      ],
+      "kanit_kaynaklari": [
+        "proje"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 6,
+      "ilgili_beceriler": [
+        "uyu-kvkk"
+      ]
+    },
+    {
+      "id": "ops-fiziksel-guvenlik",
+      "ad": "Fiziksel Güvenlik ve Şube Güvenliği",
+      "kume_id": "operasyon-sureç-yonetimi",
+      "aciklama": "Şube fiziksel güvenliği, ATM güvenliği, soygun ve dolandırıcılık önleme.",
+      "anahtar_kelimeler": [
+        "fiziksel güvenlik",
+        "ATM güvenliği"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "denetim-skor"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 6,
+      "ilgili_beceriler": [
+        "sub-sube-risk-denetim",
+        "krk-operasyonel-risk"
+      ]
+    },
+    {
+      "id": "ops-lojistik-tedarik-zinciri",
+      "ad": "Lojistik ve İdari İşler",
+      "kume_id": "operasyon-sureç-yonetimi",
+      "aciklama": "Banka idari işleri, satın alma, lojistik, ofis ve şube ekipman yönetimi.",
+      "anahtar_kelimeler": [
+        "idari işler",
+        "satın alma",
+        "lojistik"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "tasarruf"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "ops-tedarikçi-yonetimi"
+      ]
+    },
+    {
+      "id": "ops-call-center-yonetimi",
+      "ad": "Çağrı Merkezi Operasyonel Yönetimi",
+      "kume_id": "operasyon-sureç-yonetimi",
+      "aciklama": "Çağrı merkezi planlama, vardiya yönetimi, workforce management, kalite kontrol.",
+      "anahtar_kelimeler": [
+        "çağrı merkezi yönetimi",
+        "WFM",
+        "workforce management"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "metrik-iyileştirme"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "sub-cagri-merkezi",
+        "lid-ekip-yonetimi"
+      ]
+    },
+    {
+      "id": "lid-yonetim-kurulu-sunum",
+      "ad": "Üst Yönetim ve Yönetim Kurulu İletişimi",
+      "kume_id": "liderlik-yonetim",
+      "aciklama": "C-level ve Board ile etkili iletişim, executive sunumlar, stratejik öneriler.",
+      "anahtar_kelimeler": [
+        "board iletişim",
+        "executive sunum",
+        "C-level"
+      ],
+      "kanit_kaynaklari": [
+        "board-sunum-sayisi"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "lid-stratejik-dusunme",
+        "dav-iletisim"
+      ]
+    },
+    {
+      "id": "lid-kriz-yonetimi",
+      "ad": "Kriz Yönetimi",
+      "kume_id": "liderlik-yonetim",
+      "aciklama": "Banka düzeyinde kriz yönetimi (likidite, itibar, operasyonel), kriz iletişimi.",
+      "anahtar_kelimeler": [
+        "kriz yönetimi",
+        "crisis management",
+        "kriz iletişimi"
+      ],
+      "kanit_kaynaklari": [
+        "kriz-yönetim",
+        "sertifika"
+      ],
+      "kritiklik_seviyesi": "uzmanlik",
+      "ogrenilme_suresi_ay": 24,
+      "ilgili_beceriler": [
+        "lid-stratejik-dusunme",
+        "ops-is-surekliligi"
+      ]
+    },
+    {
+      "id": "lid-cesitlilik-kapsayicilik",
+      "ad": "Çeşitlilik ve Kapsayıcılık (D&I)",
+      "kume_id": "liderlik-yonetim",
+      "aciklama": "İnclusive leadership, çeşitlilik programları, bias farkındalığı, ERG (Employee Resource Group).",
+      "anahtar_kelimeler": [
+        "D&I",
+        "çeşitlilik",
+        "kapsayıcılık",
+        "inclusive leadership"
+      ],
+      "kanit_kaynaklari": [
+        "sertifika",
+        "D&I-projesi"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "lid-ekip-yonetimi"
+      ]
+    },
+    {
+      "id": "lid-yetenek-kazanim",
+      "ad": "Yetenek Kazanımı (Talent Acquisition)",
+      "kume_id": "liderlik-yonetim",
+      "aciklama": "İşe alım sürecinin yönetimi, mülakat teknikleri, employer branding.",
+      "anahtar_kelimeler": [
+        "talent acquisition",
+        "işe alım",
+        "employer branding"
+      ],
+      "kanit_kaynaklari": [
+        "proje",
+        "işe-alım-sayisi"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "lid-ekip-yonetimi",
+        "lid-yedekleme-kariyer-planlama"
+      ]
+    },
+    {
+      "id": "dav-multi-cultural-iletisim",
+      "ad": "Çok Kültürlü ve Uluslararası İletişim",
+      "kume_id": "davranissal-iletisim",
+      "aciklama": "Uluslararası bankalar, yabancı müşteriler, çok dilli iletişim becerileri.",
+      "anahtar_kelimeler": [
+        "multi-cultural",
+        "uluslararası",
+        "yabancı dil"
+      ],
+      "kanit_kaynaklari": [
+        "dil-sertifikası",
+        "uluslararası-müşteri-portföy"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "dav-iletisim",
+        "ktb-dis-ticaret"
+      ]
+    },
+    {
+      "id": "dav-stres-yonetimi",
+      "ad": "Stres ve Performans Yönetimi (Bireysel)",
+      "kume_id": "davranissal-iletisim",
+      "aciklama": "Yüksek baskı altında çalışma, kendini düzenleme, stress resilience.",
+      "anahtar_kelimeler": [
+        "stres yönetimi",
+        "performans baskısı",
+        "resilience"
+      ],
+      "kanit_kaynaklari": [
+        "360-feedback",
+        "well-being-skor"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "dav-esneklik",
+        "dav-zaman-yonetimi"
+      ]
+    },
+    {
+      "id": "dav-anlasmazlik-cozumu",
+      "ad": "Anlaşmazlık ve Çatışma Çözümü",
+      "kume_id": "davranissal-iletisim",
+      "aciklama": "İş arkadaşları, müşteri ve paydaşlar arası çatışmaların yapıcı çözümü.",
+      "anahtar_kelimeler": [
+        "conflict resolution",
+        "çatışma yönetimi"
+      ],
+      "kanit_kaynaklari": [
+        "360-feedback",
+        "anlaşmazlık-çözüm"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "dav-muzakere",
+        "dav-iletisim"
+      ]
+    },
+    {
+      "id": "dav-yaraticilik-inovasyon",
+      "ad": "Yaratıcılık ve İnovasyon",
+      "kume_id": "davranissal-iletisim",
+      "aciklama": "Yeni fikir üretme, lateral düşünce, brainstorming kolaylaştırma, design sprint.",
+      "anahtar_kelimeler": [
+        "yaratıcılık",
+        "inovasyon",
+        "creative thinking"
+      ],
+      "kanit_kaynaklari": [
+        "inovasyon-projesi",
+        "patent-sayisi"
+      ],
+      "kritiklik_seviyesi": "destekleyici",
+      "ogrenilme_suresi_ay": 12,
+      "ilgili_beceriler": [
+        "dav-kritik-dusunme",
+        "mdx-cinema-tasarim-thinking"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,264 @@
+{
+  "metadata": {
+    "ad": "Kariyer Yolları",
+    "dosya": "05-career-paths.json",
+    "aciklama": "Türk bankasında tipik dikey, yatay ve çapraz kariyer geçişleri",
+    "versiyon": "1.0.0",
+    "kariyer_yolu_sayisi": 18,
+    "yol_turleri": {
+      "dikey": "Aynı fonksiyonda kademe yükselişi",
+      "yatay": "Benzer kademede farklı fonksiyona geçiş",
+      "capraz": "Hem fonksiyon hem kademe değişimi"
+    }
+  },
+  "kariyer_yollari": [
+    {
+      "id": "kredi-risk-kariyer-yolu",
+      "ad": "Kredi ve Risk Kariyer Yolu",
+      "aciklama": "Kredi analistliğinden Risk GMY pozisyonuna uzanan klasik dikey kariyer yolu",
+      "tur": "dikey",
+      "aile": "Kredi ve Risk",
+      "adimlar": [
+        {"sira": 1, "rol_id": "kredi-analisti-yardimcisi", "tipik_sure_ay": 18, "gecis_kosullari": ["6 ay performans 3.5+", "İlgili sertifika programı tamamlama"]},
+        {"sira": 2, "rol_id": "kredi-analisti", "tipik_sure_ay": 36, "gecis_kosullari": ["Bağımsız analiz yetkinliği", "Performans 3.8+", "20+ tamamlanan tahsis dosyası"]},
+        {"sira": 3, "rol_id": "kidemli-kredi-analisti", "tipik_sure_ay": 48, "gecis_kosullari": ["Performans 4.0+", "Karmaşık tahsis önerme yetkinliği", "Junior analiste mentorluk"]},
+        {"sira": 4, "rol_id": "kredi-mudur-yardimcisi", "tipik_sure_ay": 36, "gecis_kosullari": ["Liderlik potansiyeli", "Ekip yönetim becerisi"]},
+        {"sira": 5, "rol_id": "kredi-mudur", "tipik_sure_ay": 60, "gecis_kosullari": ["P&L sorumluluğu deneyimi", "Stratejik düşünme yetkinliği"]},
+        {"sira": 6, "rol_id": "kredi-direktoru", "tipik_sure_ay": 60, "gecis_kosullari": ["Board sunum deneyimi", "Çapraz fonksiyonel etki"]},
+        {"sira": 7, "rol_id": "risk-gmy", "tipik_sure_ay": null, "gecis_kosullari": ["Üst düzey strateji yetkinliği", "Board onayı"]}
+      ],
+      "alternatif_yollar": ["risk-yonetimi-kariyer-yolu", "kurumsal-bankacilik-kariyer-yolu"]
+    },
+    {
+      "id": "risk-yonetimi-kariyer-yolu",
+      "ad": "Risk Yönetimi Uzmanlık Yolu",
+      "aciklama": "Kantitatif risk uzmanlığı odaklı, modelleme ve sermaye yeterliliğine derinleşen yol",
+      "tur": "dikey",
+      "aile": "Kredi ve Risk",
+      "adimlar": [
+        {"sira": 1, "rol_id": "risk-uzmani", "tipik_sure_ay": 36, "gecis_kosullari": ["Sertifika programları (FRM, PRM)", "Model geliştirme deneyimi"]},
+        {"sira": 2, "rol_id": "kidemli-kredi-analisti", "tipik_sure_ay": 36, "gecis_kosullari": ["Risk model validasyonu deneyimi", "BDDK proje katılımı"]},
+        {"sira": 3, "rol_id": "risk-yoneticisi", "tipik_sure_ay": 60, "gecis_kosullari": ["ALCO sunumu deneyimi", "Stres testi liderlik"]},
+        {"sira": 4, "rol_id": "risk-gmy", "tipik_sure_ay": null, "gecis_kosullari": ["10+ yıl risk deneyimi", "CRO seviyesinde stratejik düşünme"]}
+      ],
+      "alternatif_yollar": ["kredi-risk-kariyer-yolu", "veri-bilimden-risk-yolu"]
+    },
+    {
+      "id": "sube-bankaciligi-kariyer-yolu",
+      "ad": "Şube Bankacılığı Klasik Yolu",
+      "aciklama": "Veznedarlıktan Bölge Müdürlüğüne uzanan şube ağı klasik yolu",
+      "tur": "dikey",
+      "aile": "Şube ve Bireysel Bankacılık",
+      "adimlar": [
+        {"sira": 1, "rol_id": "veznedar", "tipik_sure_ay": 18, "gecis_kosullari": ["Ürün eğitimleri tamamlama", "Performans 3.5+", "Müşteri etkileşim becerileri"]},
+        {"sira": 2, "rol_id": "musteri-temsilcisi-bireysel", "tipik_sure_ay": 36, "gecis_kosullari": ["SPK düzey 1", "Satış hedef başarısı"]},
+        {"sira": 3, "rol_id": "sube-operasyon-yetkilisi", "tipik_sure_ay": 24, "gecis_kosullari": ["İç kontrol bilgisi", "MASAK sertifikası"]},
+        {"sira": 4, "rol_id": "sube-mudur-yardimcisi", "tipik_sure_ay": 36, "gecis_kosullari": ["Liderlik potansiyeli", "Ekip motivasyon yetkinliği"]},
+        {"sira": 5, "rol_id": "sube-muduru", "tipik_sure_ay": 60, "gecis_kosullari": ["Şube P&L sorumluluğu", "Bütüncül şube yönetimi"]},
+        {"sira": 6, "rol_id": "bolge-muduru", "tipik_sure_ay": 60, "gecis_kosullari": ["Birden fazla şube yönetim deneyimi", "Stratejik düşünme"]},
+        {"sira": 7, "rol_id": "perakende-bankacilik-gmy", "tipik_sure_ay": null, "gecis_kosullari": ["Üst düzey yetkinlik", "Yönetim Kurulu güveni"]}
+      ],
+      "alternatif_yollar": ["bireysel-bankacilik-merkez-yolu", "kurumsal-bankacilik-kariyer-yolu"]
+    },
+    {
+      "id": "bireysel-bankacilik-merkez-yolu",
+      "ad": "Bireysel Bankacılık Merkez Birimi Yolu",
+      "aciklama": "Şube deneyiminden sonra genel müdürlük ürün yönetimine geçiş",
+      "tur": "capraz",
+      "aile": "Bireysel Bankacılık",
+      "adimlar": [
+        {"sira": 1, "rol_id": "musteri-temsilcisi-bireysel", "tipik_sure_ay": 36, "gecis_kosullari": ["Ürün uzmanlığı", "Analitik düşünme"]},
+        {"sira": 2, "rol_id": "ozel-bankacilik-musteri-temsilcisi", "tipik_sure_ay": 48, "gecis_kosullari": ["HNW müşteri deneyimi", "İleri SPK lisansı"]},
+        {"sira": 3, "rol_id": "perakende-bankacilik-gmy", "tipik_sure_ay": null, "gecis_kosullari": ["Çok büyük portföy yönetimi", "Stratejik yetkinlik"]}
+      ],
+      "alternatif_yollar": ["sube-bankaciligi-kariyer-yolu", "dijital-bankacilik-kariyer-yolu"]
+    },
+    {
+      "id": "kurumsal-bankacilik-kariyer-yolu",
+      "ad": "Kurumsal Bankacılık Klasik Yolu",
+      "aciklama": "Kurumsal RM'den Kurumsal Bankacılık GMY'ye uzanan yol",
+      "tur": "dikey",
+      "aile": "Kurumsal Bankacılık",
+      "adimlar": [
+        {"sira": 1, "rol_id": "musteri-temsilcisi-kobi", "tipik_sure_ay": 36, "gecis_kosullari": ["KOBİ portföy yönetimi", "Performans 3.8+"]},
+        {"sira": 2, "rol_id": "kurumsal-musteri-temsilcisi", "tipik_sure_ay": 60, "gecis_kosullari": ["Büyük müşteri ilişkileri", "Yapılandırılmış finansman bilgisi"]},
+        {"sira": 3, "rol_id": "kredi-mudur-yardimcisi", "tipik_sure_ay": 36, "gecis_kosullari": ["Kredi tahsis yetkinliği"]},
+        {"sira": 4, "rol_id": "kredi-mudur", "tipik_sure_ay": 60, "gecis_kosullari": ["P&L sorumluluğu", "Liderlik gelişimi"]},
+        {"sira": 5, "rol_id": "kurumsal-bankacilik-gmy", "tipik_sure_ay": null, "gecis_kosullari": ["Stratejik portföy yönetimi", "Üst düzey müşteri ilişkileri"]}
+      ],
+      "alternatif_yollar": ["kredi-risk-kariyer-yolu", "hazine-kariyer-yolu"]
+    },
+    {
+      "id": "hazine-kariyer-yolu",
+      "ad": "Hazine ve Sermaye Piyasaları Yolu",
+      "aciklama": "Hazine Uzman Yardımcılığından Hazine Müdürlüğüne uzanan yol",
+      "tur": "dikey",
+      "aile": "Hazine ve Sermaye Piyasaları",
+      "adimlar": [
+        {"sira": 1, "rol_id": "hazine-uzman-yardimcisi", "tipik_sure_ay": 24, "gecis_kosullari": ["SPK Düzey 1-2", "Piyasa bilgisi"]},
+        {"sira": 2, "rol_id": "hazine-uzmani-dealer", "tipik_sure_ay": 48, "gecis_kosullari": ["Aktif dealer pozisyon", "P&L katkı"]},
+        {"sira": 3, "rol_id": "kidemli-hazine-uzmani", "tipik_sure_ay": 60, "gecis_kosullari": ["Türev araçlar uzmanlığı", "Müşteri trading"]},
+        {"sira": 4, "rol_id": "hazine-mudur", "tipik_sure_ay": 60, "gecis_kosullari": ["ALCO katılım deneyimi", "Ekip yönetimi"]}
+      ],
+      "alternatif_yollar": ["risk-yonetimi-kariyer-yolu"]
+    },
+    {
+      "id": "dijital-bankacilik-kariyer-yolu",
+      "ad": "Dijital Bankacılık Yolu",
+      "aciklama": "Dijital ürün uzmanlığından Dijital GMY'ye uzanan yol",
+      "tur": "dikey",
+      "aile": "Dijital Bankacılık",
+      "adimlar": [
+        {"sira": 1, "rol_id": "dijital-urun-uzmani", "tipik_sure_ay": 36, "gecis_kosullari": ["Ürün backlog yönetimi", "Analytics yetkinliği"]},
+        {"sira": 2, "rol_id": "dijital-urun-yoneticisi", "tipik_sure_ay": 48, "gecis_kosullari": ["Stratejik yol haritası tasarımı", "Stakeholder yönetimi"]},
+        {"sira": 3, "rol_id": "dijital-kanal-muduru", "tipik_sure_ay": 60, "gecis_kosullari": ["Çapraz fonksiyonel liderlik", "P&L sorumluluğu"]},
+        {"sira": 4, "rol_id": "dijital-bankacilik-direktoru", "tipik_sure_ay": null, "gecis_kosullari": ["Üst düzey vizyon", "Banka stratejisinde etki"]}
+      ],
+      "alternatif_yollar": ["veri-analitik-kariyer-yolu", "musteri-deneyimi-yolu"]
+    },
+    {
+      "id": "veri-analitik-kariyer-yolu",
+      "ad": "Veri ve Analitik Yolu",
+      "aciklama": "Veri analistinden Veri ve Analitik Müdürlüğüne uzanan yol",
+      "tur": "dikey",
+      "aile": "Veri ve Analitik",
+      "adimlar": [
+        {"sira": 1, "rol_id": "veri-analisti", "tipik_sure_ay": 24, "gecis_kosullari": ["SQL/BI yetkinliği", "İş anlama becerisi"]},
+        {"sira": 2, "rol_id": "veri-bilimci", "tipik_sure_ay": 48, "gecis_kosullari": ["ML model geliştirme", "Python uzmanlığı"]},
+        {"sira": 3, "rol_id": "kidemli-veri-bilimci", "tipik_sure_ay": 60, "gecis_kosullari": ["Üretime alınan model sayısı", "Teknik mentorluk"]},
+        {"sira": 4, "rol_id": "veri-analitik-muduru", "tipik_sure_ay": null, "gecis_kosullari": ["Ekip yönetimi", "Stratejik vizyon"]}
+      ],
+      "alternatif_yollar": ["veri-muhendisligi-yolu", "veri-bilimden-risk-yolu"]
+    },
+    {
+      "id": "veri-muhendisligi-yolu",
+      "ad": "Veri Mühendisliği Uzmanlık Yolu",
+      "aciklama": "Veri pipeline ve altyapıya yönelik uzmanlık yolu",
+      "tur": "dikey",
+      "aile": "Veri ve Analitik",
+      "adimlar": [
+        {"sira": 1, "rol_id": "veri-analisti", "tipik_sure_ay": 24, "gecis_kosullari": ["SQL uzmanlığı", "Sistemler ilgisi"]},
+        {"sira": 2, "rol_id": "veri-muhendisi", "tipik_sure_ay": 48, "gecis_kosullari": ["ETL/Spark deneyimi", "Bulut platformları"]},
+        {"sira": 3, "rol_id": "veri-analitik-muduru", "tipik_sure_ay": null, "gecis_kosullari": ["Ekip liderlik", "Veri stratejisi"]}
+      ],
+      "alternatif_yollar": ["veri-analitik-kariyer-yolu"]
+    },
+    {
+      "id": "uyum-mevzuat-yolu",
+      "ad": "Uyum, Mevzuat ve İç Kontrol Yolu",
+      "aciklama": "Uyum biriminden Uyum Müdürlüğüne uzanan yol",
+      "tur": "dikey",
+      "aile": "Uyum ve Mevzuat",
+      "adimlar": [
+        {"sira": 1, "rol_id": "uyum-uzmani", "tipik_sure_ay": 48, "gecis_kosullari": ["MASAK, KVKK sertifikaları", "Mevzuat takip becerisi"]},
+        {"sira": 2, "rol_id": "ic-kontrol-yetkilisi", "tipik_sure_ay": 48, "gecis_kosullari": ["Denetim deneyimi", "İç kontrol yetkinliği"]},
+        {"sira": 3, "rol_id": "uyum-muduru", "tipik_sure_ay": null, "gecis_kosullari": ["Ekip yönetimi", "Üst yönetim sunum"]}
+      ],
+      "alternatif_yollar": ["risk-yonetimi-kariyer-yolu"]
+    },
+    {
+      "id": "musteri-deneyimi-yolu",
+      "ad": "Müşteri Deneyimi ve CRM Yolu",
+      "aciklama": "MDX uzmanlığından CRM Müdürlüğüne uzanan yol",
+      "tur": "dikey",
+      "aile": "Müşteri Deneyimi ve CRM",
+      "adimlar": [
+        {"sira": 1, "rol_id": "musteri-deneyimi-uzmani", "tipik_sure_ay": 36, "gecis_kosullari": ["CJM uygulaması", "VOC programı tecrübesi"]},
+        {"sira": 2, "rol_id": "crm-uzmani", "tipik_sure_ay": 36, "gecis_kosullari": ["Kampanya yönetimi tecrübesi"]},
+        {"sira": 3, "rol_id": "dijital-kanal-muduru", "tipik_sure_ay": null, "gecis_kosullari": ["Çapraz fonksiyonel liderlik", "Dijital stratejisi"]}
+      ],
+      "alternatif_yollar": ["dijital-bankacilik-kariyer-yolu", "veri-analitik-kariyer-yolu"]
+    },
+    {
+      "id": "operasyon-yolu",
+      "ad": "Operasyon ve Süreç Yönetimi Yolu",
+      "aciklama": "Operasyon uzmanlığından Operasyon Müdürlüğüne uzanan yol",
+      "tur": "dikey",
+      "aile": "Operasyon ve Süreç",
+      "adimlar": [
+        {"sira": 1, "rol_id": "operasyon-uzmani", "tipik_sure_ay": 36, "gecis_kosullari": ["Operasyonel doğruluk", "Süreç bilgisi"]},
+        {"sira": 2, "rol_id": "surec-uzmani", "tipik_sure_ay": 48, "gecis_kosullari": ["Lean/Six Sigma yetkinliği", "RPA tecrübesi"]},
+        {"sira": 3, "rol_id": "operasyon-muduru", "tipik_sure_ay": null, "gecis_kosullari": ["Ekip yönetimi", "Stratejik vizyon"]}
+      ],
+      "alternatif_yollar": ["dijital-bankacilik-kariyer-yolu"]
+    },
+    {
+      "id": "ik-kariyer-yolu",
+      "ad": "İnsan Kaynakları Yolu",
+      "aciklama": "İK uzmanlığından İK Direktörlüğüne uzanan yol",
+      "tur": "dikey",
+      "aile": "İnsan Kaynakları",
+      "adimlar": [
+        {"sira": 1, "rol_id": "ik-uzmani", "tipik_sure_ay": 48, "gecis_kosullari": ["İK fonksiyonlarına hakimiyet", "Stakeholder yönetimi"]},
+        {"sira": 2, "rol_id": "ik-muduru", "tipik_sure_ay": 60, "gecis_kosullari": ["Ekip yönetimi", "Stratejik İK projeleri"]},
+        {"sira": 3, "rol_id": "ik-direktoru", "tipik_sure_ay": null, "gecis_kosullari": ["CHRO seviyesi düşünme", "Board üyeliği"]}
+      ],
+      "alternatif_yollar": []
+    },
+
+    {
+      "id": "kredi-analistten-risk-yolu",
+      "ad": "Kredi Analistlikten Risk Yönetimine Çapraz Geçiş",
+      "aciklama": "Sahada kredi tecrübesi olan profilin risk yönetimine geçişi - en yaygın çapraz yol",
+      "tur": "capraz",
+      "aile": "Kredi ve Risk",
+      "adimlar": [
+        {"sira": 1, "rol_id": "kredi-analisti", "tipik_sure_ay": 36, "gecis_kosullari": ["Kredi analizi yetkinliği"]},
+        {"sira": 2, "rol_id": "risk-uzmani", "tipik_sure_ay": 36, "gecis_kosullari": ["Kantitatif yöntemlere ilgi", "Risk sertifikaları (FRM, PRM)"]},
+        {"sira": 3, "rol_id": "risk-yoneticisi", "tipik_sure_ay": null, "gecis_kosullari": ["Risk model deneyimi", "Liderlik"]}
+      ],
+      "alternatif_yollar": ["kredi-risk-kariyer-yolu", "risk-yonetimi-kariyer-yolu"]
+    },
+    {
+      "id": "veri-bilimden-risk-yolu",
+      "ad": "Veri Biliminden Risk Modellemeye Çapraz Geçiş",
+      "aciklama": "Veri bilimci profilinin risk modelleme tarafına geçişi",
+      "tur": "capraz",
+      "aile": "Veri ve Risk",
+      "adimlar": [
+        {"sira": 1, "rol_id": "veri-bilimci", "tipik_sure_ay": 48, "gecis_kosullari": ["ML modelleme deneyimi"]},
+        {"sira": 2, "rol_id": "risk-uzmani", "tipik_sure_ay": 36, "gecis_kosullari": ["IFRS 9, Basel III öğrenimi", "Risk modelleri"]},
+        {"sira": 3, "rol_id": "risk-yoneticisi", "tipik_sure_ay": null, "gecis_kosullari": ["Liderlik gelişimi", "Sektör bilgisi"]}
+      ],
+      "alternatif_yollar": ["veri-analitik-kariyer-yolu", "risk-yonetimi-kariyer-yolu"]
+    },
+    {
+      "id": "subeden-kurumsal-bankaciliga",
+      "ad": "Şubeden Kurumsal Bankacılığa Çapraz Geçiş",
+      "aciklama": "Şube müdür yardımcılığı sonrası genel müdürlük kurumsal birimi geçişi",
+      "tur": "capraz",
+      "aile": "Bankacılık Operasyon",
+      "adimlar": [
+        {"sira": 1, "rol_id": "musteri-temsilcisi-kobi", "tipik_sure_ay": 48, "gecis_kosullari": ["KOBİ portföy büyütme"]},
+        {"sira": 2, "rol_id": "sube-mudur-yardimcisi", "tipik_sure_ay": 36, "gecis_kosullari": ["Liderlik göstergeleri"]},
+        {"sira": 3, "rol_id": "kurumsal-musteri-temsilcisi", "tipik_sure_ay": null, "gecis_kosullari": ["Büyük müşteri yetkinliği", "Çapraz ürün bilgisi"]}
+      ],
+      "alternatif_yollar": ["sube-bankaciligi-kariyer-yolu", "kurumsal-bankacilik-kariyer-yolu"]
+    },
+    {
+      "id": "yatay-uzmandan-mudur-yardimcisi",
+      "ad": "Uzmanlıktan Liderliğe Yatay Geçiş",
+      "aciklama": "Teknik uzmanlıktan liderlik kademesine geçiş (örn. veri bilimci → veri müdürü)",
+      "tur": "yatay",
+      "aile": "Kademe Geçişi",
+      "adimlar": [
+        {"sira": 1, "rol_id": "kidemli-veri-bilimci", "tipik_sure_ay": 60, "gecis_kosullari": ["Teknik mentorluk deneyimi", "Yönetim isteği"]},
+        {"sira": 2, "rol_id": "veri-analitik-muduru", "tipik_sure_ay": null, "gecis_kosullari": ["Liderlik eğitimleri", "Mentorluk başarısı"]}
+      ],
+      "alternatif_yollar": ["veri-analitik-kariyer-yolu"]
+    },
+    {
+      "id": "operasyon-veri-yolu",
+      "ad": "Operasyondan Veri Analitiğine Çapraz Geçiş",
+      "aciklama": "Süreç deneyimli profilin veri analitiğine yönelmesi - özellikle RPA/otomasyon ile",
+      "tur": "capraz",
+      "aile": "Operasyon ve Veri",
+      "adimlar": [
+        {"sira": 1, "rol_id": "surec-uzmani", "tipik_sure_ay": 36, "gecis_kosullari": ["RPA tecrübesi", "Veri ilgisi"]},
+        {"sira": 2, "rol_id": "veri-analisti", "tipik_sure_ay": 24, "gecis_kosullari": ["SQL/BI yetkinliği"]},
+        {"sira": 3, "rol_id": "veri-bilimci", "tipik_sure_ay": null, "gecis_kosullari": ["Python ve ML öğrenimi"]}
+      ],
+      "alternatif_yollar": ["operasyon-yolu", "veri-analitik-kariyer-yolu"]
+    }
+  ]
+}

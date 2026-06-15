@@ -1,0 +1,228 @@
+{
+  "metadata": {
+    "ad": "Yetkinlik Kümeleri",
+    "dosya": "02-skill-clusters.json",
+    "aciklama": "Büyük ölçekli Türk bankası için 12 yetkinlik kümesi",
+    "versiyon": "1.0.0",
+    "kume_sayisi": 12
+  },
+  "kumeler": [
+    {
+      "id": "kredi-risk-yonetimi",
+      "ad": "Kredi ve Risk Yönetimi",
+      "kisa_ad": "Kredi & Risk",
+      "kategori": "teknik",
+      "renk": "635BFF",
+      "ikon_anahtari": "shield-check",
+      "aciklama": "Kredi analizi, tahsis, portföy yönetimi, risk modellemesi ve sermaye yeterliliği süreçleri. Bankacılığın çekirdek risk fonksiyonu.",
+      "alt_alanlar": [
+        "Kredi tahsis ve analizi",
+        "Portföy risk yönetimi",
+        "Piyasa ve likidite riski",
+        "Operasyonel risk",
+        "Stres testi ve senaryo analizi",
+        "Erken uyarı sistemleri"
+      ],
+      "tipik_roller": ["Kredi Analisti", "Risk Yöneticisi", "Tahsis Müdürü", "Kredi İzleme Uzmanı"]
+    },
+    {
+      "id": "hazine-sermaye-piyasalari",
+      "ad": "Hazine ve Sermaye Piyasaları",
+      "kisa_ad": "Hazine & SP",
+      "kategori": "teknik",
+      "renk": "3B82F6",
+      "ikon_anahtari": "trending-up",
+      "aciklama": "Hazine işlemleri, döviz/faiz/türev ürünler, sermaye piyasaları, yatırım bankacılığı ve aktif-pasif yönetimi.",
+      "alt_alanlar": [
+        "Aktif-pasif yönetimi (ALM)",
+        "FX ve para piyasaları",
+        "Sabit getirili menkul kıymetler",
+        "Türev araçlar ve hedging",
+        "Yatırım bankacılığı işlemleri",
+        "Aracılık ve broker hizmetleri"
+      ],
+      "tipik_roller": ["Hazine Uzmanı", "Dealer", "ALM Analisti", "Kurumsal Finansman Uzmanı"]
+    },
+    {
+      "id": "bireysel-bankacilik",
+      "ad": "Bireysel Bankacılık",
+      "kisa_ad": "Bireysel",
+      "kategori": "fonksiyonel",
+      "renk": "EC4899",
+      "ikon_anahtari": "user-circle",
+      "aciklama": "Bireysel müşteri segmenti için ürün geliştirme, satış, portföy yönetimi ve müşteri ilişkileri.",
+      "alt_alanlar": [
+        "Bireysel kredi ürünleri",
+        "Mevduat ve birikim ürünleri",
+        "Kart ve ödeme sistemleri",
+        "Bireysel emeklilik ve sigorta",
+        "Özel bankacılık ve varlık yönetimi",
+        "Mortgage ve konut finansmanı"
+      ],
+      "tipik_roller": ["Müşteri Temsilcisi", "Bireysel Portföy Yöneticisi", "Özel Bankacılık Uzmanı", "Kart Ürün Yöneticisi"]
+    },
+    {
+      "id": "kurumsal-ticari-bankacilik",
+      "ad": "Kurumsal ve Ticari Bankacılık",
+      "kisa_ad": "Kurumsal",
+      "kategori": "fonksiyonel",
+      "renk": "10B981",
+      "ikon_anahtari": "building-2",
+      "aciklama": "Kurumsal ve KOBİ müşterilerine yönelik kredi, nakit yönetimi, dış ticaret ve danışmanlık hizmetleri.",
+      "alt_alanlar": [
+        "KOBİ bankacılığı",
+        "Kurumsal kredi tahsis",
+        "Nakit yönetimi (cash management)",
+        "Dış ticaret finansmanı ve akreditif",
+        "Proje finansmanı",
+        "Sendikasyon ve yapılandırılmış finansman"
+      ],
+      "tipik_roller": ["KOBİ Müşteri Temsilcisi", "Kurumsal Portföy Yöneticisi", "Tahsis Uzmanı", "Dış Ticaret Uzmanı"]
+    },
+    {
+      "id": "sube-operasyonlari",
+      "ad": "Şube Operasyonları ve Müşteri Hizmetleri",
+      "kisa_ad": "Şube Ops",
+      "kategori": "fonksiyonel",
+      "renk": "F59E0B",
+      "ikon_anahtari": "store",
+      "aciklama": "Şube ağı operasyonları, gişe, müşteri hizmetleri, satış ve şube yönetimi.",
+      "alt_alanlar": [
+        "Gişe ve nakit yönetimi",
+        "Müşteri hizmetleri ve şikayet",
+        "Şube satış ve hedef yönetimi",
+        "Şube risk ve denetim",
+        "Müşteri kazanım ve onboarding",
+        "Çağrı merkezi operasyonları"
+      ],
+      "tipik_roller": ["Veznedar", "Müşteri İlişkileri Yetkilisi", "Şube Operasyon Yetkilisi", "Şube Müdür Yardımcısı", "Şube Müdürü"]
+    },
+    {
+      "id": "dijital-bankacilik",
+      "ad": "Dijital Bankacılık ve Kanal Yönetimi",
+      "kisa_ad": "Dijital",
+      "kategori": "fonksiyonel",
+      "renk": "8B5CF6",
+      "ikon_anahtari": "smartphone",
+      "aciklama": "Mobil/internet bankacılık, dijital ürünler, kanal stratejisi, FinTech ortaklıkları ve dijital dönüşüm.",
+      "alt_alanlar": [
+        "Mobil bankacılık ürün yönetimi",
+        "İnternet bankacılığı",
+        "Dijital ödeme sistemleri ve QR",
+        "Open banking ve API ekosistemi",
+        "Müşteri dijital yolculuğu (CX)",
+        "FinTech ortaklıkları ve banking-as-a-service"
+      ],
+      "tipik_roller": ["Dijital Ürün Yöneticisi", "UX/UI Tasarımcısı", "Kanal Yöneticisi", "Dijital Kanal Direktörü"]
+    },
+    {
+      "id": "uyum-mevzuat-hukuk",
+      "ad": "Uyum, Mevzuat ve Hukuk",
+      "kisa_ad": "Uyum & Hukuk",
+      "kategori": "uyum",
+      "renk": "EF4444",
+      "ikon_anahtari": "scale",
+      "aciklama": "Bankacılık düzenlemelerine uyum, KVKK, MASAK, Basel uygulamaları, iç kontrol ve hukuki süreçler.",
+      "alt_alanlar": [
+        "Bankacılık mevzuatı (BDDK düzenlemeleri)",
+        "MASAK ve suç gelirleri",
+        "KVKK ve kişisel veri yönetimi",
+        "Basel III/IV uygulamaları",
+        "Sermaye yeterliliği ve raporlama",
+        "Etik ve davranış kuralları"
+      ],
+      "tipik_roller": ["Uyum Uzmanı", "İç Kontrol Yetkilisi", "MASAK Uzmanı", "Hukuk Müşaviri", "KVKK Sorumlusu"]
+    },
+    {
+      "id": "veri-analitigi-bi",
+      "ad": "Veri Analitiği ve İş Zekâsı",
+      "kisa_ad": "Veri & BI",
+      "kategori": "teknik",
+      "renk": "06B6D4",
+      "ikon_anahtari": "bar-chart-3",
+      "aciklama": "Veri mühendisliği, iş zekâsı, raporlama, ileri analitik ve makine öğrenmesi uygulamaları.",
+      "alt_alanlar": [
+        "SQL ve veri sorgulama",
+        "Veri görselleştirme ve dashboard",
+        "Makine öğrenmesi ve modelleme",
+        "Veri mühendisliği ve ETL",
+        "Müşteri analitiği ve segmentasyon",
+        "Yapay zeka ve LLM uygulamaları"
+      ],
+      "tipik_roller": ["Veri Analisti", "Veri Bilimci", "BI Uzmanı", "ML Mühendisi", "Veri Mühendisi"]
+    },
+    {
+      "id": "musteri-deneyimi-crm",
+      "ad": "Müşteri Deneyimi ve CRM",
+      "kisa_ad": "MDX & CRM",
+      "kategori": "fonksiyonel",
+      "renk": "F97316",
+      "ikon_anahtari": "heart-handshake",
+      "aciklama": "Müşteri deneyimi tasarımı, segmentasyon, kampanya yönetimi, NPS/CES ölçümleri ve müşteri yolculuğu.",
+      "alt_alanlar": [
+        "Müşteri segmentasyonu",
+        "Kampanya yönetimi ve next-best-action",
+        "NPS, CES ve deneyim ölçümü",
+        "Müşteri yolculuğu haritalama",
+        "Şikayet yönetimi ve closed-loop feedback",
+        "Sadakat programları"
+      ],
+      "tipik_roller": ["CRM Uzmanı", "Müşteri Deneyimi Yöneticisi", "Kampanya Yöneticisi", "Müşteri Yolculuğu Tasarımcısı"]
+    },
+    {
+      "id": "operasyon-sureç-yonetimi",
+      "ad": "Operasyon ve Süreç Yönetimi",
+      "kisa_ad": "Ops & Süreç",
+      "kategori": "fonksiyonel",
+      "renk": "0EA5E9",
+      "ikon_anahtari": "git-branch",
+      "aciklama": "Operasyonel süreçler, dijitalleştirme, otomasyon, takas, ödemeler ve back-office işlemleri.",
+      "alt_alanlar": [
+        "Süreç tasarımı ve iyileştirme",
+        "RPA ve süreç otomasyonu",
+        "Takas ve mutabakat (settlement)",
+        "EFT/Havale operasyonları",
+        "Kart operasyonları",
+        "Lean ve Six Sigma uygulamaları"
+      ],
+      "tipik_roller": ["Süreç Uzmanı", "Operasyon Yetkilisi", "Otomasyon Uzmanı", "Operasyon Müdürü"]
+    },
+    {
+      "id": "liderlik-yonetim",
+      "ad": "Liderlik ve Yönetim",
+      "kisa_ad": "Liderlik",
+      "kategori": "liderlik",
+      "renk": "DC2626",
+      "ikon_anahtari": "crown",
+      "aciklama": "Ekip yönetimi, stratejik liderlik, performans yönetimi, koçluk ve organizasyonel gelişim.",
+      "alt_alanlar": [
+        "Ekip yönetimi ve insan kaynakları",
+        "Stratejik düşünme ve karar verme",
+        "Performans yönetimi ve geri bildirim",
+        "Koçluk ve mentorluk",
+        "Değişim yönetimi",
+        "Bütçe ve P&L sorumluluğu"
+      ],
+      "tipik_roller": ["Tüm yöneticilik kademeleri"]
+    },
+    {
+      "id": "davranissal-iletisim",
+      "ad": "Davranışsal ve İletişim Becerileri",
+      "kisa_ad": "Davranışsal",
+      "kategori": "davranissal",
+      "renk": "84CC16",
+      "ikon_anahtari": "message-circle",
+      "aciklama": "Tüm rollere yatay olarak yayılan iletişim, takım çalışması, müzakere ve müşteri odaklılık becerileri.",
+      "alt_alanlar": [
+        "Yazılı ve sözlü iletişim",
+        "Müzakere ve etki",
+        "Takım çalışması ve işbirliği",
+        "Müşteri odaklılık",
+        "Sorun çözme ve eleştirel düşünme",
+        "Esneklik ve adaptasyon",
+        "Zaman ve önceliklendirme yönetimi"
+      ],
+      "tipik_roller": ["Tüm roller (yatay yetkinlik)"]
+    }
+  ]
+}

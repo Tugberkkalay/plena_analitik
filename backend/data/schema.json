@@ -1,0 +1,89 @@
+{
+  "$schema": "Plena Growth Bankacılık Yetkinlik Kütüphanesi - Veri Modeli",
+  "$version": "1.0.0",
+  "$description": "Büyük ölçekli Türk bankası için yetkinlik kütüphanesi şeması",
+
+  "types": {
+    "ProficiencyLevel": {
+      "id": "string (Türkçe kebab-case, örn: 'uygulayici')",
+      "ad": "string (örn: 'Uygulayıcı')",
+      "seviye": "number (1-5)",
+      "kisa_aciklama": "string",
+      "gozlemlenebilir_kriterler": "string[]",
+      "ornek_davranislar": "string[]"
+    },
+
+    "SkillCluster": {
+      "id": "string (Türkçe kebab-case, örn: 'kredi-risk-yonetimi')",
+      "ad": "string",
+      "kisa_ad": "string (UI için kısa hâl)",
+      "aciklama": "string",
+      "kategori": "string ('teknik' | 'fonksiyonel' | 'liderlik' | 'davranissal' | 'uyum')",
+      "renk": "string (HEX, UI için)",
+      "ikon_anahtari": "string"
+    },
+
+    "Skill": {
+      "id": "string (Türkçe kebab-case, küme prefiksli, örn: 'kredi-risk-kobi-skorlama')",
+      "ad": "string",
+      "kume_id": "string (SkillCluster.id)",
+      "aciklama": "string",
+      "anahtar_kelimeler": "string[] (arama için)",
+      "kanit_kaynaklari": "string[] (örn: 'sertifika', 'proje', 'performans-yorumu', 'mentorluk')",
+      "ilgili_beceriler": "string[] (Skill.id listesi)",
+      "kritiklik_seviyesi": "string ('cekirdek' | 'destekleyici' | 'uzmanlik')",
+      "ogrenilme_suresi_ay": "number (ortalama Uygulayıcı seviyesine ulaşma süresi)"
+    },
+
+    "Role": {
+      "id": "string (Türkçe kebab-case, örn: 'kredi-analisti')",
+      "unvan": "string",
+      "aile": "string (örn: 'Kurumsal Bankacılık')",
+      "kademe": "string ('uzman-yardimcisi' | 'uzman' | 'kidemli-uzman' | 'mudur-yardimcisi' | 'mudur' | 'direktor' | 'genel-mudur-yardimcisi')",
+      "kademe_seviyesi": "number (1-7, hesaplama için)",
+      "kisa_aciklama": "string",
+      "ana_sorumluluklar": "string[]",
+      "gerekli_beceriler": [
+        {
+          "skill_id": "string",
+          "gerekli_seviye": "number (1-5)",
+          "agirlik": "number (0-1, profil hesaplamada ağırlık)",
+          "zorunlu": "boolean"
+        }
+      ],
+      "deneyim_yili_min": "number",
+      "deneyim_yili_max": "number"
+    },
+
+    "CareerPath": {
+      "id": "string (Türkçe kebab-case, örn: 'kredi-analizi-kariyer-yolu')",
+      "ad": "string",
+      "aciklama": "string",
+      "tur": "string ('dikey' | 'yatay' | 'capraz')",
+      "aile": "string",
+      "adimlar": [
+        {
+          "sira": "number",
+          "rol_id": "string (Role.id)",
+          "tipik_sure_ay": "number (bu rolde geçen tipik süre)",
+          "gecis_kosullari": "string[]"
+        }
+      ],
+      "alternatif_yollar": "string[] (başka CareerPath.id'leri)"
+    }
+  },
+
+  "tasarim_kararlari": {
+    "yetkinlik_seviye_sayisi": 5,
+    "kume_sayisi_hedef": 12,
+    "beceri_sayisi_hedef": "200-250",
+    "rol_sayisi_hedef": "60-80 (banka unvan haritası)",
+    "kariyer_yolu_sayisi_hedef": "15-20",
+    "dil": "Türkçe (kebab-case ID'ler)",
+    "ozel_durumlar": [
+      "Mevzuat odaklı beceriler (KVKK, MASAK, Basel III) ayrı küme",
+      "Liderlik becerileri her kademe için farklı seviye gerektirir",
+      "Şube ağı kariyerleri, genel müdürlük kariyerlerinden ayrıştırılır"
+    ]
+  }
+}
