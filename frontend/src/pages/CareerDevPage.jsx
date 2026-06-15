@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { Brain, User, MagnifyingGlass, Star, Lightning, GraduationCap, UsersThree, TrendUp, ArrowRight, MapPin, Clock, CheckCircle, Path, ArrowsLeftRight, CaretDown, CaretUp } from "@phosphor-icons/react";
+import { Brain, User, MagnifyingGlass, Star, Lightning, GraduationCap, UsersThree, TrendUp, ArrowRight, MapPin, Clock, CheckCircle, Path, ArrowsLeftRight, CaretDown, CaretUp, Warning } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -20,13 +20,38 @@ const KADEME_COLORS = {
   6: { bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-800", dot: "bg-purple-500" },
 };
 
-function CareerLadder({ pathData, employeeBand }) {
+function CareerLadder({ pathData, employeeBand, employeeSkills }) {
   const [expandedStep, setExpandedStep] = useState(null);
   if (!pathData) return null;
 
   const steps = pathData.adimlar || [];
   const bandToKademe = { A: 1, B: 2, C: 3, D: 4, E: 5 };
   const empKademe = employeeBand ? (bandToKademe[employeeBand] || 0) : null;
+
+  // Build employee skill lookup: skill_id → proficiency
+  const empSkillMap = {};
+  (employeeSkills || []).forEach((s) => {
+    if (s.skill_id) empSkillMap[s.skill_id] = s.proficiency;
+  });
+  const hasSkillData = Object.keys(empSkillMap).length > 0;
+
+  // Compute readiness per step
+  const stepReadiness = steps.map((step) => {
+    const required = step.gerekli_beceriler || [];
+    if (!hasSkillData || required.length === 0) return null;
+    let matchedCount = 0;
+    let totalScore = 0;
+    const details = required.map((sk) => {
+      const empProf = empSkillMap[sk.id] || 0;
+      const reqLevel = sk.gerekli_seviye || 3;
+      const met = empProf >= reqLevel;
+      if (met) matchedCount++;
+      totalScore += Math.min(1, empProf / reqLevel);
+      return { ...sk, empProf, reqLevel: reqLevel, met };
+    });
+    const pct = Math.round((totalScore / required.length) * 100);
+    return { pct, matchedCount, total: required.length, details };
+  });
 
   return (
     <div data-testid="career-ladder" className="bg-white border border-slate-200 rounded-md p-5 shadow-sm">
@@ -52,6 +77,9 @@ function CareerLadder({ pathData, employeeBand }) {
           const isFuture = empKademe !== null && step.kademe_seviyesi > empKademe;
           const isExpanded = expandedStep === idx;
           const isLast = idx === steps.length - 1;
+          const readiness = stepReadiness[idx];
+          const readinessColor = readiness ? (readiness.pct >= 80 ? "text-emerald-600 bg-emerald-50 border-emerald-200" : readiness.pct >= 50 ? "text-amber-600 bg-amber-50 border-amber-200" : "text-red-600 bg-red-50 border-red-200") : "";
+          const readinessBarColor = readiness ? (readiness.pct >= 80 ? "#10B981" : readiness.pct >= 50 ? "#F59E0B" : "#EF4444") : "#E2E8F0";
 
           return (
             <div key={step.rol_id} className="relative" data-testid={`career-step-${idx}`}>
@@ -99,6 +127,11 @@ function CareerLadder({ pathData, employeeBand }) {
                       )}
                     </div>
                     <div className="flex items-center gap-2">
+                      {readiness && (
+                        <span data-testid={`readiness-${idx}`} className={`px-1.5 py-0.5 rounded text-[9px] font-bold border ${readinessColor}`}>
+                          %{readiness.pct}
+                        </span>
+                      )}
                       {step.tipik_sure_ay && (
                         <span className="flex items-center gap-1 text-[10px] text-slate-500">
                           <Clock size={10} />
@@ -111,6 +144,16 @@ function CareerLadder({ pathData, employeeBand }) {
 
                   {step.kisa_aciklama && (
                     <p className="text-[11px] text-slate-500 mt-1 line-clamp-1">{step.kisa_aciklama}</p>
+                  )}
+
+                  {/* Readiness progress bar */}
+                  {readiness && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <div className="flex-1 bg-slate-100 rounded-full h-1.5">
+                        <div className="h-1.5 rounded-full transition-all" style={{ width: `${readiness.pct}%`, backgroundColor: readinessBarColor }} />
+                      </div>
+                      <span className="text-[10px] font-medium text-slate-500">{readiness.matchedCount}/{readiness.total}</span>
+                    </div>
                   )}
 
                   {/* Expanded details */}
@@ -132,7 +175,29 @@ function CareerLadder({ pathData, employeeBand }) {
                           </ul>
                         </div>
                       )}
-                      {step.gerekli_beceriler?.length > 0 && (
+                      {readiness ? (
+                        <div>
+                          <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium mb-1">
+                            Gerekli Yetkinlikler — Hazırlık: <span className="font-bold" style={{ color: readinessBarColor }}>%{readiness.pct}</span>
+                          </p>
+                          <div className="space-y-1">
+                            {readiness.details.map((sk) => (
+                              <div key={sk.id} className="flex items-center gap-2">
+                                <span className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 ${sk.met ? "bg-emerald-100" : "bg-red-100"}`}>
+                                  {sk.met
+                                    ? <CheckCircle size={10} weight="fill" className="text-emerald-600" />
+                                    : <Warning size={10} weight="fill" className="text-red-500" />
+                                  }
+                                </span>
+                                <span className={`text-[11px] flex-1 ${sk.met ? "text-slate-600" : "text-slate-800 font-medium"}`}>{sk.ad}</span>
+                                <span className={`text-[10px] font-mono ${sk.met ? "text-emerald-600" : "text-red-500"}`}>
+                                  {sk.empProf}/{sk.reqLevel}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ) : step.gerekli_beceriler?.length > 0 && (
                         <div>
                           <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium mb-1">Gerekli Yetkinlikler</p>
                           <div className="flex flex-wrap gap-1">
@@ -441,7 +506,7 @@ export default function CareerDevPage({ year }) {
 
           {/* Career Path Ladder for this employee */}
           {empCareerPath && (
-            <CareerLadder pathData={empCareerPath} employeeBand={plan.employee.band} />
+            <CareerLadder pathData={empCareerPath} employeeBand={plan.employee.band} employeeSkills={plan.employee.skills} />
           )}
 
           {/* AI Recommendations */}
