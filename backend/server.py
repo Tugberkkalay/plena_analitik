@@ -1399,6 +1399,89 @@ Kısa, somut ve uygulanabilir öneriler ver. Her cümle aksiyona dönüştürül
         result["ai_recommendations"] = "AI analizi şu anda kullanılamıyor. Algoritmik öneriler yukarıda listelenmiştir."
     return result
 
+# ---- Career Paths API ----
+@api_router.get("/career-paths")
+async def get_career_paths(department: Optional[str] = None):
+    """Return all career paths from taxonomy with resolved role names."""
+    paths = []
+    for p in CAREER_PATHS:
+        # Filter by department if specified
+        if department:
+            dept_families = DEPT_ROLE_FAMILIES.get(department, [])
+            if not any(fam in str(p.get("aile", "")) for fam in dept_families):
+                continue
+        steps = []
+        for a in p.get("adimlar", []):
+            role = ROLE_MAP.get(a["rol_id"], {})
+            steps.append({
+                "sira": a["sira"],
+                "rol_id": a["rol_id"],
+                "unvan": role.get("unvan", a["rol_id"].replace("-", " ").title()),
+                "kademe": role.get("kademe", ""),
+                "kademe_seviyesi": role.get("kademe_seviyesi", a["sira"]),
+                "tipik_sure_ay": a.get("tipik_sure_ay"),
+                "gecis_kosullari": a.get("gecis_kosullari", []),
+                "kisa_aciklama": role.get("kisa_aciklama", ""),
+            })
+        alt_paths = []
+        for alt_id in p.get("alternatif_yollar", []):
+            alt = next((cp for cp in CAREER_PATHS if cp["id"] == alt_id), None)
+            if alt:
+                alt_paths.append({"id": alt["id"], "ad": alt["ad"]})
+        paths.append({
+            "id": p["id"],
+            "ad": p["ad"],
+            "aciklama": p.get("aciklama", ""),
+            "tur": p.get("tur", "dikey"),
+            "aile": p.get("aile", ""),
+            "adimlar": steps,
+            "alternatif_yollar": alt_paths,
+        })
+    return {"career_paths": paths, "total": len(paths)}
+
+@api_router.get("/career-paths/{path_id}")
+async def get_career_path_detail(path_id: str):
+    """Return single career path detail with full role info."""
+    path = next((p for p in CAREER_PATHS if p["id"] == path_id), None)
+    if not path:
+        raise HTTPException(404, "Career path not found")
+    steps = []
+    for a in path.get("adimlar", []):
+        role = ROLE_MAP.get(a["rol_id"], {})
+        # Get required skills for the role
+        required_skills = []
+        for sk_ref in role.get("gerekli_beceriler", []):
+            sk_id = sk_ref["skill_id"] if isinstance(sk_ref, dict) else sk_ref
+            sk = SKILL_MAP.get(sk_id, {})
+            if sk:
+                required_skills.append({"id": sk["id"], "ad": sk["ad"], "kume_id": sk.get("kume_id", ""),
+                                        "gerekli_seviye": sk_ref.get("gerekli_seviye") if isinstance(sk_ref, dict) else None})
+        steps.append({
+            "sira": a["sira"],
+            "rol_id": a["rol_id"],
+            "unvan": role.get("unvan", a["rol_id"].replace("-", " ").title()),
+            "kademe": role.get("kademe", ""),
+            "kademe_seviyesi": role.get("kademe_seviyesi", a["sira"]),
+            "tipik_sure_ay": a.get("tipik_sure_ay"),
+            "gecis_kosullari": a.get("gecis_kosullari", []),
+            "kisa_aciklama": role.get("kisa_aciklama", ""),
+            "gerekli_beceriler": required_skills,
+        })
+    alt_paths = []
+    for alt_id in path.get("alternatif_yollar", []):
+        alt = next((cp for cp in CAREER_PATHS if cp["id"] == alt_id), None)
+        if alt:
+            alt_paths.append({"id": alt["id"], "ad": alt["ad"], "tur": alt.get("tur", "dikey")})
+    return {
+        "id": path["id"],
+        "ad": path["ad"],
+        "aciklama": path.get("aciklama", ""),
+        "tur": path.get("tur", "dikey"),
+        "aile": path.get("aile", ""),
+        "adimlar": steps,
+        "alternatif_yollar": alt_paths,
+    }
+
 # ---- Internal Mobility & Skill Gap by Department ----
 @api_router.get("/dashboard/internal-mobility")
 async def get_internal_mobility(year: int = 2025):
@@ -1934,12 +2017,56 @@ async def get_skills_map_v2(year: int = 2025):
     emerging = [s for s in all_skills if s["avg_proficiency"] < 2.5 and s["count"] >= 3]
     capped_coverages = [min(100, g["coverage"]) for g in gaps]
     avg_cov = round(sum(capped_coverages) / len(capped_coverages), 1) if capped_coverages else 0
+    # Build cluster breakdown from taxonomy
+    cluster_breakdown = []
+    for cluster in CLUSTER_TAXONOMY:
+        cid = cluster["id"]
+        cluster_skills_tax = [s for s in SKILL_TAXONOMY if s["kume_id"] == cid]
+        # Aggregate employee data for each skill in this cluster
+        cluster_skill_details = []
+        total_experts = 0
+        total_count = 0
+        total_prof_sum = 0
+        for sk in cluster_skills_tax:
+            agg = skill_agg.get(sk["ad"], None)
+            if agg:
+                cluster_skill_details.append({
+                    "id": sk["id"], "ad": sk["ad"],
+                    "aciklama": sk.get("aciklama", "")[:80],
+                    "count": agg["count"], "avg_proficiency": agg["avg_proficiency"],
+                    "experts": agg["experts"], "beginners": agg["beginners"],
+                    "kritiklik": sk.get("kritiklik_seviyesi", "destek"),
+                })
+                total_experts += agg["experts"]
+                total_count += agg["count"]
+                total_prof_sum += agg["avg_proficiency"]
+            else:
+                cluster_skill_details.append({
+                    "id": sk["id"], "ad": sk["ad"],
+                    "aciklama": sk.get("aciklama", "")[:80],
+                    "count": 0, "avg_proficiency": 0,
+                    "experts": 0, "beginners": 0,
+                    "kritiklik": sk.get("kritiklik_seviyesi", "destek"),
+                })
+        n_with_data = len([s for s in cluster_skill_details if s["count"] > 0])
+        avg_prof = round(total_prof_sum / n_with_data, 1) if n_with_data else 0
+        cluster_breakdown.append({
+            "id": cid,
+            "ad": cluster["ad"],
+            "toplam_beceri": len(cluster_skills_tax),
+            "aktif_beceri": n_with_data,
+            "toplam_uzman": total_experts,
+            "ort_yetkinlik": avg_prof,
+            "beceriler": sorted(cluster_skill_details, key=lambda x: -x["count"]),
+        })
+
     return {
         "kpis": {"tracked_skills": len(all_skills), "critical_gaps": len(critical_gaps),
                  "avg_coverage": avg_cov,
                  "emerging_skills": len(emerging)},
         "gaps": gaps, "heatmap": heatmap, "heatmap_depts": heatmap_depts,
-        "all_skills": all_skills[:30], "demand_supply": sorted(gaps, key=lambda x: -x["gap"])[:15]
+        "all_skills": all_skills[:30], "demand_supply": sorted(gaps, key=lambda x: -x["gap"])[:15],
+        "cluster_breakdown": cluster_breakdown,
     }
 
 # ---- Internal Mobility (Positions + Matching) ----
