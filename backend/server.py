@@ -335,6 +335,19 @@ DEPT_SKILL_CLUSTERS = {
     "Operasyon ve Süreç": ["operasyon-sureç-yonetimi","sube-operasyonlari","uyum-mevzuat-hukuk"],
 }
 PROFICIENCY_LABELS = {1: "Farkında", 2: "Uygulayıcı", 3: "Yetkin", 4: "İleri", 5: "Uzman"}
+# Departman bazlı yetkinlik odakları (internal mobility için)
+DEPT_SKILL_FOCUS = {
+    "Kredi ve Risk": {"tech": ["Bireysel Kredi Skorlama", "KOBİ Kredi Skorlama ve Değerlendirmesi", "Basel III/IV Uygulamaları", "Risk Modeli Validasyonu"], "soft": ["Eleştirel Düşünme ve Problem Çözme", "Yazılı ve Sözlü İletişim"], "domain": ["Kurumsal Kredi Tahsis ve Yapılandırma", "Portföy Risk Yönetimi"]},
+    "Hazine": {"tech": ["Aktif-Pasif Yönetimi (ALM)", "FX ve Para Piyasaları İşlemleri", "Türev Araçlar ve Hedging"], "soft": ["Stratejik Düşünme ve Karar Verme"], "domain": ["Sabit Getirili Menkul Kıymetler", "Yatırım Bankacılığı (IB)"]},
+    "Bireysel Bankacılık": {"tech": ["Bireysel Kredi Ürünleri (İhtiyaç, Konut, Taşıt)", "Kart ve Ödeme Sistemleri"], "soft": ["Müşteri Odaklılık", "Müzakere ve Etki Becerileri"], "domain": ["Mevduat ve Birikim Ürünleri", "Bireysel Emeklilik ve Sigorta Ürünleri"]},
+    "Kurumsal Bankacılık": {"tech": ["KOBİ Bankacılığı", "Kurumsal Bankacılık (Büyük Müşteri)"], "soft": ["Müzakere ve Etki Becerileri"], "domain": ["Dış Ticaret Finansmanı ve Akreditif", "Nakit Yönetimi (Cash Management)"]},
+    "Şube Operasyonları": {"tech": ["Gişe ve Nakit Yönetimi", "Şube Satış ve Hedef Yönetimi"], "soft": ["Müşteri Odaklılık", "Takım Çalışması ve İşbirliği"], "domain": ["Şube Yönetimi", "Müşteri Kazanımı ve Onboarding"]},
+    "Dijital Bankacılık": {"tech": ["Mobil Bankacılık Ürün Yönetimi", "Open Banking ve API Ekosistemi", "Dijital Ödeme Sistemleri ve QR"], "soft": ["Eleştirel Düşünme ve Problem Çözme"], "domain": ["Dijital Müşteri Yolculuğu"]},
+    "Uyum ve Mevzuat": {"tech": ["BDDK Mevzuatı ve Bankacılık Düzenlemeleri", "MASAK ve Suç Gelirleri Aklanması ile Mücadele"], "soft": ["Yazılı ve Sözlü İletişim"], "domain": ["KVKK ve Kişisel Veri Yönetimi", "İç Kontrol ve İç Denetim"]},
+    "Veri ve Analitik": {"tech": ["SQL ve Veri Sorgulama", "BI Dashboard ve Veri Görselleştirme", "Makine Öğrenmesi ve Modelleme"], "soft": ["Eleştirel Düşünme ve Problem Çözme"], "domain": ["Veri Mühendisliği ve ETL", "İstatistik ve Risk Modellemesi"]},
+    "İnsan Kaynakları": {"tech": ["Ekip Yönetimi ve İnsan Kaynakları", "Performans Yönetimi ve Geri Bildirim"], "soft": ["Koçluk ve Mentorluk", "Değişim Yönetimi"], "domain": ["Stratejik Düşünme ve Karar Verme"]},
+    "Operasyon ve Süreç": {"tech": ["Süreç Tasarımı ve İyileştirme", "RPA ve Süreç Otomasyonu"], "soft": ["Takım Çalışması ve İşbirliği"], "domain": ["Takas ve Mutabakat (Settlement)", "EFT, Havale ve FAST Operasyonları"]},
+}
 CAREER_PATH_BANDS = {
     "A": {"next": "B", "title": "Uzman", "timeline": "12-18 ay"},
     "B": {"next": "C", "title": "Kıdemli Uzman", "timeline": "18-24 ay"},
@@ -1717,16 +1730,16 @@ async def get_burnout(year: int = 2025):
 
 # ---- Target Headcount Planning ----
 TARGET_HEADCOUNT = {
-    "Information Technology": {"target": 95, "critical_roles": ["Senior Developer", "Cloud Architecture Lead", "AI/ML Engineer", "Cybersecurity Lead"]},
-    "Human Resources": {"target": 50, "critical_roles": ["Talent Acquisition Lead", "HR Analytics Specialist"]},
-    "Finance": {"target": 60, "critical_roles": ["Financial Controller", "Risk Analyst"]},
-    "Marketing": {"target": 55, "critical_roles": ["Digital Marketing Lead", "Brand Strategist"]},
-    "Operations": {"target": 80, "critical_roles": ["Operations Manager", "Quality Lead", "Process Engineer"]},
-    "Sales": {"target": 75, "critical_roles": ["Regional Sales Director", "Key Account Manager"]},
-    "Legal": {"target": 30, "critical_roles": ["Compliance Lead", "IP Attorney"]},
-    "Research & Development": {"target": 75, "critical_roles": ["Systems Architect", "AI Research Lead", "Embedded Systems Lead", "Test Engineer"]},
-    "Administration": {"target": 35, "critical_roles": ["Office Manager", "Facilities Lead"]},
-    "Supply Chain": {"target": 45, "critical_roles": ["Procurement Lead", "Logistics Manager"]},
+    "Kredi ve Risk": {"target": 75, "critical_roles": ["Kıdemli Kredi Analisti", "Risk Yöneticisi", "Kredi Müdürü"]},
+    "Hazine": {"target": 40, "critical_roles": ["Hazine Yöneticisi", "ALM Uzmanı"]},
+    "Bireysel Bankacılık": {"target": 70, "critical_roles": ["Portföy Yöneticisi", "Bireysel Bankacılık Müdürü"]},
+    "Kurumsal Bankacılık": {"target": 50, "critical_roles": ["Kurumsal İlişki Yöneticisi", "Dış Ticaret Uzmanı"]},
+    "Şube Operasyonları": {"target": 80, "critical_roles": ["Şube Müdürü", "Operasyon Sorumlusu", "Satış Koordinatörü"]},
+    "Dijital Bankacılık": {"target": 45, "critical_roles": ["Ürün Müdürü (Mobil)", "Open Banking Uzmanı"]},
+    "Uyum ve Mevzuat": {"target": 30, "critical_roles": ["Uyum Müdürü", "MASAK Uzmanı"]},
+    "Veri ve Analitik": {"target": 40, "critical_roles": ["Veri Bilimci", "BI Analisti"]},
+    "İnsan Kaynakları": {"target": 30, "critical_roles": ["Yetenek Yönetimi Uzmanı", "İK Analitiği Sorumlusu"]},
+    "Operasyon ve Süreç": {"target": 40, "critical_roles": ["Süreç İyileştirme Uzmanı", "Takas ve Mutabakat Sorumlusu"]},
 }
 
 @api_router.get("/dashboard/headcount-plan")
@@ -1772,43 +1785,43 @@ async def get_headcount_plan(year: int = 2025, country: str = None):
 # ---- Workforce Alignment (Strategy → Roles/Skills → Fulfillment) ----
 STRATEGIC_OBJECTIVES = [
     {
-        "id": "ai_expansion", "name": "AI/ML Capability Expansion",
-        "description": "Build in-house AI/ML team for autonomous systems and predictive analytics",
+        "id": "dijital_donusum", "name": "Dijital Bankacılık Dönüşümü",
+        "description": "Dijital kanalların güçlendirilmesi, mobil bankacılık ve open banking altyapısı",
         "priority": "Critical",
-        "required_skills": ["AI/ML", "Machine Learning", "Deep Learning", "Python", "NLP", "Computer Vision", "Data Analytics"],
-        "required_headcount": 45, "target_departments": ["Information Technology", "Research & Development"],
+        "required_skills": ["Mobil Bankacılık Ürün Yönetimi", "Open Banking ve API Ekosistemi", "Dijital Ödeme Sistemleri ve QR", "Dijital Müşteri Yolculuğu", "RPA ve Süreç Otomasyonu", "Makine Öğrenmesi ve Modelleme", "BI Dashboard ve Veri Görselleştirme"],
+        "required_headcount": 40, "target_departments": ["Dijital Bankacılık", "Veri ve Analitik"],
         "timeline": "Q1-Q4 2025"
     },
     {
-        "id": "intl_growth", "name": "International Market Expansion",
-        "description": "Establish operations in Italy and expand European presence",
-        "priority": "High",
-        "required_skills": ["Sales Strategy", "Legal Compliance", "Supply Chain", "Digital Marketing", "Negotiation"],
-        "required_headcount": 50, "target_departments": ["Sales", "Legal", "Supply Chain", "Marketing"],
-        "timeline": "Q2-Q4 2025"
-    },
-    {
-        "id": "digital_transform", "name": "Digital Transformation",
-        "description": "Modernize internal processes through automation and cloud migration",
-        "priority": "High",
-        "required_skills": ["Cloud Computing", "DevOps", "Cybersecurity", "Agile", "JavaScript", "React"],
-        "required_headcount": 35, "target_departments": ["Information Technology", "Operations"],
+        "id": "risk_yonetimi", "name": "Gelişmiş Risk ve Uyum Yönetimi",
+        "description": "Basel IV uyumluluğu, stres testi altyapısı ve BDDK mevzuat adaptasyonu",
+        "priority": "Critical",
+        "required_skills": ["Basel III/IV Uygulamaları", "Stres Testi ve Senaryo Analizi", "Risk Modeli Validasyonu", "BDDK Mevzuatı ve Bankacılık Düzenlemeleri", "MASAK ve Suç Gelirleri Aklanması ile Mücadele", "Sermaye Yeterliliği ve RWA Hesaplama"],
+        "required_headcount": 35, "target_departments": ["Kredi ve Risk", "Uyum ve Mevzuat"],
         "timeline": "Q1-Q3 2025"
     },
     {
-        "id": "talent_dev", "name": "Leadership Pipeline Development",
-        "description": "Develop next-generation leaders through structured programs",
+        "id": "musteri_deneyimi", "name": "Müşteri Deneyimi İyileştirme",
+        "description": "NPS artışı, müşteri segmentasyonu ve CRM modernizasyonu",
+        "priority": "High",
+        "required_skills": ["Müşteri Segmentasyonu", "NPS, CES ve Deneyim Ölçümü", "Kampanya Yönetimi ve Next-Best-Action", "Müşteri Yolculuğu Haritalama", "Şikayet Yönetimi ve Closed-Loop Feedback"],
+        "required_headcount": 30, "target_departments": ["Dijital Bankacılık", "Bireysel Bankacılık"],
+        "timeline": "Q2-Q4 2025"
+    },
+    {
+        "id": "liderlik_gelistirme", "name": "Liderlik ve Yetenek Geliştirme",
+        "description": "Yeni nesil yöneticilerin yetiştirilmesi ve yetenek havuzu oluşturma",
         "priority": "Medium",
-        "required_skills": ["Leadership", "Strategic Thinking", "Change Management", "Mentoring", "Communication"],
-        "required_headcount": 25, "target_departments": ["Human Resources"],
+        "required_skills": ["Ekip Yönetimi ve İnsan Kaynakları", "Stratejik Düşünme ve Karar Verme", "Değişim Yönetimi", "Koçluk ve Mentorluk", "Performans Yönetimi ve Geri Bildirim"],
+        "required_headcount": 25, "target_departments": ["İnsan Kaynakları"],
         "timeline": "Q1-Q4 2025"
     },
     {
-        "id": "product_innovation", "name": "Next-Gen Product Development",
-        "description": "Accelerate R&D for advanced systems and autonomous technologies",
-        "priority": "Critical",
-        "required_skills": ["Embedded Systems", "Systems Engineering", "Autonomous Systems", "IoT", "AI/ML", "Deep Learning"],
-        "required_headcount": 55, "target_departments": ["Research & Development", "Information Technology"],
+        "id": "sube_verimlilik", "name": "Şube Ağı Optimizasyonu",
+        "description": "Şube verimliliğini artırma, satış hedeflerini güçlendirme ve operasyonel iyileştirme",
+        "priority": "High",
+        "required_skills": ["Şube Satış ve Hedef Yönetimi", "Şube Yönetimi", "Gişe ve Nakit Yönetimi", "Müşteri Kazanımı ve Onboarding", "Süreç Tasarımı ve İyileştirme", "Bireysel Kredi Ürünleri (İhtiyaç, Konut, Taşıt)"],
+        "required_headcount": 50, "target_departments": ["Şube Operasyonları", "Bireysel Bankacılık"],
         "timeline": "Q1-Q4 2025"
     }
 ]
@@ -1989,11 +2002,11 @@ async def get_skills_map_v2(year: int = 2025):
         coverage = round(current_cap / demand * 100, 1) if demand else 100
         severity = "critical" if coverage < 50 else "moderate" if coverage < 80 else "healthy"
         if severity == "critical":
-            action = "Targeted hiring + intensive training program"
+            action = "Hedefli işe alım + yoğun eğitim programı"
         elif severity == "moderate":
-            action = "Internal rotation + upskilling courses"
+            action = "İç rotasyon + yetkinlik geliştirme eğitimleri"
         else:
-            action = "Maintain through mentoring"
+            action = "Mentorluk ile sürdürme"
         gaps.append({
             "skill": sk_name, "category": data.get("category", "Tech"),
             "current_capacity": current_cap, "future_demand": demand,
