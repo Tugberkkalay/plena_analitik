@@ -1376,34 +1376,29 @@ async def get_career_plan(body: CareerPlanRequest):
     }
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
-        prompt = f"""{emp['name']} için kariyer gelişim planı hazırla.
-Pozisyon: {emp['department']}, {emp['job_title']}, Band {emp['band']}
-Performans: {emp.get('performance_score',0)}/5, Kıdem: {emp.get('seniority_years',0)} yıl
-Yetkinlikler: {skill_text}
-Güçlü: {', '.join(s['skill'] for s in strong_skills)}
-Gelişim: {', '.join(s['skill'] for s in weak_skills)}
+        prompt = f"""{emp['name']} ({emp['department']}, {emp['job_title']}, Band {emp['band']}) için kısa kariyer gelişim planı.
+Perf: {emp.get('performance_score',0)}/5, Kıdem: {emp.get('seniority_years',0)} yıl
+Güçlü: {', '.join(s['skill'] for s in strong_skills[:3])}
+Gelişim: {', '.join(s['skill'] for s in weak_skills[:3])}
 
-Aşağıdaki başlıklarda profesyonel İK diliyle, düz metin olarak yaz. Markdown kullanma, yıldız veya özel karakter kullanma. Her başlığı büyük harfle yaz ve alt satıra geç.
+Düz metin, markdown kullanma. Her başlığı büyük harfle yaz.
 
 KAZANILMASI GEREKEN YETKİNLİKLER
-Bu pozisyon ve kariyer hedefi için kritik 3 yetkinliği, neden gerekli olduğunu ve nasıl kazanılacağını açıkla.
+En kritik 2 yetkinlik ve nasıl kazanılacağı (2 cümle/yetkinlik).
 
 ÖNERİLEN EĞİTİMLER
-4 spesifik eğitim/sertifika programı öner. Her biri için süre ve hedef çıktıyı belirt.
+3 spesifik eğitim/sertifika (isim, süre, hedef).
 
 GELİŞİM HEDEFLERİ
-3 SMART hedef yaz: 6 ay, 1 yıl ve 2 yıl için. Ölçülebilir ve gerçekçi olsun.
+6 ay ve 1 yıl için birer SMART hedef.
 
 KARİYER YOLU
-Mevcut pozisyondan sonraki adımı ve geçiş için yapılması gerekenleri somut şekilde anlat.
+Sonraki adım ve geçiş koşulları (2-3 cümle).
 
-MENTORLUK ÖNERİSİ
-İdeal mentor profili ve mentorluk sürecinde odaklanılacak 2-3 alanı belirt.
-
-Kısa, somut ve uygulanabilir öneriler ver. Her cümle aksiyona dönüştürülebilir olsun."""
+Toplam 200 kelimeyi geçme. Somut ve uygulanabilir yaz."""
 
         chat = LlmChat(api_key=EMERGENT_KEY, session_id=str(uuid.uuid4()),
-                       system_message="Deneyimli bir İK kariyer danışmanısın. Profesyonel, sade Türkçe kullan. Markdown formatı kullanma. Somut, ölçülebilir öneriler ver.")
+                       system_message="İK kariyer danışmanısın. Kısa, somut Türkçe yaz. Markdown kullanma. 200 kelime limit.")
         chat.with_model("openai", "gpt-5.2")
         response = await chat.send_message(UserMessage(text=prompt))
         result["ai_recommendations"] = response
@@ -2196,14 +2191,21 @@ async def get_alerts(year: int = 2025):
             best_readiness = max(best_readiness, readiness)
         if best_readiness < 80:
             weak_succ_roles.append((role, best_readiness))
-    for role, best_r in weak_succ_roles[:5]:
+    succession_actions = [
+        "Departman içi yüksek potansiyelli çalışanları tespit et ve hızlandırılmış liderlik programına dahil et.",
+        "Komşu departmanlardan yatay geçiş adaylarını değerlendir. Rotasyon programı ile deneyim kazandır.",
+        "Pozisyon için kritik yetkinlikleri belirle ve mevcut C/D band çalışanlara hedefli mentorluk programı başlat.",
+        "Acil yedekleme planı oluştur: 6 ay içinde en az 2 aday hazır olacak şekilde gelişim planı kur.",
+        "Dış kaynak taraması başlat. Sektör deneyimli üst düzey aday havuzu oluştur. İç ve dış adayları paralel değerlendir.",
+    ]
+    for i, (role, best_r) in enumerate(weak_succ_roles[:5]):
         alert_id += 1
         sev = "high" if best_r < 65 else "med"
         title = f"{role['job_title']} ({shorten_dept(role['department'])}) için nitelikli halef yok" if best_r < 65 else f"{role['job_title']} ({shorten_dept(role['department'])}) için zayıf halef hattı"
         alerts.append({"id": str(alert_id), "source": "Yedekleme", "severity": sev,
             "title": title,
             "detail": f"{role['name']} (Band {role['band']}, {role.get('seniority_years',0)} yıl). En iyi halef hazırlığı: %{best_r}.",
-            "suggested_action": f"Komşu band ve departmanlardan iç mobilite adaylarını değerlendir. Potansiyel halefler için hızlandırılmış gelişim programı başlat.",
+            "suggested_action": succession_actions[i % len(succession_actions)],
             "entity_ref": role['name'], "status": "active"})
     # Rule 3: Skills gap — critical coverage
     skill_demand = {}
@@ -2248,17 +2250,26 @@ async def get_alerts(year: int = 2025):
                 "detail": f"{len(dept_emps)} çalışanın {len(managers)} tanesi (%{mgr_ratio}) yöneticilik rolünde. Benchmark %15-20.",
                 "suggested_action": f"{short} organizasyon tasarımını gözden geçir. Bazı yöneticilik rollerini teknik liderlik veya kıdemli uzmanlık rolüne dönüştür.",
                 "entity_ref": short, "status": "active"})
-    # Rule 5: Headcount gap — critical departments
+    # Rule 5: Headcount gap — departments below target
+    kadro_actions = [
+        "{dept} için işe alım sürecini hızlandır. 2-3 ek kaynak kanalı devreye al.",
+        "{dept} departmanında iç terfi ve rotasyon fırsatlarını değerlendir. Açık pozisyonları önceliklendir.",
+        "{dept} için üniversite işbirliği ve stajyer programını genişlet. Yetenek havuzunu büyüt.",
+        "{dept} kadro açığını kapatmak için danışman/geçici kadro desteği planla. Paralelde kalıcı işe alım yürüt.",
+    ]
     for dept_name, target in TARGET_HEADCOUNT.items():
         short = shorten_dept(dept_name)
         current = len([e for e in active if e['department'] == dept_name])
         fill_rate = round(current / target["target"] * 100, 1) if target["target"] else 100
-        if fill_rate < 65:
+        gap = target["target"] - current
+        if fill_rate < 90 and gap > 2:
             alert_id += 1
-            alerts.append({"id": str(alert_id), "source": "Kadro", "severity": "high" if fill_rate < 55 else "med",
-                "title": f"{short} kadro yetersiz (%{fill_rate} doluluk)",
-                "detail": f"Mevcut: {current}, Hedef: {target['target']}. {target['target'] - current} pozisyon açığı.",
-                "suggested_action": f"{short} için işe alım sürecini hızlandır. 2-3 ek kaynak kanalı devreye al. Geçici taşeron kadro desteği planla.",
+            sev = "high" if fill_rate < 70 else "med"
+            action = kadro_actions[alert_id % len(kadro_actions)].format(dept=short)
+            alerts.append({"id": str(alert_id), "source": "Kadro", "severity": sev,
+                "title": f"{short} kadro açığı ({gap} pozisyon, %{fill_rate} doluluk)",
+                "detail": f"Mevcut: {current}, Hedef: {target['target']}. {gap} pozisyon açığı var. Kritik roller: {', '.join(target['critical_roles'][:2])}.",
+                "suggested_action": action,
                 "entity_ref": short, "status": "active"})
     # Rule 6: Branch performance — below target
     try:

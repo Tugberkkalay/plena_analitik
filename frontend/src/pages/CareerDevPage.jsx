@@ -348,6 +348,8 @@ export default function CareerDevPage({ year }) {
     return () => clearTimeout(timer);
   }, [searchQuery, searchEmployees]);
 
+  const [aiLoading, setAiLoading] = useState(false);
+
   const generatePlan = async (emp) => {
     setSelectedEmp(emp);
     setEmployees([]);
@@ -356,18 +358,33 @@ export default function CareerDevPage({ year }) {
     setPlan(null);
     setEmpCareerPath(null);
     try {
-      const [planRes, pathsRes] = await Promise.all([
-        axios.post(`${API}/employee/career-plan`, { employee_id: emp.id }, { timeout: 60000 }),
-        axios.get(`${API}/career-paths?department=${encodeURIComponent(emp.department)}`)
-      ]);
-      setPlan(planRes.data);
+      // Step 1: Load career paths immediately (fast)
+      const pathsRes = await axios.get(`${API}/career-paths?department=${encodeURIComponent(emp.department)}`);
       const paths = pathsRes.data.career_paths || [];
       if (paths.length > 0) {
         const detailRes = await axios.get(`${API}/career-paths/${paths[0].id}`);
         setEmpCareerPath(detailRes.data);
       }
-    } catch (_) { /* silenced */ }
-    finally { setLoading(false); }
+
+      // Step 2: Start career plan (includes AI - may take time)
+      setLoading(false);
+      setAiLoading(true);
+      const planRes = await axios.post(`${API}/employee/career-plan`, { employee_id: emp.id }, { timeout: 60000 });
+      setPlan(planRes.data);
+    } catch (err) {
+      // If career plan fails, try without AI by showing what we have
+      if (!plan) {
+        // Build a minimal plan from the search result
+        setPlan({
+          employee: { name: emp.name, department: emp.department, job_title: emp.job_title, band: emp.band, performance_score: 0, seniority_years: 0, skills: [] },
+          skill_analysis: { strong: [], weak: [], total: 0, avg_proficiency: 0 },
+          career_path: { current_band: emp.band, next_band: "", next_title: "", timeline: "" },
+          mentors: [],
+          ai_recommendations: "Plena AI analizi zaman aşımına uğradı. Lütfen tekrar deneyin."
+        });
+      }
+    }
+    finally { setLoading(false); setAiLoading(false); }
   };
 
   const radarData = plan?.employee?.skills?.map(s => ({ skill: s.skill.length > 12 ? s.skill.slice(0, 12) + '..' : s.skill, proficiency: s.proficiency, fullMark: 5 })) || [];
@@ -411,8 +428,21 @@ export default function CareerDevPage({ year }) {
       {loading && (
         <div className="flex flex-col items-center justify-center py-16 gap-3">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600" />
-          <p className="text-sm text-slate-500">Plena AI kariyer yolunu analiz ediyor...</p>
+          <p className="text-sm text-slate-500">Kariyer yolu yükleniyor...</p>
         </div>
+      )}
+
+      {/* Career ladder shows immediately when path is loaded, even before plan */}
+      {empCareerPath && !plan && !loading && (
+        <>
+          {aiLoading && (
+            <div className="bg-white border border-slate-200 rounded-md p-4 shadow-sm flex items-center gap-3">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-teal-600" />
+              <p className="text-sm text-slate-500">Plena AI çalışan profilini ve önerileri hazırlıyor...</p>
+            </div>
+          )}
+          <CareerLadder pathData={empCareerPath} employeeBand={selectedEmp?.band} employeeSkills={null} />
+        </>
       )}
 
       {plan && !loading && (
@@ -510,7 +540,7 @@ export default function CareerDevPage({ year }) {
           )}
 
           {/* AI Recommendations */}
-          {plan.ai_recommendations && (
+          {plan.ai_recommendations ? (
             <div className="bg-white border border-slate-200 rounded-md p-6 shadow-sm">
               <div className="flex items-center gap-2 mb-4">
                 <Brain size={20} weight="duotone" className="text-teal-600" />
@@ -520,11 +550,18 @@ export default function CareerDevPage({ year }) {
                 {plan.ai_recommendations}
               </div>
             </div>
+          ) : aiLoading && (
+            <div className="bg-white border border-slate-200 rounded-md p-6 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-teal-600" />
+                <p className="text-sm text-slate-500">Plena AI kişiselleştirilmiş öneriler hazırlıyor...</p>
+              </div>
+            </div>
           )}
         </>
       )}
 
-      {!plan && !loading && (
+      {!plan && !empCareerPath && !loading && !aiLoading && (
         <>
           {/* Career Path Browser - shown when no employee is selected */}
           <CareerPathBrowser />
