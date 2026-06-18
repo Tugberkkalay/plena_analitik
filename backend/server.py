@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, UploadFile, File, HTTPException, Query
+from fastapi import FastAPI, APIRouter, UploadFile, File, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -633,6 +633,13 @@ async def startup():
                 logger.info(f"Migrated {len(name_ops)} Italian/unwanted names to Turkish")
     except Exception as e:
         logger.error(f"Startup seed error: {e}")
+    # Seed admin user
+    try:
+        from auth import seed_admin
+        await seed_admin(db)
+        logger.info("Admin user ready")
+    except Exception as e:
+        logger.error(f"Admin seed error: {e}")
     try:
         init_storage()
         logger.info("Storage initialized")
@@ -2658,6 +2665,14 @@ async def get_branch_map(metric: str = "performance", year: int = 2025):
     }
 
 app.include_router(api_router)
+
+# Auth & Tenant routes
+from routes_auth import setup_auth_routes, setup_tenant_routes, auth_router, tenant_router
+setup_auth_routes(db)
+setup_tenant_routes(db)
+app.include_router(auth_router)
+app.include_router(tenant_router)
+
 app.add_middleware(CORSMiddleware, allow_credentials=True,
                    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
                    allow_methods=["*"], allow_headers=["*"])

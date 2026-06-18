@@ -1,29 +1,51 @@
 # Plenalitik — Enterprise HR & Sales Analytics Platform
 
 ## Problem Statement
-HR + Branch/Sales analytics for financial sector (bank/factoring). 29+ modules. Full Turkish UI. Banking taxonomy (175 skills, 44 roles, 12 clusters, 18 career paths).
+Multi-tenant HR analytics SaaS. Admin creates client reports (seed data per tenant), clients access via unique URL with password.
 
 ## Architecture
-- Frontend: React 18, Tailwind, Recharts, Shadcn UI, react-simple-maps, Phosphor Icons
-- Backend: FastAPI, Python, Motor (MongoDB)
+- Frontend: React 18, Tailwind, Recharts, Shadcn UI, react-simple-maps
+- Backend: FastAPI, Python, Motor (MongoDB), JWT auth, bcrypt
 - AI: GPT-5.2 via Emergent LLM Key
-- Data: Custom banking taxonomy JSONs
+- Auth: JWT cookies (httponly), single admin account, per-tenant access passwords
 
-## Completed Features (15 Jun 2026)
-- ✅ Career Path Visualization with Readiness Score (Hazırlık Skoru)
-- ✅ Skills Map V2 with 12-cluster banking taxonomy drill-down
-- ✅ Full Turkish localization: ALL backend strings (alerts, risk levels, status labels, priorities, recommendations, action suggestions) translated to Turkish
-- ✅ STRATEGIC_OBJECTIVES, TARGET_HEADCOUNT, DEPT_SKILL_FOCUS updated to banking taxonomy
-- ✅ New API endpoints: GET /api/career-paths, GET /api/career-paths/{path_id}
+## Routing
+- `/login` — Admin login page
+- `/admin` — Admin dashboard (tenant CRUD, seed, publish)
+- `/admin/rapor/:slug/*` — Admin report view (full dashboard with sidebar)
+- `/raporlar/:slug` — Public report access (password gate → iframe report viewer)
 
-## Turkish Localization Status
-- Backend: 100% Turkish (alert titles, descriptions, actions, risk levels, status labels, priorities, AI prompts)
-- Frontend: 100% Turkish (sidebar, pages, charts, tooltips, legends, badges, filter labels)
+## Multi-Tenant Data Model
+- `users` collection: admin account (email, password_hash, role)
+- `tenants` collection: {id, name, slug, sector, access_password_hash, status, employee_count}
+- All data collections (employees, branches, sales_performance, etc.) have `tenant_id` field
 
-## Production Note
-After deploy, call `/api/data/reset` on production to regenerate seed data with new taxonomy.
+## API Endpoints (New)
+- `POST /api/auth/login` — Admin login (sets httponly cookie)
+- `GET /api/auth/me` — Get current admin user
+- `POST /api/auth/logout` — Clear auth cookies
+- `GET /api/tenants` — List tenants (admin only)
+- `POST /api/tenants` — Create tenant (admin only)
+- `GET/PUT/DELETE /api/tenants/{id}` — Tenant CRUD (admin only)
+- `POST /api/tenants/{id}/seed` — Generate 500 employees + branches + sales for tenant
+- `POST /api/tenants/{id}/publish` — Set tenant status to published
+- `POST /api/tenants/public/{slug}/verify` — Verify tenant access password (public)
+- `GET /api/tenants/public/{slug}/check` — Check if tenant exists (public)
+
+## Completed Features
+- ✅ Admin auth (JWT + bcrypt + httponly cookies)
+- ✅ Admin dashboard with tenant management
+- ✅ Tenant CRUD (create, list, update, delete)
+- ✅ Tenant data seeding (500 employees + branches + sales per tenant)
+- ✅ Publish/unpublish flow
+- ✅ Public report password gate
+- ✅ Login page (Turkish UI)
+- ✅ Route restructuring (login → admin → public reports)
 
 ## Upcoming Tasks
-- P1: server.py modülerleştirme (~2600+ satır)
-- P2: Alert Resolution Persistence (DB)
-- P2: Component file splitting
+- P0: Public report viewer rendering (iframe or embedded dashboard)
+- P0: Admin "Raporları Gör" navigation to full dashboard per tenant
+- P1: PDF export (per module + full report pack)
+- P1: server.py modülerleştirme
+- P2: Alert Resolution DB persistence
+- P2: Additional sector taxonomies

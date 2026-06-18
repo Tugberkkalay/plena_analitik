@@ -61,7 +61,7 @@ const BOTTOM_ITEMS = [
   { path: "/data-upload", label: "Veri Yönetimi", icon: CloudArrowUp },
 ];
 
-export default function Sidebar({ open, onToggle }) {
+export default function Sidebar({ open, onToggle, basePath = "" }) {
   return (
     <>
       <button
@@ -97,7 +97,7 @@ export default function Sidebar({ open, onToggle }) {
               {section.items.map((item) => (
                 <NavLink
                   key={item.path}
-                  to={item.path}
+                  to={basePath ? `${basePath}${item.path}` : item.path}
                   end={item.path === "/"}
                   data-testid={`sidebar-nav-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
                   className={({ isActive }) =>
@@ -121,7 +121,7 @@ export default function Sidebar({ open, onToggle }) {
           {BOTTOM_ITEMS.map((item) => (
             <NavLink
               key={item.path}
-              to={item.path}
+              to={basePath ? `${basePath}${item.path}` : item.path}
               data-testid={`sidebar-nav-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors duration-200 ${
