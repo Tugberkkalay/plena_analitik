@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useNavigate } from "react-router-dom";
-import { Buildings, Plus, SignOut, Eye, Trash, Database, Globe, PencilSimple, Check, ArrowRight } from "@phosphor-icons/react";
+import { Buildings, Plus, SignOut, Eye, Trash, Database, Globe, PencilSimple, Check, ArrowRight, FileXls, DownloadSimple, UploadSimple } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -298,6 +298,7 @@ export default function AdminDashboard() {
   const [editTenant, setEditTenant] = useState(null);
   const [seedingId, setSeedingId] = useState(null);
   const [publishingId, setPublishingId] = useState(null);
+  const [uploadingId, setUploadingId] = useState(null);
 
   const fetchTenants = useCallback(async () => {
     try {
@@ -338,6 +339,22 @@ export default function AdminDashboard() {
       await axios.delete(`${API}/api/tenants/${tenantId}`, { withCredentials: true });
       fetchTenants();
     } catch { }
+  };
+
+  const handleExcelUpload = async (tenantId, file) => {
+    setUploadingId(tenantId);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await axios.post(`${API}/api/tenants/${tenantId}/upload-excel`, formData, {
+        withCredentials: true, headers: { "Content-Type": "multipart/form-data" }, timeout: 120000,
+      });
+      alert(`Veriler yüklendi: ${JSON.stringify(res.data.counts)}`);
+      fetchTenants();
+    } catch (err) {
+      alert("Yükleme hatası: " + (err.response?.data?.detail || err.message));
+    }
+    setUploadingId(null);
   };
 
   return (
@@ -382,10 +399,24 @@ export default function AdminDashboard() {
         {/* Tenant List */}
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-base font-semibold text-slate-900">Müşteriler</h2>
-          <Button onClick={() => setShowCreate(true)} data-testid="new-tenant-btn"
-            className="bg-teal-600 hover:bg-teal-700 text-white text-sm flex items-center gap-1.5">
-            <Plus size={14} weight="bold" /> Yeni Müşteri
-          </Button>
+          <div className="flex items-center gap-2">
+            <button onClick={async () => {
+                try {
+                  const res = await axios.get(`${API}/api/tenants/excel-template`, { withCredentials: true, responseType: "blob" });
+                  const url = window.URL.createObjectURL(new Blob([res.data]));
+                  const a = document.createElement("a"); a.href = url; a.download = "plenalitik_veri_sablonu.xlsx"; a.click();
+                  window.URL.revokeObjectURL(url);
+                } catch { alert("Template indirme hatası"); }
+              }}
+              data-testid="download-template-btn"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-md border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors">
+              <DownloadSimple size={14} /> Excel Şablon
+            </button>
+            <Button onClick={() => setShowCreate(true)} data-testid="new-tenant-btn"
+              className="bg-teal-600 hover:bg-teal-700 text-white text-sm flex items-center gap-1.5">
+              <Plus size={14} weight="bold" /> Yeni Müşteri
+            </Button>
+          </div>
         </div>
 
         {loading ? (
@@ -438,9 +469,19 @@ export default function AdminDashboard() {
                       {seedingId === t.id ? (
                         <><div className="animate-spin rounded-full h-3 w-3 border-b border-slate-600" /> Oluşturuluyor...</>
                       ) : (
-                        <><Database size={12} /> Veri Oluştur</>
+                        <><Database size={12} /> Demo Veri</>
                       )}
                     </button>
+                    {/* Excel Upload */}
+                    <label className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium cursor-pointer transition-colors ${uploadingId === t.id ? "bg-emerald-100 text-emerald-600" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"}`}>
+                      {uploadingId === t.id ? (
+                        <><div className="animate-spin rounded-full h-3 w-3 border-b border-emerald-600" /> Yükleniyor...</>
+                      ) : (
+                        <><UploadSimple size={12} /> Excel Yükle</>
+                      )}
+                      <input type="file" accept=".xlsx,.xls" className="hidden" disabled={uploadingId === t.id}
+                        onChange={(e) => { if (e.target.files[0]) handleExcelUpload(t.id, e.target.files[0]); e.target.value = ""; }} />
+                    </label>
                     {/* View Report */}
                     <button onClick={() => navigate(`/admin/rapor/${t.slug}`)} data-testid={`view-${t.slug}`}
                       className="flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium bg-teal-50 text-teal-700 hover:bg-teal-100 transition-colors">

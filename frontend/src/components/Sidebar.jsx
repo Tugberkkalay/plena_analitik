@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { ChartBar, Users, UserPlus, ArrowsClockwise, ArrowsLeftRight, Brain, CloudArrowUp, List, X, Funnel, Target, GraduationCap, CurrencyDollar, Smiley, Star, Gear, Compass, UserFocus, Sliders, Binoculars, ShieldWarning, Heartbeat, FilePdf, Crosshair, TreeStructure, Strategy, Bell, UserSwitch, GridNine, Buildings, Trophy, MapPin, UsersFour } from "@phosphor-icons/react";
 
-const NAV_SECTIONS = [
+export const NAV_SECTIONS = [
   {
     label: "İşgücü",
     items: [

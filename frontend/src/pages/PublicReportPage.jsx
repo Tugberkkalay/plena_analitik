@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { Lock, FileText } from "@phosphor-icons/react";
 import { setActiveTenant } from "@/lib/tenantInterceptor";
+import { NAV_SECTIONS } from "@/components/Sidebar";
 import PdfExportButton from "@/components/PdfExportButton";
 
 // Import all dashboard pages
@@ -18,6 +19,7 @@ import CompensationPage from "@/pages/CompensationPage";
 import EngagementPage from "@/pages/EngagementPage";
 import CareerTalentPage from "@/pages/CareerTalentPage";
 import SkillsMapV2Page from "@/pages/SkillsMapV2Page";
+import SkillsMapPage from "@/pages/SkillsMapPage";
 import SuccessionPage from "@/pages/SuccessionPage";
 import BurnoutPage from "@/pages/BurnoutPage";
 import HeadcountPlanPage from "@/pages/HeadcountPlanPage";
@@ -29,33 +31,51 @@ import BranchPerformancePage from "@/pages/BranchPerformancePage";
 import CommissionTargetsPage from "@/pages/CommissionTargetsPage";
 import BranchStaffingPage from "@/pages/BranchStaffingPage";
 import BranchMapPage from "@/pages/BranchMapPage";
+import CareerDevPage from "@/pages/CareerDevPage";
+import AIForecastPage from "@/pages/AIForecastPage";
+import CapabilityForecastPage from "@/pages/CapabilityForecastPage";
+import HROperationsPage from "@/pages/HROperationsPage";
+import ScenarioSimulatorPage from "@/pages/ScenarioSimulatorPage";
 
 const API = process.env.REACT_APP_BACKEND_URL;
 
-const REPORT_SECTIONS = [
-  { id: "overview", label: "Genel Bakış", Component: OverviewPage, passCountry: true },
-  { id: "headcount", label: "Kadro Analizi", Component: HeadcountPage, passCountry: true },
-  { id: "hires-leaves", label: "İşe Alım & Ayrılma", Component: HiresLeavesPage, passCountry: true },
-  { id: "turnover", label: "Personel Devir", Component: TurnoverPage, passCountry: true },
-  { id: "movement", label: "İşgücü Hareketi", Component: MovementPage },
-  { id: "performance", label: "Performans", Component: PerformancePage },
-  { id: "recruitment", label: "İşe Alım Süreci", Component: RecruitmentPage },
-  { id: "learning", label: "Eğitim & Gelişim", Component: LearningPage },
-  { id: "compensation", label: "Ücret & Yan Haklar", Component: CompensationPage },
-  { id: "engagement", label: "Çalışan Bağlılığı", Component: EngagementPage },
-  { id: "skills-map", label: "Yetkinlik Haritası", Component: SkillsMapV2Page },
-  { id: "succession", label: "Yedekleme Planı", Component: SuccessionPage },
-  { id: "headcount-plan", label: "Kadro Planlama", Component: HeadcountPlanPage, passCountry: true },
-  { id: "workforce-alignment", label: "Strateji Hizalama", Component: WorkforceAlignmentPage },
-  { id: "org-health", label: "Org. Sağlığı", Component: OrgHealthPage, passCountry: true },
-  { id: "internal-mobility", label: "İç Mobilite", Component: InternalMobilityPage },
-  { id: "action-center", label: "Aksiyon Merkezi", Component: ActionCenterPage },
-  { id: "burnout", label: "Tükenmişlik", Component: BurnoutPage },
-  { id: "branch-performance", label: "Şube Performansı", Component: BranchPerformancePage },
-  { id: "commission-targets", label: "Prim & Hedef", Component: CommissionTargetsPage },
-  { id: "branch-staffing", label: "Şube Kadro", Component: BranchStaffingPage },
-  { id: "branch-map", label: "Şube Haritası", Component: BranchMapPage },
-];
+// Map path to component
+const PAGE_MAP = {
+  "/": OverviewPage,
+  "/headcount": HeadcountPage,
+  "/hires-leaves": HiresLeavesPage,
+  "/turnover": TurnoverPage,
+  "/movement": MovementPage,
+  "/headcount-plan": HeadcountPlanPage,
+  "/workforce-alignment": WorkforceAlignmentPage,
+  "/org-health": OrgHealthPage,
+  "/skills-map-v2": SkillsMapV2Page,
+  "/skills-map": SkillsMapPage,
+  "/scenario-sim": ScenarioSimulatorPage,
+  "/succession": SuccessionPage,
+  "/branch-performance": BranchPerformancePage,
+  "/commission-targets": CommissionTargetsPage,
+  "/branch-staffing": BranchStaffingPage,
+  "/branch-map": BranchMapPage,
+  "/internal-mobility": InternalMobilityPage,
+  "/recruitment": RecruitmentPage,
+  "/performance": PerformancePage,
+  "/learning": LearningPage,
+  "/compensation": CompensationPage,
+  "/engagement": EngagementPage,
+  "/career-talent": CareerTalentPage,
+  "/career-dev": CareerDevPage,
+  "/action-center": ActionCenterPage,
+  "/ai-forecast": AIForecastPage,
+  "/capability-forecast": CapabilityForecastPage,
+  "/burnout": BurnoutPage,
+  "/hr-operations": HROperationsPage,
+};
+
+const COUNTRY_PAGES = new Set(["/", "/headcount", "/hires-leaves", "/turnover", "/headcount-plan", "/org-health"]);
+
+// Filter out "Veri Yönetimi" section from nav
+const REPORT_NAV = NAV_SECTIONS.filter(s => s.label !== "Ayarlar");
 
 function PasswordGate({ slug, tenantInfo, onAccess }) {
   const [password, setPassword] = useState("");
@@ -100,7 +120,7 @@ function PasswordGate({ slug, tenantInfo, onAccess }) {
             <div>
               <label className="text-xs font-medium text-slate-600 mb-1 block">Şifre</label>
               <input data-testid="report-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 rounded-md border border-slate-200 text-sm focus:outline-none focus:ring-2" style={{ "--tw-ring-color": color }}
+                className="w-full px-3 py-2 rounded-md border border-slate-200 text-sm focus:outline-none focus:ring-2"
                 placeholder="••••••••" required autoFocus />
             </div>
             <button data-testid="report-access-btn" type="submit" disabled={loading}
@@ -117,23 +137,28 @@ function PasswordGate({ slug, tenantInfo, onAccess }) {
 }
 
 function ReportDashboard({ slug, tenant }) {
-  const [activeSection, setActiveSection] = useState("overview");
+  const [activePath, setActivePath] = useState("/");
   const year = 2025;
   const color = tenant.primary_color || "#0D9488";
   const API_BASE = process.env.REACT_APP_BACKEND_URL;
 
-  // Set tenant context for API calls
   useEffect(() => {
     setActiveTenant(slug);
     return () => setActiveTenant(null);
   }, [slug]);
 
-  const currentSection = REPORT_SECTIONS.find((s) => s.id === activeSection);
-  const Component = currentSection?.Component || OverviewPage;
+  const Component = PAGE_MAP[activePath] || OverviewPage;
   const props = { year };
-  if (currentSection?.passCountry) props.country = null;
+  if (COUNTRY_PAGES.has(activePath)) props.country = null;
 
   const logoSrc = tenant.logo_url ? (tenant.logo_url.startsWith("http") ? tenant.logo_url : `${API_BASE}${tenant.logo_url}`) : null;
+
+  // Find current label
+  let currentLabel = "Genel Bakış";
+  for (const section of REPORT_NAV) {
+    const item = section.items.find(i => i.path === activePath);
+    if (item) { currentLabel = item.label; break; }
+  }
 
   return (
     <div className="min-h-screen bg-slate-50" data-testid="report-dashboard">
@@ -149,54 +174,79 @@ function ReportDashboard({ slug, tenant }) {
         [data-testid="report-dashboard"] .border-teal-300 { border-color: ${color}40 !important; }
         [data-testid="report-dashboard"] .hover\\:bg-teal-700:hover { background-color: ${color} !important; filter: brightness(0.9); }
       `}</style>
-      {/* Header */}
-      <div className="border-b border-slate-200 px-6 py-3 flex items-center justify-between print:hidden sticky top-0 z-30" style={{ backgroundColor: color, color: "white" }}>
-        <div className="flex items-center gap-3">
-          {logoSrc ? (
-            <img src={logoSrc} alt={tenant.name} className="w-8 h-8 rounded-lg object-contain bg-white p-0.5" />
-          ) : (
-            <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-              <FileText size={16} weight="bold" className="text-white" />
-            </div>
-          )}
-          <div>
-            <h1 className="text-sm font-bold text-white">{tenant.report_title || tenant.name}</h1>
-            <p className="text-[10px] text-white/70">{tenant.sector} · Plenalitik Raporu</p>
-          </div>
-        </div>
-        <PdfExportButton tenantName={tenant.name} sectionLabel={currentSection?.label || "rapor"} />
-      </div>
 
-      <div className="flex">
-        {/* Section Nav */}
-        <div className="w-56 bg-white border-r border-slate-200 min-h-[calc(100vh-52px)] sticky top-[52px] overflow-y-auto print:hidden flex-shrink-0">
-          <div className="p-3 space-y-0.5">
-            {REPORT_SECTIONS.map((s) => (
-              <button
-                key={s.id}
-                data-testid={`report-nav-${s.id}`}
-                onClick={() => setActiveSection(s.id)}
-                className="w-full text-left px-3 py-2 rounded-md text-xs font-medium transition-colors border"
-                style={activeSection === s.id ? { backgroundColor: color + "12", color: color, borderColor: color + "40" } : { color: "#475569", borderColor: "transparent" }}
-              >
-                {s.label}
-              </button>
+      <div className="flex h-screen">
+        {/* Sidebar - same structure as admin */}
+        <aside className="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 print:hidden">
+          {/* Logo/Brand */}
+          <div className="px-5 py-5 border-b border-slate-200">
+            <div className="flex items-center gap-3">
+              {logoSrc ? (
+                <img src={logoSrc} alt={tenant.name} className="w-9 h-9 rounded-lg object-contain border border-slate-100 p-0.5" />
+              ) : (
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: color }}>
+                  <FileText size={18} weight="bold" className="text-white" />
+                </div>
+              )}
+              <div>
+                <h2 className="text-base font-bold text-slate-900 leading-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                  {tenant.report_title || tenant.name}
+                </h2>
+                <p className="text-[9px] tracking-[0.15em] uppercase text-slate-400">Plenalitik Raporu</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Nav sections */}
+          <div className="flex-1 overflow-y-auto py-3 px-3">
+            {REPORT_NAV.map((section) => (
+              <div key={section.label} className="mb-3">
+                <p className="px-3 mb-1.5 text-[9px] tracking-[0.15em] uppercase font-semibold text-slate-400">
+                  {section.label}
+                </p>
+                {section.items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activePath === item.path;
+                  return (
+                    <button
+                      key={item.path}
+                      onClick={() => setActivePath(item.path)}
+                      data-testid={`report-nav-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium transition-all mb-0.5 ${
+                        isActive ? "text-white" : "text-slate-600 hover:bg-slate-50"
+                      }`}
+                      style={isActive ? { backgroundColor: color } : {}}
+                    >
+                      <Icon size={16} weight={isActive ? "bold" : "regular"} />
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
             ))}
           </div>
-        </div>
 
-        {/* Content */}
-        <div className="flex-1 p-6 max-w-[1400px]">
-          <h2 className="text-xl font-semibold text-slate-900 mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            {currentSection?.label}
-          </h2>
-          <Component {...props} />
-        </div>
-      </div>
+          {/* Footer */}
+          <div className="px-5 py-3 border-t border-slate-100">
+            <p className="text-[9px] text-slate-400 text-center">Powered by Plenalitik</p>
+          </div>
+        </aside>
 
-      {/* Footer */}
-      <div className="text-center py-4 border-t border-slate-200 text-[10px] text-slate-400 print:hidden">
-        Powered by Plenalitik · {new Date().getFullYear()}
+        {/* Main content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Top bar */}
+          <div className="sticky top-0 z-30 flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-white/80 backdrop-blur-md print:hidden">
+            <h1 className="text-xl font-semibold text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              {currentLabel}
+            </h1>
+            <PdfExportButton tenantName={tenant.name} sectionLabel={currentLabel} />
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto p-6" data-testid="report-content">
+            <Component {...props} />
+          </div>
+        </div>
       </div>
     </div>
   );

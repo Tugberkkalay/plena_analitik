@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FilePdf, Spinner, Printer } from "@phosphor-icons/react";
+import { FilePdf } from "@phosphor-icons/react";
 
 /**
  * PDF Export component.
@@ -69,13 +69,6 @@ export default function PdfExportButton({ tenantName, sectionLabel }) {
 
   return (
     <div className="flex items-center gap-2">
-      <button
-        onClick={() => window.print()}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-slate-200 text-slate-600 text-xs font-medium hover:bg-slate-50 transition-colors print:hidden"
-        title="Tarayıcı baskısı"
-      >
-        <Printer size={14} /> Yazdır
-      </button>
       <button
         onClick={exportPdf}
         disabled={exporting}

@@ -1,6 +1,6 @@
 """Auth and Tenant API routes for Plenalitik."""
-from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, HTTPException, Request, UploadFile, File
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
 from datetime import datetime, timezone, timedelta
 from typing import Optional
@@ -79,6 +79,15 @@ def setup_tenant_routes(db):
 
     async def require_admin(request: Request):
         return await get_current_user(request, db)
+
+    @tenant_router.get("/excel-template")
+    async def download_template(request: Request):
+        await require_admin(request)
+        from excel_handler import generate_template
+        content = generate_template()
+        return Response(content=content,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": "attachment; filename=plenalitik_veri_sablonu.xlsx"})
 
     @tenant_router.get("")
     async def list_tenants(request: Request):
@@ -282,5 +291,49 @@ def setup_tenant_routes(db):
         await db.tenants.update_one({"id": tenant_id}, {"$set": {"logo_url": logo_url}})
         return {"logo_url": logo_url}
 
+    @tenant_router.post("/{tenant_id}/upload-excel")
+    async def upload_excel(tenant_id: str, request: Request):
+        await require_admin(request)
+        tenant = await db.tenants.find_one({"id": tenant_id})
+        if not tenant:
+            raise HTTPException(404, "Müşteri bulunamadı")
+        slug = tenant["slug"]
+        form = await request.form()
+        file = form.get("file")
+        if not file:
+            raise HTTPException(400, "Excel dosyası gerekli")
+        content = await file.read()
+        from excel_handler import parse_excel
+        try:
+            data = parse_excel(content, slug)
+        except Exception as e:
+            raise HTTPException(400, f"Excel parse hatası: {str(e)}")
+        # Clear existing tenant data
+        for coll in ["employees", "branches", "sales_performance", "recruitment", "training", "engagement"]:
+            await db[coll].delete_many({"tenant_id": slug})
+        # Insert
+        counts = {}
+        if data["employees"]:
+            await db.employees.insert_many(data["employees"])
+            counts["employees"] = len(data["employees"])
+        if data["branches"]:
+            await db.branches.insert_many(data["branches"])
+            counts["branches"] = len(data["branches"])
+        if data["sales"]:
+            await db.sales_performance.insert_many(data["sales"])
+            counts["sales"] = len(data["sales"])
+        if data["recruitment"]:
+            await db.recruitment.insert_many(data["recruitment"])
+            counts["recruitment"] = len(data["recruitment"])
+        if data["training"]:
+            await db.training.insert_many(data["training"])
+            counts["training"] = len(data["training"])
+        if data["engagement"]:
+            await db.engagement.insert_many(data["engagement"])
+            counts["engagement"] = len(data["engagement"])
+        # Update tenant
+        emp_count = len([e for e in data["employees"] if e.get("status") == "active"])
+        await db.tenants.update_one({"id": tenant_id}, {"$set": {"employee_count": emp_count}})
+        return {"message": f"{tenant['name']} verileri yüklendi", "counts": counts}
 
     return tenant_router
