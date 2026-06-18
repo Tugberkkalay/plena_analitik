@@ -289,7 +289,6 @@ def generate_seed_data(count=500):
     branches = generate_branches()
     branch_ids = [b["id"] for b in branches]
     branch_regions = {b["id"]: b["region"] for b in branches}
-    # Distribute employees across branches with weight toward larger cities
     big_city_branches = [b["id"] for b in branches if b["city"] in ["Istanbul","Ankara","Izmir"]]
     small_city_branches = [b["id"] for b in branches if b["city"] not in ["Istanbul","Ankara","Izmir"]]
     for emp in employees:
@@ -299,13 +298,14 @@ def generate_seed_data(count=500):
             bid = random.choice(small_city_branches) if small_city_branches else random.choice(branch_ids)
         emp["branch_id"] = bid
         emp["region"] = branch_regions[bid]
-        # Role type based on department and band
         if emp["department"] == "Sales" or (emp["band"] in ["A","B"] and random.random() < 0.4):
             emp["role_type"] = "sales"
         elif emp["is_manager"]:
             emp["role_type"] = "manager"
         else:
             emp["role_type"] = "support"
+        # Assign banking taxonomy skills
+        emp["skills"] = generate_employee_skills(emp["department"], emp["band"])
     # Update branch headcounts
     for b in branches:
         b["headcount"] = len([e for e in employees if e["branch_id"] == b["id"] and e["status"] == "active"])
@@ -899,6 +899,7 @@ async def get_movement(year: int = 2025, tenant: str = None):
 # ---- AI Forecast ----
 class ForecastRequest(BaseModel):
     year: int = 2025
+    tenant: Optional[str] = None
 
 def _compute_headcount_forecast(hc, net, year):
     forecast = []
@@ -926,6 +927,7 @@ def _build_at_risk_list(active):
 @api_router.post("/ai/forecast")
 async def ai_forecast(body: ForecastRequest):
     year = body.year
+    tenant = body.tenant
     all_emp, active, hired, left = await get_filtered(year, tenant=tenant)
     hc = len(active)
     turnover_rate = len(left) / hc if hc else 0
@@ -1085,7 +1087,8 @@ async def reset_data():
 # ---- Recruitment ----
 @api_router.get("/dashboard/recruitment")
 async def get_recruitment(year: int = 2025, tenant: str = None):
-    all_cands = await db.recruitment.find({}, {"_id": 0}).to_list(10000)
+    rq = {"tenant_id": tenant} if tenant else {}
+    all_cands = await db.recruitment.find(rq, {"_id": 0}).to_list(10000)
     cands = [c for c in all_cands if c.get('applied_date','')[:4] == str(year)]
     total = len(cands)
     hired = [c for c in cands if c['stage'] == 'Hired']
@@ -1135,7 +1138,8 @@ async def get_performance(year: int = 2025, tenant: str = None):
 # ---- Learning ----
 @api_router.get("/dashboard/learning")
 async def get_learning(year: int = 2025, tenant: str = None):
-    all_trn = await db.training.find({}, {"_id": 0}).to_list(10000)
+    tq = {"tenant_id": tenant} if tenant else {}
+    all_trn = await db.training.find(tq, {"_id": 0}).to_list(10000)
     trn = [t for t in all_trn if t.get('date','')[:4] == str(year)]
     total = len(trn)
     completed = [t for t in trn if t['status'] == 'Completed']
@@ -1199,7 +1203,8 @@ async def get_compensation(year: int = 2025, tenant: str = None):
 # ---- Engagement ----
 @api_router.get("/dashboard/engagement")
 async def get_engagement(year: int = 2025, tenant: str = None):
-    all_eng = await db.engagement.find({}, {"_id": 0}).to_list(10000)
+    eq = {"tenant_id": tenant} if tenant else {}
+    all_eng = await db.engagement.find(eq, {"_id": 0}).to_list(10000)
     surveys = all_eng
     total = len(surveys)
     if total == 0:
@@ -1280,7 +1285,7 @@ async def get_skills_map(year: int = 2025, tenant: str = None):
     for emp in active:
         dept = emp['department'].replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
         for s in emp.get('skills', []):
-            sn, cat, prof = s['skill'], s['category'], s['proficiency']
+            sn, cat, prof = s['skill'], s.get('category', 'general'), s['proficiency']
             cat_counts[cat] = cat_counts.get(cat, 0) + 1
             if sn not in skill_agg:
                 skill_agg[sn] = {"skill": sn, "category": cat, "count": 0, "total_prof": 0, "experts": 0, "beginners": 0}
@@ -1346,6 +1351,7 @@ async def get_career_plan(body: CareerPlanRequest):
     emp = await db.employees.find_one({"id": body.employee_id}, {"_id": 0})
     if not emp:
         raise HTTPException(404, "Employee not found")
+    tenant = emp.get("tenant_id")
     skills = emp.get('skills', [])
     skill_text = ", ".join([f"{s['skill']}({s['proficiency']}/5)" for s in skills])
     weak_skills = [s for s in skills if s['proficiency'] <= 2]
@@ -1550,9 +1556,11 @@ class ScenarioRequest(BaseModel):
     attrition_change: float = 0
     hiring_boost: int = 0
     new_location_headcount: int = 0
+    tenant: Optional[str] = None
 
 @api_router.post("/simulator/scenario")
 async def run_scenario(body: ScenarioRequest):
+    tenant = body.tenant
     _, active, hired, left = await get_filtered(body.year, tenant=tenant)
     hc = len(active)
     current_attrition = len(left)/hc if hc else 0
@@ -1602,7 +1610,7 @@ async def get_capability_forecast(year: int = 2025, tenant: str = None):
         for s in emp.get('skills', []):
             sn = s['skill']
             if sn not in skill_supply:
-                skill_supply[sn] = {"skill": sn, "category": s['category'], "current_count": 0, "avg_prof": 0, "total": 0, "experts": 0, "at_risk": 0}
+                skill_supply[sn] = {"skill": sn, "category": s.get('category', 'general'), "current_count": 0, "avg_prof": 0, "total": 0, "experts": 0, "at_risk": 0}
             skill_supply[sn]["current_count"] += 1
             skill_supply[sn]["total"] += s['proficiency']
             if s['proficiency'] >= 4: skill_supply[sn]["experts"] += 1
@@ -1701,7 +1709,8 @@ async def get_succession(year: int = 2025, tenant: str = None):
 @api_router.get("/dashboard/burnout")
 async def get_burnout(year: int = 2025, tenant: str = None):
     _, active, _, _ = await get_filtered(year, tenant=tenant)
-    all_eng = await db.engagement.find({}, {"_id": 0}).to_list(10000)
+    beq = {"tenant_id": tenant} if tenant else {}
+    all_eng = await db.engagement.find(beq, {"_id": 0}).to_list(10000)
     eng_map = {e['employee_id']: e for e in all_eng}
     risk_list = []
     for emp in active:
@@ -1991,7 +2000,7 @@ async def get_skills_map_v2(year: int = 2025, tenant: str = None):
     for emp in active:
         dept = shorten_dept(emp['department'])
         for s in emp.get('skills', []):
-            sn, cat, prof = s['skill'], s['category'], s['proficiency']
+            sn, cat, prof = s['skill'], s.get('category', 'general'), s['proficiency']
             if sn not in skill_agg:
                 skill_agg[sn] = {"skill": sn, "category": cat, "count": 0, "total_prof": 0, "experts": 0, "beginners": 0, "proficient": 0}
             skill_agg[sn]["count"] += 1
@@ -2351,7 +2360,8 @@ async def ai_alert_scan(body: AIAlertScanRequest):
     # Gather HR context
     turnover_rate = round(len(left) / hc * 100, 1) if hc else 0
     avg_perf = safe_avg(active, 'performance_score')
-    avg_eng_data = await db.engagement.find({}, {"_id": 0, "engagement_score": 1}).to_list(10000)
+    feq = {"tenant_id": tenant} if tenant else {}
+    avg_eng_data = await db.engagement.find(feq, {"_id": 0, "engagement_score": 1}).to_list(10000)
     avg_eng = round(sum(e['engagement_score'] for e in avg_eng_data) / len(avg_eng_data), 1) if avg_eng_data else 0
     country_dist = {}
     for e in active:

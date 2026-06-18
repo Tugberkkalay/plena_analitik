@@ -17,8 +17,15 @@ export function getActiveTenant() {
 // Add request interceptor
 axios.interceptors.request.use((config) => {
   if (_currentTenant && config.url && config.url.includes("/api/")) {
+    // Add tenant to URL query params
     const sep = config.url.includes("?") ? "&" : "?";
     config.url = `${config.url}${sep}tenant=${_currentTenant}`;
+    // Also add to POST/PUT body if it's JSON
+    if (config.method === "post" || config.method === "put") {
+      if (config.data && typeof config.data === "object" && !(config.data instanceof FormData)) {
+        config.data = { ...config.data, tenant: _currentTenant };
+      }
+    }
   }
   return config;
 });
