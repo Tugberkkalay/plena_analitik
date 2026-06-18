@@ -1,51 +1,61 @@
 # Plenalitik — Enterprise HR & Sales Analytics Platform
 
 ## Problem Statement
-Multi-tenant HR analytics SaaS. Admin creates client reports (seed data per tenant), clients access via unique URL with password.
+Multi-tenant HR analytics SaaS for Banking/Finance sector. Admin creates client-specific reports, seeds data per tenant, publishes them. Clients access their reports via unique URL with password protection.
 
 ## Architecture
 - Frontend: React 18, Tailwind, Recharts, Shadcn UI, react-simple-maps
 - Backend: FastAPI, Python, Motor (MongoDB), JWT auth, bcrypt
 - AI: GPT-5.2 via Emergent LLM Key
 - Auth: JWT cookies (httponly), single admin account, per-tenant access passwords
+- Multi-tenant: All data collections filtered by `tenant_id` query param
 
 ## Routing
 - `/login` — Admin login page
 - `/admin` — Admin dashboard (tenant CRUD, seed, publish)
-- `/admin/rapor/:slug/*` — Admin report view (full dashboard with sidebar)
-- `/raporlar/:slug` — Public report access (password gate → iframe report viewer)
+- `/admin/rapor/:slug/*` — Admin report view (full sidebar dashboard, tenant-filtered)
+- `/raporlar/:slug` — Public report access (password gate → full report dashboard)
+- `/*` — Redirects to `/login`
 
-## Multi-Tenant Data Model
-- `users` collection: admin account (email, password_hash, role)
+## Multi-Tenant System
 - `tenants` collection: {id, name, slug, sector, access_password_hash, status, employee_count}
-- All data collections (employees, branches, sales_performance, etc.) have `tenant_id` field
+- All data collections have `tenant_id` field matching tenant slug
+- Axios interceptor auto-appends `?tenant=<slug>` to all API calls when in tenant context
+- Backend `get_filtered()` accepts optional `tenant` param for MongoDB filtering
+- 30+ API endpoints support tenant-aware filtering
 
-## API Endpoints (New)
-- `POST /api/auth/login` — Admin login (sets httponly cookie)
-- `GET /api/auth/me` — Get current admin user
-- `POST /api/auth/logout` — Clear auth cookies
-- `GET /api/tenants` — List tenants (admin only)
-- `POST /api/tenants` — Create tenant (admin only)
-- `GET/PUT/DELETE /api/tenants/{id}` — Tenant CRUD (admin only)
-- `POST /api/tenants/{id}/seed` — Generate 500 employees + branches + sales for tenant
-- `POST /api/tenants/{id}/publish` — Set tenant status to published
-- `POST /api/tenants/public/{slug}/verify` — Verify tenant access password (public)
-- `GET /api/tenants/public/{slug}/check` — Check if tenant exists (public)
+## API Endpoints
+### Auth
+- `POST /api/auth/login` — Admin login
+- `GET /api/auth/me` — Current user
+- `POST /api/auth/logout` — Logout
 
-## Completed Features
+### Tenant Management (Admin only)
+- `GET/POST /api/tenants` — List/Create
+- `GET/PUT/DELETE /api/tenants/{id}` — CRUD
+- `POST /api/tenants/{id}/seed` — Generate data (500 employees + branches + sales)
+- `POST /api/tenants/{id}/publish` — Publish
+
+### Public Access
+- `GET /api/tenants/public/{slug}/check` — Check tenant exists
+- `POST /api/tenants/public/{slug}/verify` — Verify password, get report token
+
+### Dashboard (all accept `?tenant=<slug>`)
+- 30+ endpoints for overview, headcount, turnover, recruitment, performance, etc.
+
+## Completed (Faz 1 + Faz 2)
 - ✅ Admin auth (JWT + bcrypt + httponly cookies)
-- ✅ Admin dashboard with tenant management
-- ✅ Tenant CRUD (create, list, update, delete)
-- ✅ Tenant data seeding (500 employees + branches + sales per tenant)
-- ✅ Publish/unpublish flow
+- ✅ Admin dashboard with tenant CRUD
+- ✅ Tenant data seeding (500 employees + branches + sales)
+- ✅ Publish/Draft flow
 - ✅ Public report password gate
-- ✅ Login page (Turkish UI)
-- ✅ Route restructuring (login → admin → public reports)
+- ✅ Public report full dashboard (22 modules, tenant-filtered)
+- ✅ Admin report view (full sidebar dashboard, tenant-filtered)
+- ✅ Axios interceptor for auto tenant param injection
+- ✅ All 30+ backend endpoints support tenant filtering
 
-## Upcoming Tasks
-- P0: Public report viewer rendering (iframe or embedded dashboard)
-- P0: Admin "Raporları Gör" navigation to full dashboard per tenant
-- P1: PDF export (per module + full report pack)
+## Upcoming
+- P1: PDF export (per module + full pack)
 - P1: server.py modülerleştirme
-- P2: Alert Resolution DB persistence
 - P2: Additional sector taxonomies
+- P2: Alert Resolution DB persistence

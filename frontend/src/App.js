@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import "@/App.css";
-import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, useParams, Navigate } from "react-router-dom";
 import axios from "axios";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { setActiveTenant } from "@/lib/tenantInterceptor";
 import Sidebar from "@/components/Sidebar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CalendarBlank, Printer, GlobeHemisphereWest } from "@phosphor-icons/react";
@@ -169,10 +170,21 @@ function DashboardRoutes({ year, country }) {
 
 function ProtectedDashboard() {
   const { user, checking } = useAuth();
+  const { slug } = useParams();
   const [year, setYear] = useState(2025);
   const [years, setYears] = useState([2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [country, setCountry] = useState(null);
+
+  // Set tenant context for all API calls
+  useEffect(() => {
+    if (slug && slug !== "default") {
+      setActiveTenant(slug);
+    } else {
+      setActiveTenant(null);
+    }
+    return () => setActiveTenant(null);
+  }, [slug]);
 
   useEffect(() => {
     axios.get(`${API}/dashboard/years`).then((res) => {
@@ -183,9 +195,11 @@ function ProtectedDashboard() {
   if (checking) return <div className="flex items-center justify-center h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
   if (!user) return <Navigate to="/login" replace />;
 
+  const basePath = `/admin/rapor/${slug || "default"}`;
+
   return (
     <div className="hrlytic-layout">
-      <Sidebar open={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} basePath="/admin/rapor/default" />
+      <Sidebar open={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} basePath={basePath} />
       <div className="hrlytic-main">
         <TopBar year={year} setYear={setYear} years={years} country={country} setCountry={setCountry} />
         <div className="hrlytic-content">
