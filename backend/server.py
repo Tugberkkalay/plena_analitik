@@ -2167,7 +2167,7 @@ def _compute_matches(position, active_employees):
     return sorted(matches, key=lambda x: -x["fit_score"])[:10]
 
 @api_router.get("/dashboard/positions/{position_id}/matches")
-async def get_position_matches(position_id: str, year: int = 2025):
+async def get_position_matches(position_id: str, year: int = 2025, tenant: str = None):
     _, active, _, _ = await get_filtered(year, tenant=tenant)
     positions = generate_open_positions(active)
     pos = next((p for p in positions if p["id"] == position_id), None)
