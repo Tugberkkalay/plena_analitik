@@ -472,7 +472,18 @@ export default function AdminDashboard() {
                         <><Database size={12} /> Demo Veri</>
                       )}
                     </button>
-                    {/* Excel Upload */}
+                    {/* Excel Template + Upload */}
+                    <button onClick={async () => {
+                        try {
+                          const res = await axios.get(`${API}/api/tenants/excel-template`, { withCredentials: true, responseType: "blob" });
+                          const url = window.URL.createObjectURL(new Blob([res.data]));
+                          const a = document.createElement("a"); a.href = url; a.download = "plenalitik_veri_sablonu.xlsx"; a.click();
+                          window.URL.revokeObjectURL(url);
+                        } catch { alert("Template indirme hatası"); }
+                      }}
+                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors">
+                      <DownloadSimple size={12} /> Şablon İndir
+                    </button>
                     <label className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium cursor-pointer transition-colors ${uploadingId === t.id ? "bg-emerald-100 text-emerald-600" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"}`}>
                       {uploadingId === t.id ? (
                         <><div className="animate-spin rounded-full h-3 w-3 border-b border-emerald-600" /> Yükleniyor...</>
