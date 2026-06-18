@@ -262,7 +262,16 @@ def setup_tenant_routes(db):
         if logo_data.startswith("data:image"):
             import base64, os
             header, b64data = logo_data.split(",", 1)
-            ext = "png" if "png" in header else "jpg" if "jpg" in header or "jpeg" in header else "png"
+            if "svg" in header:
+                ext = "svg"
+            elif "png" in header:
+                ext = "png"
+            elif "jpg" in header or "jpeg" in header:
+                ext = "jpg"
+            elif "webp" in header:
+                ext = "webp"
+            else:
+                ext = "png"
             filename = f"{tenant['slug']}_logo.{ext}"
             filepath = os.path.join("/app/backend/uploads", filename)
             with open(filepath, "wb") as f:

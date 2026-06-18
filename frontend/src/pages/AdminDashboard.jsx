@@ -171,12 +171,131 @@ function CreateTenantModal({ open, onClose, onCreated }) {
   );
 }
 
+const COLOR_PRESETS = [
+  { label: "Teal", value: "#0D9488" },
+  { label: "Mavi", value: "#2563EB" },
+  { label: "Lacivert", value: "#1E3A5F" },
+  { label: "Kırmızı", value: "#DC2626" },
+  { label: "Turuncu", value: "#EA580C" },
+  { label: "Mor", value: "#7C3AED" },
+  { label: "Yeşil", value: "#059669" },
+  { label: "Siyah", value: "#18181B" },
+];
+
+function EditTenantModal({ tenant, onClose, onSaved }) {
+  const [primaryColor, setPrimaryColor] = useState(tenant.primary_color || "#0D9488");
+  const [reportTitle, setReportTitle] = useState(tenant.report_title || "");
+  const [logoPreview, setLogoPreview] = useState(tenant.logo_url ? (tenant.logo_url.startsWith("http") ? tenant.logo_url : `${API}${tenant.logo_url}`) : null);
+  const [logoData, setLogoData] = useState(null);
+  const [name, setName] = useState(tenant.name || "");
+  const [sector, setSector] = useState(tenant.sector || "Bankacılık");
+  const [saving, setSaving] = useState(false);
+
+  const handleLogoChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => { setLogoPreview(ev.target.result); setLogoData(ev.target.result); };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await axios.put(`${API}/api/tenants/${tenant.id}`, {
+        name, sector, primary_color: primaryColor, report_title: reportTitle || `${name} İK Analitik Raporu`,
+      }, { withCredentials: true });
+      if (logoData) {
+        await axios.post(`${API}/api/tenants/${tenant.id}/upload-logo`, { logo_url: logoData }, { withCredentials: true });
+      }
+      onSaved();
+    } catch (err) {
+      alert(err.response?.data?.detail || "Hata");
+    }
+    setSaving(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+      <div className="bg-white rounded-lg border border-slate-200 shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto" data-testid="edit-tenant-modal">
+        <h2 className="text-lg font-semibold text-slate-900 mb-4">{tenant.name} — Düzenle</h2>
+
+        <div className="space-y-3">
+          {/* Logo */}
+          <div>
+            <label className="text-xs font-medium text-slate-600 mb-1 block">Logo</label>
+            <div className="flex items-center gap-3">
+              <div className="w-14 h-14 rounded-lg border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden bg-slate-50">
+                {logoPreview ? <img src={logoPreview} alt="Logo" className="w-full h-full object-contain" /> : <span className="text-xs text-slate-400">Logo</span>}
+              </div>
+              <label className="cursor-pointer px-3 py-1.5 rounded-md bg-slate-100 text-slate-600 text-xs font-medium hover:bg-slate-200 transition-colors inline-block">
+                Dosya Seç
+                <input type="file" accept="image/*" onChange={handleLogoChange} className="hidden" />
+              </label>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-medium text-slate-600 mb-1 block">Müşteri Adı</label>
+              <Input value={name} onChange={(e) => setName(e.target.value)} />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-600 mb-1 block">Sektör</label>
+              <select value={sector} onChange={(e) => setSector(e.target.value)} className="w-full px-3 py-2 rounded-md border border-slate-200 text-sm">
+                <option>Bankacılık</option><option>Sigorta</option><option>Perakende</option><option>Teknoloji</option><option>Üretim</option><option>Diğer</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Color */}
+          <div>
+            <label className="text-xs font-medium text-slate-600 mb-1.5 block">Kurumsal Renk</label>
+            <div className="flex items-center gap-2 flex-wrap">
+              {COLOR_PRESETS.map((c) => (
+                <button key={c.value} type="button" onClick={() => setPrimaryColor(c.value)} title={c.label}
+                  className={`w-7 h-7 rounded-full border-2 transition-all ${primaryColor === c.value ? "border-slate-900 scale-110" : "border-transparent hover:border-slate-300"}`}
+                  style={{ backgroundColor: c.value }} />
+              ))}
+              <input type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="w-7 h-7 rounded cursor-pointer border-0" />
+              <span className="text-[10px] text-slate-400 font-mono">{primaryColor}</span>
+            </div>
+          </div>
+
+          {/* Report Title */}
+          <div>
+            <label className="text-xs font-medium text-slate-600 mb-1 block">Rapor Başlığı</label>
+            <Input value={reportTitle} onChange={(e) => setReportTitle(e.target.value)} placeholder={`${name} İK Analitik Raporu`} />
+          </div>
+
+          {/* Preview */}
+          <div className="p-3 rounded-lg border border-slate-200 bg-slate-50">
+            <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium mb-2">Önizleme</p>
+            <div className="flex items-center gap-2 p-2 rounded" style={{ backgroundColor: primaryColor, color: "white" }}>
+              {logoPreview && <img src={logoPreview} alt="" className="w-6 h-6 rounded object-contain bg-white p-0.5" />}
+              <span className="text-sm font-semibold">{reportTitle || `${name} İK Analitik Raporu`}</span>
+            </div>
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            <Button type="button" variant="outline" onClick={onClose} className="flex-1">İptal</Button>
+            <Button onClick={handleSave} disabled={saving} className="flex-1 text-white" style={{ backgroundColor: primaryColor }} data-testid="save-tenant-btn">
+              {saving ? "Kaydediliyor..." : "Kaydet"}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const { user, checking, logout } = useAuth();
   const navigate = useNavigate();
   const [tenants, setTenants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
+  const [editTenant, setEditTenant] = useState(null);
   const [seedingId, setSeedingId] = useState(null);
   const [publishingId, setPublishingId] = useState(null);
 
@@ -279,17 +398,25 @@ export default function AdminDashboard() {
           </div>
         ) : (
           <div className="space-y-3">
-            {tenants.map((t) => (
+            {tenants.map((t) => {
+              const logoSrc = t.logo_url ? (t.logo_url.startsWith("http") ? t.logo_url : `${API}${t.logo_url}`) : null;
+              const tColor = t.primary_color || "#0D9488";
+              return (
               <div key={t.id} data-testid={`tenant-${t.slug}`}
                 className="bg-white border border-slate-200 rounded-lg p-5 hover:border-slate-300 transition-colors">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 font-bold text-sm">
-                      {t.name?.slice(0, 2).toUpperCase()}
-                    </div>
+                    {logoSrc ? (
+                      <img src={logoSrc} alt={t.name} className="w-10 h-10 rounded-lg object-contain border border-slate-100 p-0.5" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-sm" style={{ backgroundColor: tColor }}>
+                        {t.name?.slice(0, 2).toUpperCase()}
+                      </div>
+                    )}
                     <div>
                       <div className="flex items-center gap-2">
                         <h3 className="text-sm font-semibold text-slate-900">{t.name}</h3>
+                        <span className="w-3 h-3 rounded-full border border-slate-200" style={{ backgroundColor: tColor }} title={tColor} />
                         <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase ${t.status === "published" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
                           {t.status === "published" ? "Yayında" : "Taslak"}
                         </span>
@@ -300,6 +427,11 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
+                    {/* Edit */}
+                    <button onClick={() => setEditTenant(t)} data-testid={`edit-${t.slug}`}
+                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">
+                      <PencilSimple size={12} /> Düzenle
+                    </button>
                     {/* Seed Data */}
                     <button onClick={() => handleSeed(t.id)} disabled={seedingId === t.id} data-testid={`seed-${t.slug}`}
                       className="flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors disabled:opacity-50">
@@ -336,13 +468,19 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
 
       <CreateTenantModal open={showCreate} onClose={() => setShowCreate(false)}
         onCreated={(t) => { setTenants([...tenants, t]); setShowCreate(false); }} />
+
+      {/* Edit Tenant Modal */}
+      {editTenant && (
+        <EditTenantModal tenant={editTenant} onClose={() => setEditTenant(null)} onSaved={() => { setEditTenant(null); fetchTenants(); }} />
+      )}
     </div>
   );
 }

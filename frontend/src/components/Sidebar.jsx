@@ -61,7 +61,11 @@ const BOTTOM_ITEMS = [
   { path: "/data-upload", label: "Veri Yönetimi", icon: CloudArrowUp },
 ];
 
-export default function Sidebar({ open, onToggle, basePath = "" }) {
+export default function Sidebar({ open, onToggle, basePath = "", brandColor, brandLogo, brandName }) {
+  const API_BASE = process.env.REACT_APP_BACKEND_URL;
+  const logoSrc = brandLogo ? (brandLogo.startsWith("http") ? brandLogo : `${API_BASE}${brandLogo}`) : null;
+  const sidebarColor = brandColor || "#0F766E";
+
   return (
     <>
       <button
@@ -78,14 +82,20 @@ export default function Sidebar({ open, onToggle, basePath = "" }) {
       >
         <div className="px-5 py-6 border-b border-slate-200">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-teal-700 flex items-center justify-center">
-              <ChartBar size={20} weight="bold" className="text-white" />
-            </div>
+            {logoSrc ? (
+              <img src={logoSrc} alt={brandName || "Logo"} className="w-9 h-9 rounded-lg object-contain border border-slate-100 p-0.5" />
+            ) : (
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: sidebarColor }}>
+                <ChartBar size={20} weight="bold" className="text-white" />
+              </div>
+            )}
             <div>
               <h2 data-testid="sidebar-logo" className="text-lg font-bold text-slate-900 tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                Plenalitik
+                {brandName || "Plenalitik"}
               </h2>
-              <p className="text-[10px] tracking-[0.2em] uppercase text-slate-400">Analitik Platformu</p>
+              <p className="text-[10px] tracking-[0.2em] uppercase text-slate-400">
+                {brandName ? "Plenalitik Raporu" : "Analitik Platformu"}
+              </p>
             </div>
           </div>
         </div>

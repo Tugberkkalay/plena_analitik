@@ -137,6 +137,18 @@ function ReportDashboard({ slug, tenant }) {
 
   return (
     <div className="min-h-screen bg-slate-50" data-testid="report-dashboard">
+      {/* Inject tenant brand colors */}
+      <style>{`
+        [data-testid="report-dashboard"] .bg-teal-600,
+        [data-testid="report-dashboard"] .bg-teal-700 { background-color: ${color} !important; }
+        [data-testid="report-dashboard"] .bg-teal-50 { background-color: ${color}12 !important; }
+        [data-testid="report-dashboard"] .text-teal-600,
+        [data-testid="report-dashboard"] .text-teal-700,
+        [data-testid="report-dashboard"] .text-teal-800 { color: ${color} !important; }
+        [data-testid="report-dashboard"] .border-teal-200,
+        [data-testid="report-dashboard"] .border-teal-300 { border-color: ${color}40 !important; }
+        [data-testid="report-dashboard"] .hover\\:bg-teal-700:hover { background-color: ${color} !important; filter: brightness(0.9); }
+      `}</style>
       {/* Header */}
       <div className="border-b border-slate-200 px-6 py-3 flex items-center justify-between print:hidden sticky top-0 z-30" style={{ backgroundColor: color, color: "white" }}>
         <div className="flex items-center gap-3">

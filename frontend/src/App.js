@@ -170,13 +170,17 @@ function ProtectedDashboard() {
   const [years, setYears] = useState([2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [country, setCountry] = useState(null);
+  const [tenantInfo, setTenantInfo] = useState(null);
 
   // Set tenant context for all API calls
   useEffect(() => {
     if (slug && slug !== "default") {
       setActiveTenant(slug);
+      // Fetch tenant branding info
+      axios.get(`${API}/tenants/public/${slug}/check`).then(r => setTenantInfo(r.data)).catch(() => {});
     } else {
       setActiveTenant(null);
+      setTenantInfo(null);
     }
     return () => setActiveTenant(null);
   }, [slug]);
@@ -191,10 +195,21 @@ function ProtectedDashboard() {
   if (!user) return <Navigate to="/login" replace />;
 
   const basePath = `/admin/rapor/${slug || "default"}`;
+  const brandColor = tenantInfo?.primary_color || null;
+  const brandLogo = tenantInfo?.logo_url || null;
 
   return (
     <div className="hrlytic-layout">
-      <Sidebar open={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} basePath={basePath} />
+      {brandColor && (
+        <style>{`
+          .hrlytic-layout .bg-teal-600, .hrlytic-layout .bg-teal-700 { background-color: ${brandColor} !important; }
+          .hrlytic-layout .bg-teal-50 { background-color: ${brandColor}12 !important; }
+          .hrlytic-layout .text-teal-600, .hrlytic-layout .text-teal-700, .hrlytic-layout .text-teal-800 { color: ${brandColor} !important; }
+          .hrlytic-layout .border-teal-200, .hrlytic-layout .border-teal-300 { border-color: ${brandColor}40 !important; }
+          .hrlytic-layout .hover\\:bg-teal-700:hover { background-color: ${brandColor} !important; filter: brightness(0.9); }
+        `}</style>
+      )}
+      <Sidebar open={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} basePath={basePath} brandColor={brandColor} brandLogo={brandLogo} brandName={tenantInfo?.report_title || tenantInfo?.name} />
       <div className="hrlytic-main">
         <TopBar year={year} setYear={setYear} years={years} country={country} setCountry={setCountry} />
         <div className="hrlytic-content">
