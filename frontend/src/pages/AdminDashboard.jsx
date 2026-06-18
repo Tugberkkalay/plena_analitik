@@ -13,31 +13,86 @@ function CreateTenantModal({ open, onClose, onCreated }) {
   const [slug, setSlug] = useState("");
   const [sector, setSector] = useState("Bankacılık");
   const [password, setPassword] = useState("");
+  const [primaryColor, setPrimaryColor] = useState("#0D9488");
+  const [reportTitle, setReportTitle] = useState("");
+  const [logoPreview, setLogoPreview] = useState(null);
+  const [logoData, setLogoData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   if (!open) return null;
+
+  const handleLogoChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setLogoPreview(ev.target.result);
+      setLogoData(ev.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
     try {
-      const res = await axios.post(`${API}/api/tenants`, { name, slug, sector, access_password: password }, { withCredentials: true });
+      const res = await axios.post(`${API}/api/tenants`, {
+        name, slug, sector, access_password: password,
+        primary_color: primaryColor, report_title: reportTitle || `${name} İK Analitik Raporu`,
+      }, { withCredentials: true });
+      // Upload logo if selected
+      if (logoData && res.data.id) {
+        await axios.post(`${API}/api/tenants/${res.data.id}/upload-logo`, { logo_url: logoData }, { withCredentials: true });
+      }
       onCreated(res.data);
-      setName(""); setSlug(""); setPassword(""); setError("");
+      setName(""); setSlug(""); setPassword(""); setPrimaryColor("#0D9488"); setReportTitle(""); setLogoPreview(null); setLogoData(null);
     } catch (err) {
       setError(err.response?.data?.detail || "Hata oluştu");
     }
     setLoading(false);
   };
 
+  const COLOR_PRESETS = [
+    { label: "Teal", value: "#0D9488" },
+    { label: "Mavi", value: "#2563EB" },
+    { label: "Lacivert", value: "#1E3A5F" },
+    { label: "Kırmızı", value: "#DC2626" },
+    { label: "Turuncu", value: "#EA580C" },
+    { label: "Mor", value: "#7C3AED" },
+    { label: "Yeşil", value: "#059669" },
+    { label: "Siyah", value: "#18181B" },
+  ];
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-lg border border-slate-200 shadow-xl w-full max-w-md p-6" data-testid="create-tenant-modal">
+      <div className="bg-white rounded-lg border border-slate-200 shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto" data-testid="create-tenant-modal">
         <h2 className="text-lg font-semibold text-slate-900 mb-4">Yeni Müşteri Oluştur</h2>
         <form onSubmit={handleSubmit} className="space-y-3">
           {error && <div className="p-2 rounded bg-red-50 text-red-700 text-sm border border-red-200">{error}</div>}
+
+          {/* Logo Upload */}
+          <div>
+            <label className="text-xs font-medium text-slate-600 mb-1 block">Müşteri Logosu</label>
+            <div className="flex items-center gap-3">
+              <div className="w-14 h-14 rounded-lg border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden bg-slate-50">
+                {logoPreview ? (
+                  <img src={logoPreview} alt="Logo" className="w-full h-full object-contain" />
+                ) : (
+                  <span className="text-xs text-slate-400">Logo</span>
+                )}
+              </div>
+              <div>
+                <label className="cursor-pointer px-3 py-1.5 rounded-md bg-slate-100 text-slate-600 text-xs font-medium hover:bg-slate-200 transition-colors inline-block">
+                  Dosya Seç
+                  <input type="file" accept="image/*" onChange={handleLogoChange} className="hidden" data-testid="logo-upload" />
+                </label>
+                <p className="text-[10px] text-slate-400 mt-1">PNG, JPG · Max 2MB</p>
+              </div>
+            </div>
+          </div>
+
           <div>
             <label className="text-xs font-medium text-slate-600 mb-1 block">Müşteri Adı</label>
             <Input data-testid="tenant-name" value={name} onChange={(e) => { setName(e.target.value); if (!slug) setSlug(e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")); }}
@@ -51,26 +106,62 @@ function CreateTenantModal({ open, onClose, onCreated }) {
                 placeholder="yapikredi" className="flex-1" required />
             </div>
           </div>
-          <div>
-            <label className="text-xs font-medium text-slate-600 mb-1 block">Sektör</label>
-            <select value={sector} onChange={(e) => setSector(e.target.value)}
-              className="w-full px-3 py-2 rounded-md border border-slate-200 text-sm">
-              <option>Bankacılık</option>
-              <option>Sigorta</option>
-              <option>Perakende</option>
-              <option>Teknoloji</option>
-              <option>Üretim</option>
-              <option>Diğer</option>
-            </select>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-medium text-slate-600 mb-1 block">Sektör</label>
+              <select value={sector} onChange={(e) => setSector(e.target.value)}
+                className="w-full px-3 py-2 rounded-md border border-slate-200 text-sm">
+                <option>Bankacılık</option>
+                <option>Sigorta</option>
+                <option>Perakende</option>
+                <option>Teknoloji</option>
+                <option>Üretim</option>
+                <option>Diğer</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-600 mb-1 block">Erişim Şifresi</label>
+              <Input data-testid="tenant-password" type="text" value={password} onChange={(e) => setPassword(e.target.value)}
+                placeholder="ör: yk2025" required />
+            </div>
           </div>
+
+          {/* Color Picker */}
           <div>
-            <label className="text-xs font-medium text-slate-600 mb-1 block">Erişim Şifresi (müşteriye verilecek)</label>
-            <Input data-testid="tenant-password" type="text" value={password} onChange={(e) => setPassword(e.target.value)}
-              placeholder="ör: yk2025" required />
+            <label className="text-xs font-medium text-slate-600 mb-1.5 block">Kurumsal Renk</label>
+            <div className="flex items-center gap-2 flex-wrap">
+              {COLOR_PRESETS.map((c) => (
+                <button key={c.value} type="button" onClick={() => setPrimaryColor(c.value)} title={c.label}
+                  className={`w-7 h-7 rounded-full border-2 transition-all ${primaryColor === c.value ? "border-slate-900 scale-110" : "border-transparent hover:border-slate-300"}`}
+                  style={{ backgroundColor: c.value }} />
+              ))}
+              <div className="flex items-center gap-1.5 ml-1">
+                <input type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)}
+                  className="w-7 h-7 rounded cursor-pointer border-0" data-testid="color-picker" />
+                <span className="text-[10px] text-slate-400 font-mono">{primaryColor}</span>
+              </div>
+            </div>
           </div>
+
+          {/* Report Title */}
+          <div>
+            <label className="text-xs font-medium text-slate-600 mb-1 block">Rapor Başlığı</label>
+            <Input value={reportTitle} onChange={(e) => setReportTitle(e.target.value)}
+              placeholder={`${name || "Müşteri"} İK Analitik Raporu`} data-testid="report-title" />
+          </div>
+
+          {/* Preview */}
+          <div className="p-3 rounded-lg border border-slate-200 bg-slate-50">
+            <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium mb-2">Önizleme</p>
+            <div className="flex items-center gap-2 p-2 rounded" style={{ backgroundColor: primaryColor + "15", borderLeft: `3px solid ${primaryColor}` }}>
+              {logoPreview && <img src={logoPreview} alt="" className="w-6 h-6 rounded object-contain" />}
+              <span className="text-sm font-semibold" style={{ color: primaryColor }}>{reportTitle || `${name || "Müşteri"} İK Analitik Raporu`}</span>
+            </div>
+          </div>
+
           <div className="flex gap-2 pt-2">
             <Button type="button" variant="outline" onClick={onClose} className="flex-1">İptal</Button>
-            <Button type="submit" disabled={loading} className="flex-1 bg-teal-600 hover:bg-teal-700 text-white" data-testid="create-tenant-submit">
+            <Button type="submit" disabled={loading} className="flex-1 text-white" style={{ backgroundColor: primaryColor }} data-testid="create-tenant-submit">
               {loading ? "Oluşturuluyor..." : "Oluştur"}
             </Button>
           </div>

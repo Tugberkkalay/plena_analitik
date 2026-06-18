@@ -61,6 +61,9 @@ function PasswordGate({ slug, tenantInfo, onAccess }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const color = tenantInfo?.primary_color || "#0D9488";
+  const API_BASE = process.env.REACT_APP_BACKEND_URL;
+  const logoSrc = tenantInfo?.logo_url ? (tenantInfo.logo_url.startsWith("http") ? tenantInfo.logo_url : `${API_BASE}${tenantInfo.logo_url}`) : null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -80,11 +83,15 @@ function PasswordGate({ slug, tenantInfo, onAccess }) {
       <div className="w-full max-w-sm">
         <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-8">
           <div className="flex flex-col items-center mb-6">
-            <div className="w-12 h-12 rounded-xl bg-teal-600 flex items-center justify-center mb-3">
-              <FileText size={24} weight="bold" className="text-white" />
-            </div>
+            {logoSrc ? (
+              <img src={logoSrc} alt={tenantInfo?.name} className="w-16 h-16 rounded-xl object-contain mb-3 border border-slate-100 p-1" />
+            ) : (
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-3" style={{ backgroundColor: color }}>
+                <FileText size={24} weight="bold" className="text-white" />
+              </div>
+            )}
             <h1 className="text-lg font-bold text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-              {tenantInfo?.name || "Rapor"}
+              {tenantInfo?.report_title || tenantInfo?.name || "Rapor"}
             </h1>
             <p className="text-xs text-slate-500 mt-1">Erişim şifresi gerekli</p>
           </div>
@@ -93,11 +100,12 @@ function PasswordGate({ slug, tenantInfo, onAccess }) {
             <div>
               <label className="text-xs font-medium text-slate-600 mb-1 block">Şifre</label>
               <input data-testid="report-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 rounded-md border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full px-3 py-2 rounded-md border border-slate-200 text-sm focus:outline-none focus:ring-2" style={{ "--tw-ring-color": color }}
                 placeholder="••••••••" required autoFocus />
             </div>
             <button data-testid="report-access-btn" type="submit" disabled={loading}
-              className="w-full py-2.5 rounded-md bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors disabled:opacity-50">
+              className="w-full py-2.5 rounded-md text-white text-sm font-medium transition-colors disabled:opacity-50"
+              style={{ backgroundColor: color }}>
               {loading ? "Doğrulanıyor..." : "Raporlara Eriş"}
             </button>
           </form>
@@ -111,6 +119,8 @@ function PasswordGate({ slug, tenantInfo, onAccess }) {
 function ReportDashboard({ slug, tenant }) {
   const [activeSection, setActiveSection] = useState("overview");
   const year = 2025;
+  const color = tenant.primary_color || "#0D9488";
+  const API_BASE = process.env.REACT_APP_BACKEND_URL;
 
   // Set tenant context for API calls
   useEffect(() => {
@@ -123,17 +133,23 @@ function ReportDashboard({ slug, tenant }) {
   const props = { year };
   if (currentSection?.passCountry) props.country = null;
 
+  const logoSrc = tenant.logo_url ? (tenant.logo_url.startsWith("http") ? tenant.logo_url : `${API_BASE}${tenant.logo_url}`) : null;
+
   return (
     <div className="min-h-screen bg-slate-50" data-testid="report-dashboard">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between print:hidden sticky top-0 z-30">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-teal-600 flex items-center justify-center">
-            <FileText size={14} weight="bold" className="text-white" />
-          </div>
+      <div className="border-b border-slate-200 px-6 py-3 flex items-center justify-between print:hidden sticky top-0 z-30" style={{ backgroundColor: color, color: "white" }}>
+        <div className="flex items-center gap-3">
+          {logoSrc ? (
+            <img src={logoSrc} alt={tenant.name} className="w-8 h-8 rounded-lg object-contain bg-white p-0.5" />
+          ) : (
+            <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+              <FileText size={16} weight="bold" className="text-white" />
+            </div>
+          )}
           <div>
-            <h1 className="text-sm font-bold text-slate-900">{tenant.name}</h1>
-            <p className="text-[10px] text-slate-400">{tenant.sector} · Plenalitik Raporu</p>
+            <h1 className="text-sm font-bold text-white">{tenant.report_title || tenant.name}</h1>
+            <p className="text-[10px] text-white/70">{tenant.sector} · Plenalitik Raporu</p>
           </div>
         </div>
         <PdfExportButton tenantName={tenant.name} sectionLabel={currentSection?.label || "rapor"} />
@@ -148,11 +164,8 @@ function ReportDashboard({ slug, tenant }) {
                 key={s.id}
                 data-testid={`report-nav-${s.id}`}
                 onClick={() => setActiveSection(s.id)}
-                className={`w-full text-left px-3 py-2 rounded-md text-xs font-medium transition-colors ${
-                  activeSection === s.id
-                    ? "bg-teal-50 text-teal-700 border border-teal-200"
-                    : "text-slate-600 hover:bg-slate-50 border border-transparent"
-                }`}
+                className="w-full text-left px-3 py-2 rounded-md text-xs font-medium transition-colors border"
+                style={activeSection === s.id ? { backgroundColor: color + "12", color: color, borderColor: color + "40" } : { color: "#475569", borderColor: "transparent" }}
               >
                 {s.label}
               </button>

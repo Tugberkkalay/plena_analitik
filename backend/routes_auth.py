@@ -58,12 +58,16 @@ class TenantCreate(BaseModel):
     slug: str
     sector: str = "Bankacılık"
     logo_url: Optional[str] = None
+    primary_color: str = "#0D9488"
+    report_title: Optional[str] = None
     access_password: str
 
 class TenantUpdate(BaseModel):
     name: Optional[str] = None
     sector: Optional[str] = None
     logo_url: Optional[str] = None
+    primary_color: Optional[str] = None
+    report_title: Optional[str] = None
     access_password: Optional[str] = None
     status: Optional[str] = None
 
@@ -95,6 +99,8 @@ def setup_tenant_routes(db):
             "slug": slug,
             "sector": body.sector,
             "logo_url": body.logo_url or "",
+            "primary_color": body.primary_color or "#0D9488",
+            "report_title": body.report_title or f"{body.name} İK Analitik Raporu",
             "access_password_hash": hash_password(body.access_password),
             "status": "draft",
             "employee_count": 0,
@@ -226,14 +232,46 @@ def setup_tenant_routes(db):
             {"slug": slug, "type": "report", "exp": datetime.now(timezone.utc) + timedelta(hours=8)},
             get_jwt_secret(), algorithm="HS256"
         )
-        return {"token": token, "tenant": {"name": tenant["name"], "slug": tenant["slug"], "sector": tenant["sector"], "logo_url": tenant.get("logo_url", "")}}
+        return {"token": token, "tenant": {
+            "name": tenant["name"], "slug": tenant["slug"], "sector": tenant["sector"],
+            "logo_url": tenant.get("logo_url", ""), "primary_color": tenant.get("primary_color", "#0D9488"),
+            "report_title": tenant.get("report_title", ""),
+        }}
 
     @tenant_router.get("/public/{slug}/check")
     async def check_tenant_exists(slug: str):
         """Check if a published tenant exists (no auth needed)."""
-        tenant = await db.tenants.find_one({"slug": slug, "status": "published"}, {"_id": 0, "name": 1, "slug": 1, "logo_url": 1})
+        tenant = await db.tenants.find_one({"slug": slug, "status": "published"}, {"_id": 0, "name": 1, "slug": 1, "logo_url": 1, "primary_color": 1, "report_title": 1})
         if not tenant:
             raise HTTPException(404, "Rapor bulunamadı")
-        return {"name": tenant["name"], "slug": tenant["slug"], "logo_url": tenant.get("logo_url", "")}
+        return {"name": tenant["name"], "slug": tenant["slug"], "logo_url": tenant.get("logo_url", ""),
+                "primary_color": tenant.get("primary_color", "#0D9488"), "report_title": tenant.get("report_title", "")}
+
+    @tenant_router.post("/{tenant_id}/upload-logo")
+    async def upload_logo(tenant_id: str, request: Request):
+        """Upload tenant logo via base64 data URL."""
+        await require_admin(request)
+        tenant = await db.tenants.find_one({"id": tenant_id})
+        if not tenant:
+            raise HTTPException(404, "Müşteri bulunamadı")
+        body = await request.json()
+        logo_data = body.get("logo_url", "")
+        if not logo_data:
+            raise HTTPException(400, "Logo verisi gerekli")
+        # If it's a base64 data URL, save to file
+        if logo_data.startswith("data:image"):
+            import base64, os
+            header, b64data = logo_data.split(",", 1)
+            ext = "png" if "png" in header else "jpg" if "jpg" in header or "jpeg" in header else "png"
+            filename = f"{tenant['slug']}_logo.{ext}"
+            filepath = os.path.join("/app/backend/uploads", filename)
+            with open(filepath, "wb") as f:
+                f.write(base64.b64decode(b64data))
+            logo_url = f"/api/uploads/{filename}"
+        else:
+            logo_url = logo_data
+        await db.tenants.update_one({"id": tenant_id}, {"$set": {"logo_url": logo_url}})
+        return {"logo_url": logo_url}
+
 
     return tenant_router

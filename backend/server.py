@@ -2685,6 +2685,10 @@ setup_tenant_routes(db)
 app.include_router(auth_router)
 app.include_router(tenant_router)
 
+# Serve uploaded files (logos etc.)
+from fastapi.staticfiles import StaticFiles
+app.mount("/api/uploads", StaticFiles(directory="/app/backend/uploads"), name="uploads")
+
 app.add_middleware(CORSMiddleware, allow_credentials=True,
                    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
                    allow_methods=["*"], allow_headers=["*"])

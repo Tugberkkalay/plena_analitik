@@ -1,38 +1,28 @@
 # Plenalitik — Enterprise HR & Sales Analytics Platform
 
 ## Problem Statement
-Multi-tenant HR analytics SaaS for Banking/Finance sector. Admin creates client-specific reports, seeds data per tenant, publishes them. Clients access their reports via unique URL with password protection.
+Multi-tenant HR analytics SaaS for Banking/Finance sector with customizable client branding.
 
 ## Architecture
-- Frontend: React 18, Tailwind, Recharts, Shadcn UI, react-simple-maps, jsPDF, html2canvas
+- Frontend: React 18, Tailwind, Recharts, Shadcn UI, jsPDF, html2canvas
 - Backend: FastAPI, Python, Motor (MongoDB), JWT auth, bcrypt
 - AI: GPT-5.2 via Emergent LLM Key
 
-## Routing
-- `/login` — Admin login page
-- `/admin` — Admin dashboard (tenant CRUD, seed, publish)
-- `/admin/rapor/:slug/*` — Admin report view (full sidebar dashboard, tenant-filtered)
-- `/raporlar/:slug` — Public report access (password gate → full report dashboard)
+## Completed Features
+- ✅ Multi-tenant admin system (CRUD, seed, publish)
+- ✅ Public report pages with password protection
+- ✅ **Tenant branding**: Logo upload, 8 preset + custom color picker, report title
+- ✅ Branded header bar (tenant's primary color), branded password gate, branded menu highlights
+- ✅ PDF Export (Print CSS + jsPDF download)
+- ✅ 30+ tenant-filtered API endpoints
+- ✅ Career Path Visualization, Skills Map V2, Full Turkish UI
 
-## Multi-Tenant System
-- Axios interceptor auto-appends `?tenant=<slug>` to all API calls
-- Backend `get_filtered()` + all endpoints accept optional `tenant` param
-- 30+ API endpoints tenant-aware
-
-## Completed
-- ✅ Admin auth (JWT + bcrypt + httponly cookies)
-- ✅ Admin dashboard with tenant CRUD
-- ✅ Tenant data seeding
-- ✅ Publish/Draft flow
-- ✅ Public report password gate + full dashboard
-- ✅ Admin report view
-- ✅ PDF Export (Print CSS + jsPDF/html2canvas download)
-- ✅ Career Path Visualization with Readiness Score
-- ✅ Skills Map V2 with 12-cluster drill-down
-- ✅ Full Turkish localization
-- ✅ Plena AI branding
+## Tenant Branding Fields
+- `logo_url`: Uploaded via base64 → saved to /uploads/
+- `primary_color`: Hex color (default #0D9488)  
+- `report_title`: Custom report header text
 
 ## Upcoming
-- P1: server.py modülerleştirme (~2700 satır)
+- P1: server.py modülerleştirme
 - P2: Additional sector taxonomies
 - P2: Alert Resolution DB persistence
