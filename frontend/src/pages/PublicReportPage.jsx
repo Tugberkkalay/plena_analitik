@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { Lock, FileText, Printer } from "@phosphor-icons/react";
+import { Lock, FileText } from "@phosphor-icons/react";
 import { setActiveTenant } from "@/lib/tenantInterceptor";
-import Sidebar from "@/components/Sidebar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CalendarBlank, GlobeHemisphereWest } from "@phosphor-icons/react";
+import PdfExportButton from "@/components/PdfExportButton";
 
 // Import all dashboard pages
 import OverviewPage from "@/pages/OverviewPage";
@@ -138,10 +136,7 @@ function ReportDashboard({ slug, tenant }) {
             <p className="text-[10px] text-slate-400">{tenant.sector} · Plenalitik Raporu</p>
           </div>
         </div>
-        <button onClick={() => window.print()}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-teal-600 text-white text-xs font-medium hover:bg-teal-700">
-          <Printer size={14} /> PDF Dışa Aktar
-        </button>
+        <PdfExportButton tenantName={tenant.name} sectionLabel={currentSection?.label || "rapor"} />
       </div>
 
       <div className="flex">

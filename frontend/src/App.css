@@ -44,11 +44,34 @@
 }
 
 @media print {
-  .hrlytic-layout > aside, [data-testid="sidebar"], [data-testid="sidebar-toggle-mobile"],
-  [data-testid="pdf-export-btn"], [data-testid="year-selector"] { display: none !important; }
+  /* Hide non-printable elements */
+  .hrlytic-layout > aside,
+  [data-testid="sidebar"],
+  [data-testid="sidebar-toggle-mobile"],
+  [data-testid="pdf-export-btn"],
+  [data-testid="year-selector"],
+  [data-testid="country-selector"],
+  .print\\:hidden,
+  button,
+  nav { display: none !important; }
+
+  /* Layout */
   .hrlytic-layout { display: block !important; }
   .hrlytic-main { overflow: visible !important; }
-  .hrlytic-content { padding: 0 !important; max-width: 100% !important; }
-  body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  [data-testid="top-bar"] { position: static !important; border: none !important; background: white !important; }
+  .hrlytic-content { padding: 8px !important; max-width: 100% !important; }
+  [data-testid="top-bar"] { position: static !important; border: none !important; background: white !important; backdrop-filter: none !important; padding: 8px 0 !important; }
+
+  /* Colors & backgrounds */
+  body { background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+
+  /* Cards & charts */
+  .bg-white { box-shadow: none !important; border-color: #e2e8f0 !important; }
+
+  /* Page breaks */
+  .recharts-responsive-container { break-inside: avoid; }
+  [class*="ChartCard"], [class*="chart-card"] { break-inside: avoid; page-break-inside: avoid; }
+
+  /* Report dashboard specific */
+  .report-section { break-before: page; padding-top: 16px; }
+  .report-section:first-child { break-before: auto; }
 }

@@ -5,8 +5,9 @@ import axios from "axios";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { setActiveTenant } from "@/lib/tenantInterceptor";
 import Sidebar from "@/components/Sidebar";
+import PdfExportButton from "@/components/PdfExportButton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CalendarBlank, Printer, GlobeHemisphereWest } from "@phosphor-icons/react";
+import { CalendarBlank, GlobeHemisphereWest } from "@phosphor-icons/react";
 import OverviewPage from "@/pages/OverviewPage";
 import HeadcountPage from "@/pages/HeadcountPage";
 import HiresLeavesPage from "@/pages/HiresLeavesPage";
@@ -83,8 +84,6 @@ function TopBar({ year, setYear, years, country, setCountry }) {
   const cleanPath = location.pathname.replace(/^\/admin\/rapor\/[^/]+/, "");
   const title = PAGE_TITLES[cleanPath || "/"] || PAGE_TITLES[location.pathname] || "Dashboard";
 
-  const handlePrint = () => { window.print(); };
-
   return (
     <div data-testid="top-bar" className="sticky top-0 z-30 flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-white/80 backdrop-blur-md">
       <div>
@@ -93,11 +92,7 @@ function TopBar({ year, setYear, years, country, setCountry }) {
         </h1>
       </div>
       <div className="flex items-center gap-3">
-        <button data-testid="pdf-export-btn" onClick={handlePrint}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors">
-          <Printer size={16} weight="bold" />
-          <span>PDF Dışa Aktar</span>
-        </button>
+        <PdfExportButton tenantName="Plenalitik" sectionLabel={title} />
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-50 border border-slate-200">
           <GlobeHemisphereWest size={16} className="text-slate-500" />
           <Select value={country || "all"} onValueChange={(v) => setCountry(v === "all" ? null : v)}>
