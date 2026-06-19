@@ -805,7 +805,7 @@ async def get_headcount(year: int = 2025, country: str = None, tenant: str = Non
 
 # ---- Hires ----
 @api_router.get("/dashboard/hires")
-async def get_hires(year: int = 2025, tenant: str = None):
+async def get_hires(year: int = 2025, tenant: str = None, segment: str = None):
     _, active, hired, _ = await get_filtered(year, tenant=tenant, segment=segment)
     hc = len(active)
     females = len([e for e in hired if e['gender']=='Female'])
@@ -830,7 +830,7 @@ async def get_hires(year: int = 2025, tenant: str = None):
 
 # ---- Leaves ----
 @api_router.get("/dashboard/leaves")
-async def get_leaves(year: int = 2025, tenant: str = None):
+async def get_leaves(year: int = 2025, tenant: str = None, segment: str = None):
     _, active, _, left = await get_filtered(year, tenant=tenant, segment=segment)
     females = len([e for e in left if e['gender']=='Female'])
     leaves_month = []
@@ -1383,7 +1383,7 @@ async def get_hr_operations(year: int = 2025, tenant: str = None, segment: str =
 
 # ---- Skills Map & Gap Analysis ----
 @api_router.get("/dashboard/skills-map")
-async def get_skills_map(year: int = 2025, tenant: str = None):
+async def get_skills_map(year: int = 2025, tenant: str = None, segment: str = None):
     _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment)
     skill_agg = {}
     dept_skills = {}
