@@ -18,26 +18,37 @@ Multi-tenant HR analytics SaaS. Admin manages clients, seeds/imports data, publi
 - ✅ 30+ tenant-filtered API endpoints
 - ✅ Career Path Visualization, Skills Map V2, Full Turkish UI
 - ✅ **Dynamic Sector Taxonomy** (Feb 2026): Banking vs Retail taxonomy auto-switches based on tenant.sector
-  - Perakende: 10 departments (Mağaza Satış, Üretim, Kalite Kontrol, etc.), 37 competencies, 10 career paths, 6 strategic objectives
+  - Perakende: 10 departments, 37 competencies, 10 career paths, 6 strategic objectives
   - Bankacılık: 10 departments, 175 skills, banking career paths, 7 strategic objectives
-  - All dashboard endpoints, data seeding, AI prompts use sector-aware config
+- ✅ **Segment Filtering** (Feb 2026): Perakende tenants show segment filter (Mağaza/Perakende, Üretim, Merkez Ofis)
+  - Replaces country filter for retail tenants
+  - Each segment filters employees by their department group
+  - All 30+ dashboard endpoints support segment parameter
+  - Frontend auto-appends segment via Axios interceptor
+  - Skills Map V2 updated - removed hardcoded "Bankacılık" labels
 
 ## Sector Taxonomy System
 - `taxonomy_loader.py`: Provides `get_sector_config(sector)` returning full config dict
-- Banking: Uses existing JSON files (skills.json, roles.json, career-paths.json, etc.)
-- Retail: Derived from `perakende_kutuphane.json` (segments → departments, competencies → skills)
-- Every endpoint resolves tenant sector via `_resolve_sector(tenant_slug)` and uses config
+  - Includes DEPT_SEGMENT_MAP mapping departments to segments for Perakende
+  - Banking: Uses existing JSON files (skills.json, roles.json, etc.)
+  - Retail: Derived from `perakende_kutuphane.json`
+- Every endpoint resolves tenant sector via `_resolve_sector(tenant_slug)`
 
-## Excel Import System
-- Template: 7 sheets with Turkish headers, sample rows, formatted
-- Upload: Parse xlsx → clear tenant data → insert to 6 collections
-- Collections: employees, branches, sales_performance, recruitment, training, engagement
+## Segment Filtering (Perakende Only)
+- Segments: Mağaza / Perakende, Üretim, Merkez Ofis
+- Department → Segment mapping:
+  - Mağaza Satış, Görsel Düzenleme, Perakende Operasyon → Mağaza / Perakende
+  - Üretim, Kalite Kontrol, Bakım ve Teknik → Üretim
+  - Tasarım ve Ar-Ge, Kategori Yönetimi, İK ve Destek, Dijital ve E-ticaret → Merkez Ofis
+- Frontend: tenantInterceptor.js handles segment auto-append to API calls
+- Backend: get_filtered() filters employees by segment field
 
 ## Key DB Schema
 - `tenants`: {id, name, slug, sector, color, logo_url, report_title, password_hash, status, created_at}
-- `employees`, `branches`, `sales_performance`, `recruitment`, `training`, `engagement`: All have `tenant_id` field
+- `employees`: All have `tenant_id` and `segment` fields (segment populated during seed)
 
 ## Upcoming
-- P1: server.py modülerleştirme (~2800 satır → route/service/model dosyalarına bölme)
+- P1: server.py modülerleştirme (~2800+ satır → route/service/model dosyalarına bölme)
 - P2: Alert Resolution DB persistence
-- P2: Additional sector taxonomies (Savunma, Teknoloji, etc.)
+- P2: Excel import'ta segment alanını otomatik doldurma (DEPT_SEGMENT_MAP kullanarak)
+- P2: Additional sector taxonomies
