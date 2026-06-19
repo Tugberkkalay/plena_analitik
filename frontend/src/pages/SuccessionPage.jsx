@@ -6,9 +6,9 @@ import ChartCard, { CHART_COLORS, DARK_TOOLTIP } from "@/components/ChartCard";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell } from "recharts";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
-const RISK_COLOR = { Critical: "#EF4444", High: "#F97316", Medium: "#F59E0B", Low: "#14B8A6" };
-const RISK_BG = { Critical: "bg-red-50 border-red-100", High: "bg-orange-50 border-orange-100", Medium: "bg-amber-50 border-amber-100", Low: "bg-emerald-50 border-emerald-100" };
-const RISK_TEXT = { Critical: "text-red-700", High: "text-orange-700", Medium: "text-amber-700", Low: "text-emerald-700" };
+const RISK_COLOR = { "Kritik": "#EF4444", "Yüksek": "#F97316", "Orta": "#F59E0B", "Düşük": "#14B8A6" };
+const RISK_BG = { "Kritik": "bg-red-50 border-red-100", "Yüksek": "bg-orange-50 border-orange-100", "Orta": "bg-amber-50 border-amber-100", "Düşük": "bg-emerald-50 border-emerald-100" };
+const RISK_TEXT = { "Kritik": "text-red-700", "Yüksek": "text-orange-700", "Orta": "text-amber-700", "Düşük": "text-emerald-700" };
 
 export default function SuccessionPage({ year }) {
   const [data, setData] = useState(null);
@@ -34,7 +34,7 @@ export default function SuccessionPage({ year }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <ChartCard title="Knowledge Risk Distribution" testId="chart-risk-dist">
+        <ChartCard title="Bilgi Riski Dağılımı" testId="chart-risk-dist">
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie data={data.risk_summary} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="count" nameKey="level" strokeWidth={0}>
