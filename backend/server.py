@@ -173,6 +173,12 @@ def generate_sales_data(employees, branches):
     sales = []
     branch_map = {b["id"]: b for b in branches}
     months = [f"2025-{m:02d}" for m in range(1, 13)]
+    # ~30% of branches underperform (realistic scenario)
+    underperform_branches = set()
+    branch_ids = [b["id"] for b in branches]
+    random.shuffle(branch_ids)
+    for bid in branch_ids[:max(3, len(branch_ids) // 3)]:
+        underperform_branches.add(bid)
     for emp in employees:
         if emp.get("role_type") != "sales" or emp.get("status") != "active":
             continue
@@ -182,12 +188,13 @@ def generate_sales_data(employees, branches):
             continue
         seg_k = SEGMENT_WEIGHTS.get(branch.get("segment", "Karma"), 1.0)
         base_target = random.uniform(400000, 1200000) * seg_k
-        # Each employee has a skill-based performance factor
         perf_factor = 0.55 + (emp.get("performance_score", 3) / 5) * 0.65
+        # Underperforming branches get a penalty
+        branch_penalty = random.uniform(0.55, 0.72) if bid in underperform_branches else 1.0
         for period in months:
             monthly_target = round(base_target / 12, 2)
             noise = random.gauss(1.0, 0.15)
-            monthly_actual = round(monthly_target * perf_factor * noise, 2)
+            monthly_actual = round(monthly_target * perf_factor * noise * branch_penalty, 2)
             ach = round(monthly_actual / monthly_target * 100, 1) if monthly_target else 0
             # Tiered commission
             comm = 0
@@ -209,7 +216,6 @@ def generate_sales_data(employees, branches):
 
 def generate_seed_data(count=500, sector="Bankacılık"):
     cfg = _cfg(sector)
-    seg_depts = _segment_depts(sector, segment)
     DEPTS = cfg["DEPARTMENTS"]
     DW = cfg["DEPT_WEIGHTS"]
     DEPT_SEG = cfg.get("DEPT_SEGMENT_MAP", {})
@@ -367,7 +373,6 @@ CAREER_PATH_BANDS = {
 def generate_employee_skills(department, band, sector="Bankacılık"):
     """Generate skills from sector taxonomy for an employee."""
     cfg = _cfg(sector)
-    seg_depts = _segment_depts(sector, segment)
     skill_tax = cfg["SKILL_TAXONOMY"]
     dept_clusters = cfg["DEPT_SKILL_CLUSTERS"]
     clusters = dept_clusters.get(department, list(dept_clusters.values())[0] if dept_clusters else ["liderlik-yonetim","davranissal-iletisim"])
@@ -403,7 +408,6 @@ def generate_employee_skills(department, band, sector="Bankacılık"):
 def get_role_for_employee(department, band, sector="Bankacılık"):
     """Get a matching role title from taxonomy based on department and band."""
     cfg = _cfg(sector)
-    seg_depts = _segment_depts(sector, segment)
     role_tax = cfg["ROLE_TAXONOMY"]
     dept_families = cfg["DEPT_ROLE_FAMILIES"]
     pos_by_band = cfg["POSITIONS_BY_BAND"]
@@ -421,7 +425,6 @@ def get_role_for_employee(department, band, sector="Bankacılık"):
 
 def generate_recruitment_data(count=200, sector="Bankacılık"):
     cfg = _cfg(sector)
-    seg_depts = _segment_depts(sector, segment)
     DEPTS = cfg["DEPARTMENTS"]
     DW = cfg["DEPT_WEIGHTS"]
     PBB = cfg["POSITIONS_BY_BAND"]
@@ -712,7 +715,6 @@ async def get_segments(tenant: str = None):
     """Return available segments for a tenant based on its sector."""
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
-    seg_depts = _segment_depts(sector, segment)
     return {"segments": cfg.get("SEGMENTS", []), "sector": sector}
 
 @api_router.post("/seed")
@@ -1539,7 +1541,6 @@ async def get_career_paths(department: Optional[str] = None, tenant: str = None)
     """Return all career paths from taxonomy with resolved role names."""
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
-    seg_depts = _segment_depts(sector, segment)
     paths = []
     for p in cfg["CAREER_PATHS"]:
         # Filter by department if specified
@@ -1581,7 +1582,6 @@ async def get_career_path_detail(path_id: str, tenant: str = None):
     """Return single career path detail with full role info."""
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
-    seg_depts = _segment_depts(sector, segment)
     path = next((p for p in cfg["CAREER_PATHS"] if p["id"] == path_id), None)
     if not path:
         raise HTTPException(404, "Career path not found")
@@ -2097,7 +2097,6 @@ async def get_org_health(year: int = 2025, country: str = None, tenant: str = No
 # ---- Open Positions Generation ----
 def generate_open_positions(active_employees, sector="Bankacılık"):
     cfg = _cfg(sector)
-    seg_depts = _segment_depts(sector, segment)
     THC = cfg["TARGET_HEADCOUNT"]
     DSF = cfg["DEPT_SKILL_FOCUS"]
     PBB = cfg["POSITIONS_BY_BAND"]
@@ -2385,13 +2384,13 @@ async def get_alerts(year: int = 2025, tenant: str = None, segment: str = None):
     for emp in active:
         for s in emp.get('skills', []):
             if s['skill'] not in skill_supply: skill_supply[s['skill']] = 0
-            if s['proficiency'] >= 3: skill_supply[s['skill']] += 1
+            if s['proficiency'] >= 4: skill_supply[s['skill']] += 1
     for sk, demand in skill_demand.items():
         supply = skill_supply.get(sk, 0)
         cov = round(supply / demand * 100) if demand else 100
-        if cov < 50:
+        if cov < 70:
             alert_id += 1
-            alerts.append({"id": str(alert_id), "source": "Yetkinlik", "severity": "high" if cov < 30 else "med",
+            alerts.append({"id": str(alert_id), "source": "Yetkinlik", "severity": "high" if cov < 40 else "med",
                 "title": f"Kritik yetkinlik açığı: {sk} (%{cov} karşılanma)",
                 "detail": f"Yalnızca {supply} yetkin çalışan, {demand} talep var. Karşılanma %{cov}.",
                 "suggested_action": f"Hedefli {sk} eğitim programı başlat (8 haftalık yoğun). İşe alımda {sk} yetkinliğini zorunlu kriter yap.",
