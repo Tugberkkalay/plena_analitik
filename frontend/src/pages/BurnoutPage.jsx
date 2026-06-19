@@ -6,8 +6,8 @@ import ChartCard, { CHART_COLORS, DARK_TOOLTIP } from "@/components/ChartCard";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell } from "recharts";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
-const RISK_COLOR = { Critical: "#EF4444", High: "#F97316", Medium: "#F59E0B", Low: "#14B8A6" };
-const RISK_BG = { Critical: "bg-red-50", High: "bg-orange-50", Medium: "bg-amber-50", Low: "bg-emerald-50" };
+const RISK_COLOR = { "Kritik": "#EF4444", "Yüksek": "#F97316", "Orta": "#F59E0B", "Düşük": "#14B8A6" };
+const RISK_BG = { "Kritik": "bg-red-50", "Yüksek": "bg-orange-50", "Orta": "bg-amber-50", "Düşük": "bg-emerald-50" };
 
 export default function BurnoutPage({ year }) {
   const [data, setData] = useState(null);
@@ -26,7 +26,7 @@ export default function BurnoutPage({ year }) {
   return (
     <div data-testid="burnout-page" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <KPICard title="Risk Altında" value={kpis.total_at_risk} icon={Warning} color="red" subtitle="Critical+Yüksek" />
+        <KPICard title="Risk Altında" value={kpis.total_at_risk} icon={Warning} color="red" subtitle="Kritik+Yüksek" />
         <KPICard title="Kritik" value={kpis.critical_count} icon={Lightning} color="red" />
         <KPICard title="Ort. Risk Skoru" value={kpis.avg_risk_score} icon={Heartbeat} color="amber" format="decimal" subtitle="/100" />
         <KPICard title="Ort. Bağlılık" value={kpis.avg_engagement} icon={Smiley} color="green" format="decimal" subtitle="/10" />
@@ -62,9 +62,9 @@ export default function BurnoutPage({ year }) {
                 const d = payload[0].payload;
                 return (
                   <div className="bg-white border border-slate-200 rounded-lg p-3 shadow-md text-xs">
-                    <p className="font-semibold text-slate-800 mb-1">{d.department} ({d.count} employees)</p>
-                    <p className="text-red-600">Critical: {d.critical} · High: {d.high}</p>
-                    <p className="text-slate-600">Avg Risk: {d.avg_risk}</p>
+                    <p className="font-semibold text-slate-800 mb-1">{d.department} ({d.count} çalışan)</p>
+                    <p className="text-red-600">Kritik: {d.critical} · Yüksek: {d.high}</p>
+                    <p className="text-slate-600">Ort. Risk: {d.avg_risk}</p>
                   </div>
                 );
               }} />

@@ -1656,10 +1656,27 @@ async def get_internal_mobility(year: int = 2025, tenant: str = None, segment: s
         surplus = [{"skill": sk, "count": v["count"], "avg_prof": v["avg"]} for sk, v in covered.items() if v["avg"] >= 4.0 and v["count"] >= 3]
         dept_needs[short] = {"gaps": sorted(gaps, key=lambda x: x["avg_prof"]), "headcount": len(dept_emps)}
         dept_surplus[short] = surplus
+    # For mobility: needs from segment depts, but surplus from ALL depts (cross-segment transfers)
+    _, all_active, _, _ = await get_filtered(year, tenant=tenant)
+    all_dept_surplus = {}
+    for dept_name in cfg["DEPARTMENTS"]:
+        short = shorten_dept(dept_name)
+        dept_emps = [e for e in all_active if e['department'] == dept_name]
+        covered = {}
+        for emp in dept_emps:
+            for s in emp.get('skills', []):
+                if s['skill'] not in covered:
+                    covered[s['skill']] = {"count": 0, "total": 0}
+                covered[s['skill']]["count"] += 1
+                covered[s['skill']]["total"] += s['proficiency']
+        for sk in covered:
+            covered[sk]["avg"] = round(covered[sk]["total"] / covered[sk]["count"], 1)
+        surplus = [{"skill": sk, "count": v["count"], "avg_prof": v["avg"]} for sk, v in covered.items() if v["avg"] >= 4.0 and v["count"] >= 3]
+        all_dept_surplus[short] = surplus
     mobility_opps = []
     for dept, data in dept_needs.items():
         for gap in data["gaps"][:3]:
-            for s_dept, surplus in dept_surplus.items():
+            for s_dept, surplus in all_dept_surplus.items():
                 if s_dept == dept:
                     continue
                 for s in surplus:
@@ -2157,7 +2174,7 @@ async def get_skills_map_v2(year: int = 2025, tenant: str = None, segment: str =
             dept_skills[dept][sn]["total"] += prof
     for s in skill_agg.values():
         s["avg_proficiency"] = round(s["total_prof"] / s["count"], 1) if s["count"] else 0
-        s["capacity"] = s["proficient"] + s["experts"]
+        s["capacity"] = s["experts"]  # Only count experts (proficiency >= 4) as capable
         del s["total_prof"]
     all_skills = sorted(skill_agg.values(), key=lambda x: -x["count"])
     # Derive future demand from strategic objectives
@@ -2166,7 +2183,7 @@ async def get_skills_map_v2(year: int = 2025, tenant: str = None, segment: str =
         for sk in obj["required_skills"]:
             if sk not in skill_demand:
                 skill_demand[sk] = 0
-            skill_demand[sk] += max(3, obj["required_headcount"] // len(obj["required_skills"]))
+            skill_demand[sk] += max(5, obj["required_headcount"] // max(1, len(obj["required_skills"]) - 2))
     # Compute gaps
     gaps = []
     for sk_name, demand in skill_demand.items():
