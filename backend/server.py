@@ -961,6 +961,7 @@ async def get_movement(year: int = 2025, tenant: str = None, segment: str = None
 class ForecastRequest(BaseModel):
     year: int = 2025
     tenant: Optional[str] = None
+    segment: Optional[str] = None
 
 def _compute_headcount_forecast(hc, net, year):
     forecast = []
@@ -991,6 +992,7 @@ def _build_at_risk_list(active):
 async def ai_forecast(body: ForecastRequest):
     year = body.year
     tenant = body.tenant
+    segment = body.segment
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     all_emp, active, hired, left = await get_filtered(year, tenant=tenant, segment=segment)
@@ -1440,6 +1442,7 @@ async def get_career_plan(body: CareerPlanRequest):
     if not emp:
         raise HTTPException(404, "Employee not found")
     tenant = emp.get("tenant_id")
+    segment = None  # Career plan shows all segments for mentor matching
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     skills = emp.get('skills', [])
@@ -1653,10 +1656,12 @@ class ScenarioRequest(BaseModel):
     hiring_boost: int = 0
     new_location_headcount: int = 0
     tenant: Optional[str] = None
+    segment: Optional[str] = None
 
 @api_router.post("/simulator/scenario")
 async def run_scenario(body: ScenarioRequest):
     tenant = body.tenant
+    segment = body.segment
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     _, active, hired, left = await get_filtered(body.year, tenant=tenant, segment=segment)
@@ -2466,12 +2471,14 @@ async def resolve_alert(body: AlertResolveRequest):
 class AIAlertScanRequest(BaseModel):
     year: int = 2025
     tenant: Optional[str] = None
+    segment: Optional[str] = None
 
 @api_router.post("/dashboard/alerts/ai-scan")
 async def ai_alert_scan(body: AIAlertScanRequest):
     """Generate AI-powered executive brief from all active alerts + HR context."""
     year = body.year
     tenant = body.tenant
+    segment = body.segment
     all_emp, active, hired, left = await get_filtered(year, tenant=tenant, segment=segment)
     hc = len(active)
     # Gather HR context
