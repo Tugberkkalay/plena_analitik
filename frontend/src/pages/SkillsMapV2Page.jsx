@@ -24,6 +24,10 @@ const CLUSTER_ICONS = {
   "operasyon-sureç-yonetimi": "⚙️",
   "liderlik-yonetim": "👑",
   "davranissal-iletisim": "🗣️",
+  "core": "🎯",
+  "retail": "🏪",
+  "prod": "🏭",
+  "hq": "🏢",
 };
 
 const CLUSTER_COLORS = [
@@ -207,8 +211,8 @@ export default function SkillsMapV2Page({ year }) {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-medium text-slate-800">Bankacılık Yetkinlik Kümeleri</h3>
-              <p className="text-xs text-slate-500">{clusters.length} küme · 175 yetkinlik · Bankacılık sektörü taksonomisi</p>
+              <h3 className="text-sm font-medium text-slate-800">Yetkinlik Kümeleri</h3>
+              <p className="text-xs text-slate-500">{clusters.length} küme · {clusters.reduce((s,c) => s + c.toplam_beceri, 0)} yetkinlik · Sektör taksonomisi</p>
             </div>
             <div className="flex items-center gap-2">
               <button onClick={expandAll} data-testid="expand-all-btn" className="px-2.5 py-1 rounded text-[10px] font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">Tümünü Aç</button>
@@ -217,7 +221,7 @@ export default function SkillsMapV2Page({ year }) {
           </div>
 
           {/* Cluster summary bar chart */}
-          <ChartCard title="Küme Bazlı Yetkinlik Ortalaması" subtitle="12 bankacılık yetkinlik kümesinin ortalama yetkinlik seviyesi" testId="chart-cluster-summary">
+          <ChartCard title="Küme Bazlı Yetkinlik Ortalaması" subtitle={`${clusters.length} yetkinlik kümesinin ortalama yetkinlik seviyesi`} testId="chart-cluster-summary">
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={clusters.map((c, i) => ({ name: c.ad.length > 18 ? c.ad.slice(0, 18) + '..' : c.ad, ort: c.ort_yetkinlik, uzman: c.toplam_uzman, fill: CLUSTER_COLORS[i % CLUSTER_COLORS.length].bar }))} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />

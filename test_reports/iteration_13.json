@@ -1,0 +1,60 @@
+{
+  "summary": "Iteration 13 — Segment filter feature regression on Perakende sector. Verified GET /api/dashboard/segments, segment-parameterised filtering on overview + 10 other dashboard endpoints, skills-map-v2 segment narrowing, and Banking (yapikredi) regression. Frontend verified: segment selector shows only for Perakende, country selector remains for Banking, Yetkinlik Haritası no longer shows 'Bankacılık Yetkinlik Kümeleri'. 20/20 pytest + 6/6 Playwright checks pass.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_results": {
+    "segments_endpoint": {
+      "GET /api/dashboard/segments?tenant=parakende": "PASS — returns sector=Perakende and exactly 3 segments [Mağaza / Perakende, Üretim, Merkez Ofis]",
+      "GET /api/dashboard/segments?tenant=yapikredi": "PASS — sector=Bankacılık, segments=[]"
+    },
+    "overview_segment_filter": {
+      "baseline /api/dashboard/overview?tenant=parakende": "PASS — HC=407, all 10 retail depts present",
+      "segment=Mağaza / Perakende": "PASS — HC=152, depts only {Mağaza Satış, Görsel Düzenleme, Perakende Operasyon}",
+      "segment=Üretim": "PASS — depts limited to {Üretim, Kalite Kontrol, Bakım ve Teknik}",
+      "segment=Merkez Ofis": "PASS — depts limited to {Tasarım ve Ar-Ge, Kategori Yönetimi, İK ve Destek, Dijital ve E-ticaret}"
+    },
+    "endpoints_accept_segment": "PASS — overview, headcount, turnover, movement, performance, learning, compensation, engagement, career, hr-operations, internal-mobility all return 200 with segment param",
+    "skills_map_v2_segment": "PASS — Üretim segment returns subset of all-segments view",
+    "banking_regression": {
+      "GET /api/dashboard/overview?tenant=yapikredi": "PASS — banking depts intact, no retail leakage, HC>0",
+      "GET /api/dashboard/overview?tenant=yapikredi&segment=Mağaza / Perakende (ignored)": "PASS — does not crash, returns 200"
+    },
+    "frontend_playwright": {
+      "login": "PASS",
+      "perakende /admin/rapor/parakende shows segment-selector and hides country-selector": "PASS",
+      "segment dropdown lists [Tüm Segmentler, Mağaza / Perakende, Üretim, Merkez Ofis]": "PASS",
+      "selecting Mağaza / Perakende narrows HC 407→152 and depts to retail-3 (verified via fetch)": "PASS",
+      "switching back to Tüm Segmentler restores selector label": "PASS",
+      "skills-map-v2 page on Perakende shows 'Yetkinlik Kümeleri' (not 'Bankacılık Yetkinlik Kümeleri')": "PASS",
+      "yapikredi /admin/rapor/yapikredi shows country-selector and hides segment-selector": "PASS"
+    }
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_segment_filter.py",
+    "/app/test_reports/pytest/iter13_segment.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py get_filtered() applies query['segment']=segment directly on db.employees, which only works because seed_tenant_data writes a 'segment' field on each employee. Any future code path that ingests employees via the Excel/CSV importer (excel_handler.py) must also populate 'segment' or segment filtering will silently drop those rows. Consider deriving segment server-side from DEPT_SEGMENT_MAP at query time (e.g., look up depts for the segment and filter by {'department': {'$in': seg_depts}}) so the feature isn't dependent on a denormalised field.",
+    "Banking tenant silently accepts a segment param (Perakende segments like 'Mağaza / Perakende') and returns an empty/banking result instead of 400. For API hygiene, validate the segment against the tenant's SEGMENTS list and return 400 if invalid.",
+    "TopBar conditional logic uses sector === 'Perakende' exact match — if a new retail-like sector is added (e.g., 'Hazır Giyim'), the segment filter won't appear even when SEGMENTS is populated. Recommend gating on `segments.length > 0` only (already partially done) and dropping the sector check.",
+    "DashboardRoutes uses key={`seg-${segment||'all'}`} on a wrapper <div>, which is a sledgehammer that remounts all child routes on segment change. This works but loses transient component state (open accordions, scroll positions). Consider moving the key onto the matched Route or having pages read segment from a context."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_segment_filter.py (new)"
+  ],
+  "success_rate": {"backend": "100% (20/20)", "frontend": "100% (6/6 checks)"},
+  "test_credentials": "admin@plenalitik.com / Plena2025! (httpOnly cookie auth)",
+  "seed_data_creation": "None — reused already-seeded 'parakende' (500 employees) and 'yapikredi' tenants.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "test_segment_filter.py is a reusable regression suite for the segment-filter feature. It depends on the parakende tenant already being seeded with the new retail data containing a 'segment' field per employee (this was done in iteration 12). Admin route is /admin/rapor/{slug}/ (public report at /raporlar/{slug} is password-gated). Frontend segment selector uses data-testid='segment-selector'; country selector uses 'country-selector'. The two selectors are mutually exclusive: segment-selector appears iff sector==='Perakende' AND segments.length>0.",
+  "rca_of_the_issue": "n/a — all requested features verified working end-to-end."
+}

@@ -37,6 +37,8 @@ def _build_banking_config():
             "Veri ve Analitik", "İnsan Kaynakları", "Operasyon ve Süreç"
         ],
         "DEPT_WEIGHTS": [15, 8, 14, 10, 16, 9, 6, 8, 6, 8],
+        "DEPT_SEGMENT_MAP": {},
+        "SEGMENTS": [],
         "DEPT_ROLE_FAMILIES": {
             "Kredi ve Risk": ["Kredi ve Risk"],
             "Hazine": ["Hazine ve Sermaye Piyasaları"],
@@ -219,6 +221,19 @@ def _build_retail_config():
             "Dijital ve E-ticaret",
         ],
         "DEPT_WEIGHTS": [25, 5, 6, 20, 6, 5, 8, 8, 10, 7],
+        "DEPT_SEGMENT_MAP": {
+            "Mağaza Satış": "Mağaza / Perakende",
+            "Görsel Düzenleme": "Mağaza / Perakende",
+            "Perakende Operasyon": "Mağaza / Perakende",
+            "Üretim": "Üretim",
+            "Kalite Kontrol": "Üretim",
+            "Bakım ve Teknik": "Üretim",
+            "Tasarım ve Ar-Ge": "Merkez Ofis",
+            "Kategori Yönetimi": "Merkez Ofis",
+            "İK ve Destek": "Merkez Ofis",
+            "Dijital ve E-ticaret": "Merkez Ofis",
+        },
+        "SEGMENTS": ["Mağaza / Perakende", "Üretim", "Merkez Ofis"],
         "DEPT_ROLE_FAMILIES": {
             "Mağaza Satış": ["Mağaza Satış"],
             "Görsel Düzenleme": ["Görsel Düzenleme"],

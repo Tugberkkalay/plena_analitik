@@ -211,6 +211,7 @@ def generate_seed_data(count=500, sector="Bankacılık"):
     cfg = _cfg(sector)
     DEPTS = cfg["DEPARTMENTS"]
     DW = cfg["DEPT_WEIGHTS"]
+    DEPT_SEG = cfg.get("DEPT_SEGMENT_MAP", {})
     random.seed(42)
     employees = []
     # Seasonal hiring weights: Q1 high, Q2 medium, Q3 high, Q4 low
@@ -286,6 +287,7 @@ def generate_seed_data(count=500, sector="Bankacılık"):
             "is_full_time": is_full_time, "performance_score": perf, "seniority_years": seniority,
             "mobility_flag": random.random() < 0.35,
             "branch_id": "", "region": "", "role_type": "support",
+            "segment": DEPT_SEG.get(dept, ""),
             "status": status, "leaving_reason": leaving_reason, "termination_type": termination_type,
             "data_source": "seed", "created_at": datetime.now(timezone.utc).isoformat()
         }
@@ -520,10 +522,12 @@ def count_by_gender_range(items, key, fn, ranges):
 def shorten_dept(dept):
     return dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
 
-async def get_filtered(year, country=None, tenant=None):
+async def get_filtered(year, country=None, tenant=None, segment=None):
     query = {}
     if tenant:
         query["tenant_id"] = tenant
+    if segment:
+        query["segment"] = segment
     all_emp = await db.employees.find(query, {"_id": 0}).to_list(10000)
     if country:
         all_emp = [e for e in all_emp if e.get('country') == country]
@@ -551,6 +555,14 @@ async def _resolve_dept_list(tenant_slug):
     """Get departments list for a tenant."""
     sector = await _resolve_sector(tenant_slug)
     return _cfg(sector)["DEPARTMENTS"]
+
+def _segment_depts(sector, segment):
+    """Return list of departments belonging to a segment. Empty if no segment filter."""
+    if not segment:
+        return []
+    cfg = _cfg(sector)
+    seg_map = cfg.get("DEPT_SEGMENT_MAP", {})
+    return [dept for dept, seg in seg_map.items() if seg == segment]
 
 # ---- Startup ----
 @app.on_event("startup")
@@ -691,6 +703,13 @@ async def startup():
 async def root():
     return {"message": "Plenalitik API v1.0"}
 
+@api_router.get("/dashboard/segments")
+async def get_segments(tenant: str = None):
+    """Return available segments for a tenant based on its sector."""
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
+    return {"segments": cfg.get("SEGMENTS", []), "sector": sector}
+
 @api_router.post("/seed")
 async def seed_data():
     await db.employees.delete_many({})
@@ -710,8 +729,8 @@ async def get_years():
 
 # ---- Overview ----
 @api_router.get("/dashboard/overview")
-async def get_overview(year: int = 2025, country: str = None, tenant: str = None):
-    all_emp, active, hired, left = await get_filtered(year, country, tenant=tenant)
+async def get_overview(year: int = 2025, country: str = None, tenant: str = None, segment: str = None):
+    all_emp, active, hired, left = await get_filtered(year, country, tenant=tenant, segment=segment)
     hc = len(active)
     disabled = len([e for e in active if e.get('is_disabled')])
     managers = len([e for e in active if e.get('is_manager')])
@@ -721,7 +740,7 @@ async def get_overview(year: int = 2025, country: str = None, tenant: str = None
         c = len([e for e in all_emp if e['hire_date'][:7] <= ms and (not e.get('termination_date') or e['termination_date'][:7] > ms)])
         hc_by_month.append({"month": mn, "count": c})
     # Q-o-Q trends (compare with previous year same period)
-    _, prev_active, prev_hired, prev_left = await get_filtered(year - 1, country, tenant=tenant)
+    _, prev_active, prev_hired, prev_left = await get_filtered(year - 1, country, tenant=tenant, segment=segment)
     prev_hc = len(prev_active)
     prev_turnover = round(len(prev_left)/prev_hc*100,1) if prev_hc else 0
     cur_turnover = round(len(left)/hc*100,1) if hc else 0
@@ -750,8 +769,8 @@ async def get_overview(year: int = 2025, country: str = None, tenant: str = None
 
 # ---- Headcount ----
 @api_router.get("/dashboard/headcount")
-async def get_headcount(year: int = 2025, country: str = None, tenant: str = None):
-    _, active, _, _ = await get_filtered(year, country, tenant=tenant)
+async def get_headcount(year: int = 2025, country: str = None, tenant: str = None, segment: str = None):
+    _, active, _, _ = await get_filtered(year, country, tenant=tenant, segment=segment)
     hc = len(active)
     female_leaders = len([e for e in active if e.get('gender') == 'Female' and e.get('is_manager')])
     talents = len([e for e in active if e.get('is_talent')])
@@ -780,7 +799,7 @@ async def get_headcount(year: int = 2025, country: str = None, tenant: str = Non
 # ---- Hires ----
 @api_router.get("/dashboard/hires")
 async def get_hires(year: int = 2025, tenant: str = None):
-    _, active, hired, _ = await get_filtered(year, tenant=tenant)
+    _, active, hired, _ = await get_filtered(year, tenant=tenant, segment=segment)
     hc = len(active)
     females = len([e for e in hired if e['gender']=='Female'])
     hires_month = []
@@ -805,7 +824,7 @@ async def get_hires(year: int = 2025, tenant: str = None):
 # ---- Leaves ----
 @api_router.get("/dashboard/leaves")
 async def get_leaves(year: int = 2025, tenant: str = None):
-    _, active, _, left = await get_filtered(year, tenant=tenant)
+    _, active, _, left = await get_filtered(year, tenant=tenant, segment=segment)
     females = len([e for e in left if e['gender']=='Female'])
     leaves_month = []
     for mi, mn in enumerate(MONTHS):
@@ -849,10 +868,10 @@ def _compute_group_turnover(active, left, groups, group_key, label_key="name", l
     return result
 
 @api_router.get("/dashboard/turnover")
-async def get_turnover(year: int = 2025, country: str = None, tenant: str = None):
+async def get_turnover(year: int = 2025, country: str = None, tenant: str = None, segment: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
-    all_emp, active, hired, left = await get_filtered(year, country, tenant=tenant)
+    all_emp, active, hired, left = await get_filtered(year, country, tenant=tenant, segment=segment)
     hc = len(active)
     vol = [e for e in left if e.get('termination_type') == 'voluntary']
     invol = [e for e in left if e.get('termination_type') == 'involuntary']
@@ -873,7 +892,7 @@ async def get_turnover(year: int = 2025, country: str = None, tenant: str = None
 
     yearly = []
     for y in range(2020, year + 1):
-        _, ya, _, yl = await get_filtered(y, country, tenant=tenant)
+        _, ya, _, yl = await get_filtered(y, country, tenant=tenant, segment=segment)
         rate = round(len(yl) / len(ya) * 100, 1) if ya else 0
         yearly.append({"year": y, "rate": rate})
 
@@ -895,10 +914,10 @@ async def get_turnover(year: int = 2025, country: str = None, tenant: str = None
 
 # ---- Movement ----
 @api_router.get("/dashboard/movement")
-async def get_movement(year: int = 2025, tenant: str = None):
+async def get_movement(year: int = 2025, tenant: str = None, segment: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
-    all_emp, active, hired, left = await get_filtered(year, tenant=tenant)
+    all_emp, active, hired, left = await get_filtered(year, tenant=tenant, segment=segment)
     hc = len(active)
     early_left = [e for e in left if e['hire_date'][:4]==str(year) or (int(e.get('termination_date','2025')[:4]) - int(e['hire_date'][:4])) < 1]
     failure_180 = round(len(early_left)/len(hired)*100,1) if hired else 0
@@ -916,7 +935,7 @@ async def get_movement(year: int = 2025, tenant: str = None):
         hl_dept.append({"department": short, "hires": h, "leaves": l})
     retention_yearly = []
     for y in range(2020, year+1):
-        _, ya, _, yl = await get_filtered(y, tenant=tenant)
+        _, ya, _, yl = await get_filtered(y, tenant=tenant, segment=segment)
         rate = round((1 - len(yl)/len(ya))*100,1) if ya else 100
         retention_yearly.append({"year": y, "rate": rate})
     band_move = []
@@ -974,7 +993,7 @@ async def ai_forecast(body: ForecastRequest):
     tenant = body.tenant
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
-    all_emp, active, hired, left = await get_filtered(year, tenant=tenant)
+    all_emp, active, hired, left = await get_filtered(year, tenant=tenant, segment=segment)
     hc = len(active)
     turnover_rate = len(left) / hc if hc else 0
     net = len(hired) / 12 - len(left) / 12
@@ -1132,9 +1151,13 @@ async def reset_data():
 
 # ---- Recruitment ----
 @api_router.get("/dashboard/recruitment")
-async def get_recruitment(year: int = 2025, tenant: str = None):
+async def get_recruitment(year: int = 2025, tenant: str = None, segment: str = None):
+    sector = await _resolve_sector(tenant)
+    seg_depts = _segment_depts(sector, segment)
     rq = {"tenant_id": tenant} if tenant else {}
     all_cands = await db.recruitment.find(rq, {"_id": 0}).to_list(10000)
+    if seg_depts:
+        all_cands = [c for c in all_cands if c.get('department') in seg_depts]
     cands = [c for c in all_cands if c.get('applied_date','')[:4] == str(year)]
     total = len(cands)
     hired = [c for c in cands if c['stage'] == 'Hired']
@@ -1159,10 +1182,10 @@ async def get_recruitment(year: int = 2025, tenant: str = None):
 
 # ---- Performance ----
 @api_router.get("/dashboard/performance")
-async def get_performance(year: int = 2025, tenant: str = None):
+async def get_performance(year: int = 2025, tenant: str = None, segment: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
-    _, active, _, _ = await get_filtered(year, tenant=tenant)
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment)
     scores = [e.get('performance_score', 3) for e in active]
     avg_score = round(sum(scores)/len(scores), 1) if scores else 0
     high = len([s for s in scores if s >= 4.0])
@@ -1185,17 +1208,20 @@ async def get_performance(year: int = 2025, tenant: str = None):
 
 # ---- Learning ----
 @api_router.get("/dashboard/learning")
-async def get_learning(year: int = 2025, tenant: str = None):
+async def get_learning(year: int = 2025, tenant: str = None, segment: str = None):
     sector = await _resolve_sector(tenant)
+    seg_depts = _segment_depts(sector, segment)
     cfg = _cfg(sector)
     tq = {"tenant_id": tenant} if tenant else {}
     all_trn = await db.training.find(tq, {"_id": 0}).to_list(10000)
+    if seg_depts:
+        all_trn = [t for t in all_trn if t.get('department') in seg_depts]
     trn = [t for t in all_trn if t.get('date','')[:4] == str(year)]
     total = len(trn)
     completed = [t for t in trn if t['status'] == 'Completed']
     in_progress = [t for t in trn if t['status'] == 'In Progress']
     total_hours = round(sum(t.get('hours', 0) for t in trn), 1)
-    _, active, _, _ = await get_filtered(year, tenant=tenant)
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment)
     hc = len(active)
     unique_participants = len(set(t['employee_id'] for t in trn if t.get('employee_id')))
     participation = round(unique_participants / hc * 100, 1) if hc else 0
@@ -1221,10 +1247,10 @@ async def get_learning(year: int = 2025, tenant: str = None):
 
 # ---- Compensation ----
 @api_router.get("/dashboard/compensation")
-async def get_compensation(year: int = 2025, tenant: str = None):
+async def get_compensation(year: int = 2025, tenant: str = None, segment: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
-    _, active, _, _ = await get_filtered(year, tenant=tenant)
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment)
     salaries = [e.get('salary', 0) for e in active]
     avg_sal = round(sum(salaries)/len(salaries)) if salaries else 0
     total_cost = sum(salaries)
@@ -1254,11 +1280,15 @@ async def get_compensation(year: int = 2025, tenant: str = None):
 
 # ---- Engagement ----
 @api_router.get("/dashboard/engagement")
-async def get_engagement(year: int = 2025, tenant: str = None):
+async def get_engagement(year: int = 2025, tenant: str = None, segment: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     eq = {"tenant_id": tenant} if tenant else {}
     all_eng = await db.engagement.find(eq, {"_id": 0}).to_list(10000)
+    if segment:
+        seg_depts = _segment_depts(sector, segment)
+        if seg_depts:
+            all_eng = [e for e in all_eng if e.get('department') in seg_depts]
     surveys = all_eng
     total = len(surveys)
     if total == 0:
@@ -1285,10 +1315,10 @@ async def get_engagement(year: int = 2025, tenant: str = None):
 
 # ---- Career & Talent ----
 @api_router.get("/dashboard/career")
-async def get_career(year: int = 2025, tenant: str = None):
+async def get_career(year: int = 2025, tenant: str = None, segment: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
-    _, active, hired, left = await get_filtered(year, tenant=tenant)
+    _, active, hired, left = await get_filtered(year, tenant=tenant, segment=segment)
     hc = len(active)
     talents = [e for e in active if e.get('is_talent')]
     managers = [e for e in active if e.get('is_manager')]
@@ -1310,10 +1340,10 @@ async def get_career(year: int = 2025, tenant: str = None):
 
 # ---- HR Operations ----
 @api_router.get("/dashboard/hr-operations")
-async def get_hr_operations(year: int = 2025, tenant: str = None):
+async def get_hr_operations(year: int = 2025, tenant: str = None, segment: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
-    _, active, hired, left = await get_filtered(year, tenant=tenant)
+    _, active, hired, left = await get_filtered(year, tenant=tenant, segment=segment)
     hc = len(active)
     ft = len([e for e in active if e.get('is_full_time')])
     pt = hc - ft
@@ -1336,7 +1366,7 @@ async def get_hr_operations(year: int = 2025, tenant: str = None):
 # ---- Skills Map & Gap Analysis ----
 @api_router.get("/dashboard/skills-map")
 async def get_skills_map(year: int = 2025, tenant: str = None):
-    _, active, _, _ = await get_filtered(year, tenant=tenant)
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment)
     skill_agg = {}
     dept_skills = {}
     cat_counts = {"Tech": 0, "Soft": 0, "Domain": 0}
@@ -1417,7 +1447,7 @@ async def get_career_plan(body: CareerPlanRequest):
     weak_skills = [s for s in skills if s['proficiency'] <= 2]
     strong_skills = [s for s in skills if s['proficiency'] >= 4]
     # Find potential mentors
-    _, active, _, _ = await get_filtered(2025, tenant=tenant)
+    _, active, _, _ = await get_filtered(2025, tenant=tenant, segment=segment)
     mentors = []
     weak_names = {s['skill'] for s in weak_skills}
     for m in active:
@@ -1574,10 +1604,10 @@ async def get_career_path_detail(path_id: str, tenant: str = None):
 
 # ---- Internal Mobility & Skill Gap by Department ----
 @api_router.get("/dashboard/internal-mobility")
-async def get_internal_mobility(year: int = 2025, tenant: str = None):
+async def get_internal_mobility(year: int = 2025, tenant: str = None, segment: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
-    _, active, _, _ = await get_filtered(year, tenant=tenant)
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment)
     dept_needs = {}
     dept_surplus = {}
     for dept_name in cfg["DEPARTMENTS"]:
@@ -1629,7 +1659,7 @@ async def run_scenario(body: ScenarioRequest):
     tenant = body.tenant
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
-    _, active, hired, left = await get_filtered(body.year, tenant=tenant)
+    _, active, hired, left = await get_filtered(body.year, tenant=tenant, segment=segment)
     hc = len(active)
     current_attrition = len(left)/hc if hc else 0
     current_cost = sum(e.get('salary',0) for e in active)
@@ -1670,8 +1700,8 @@ async def run_scenario(body: ScenarioRequest):
 
 # ---- Capability Forecasting ----
 @api_router.get("/dashboard/capability-forecast")
-async def get_capability_forecast(year: int = 2025, tenant: str = None):
-    _, active, _, left = await get_filtered(year, tenant=tenant)
+async def get_capability_forecast(year: int = 2025, tenant: str = None, segment: str = None):
+    _, active, _, left = await get_filtered(year, tenant=tenant, segment=segment)
     hc = len(active)
     skill_supply = {}
     for emp in active:
@@ -1714,8 +1744,8 @@ async def get_capability_forecast(year: int = 2025, tenant: str = None):
 
 # ---- Succession Planning + Knowledge Risk ----
 @api_router.get("/dashboard/succession")
-async def get_succession(year: int = 2025, tenant: str = None):
-    _, active, _, _ = await get_filtered(year, tenant=tenant)
+async def get_succession(year: int = 2025, tenant: str = None, segment: str = None):
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment)
     band_order = {"A": 1, "B": 2, "C": 3, "D": 4, "E": 5}
     # Critical roles: Band E + Band D with high performance/talent
     critical_roles = [e for e in active if e.get('band') == 'E' or
@@ -1775,8 +1805,8 @@ async def get_succession(year: int = 2025, tenant: str = None):
 
 # ---- Burnout Early Warning ----
 @api_router.get("/dashboard/burnout")
-async def get_burnout(year: int = 2025, tenant: str = None):
-    _, active, _, _ = await get_filtered(year, tenant=tenant)
+async def get_burnout(year: int = 2025, tenant: str = None, segment: str = None):
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment)
     beq = {"tenant_id": tenant} if tenant else {}
     all_eng = await db.engagement.find(beq, {"_id": 0}).to_list(10000)
     eng_map = {e['employee_id']: e for e in all_eng}
@@ -1827,11 +1857,11 @@ TARGET_HEADCOUNT = {
 }
 
 @api_router.get("/dashboard/headcount-plan")
-async def get_headcount_plan(year: int = 2025, country: str = None, tenant: str = None):
+async def get_headcount_plan(year: int = 2025, country: str = None, tenant: str = None, segment: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     THC = cfg["TARGET_HEADCOUNT"]
-    _, active, hired, left = await get_filtered(year, country, tenant=tenant)
+    _, active, hired, left = await get_filtered(year, country, tenant=tenant, segment=segment)
     hc = len(active)
     total_target = sum(t["target"] for t in THC.values())
     total_gap = total_target - hc
@@ -1930,10 +1960,10 @@ STRATEGIC_OBJECTIVES = [
 ]
 
 @api_router.get("/dashboard/workforce-alignment")
-async def get_workforce_alignment(year: int = 2025, tenant: str = None):
+async def get_workforce_alignment(year: int = 2025, tenant: str = None, segment: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
-    _, active, _, _ = await get_filtered(year, tenant=tenant)
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment)
     objectives = []
     for obj in cfg["STRATEGIC_OBJECTIVES"]:
         target_emps = [e for e in active if e['department'] in obj["target_departments"]]
@@ -1977,10 +2007,10 @@ async def get_workforce_alignment(year: int = 2025, tenant: str = None):
 
 # ---- Org Health (Structure Analysis) ----
 @api_router.get("/dashboard/org-health")
-async def get_org_health(year: int = 2025, country: str = None, tenant: str = None):
+async def get_org_health(year: int = 2025, country: str = None, tenant: str = None, segment: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
-    _, active, _, _ = await get_filtered(year, country, tenant=tenant)
+    _, active, _, _ = await get_filtered(year, country, tenant=tenant, segment=segment)
     hc = len(active)
     total_managers = len([e for e in active if e.get('is_manager')])
     total_ic = hc - total_managers
@@ -2071,10 +2101,10 @@ def generate_open_positions(active_employees, sector="Bankacılık"):
 
 # ---- Enhanced Skills Map ----
 @api_router.get("/dashboard/skills-map-v2")
-async def get_skills_map_v2(year: int = 2025, tenant: str = None):
+async def get_skills_map_v2(year: int = 2025, tenant: str = None, segment: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
-    _, active, _, _ = await get_filtered(year, tenant=tenant)
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment)
     hc = len(active)
     skill_agg = {}
     dept_skills = {}
@@ -2197,9 +2227,9 @@ async def get_skills_map_v2(year: int = 2025, tenant: str = None):
 
 # ---- Internal Mobility (Positions + Matching) ----
 @api_router.get("/dashboard/positions")
-async def get_positions(year: int = 2025, tenant: str = None):
+async def get_positions(year: int = 2025, tenant: str = None, segment: str = None):
     sector = await _resolve_sector(tenant)
-    _, active, _, _ = await get_filtered(year, tenant=tenant)
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment)
     positions = generate_open_positions(active, sector)
     filled_count = random.Random(51).randint(8, 18)
     internal_fill = random.Random(51).randint(3, filled_count)
@@ -2249,9 +2279,9 @@ def _compute_matches(position, active_employees):
     return sorted(matches, key=lambda x: -x["fit_score"])[:10]
 
 @api_router.get("/dashboard/positions/{position_id}/matches")
-async def get_position_matches(position_id: str, year: int = 2025, tenant: str = None):
+async def get_position_matches(position_id: str, year: int = 2025, tenant: str = None, segment: str = None):
     sector = await _resolve_sector(tenant)
-    _, active, _, _ = await get_filtered(year, tenant=tenant)
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment)
     positions = generate_open_positions(active, sector)
     pos = next((p for p in positions if p["id"] == position_id), None)
     if not pos:
@@ -2261,10 +2291,10 @@ async def get_position_matches(position_id: str, year: int = 2025, tenant: str =
 
 # ---- Action Center (Alert Engine) ----
 @api_router.get("/dashboard/alerts")
-async def get_alerts(year: int = 2025, tenant: str = None):
+async def get_alerts(year: int = 2025, tenant: str = None, segment: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
-    all_emp, active, hired, left = await get_filtered(year, tenant=tenant)
+    all_emp, active, hired, left = await get_filtered(year, tenant=tenant, segment=segment)
     hc = len(active)
     alerts = []
     alert_id = 0
@@ -2282,7 +2312,7 @@ async def get_alerts(year: int = 2025, tenant: str = None):
                 "suggested_action": f"{short} departmanında bağlılık görüşmeleri yap, ücret bantlarını gözden geçir, risk altındaki çalışanlar için mentorluk programı başlat.",
                 "entity_ref": short, "status": "active"})
     # Rule 2: Succession — roles without high-readiness successors
-    _, s_active, _, _ = await get_filtered(year, tenant=tenant)
+    _, s_active, _, _ = await get_filtered(year, tenant=tenant, segment=segment)
     critical_roles_s = [e for e in s_active if e.get('band') == 'E' or (e.get('band') == 'D' and e.get('is_talent') and e.get('performance_score', 0) >= 4.0)]
     succ_pool = [e for e in s_active if e.get('band') in ['C','D'] and e.get('performance_score',0) >= 3.5]
     weak_succ_roles = []
@@ -2442,7 +2472,7 @@ async def ai_alert_scan(body: AIAlertScanRequest):
     """Generate AI-powered executive brief from all active alerts + HR context."""
     year = body.year
     tenant = body.tenant
-    all_emp, active, hired, left = await get_filtered(year, tenant=tenant)
+    all_emp, active, hired, left = await get_filtered(year, tenant=tenant, segment=segment)
     hc = len(active)
     # Gather HR context
     turnover_rate = round(len(left) / hc * 100, 1) if hc else 0
@@ -2653,7 +2683,7 @@ async def get_branch_staffing(year: int = 2025, region: str = "", tenant: str = 
     bq = {"tenant_id": tenant} if tenant else {}
     sq = {"tenant_id": tenant} if tenant else {}
     branches = await db.branches.find(bq, {"_id": 0}).to_list(100)
-    all_emp, active, hired, left = await get_filtered(year, tenant=tenant)
+    all_emp, active, hired, left = await get_filtered(year, tenant=tenant, segment=segment)
     sales = await db.sales_performance.find(sq, {"_id": 0}).to_list(50000)
     if region:
         branches = [b for b in branches if b["region"] == region]
@@ -2718,7 +2748,7 @@ async def get_branch_map(metric: str = "performance", year: int = 2025, tenant: 
     bq = {"tenant_id": tenant} if tenant else {}
     sq = {"tenant_id": tenant} if tenant else {}
     branches = await db.branches.find(bq, {"_id": 0}).to_list(100)
-    _, active, _, left = await get_filtered(year, tenant=tenant)
+    _, active, _, left = await get_filtered(year, tenant=tenant, segment=segment)
     sales = await db.sales_performance.find(sq, {"_id": 0}).to_list(50000)
     pins = []
     for b in branches:

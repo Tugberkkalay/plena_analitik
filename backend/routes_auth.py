@@ -251,11 +251,12 @@ def setup_tenant_routes(db):
     @tenant_router.get("/public/{slug}/check")
     async def check_tenant_exists(slug: str):
         """Check if a published tenant exists (no auth needed)."""
-        tenant = await db.tenants.find_one({"slug": slug, "status": "published"}, {"_id": 0, "name": 1, "slug": 1, "logo_url": 1, "primary_color": 1, "report_title": 1})
+        tenant = await db.tenants.find_one({"slug": slug, "status": "published"}, {"_id": 0, "name": 1, "slug": 1, "logo_url": 1, "primary_color": 1, "report_title": 1, "sector": 1})
         if not tenant:
             raise HTTPException(404, "Rapor bulunamadı")
         return {"name": tenant["name"], "slug": tenant["slug"], "logo_url": tenant.get("logo_url", ""),
-                "primary_color": tenant.get("primary_color", "#0D9488"), "report_title": tenant.get("report_title", "")}
+                "primary_color": tenant.get("primary_color", "#0D9488"), "report_title": tenant.get("report_title", ""),
+                "sector": tenant.get("sector", "Bankacılık")}
 
     @tenant_router.post("/{tenant_id}/upload-logo")
     async def upload_logo(tenant_id: str, request: Request):

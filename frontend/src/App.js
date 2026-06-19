@@ -3,11 +3,11 @@ import "@/App.css";
 import { BrowserRouter, Routes, Route, useLocation, useParams, Navigate } from "react-router-dom";
 import axios from "axios";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import { setActiveTenant } from "@/lib/tenantInterceptor";
+import { setActiveTenant, setActiveSegment } from "@/lib/tenantInterceptor";
 import Sidebar from "@/components/Sidebar";
 import PdfExportButton from "@/components/PdfExportButton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CalendarBlank, GlobeHemisphereWest } from "@phosphor-icons/react";
+import { CalendarBlank, GlobeHemisphereWest, Funnel } from "@phosphor-icons/react";
 import OverviewPage from "@/pages/OverviewPage";
 import HeadcountPage from "@/pages/HeadcountPage";
 import HiresLeavesPage from "@/pages/HiresLeavesPage";
@@ -79,10 +79,11 @@ const PAGE_TITLES = {
   "/branch-map": "Şube Haritası",
 };
 
-function TopBar({ year, setYear, years, country, setCountry }) {
+function TopBar({ year, setYear, years, country, setCountry, segment, setSegment, segments, sector }) {
   const location = useLocation();
   const cleanPath = location.pathname.replace(/^\/admin\/rapor\/[^/]+/, "");
   const title = PAGE_TITLES[cleanPath || "/"] || PAGE_TITLES[location.pathname] || "Dashboard";
+  const isRetail = sector === "Perakende";
 
   return (
     <div data-testid="top-bar" className="sticky top-0 z-30 flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-white/80 backdrop-blur-md">
@@ -93,19 +94,36 @@ function TopBar({ year, setYear, years, country, setCountry }) {
       </div>
       <div className="flex items-center gap-3">
         <PdfExportButton tenantName="Plenalitik" sectionLabel={title} />
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-50 border border-slate-200">
-          <GlobeHemisphereWest size={16} className="text-slate-500" />
-          <Select value={country || "all"} onValueChange={(v) => setCountry(v === "all" ? null : v)}>
-            <SelectTrigger data-testid="country-selector" className="w-[90px] border-0 bg-transparent h-7 text-sm text-slate-700 p-0 focus:ring-0">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-white border-slate-200">
-              <SelectItem value="all" className="text-slate-700 focus:bg-slate-100">Tümü</SelectItem>
-              <SelectItem value="Turkey" className="text-slate-700 focus:bg-slate-100">Türkiye</SelectItem>
-              <SelectItem value="Italy" className="text-slate-700 focus:bg-slate-100">İtalya</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        {isRetail && segments.length > 0 ? (
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-50 border border-slate-200">
+            <Funnel size={16} className="text-slate-500" />
+            <Select value={segment || "all"} onValueChange={(v) => setSegment(v === "all" ? null : v)}>
+              <SelectTrigger data-testid="segment-selector" className="w-[150px] border-0 bg-transparent h-7 text-sm text-slate-700 p-0 focus:ring-0">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-white border-slate-200">
+                <SelectItem value="all" className="text-slate-700 focus:bg-slate-100">Tüm Segmentler</SelectItem>
+                {segments.map((s) => (
+                  <SelectItem key={s} value={s} className="text-slate-700 focus:bg-slate-100">{s}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-50 border border-slate-200">
+            <GlobeHemisphereWest size={16} className="text-slate-500" />
+            <Select value={country || "all"} onValueChange={(v) => setCountry(v === "all" ? null : v)}>
+              <SelectTrigger data-testid="country-selector" className="w-[90px] border-0 bg-transparent h-7 text-sm text-slate-700 p-0 focus:ring-0">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-white border-slate-200">
+                <SelectItem value="all" className="text-slate-700 focus:bg-slate-100">Tümü</SelectItem>
+                <SelectItem value="Turkey" className="text-slate-700 focus:bg-slate-100">Türkiye</SelectItem>
+                <SelectItem value="Italy" className="text-slate-700 focus:bg-slate-100">İtalya</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-50 border border-slate-200">
           <CalendarBlank size={16} className="text-slate-500" />
           <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
@@ -126,8 +144,9 @@ function TopBar({ year, setYear, years, country, setCountry }) {
   );
 }
 
-function DashboardRoutes({ year, country }) {
+function DashboardRoutes({ year, country, segment }) {
   return (
+    <div key={`seg-${segment || 'all'}`}>
     <Routes>
       <Route path="/" element={<OverviewPage year={year} country={country} />} />
       <Route path="/headcount" element={<HeadcountPage year={year} country={country} />} />
@@ -160,6 +179,7 @@ function DashboardRoutes({ year, country }) {
       <Route path="/ai-forecast" element={<AIForecastPage year={year} />} />
       <Route path="/data-upload" element={<DataUploadPage />} />
     </Routes>
+    </div>
   );
 }
 
@@ -170,6 +190,8 @@ function ProtectedDashboard() {
   const [years, setYears] = useState([2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [country, setCountry] = useState(null);
+  const [segment, setSegment] = useState(null);
+  const [segments, setSegments] = useState([]);
   const [tenantInfo, setTenantInfo] = useState(null);
 
   // Set tenant context for all API calls
@@ -177,13 +199,35 @@ function ProtectedDashboard() {
     if (slug && slug !== "default") {
       setActiveTenant(slug);
       // Fetch tenant branding info
-      axios.get(`${API}/tenants/public/${slug}/check`).then(r => setTenantInfo(r.data)).catch(() => {});
+      axios.get(`${API}/tenants/public/${slug}/check`).then(r => {
+        setTenantInfo(r.data);
+      }).catch(() => {
+        // For draft tenants not yet published, try getting info from admin endpoint
+        axios.get(`${API}/tenants`, { withCredentials: true }).then(r2 => {
+          const t = (r2.data.tenants || []).find(t => t.slug === slug);
+          if (t) setTenantInfo({ name: t.name, slug: t.slug, logo_url: t.logo_url, primary_color: t.primary_color, report_title: t.report_title, sector: t.sector });
+        }).catch(() => {});
+      });
+      // Fetch segments for this tenant
+      axios.get(`${API}/dashboard/segments`).then(r => {
+        const segs = r.data.segments || [];
+        const sec = r.data.sector || "Bankacılık";
+        setSegments(segs);
+        // Also set sector on tenantInfo if not set
+        setTenantInfo(prev => prev ? { ...prev, sector: prev.sector || sec } : { sector: sec });
+      }).catch(() => {});
     } else {
       setActiveTenant(null);
       setTenantInfo(null);
+      setSegments([]);
     }
-    return () => setActiveTenant(null);
+    return () => { setActiveTenant(null); setActiveSegment(null); };
   }, [slug]);
+
+  // Sync segment to interceptor
+  useEffect(() => {
+    setActiveSegment(segment);
+  }, [segment]);
 
   useEffect(() => {
     axios.get(`${API}/dashboard/years`).then((res) => {
@@ -211,9 +255,10 @@ function ProtectedDashboard() {
       )}
       <Sidebar open={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} basePath={basePath} brandColor={brandColor} brandLogo={brandLogo} brandName={tenantInfo?.report_title || tenantInfo?.name} />
       <div className="hrlytic-main">
-        <TopBar year={year} setYear={setYear} years={years} country={country} setCountry={setCountry} />
+        <TopBar year={year} setYear={setYear} years={years} country={country} setCountry={setCountry}
+          segment={segment} setSegment={setSegment} segments={segments} sector={tenantInfo?.sector} />
         <div className="hrlytic-content">
-          <DashboardRoutes year={year} country={country} />
+          <DashboardRoutes year={year} country={country} segment={segment} />
         </div>
       </div>
     </div>
