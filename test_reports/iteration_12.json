@@ -1,0 +1,62 @@
+{
+  "summary": "Iteration 12 — Dynamic sector taxonomy regression. Verified that a tenant created with sector='Perakende' returns retail-specific departments, skills clusters, career paths, strategic objectives, headcount targets, and positions across all dashboard endpoints, while the existing banking tenant 'yapikredi' continues to return banking taxonomy. 14/14 pytest tests passed.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_results": {
+    "auth": {
+      "login_sets_httponly_cookies": "PASS (access_token + refresh_token cookies set)",
+      "me_returns_admin": "PASS"
+    },
+    "tenant_create_and_seed": {
+      "create_tenant_with_sector_perakende": "PASS — POST /api/tenants persists sector='Perakende' (verified via GET)",
+      "seed_500_employees_for_perakende": "PASS — POST /api/tenants/{id}/seed completes; employee_count > 0",
+      "seeded_employees_use_retail_departments_only": "PASS — department_distribution contains only retail depts (Mağaza Satış, Üretim, Kalite Kontrol, Görsel Düzenleme, Perakende Operasyon, Bakım ve Teknik, Tasarım ve Ar-Ge, Kategori Yönetimi, İK ve Destek, Dijital ve E-ticaret). Zero banking dept leakage."
+    },
+    "retail_endpoints": {
+      "GET /api/dashboard/overview?tenant=<perakende>": "PASS — retail dept distribution",
+      "GET /api/dashboard/skills-map-v2?tenant=<perakende>": "PASS — retail clusters (core/retail/prod/hq) present; no banking cluster ids",
+      "GET /api/career-paths?tenant=<perakende>": "PASS — exactly 10 paths returned, all with RL/PL/HL prefixes",
+      "GET /api/dashboard/internal-mobility?tenant=<perakende>": "PASS — retail depts only",
+      "GET /api/dashboard/workforce-alignment?tenant=<perakende>": "PASS — retail strategic objective ids (perakende_deneyim, uretim_verimlilik, dijital_ticaret, tasarim_inovasyon, tedarik_zinciri, liderlik_yetenek). Banking ids dijital_donusum/risk_yonetimi absent.",
+      "GET /api/dashboard/headcount-plan?tenant=<perakende>": "PASS — retail targets",
+      "GET /api/dashboard/positions?tenant=<perakende>": "PASS — retail band titles (Mağaza Müdürü, Satış Danışmanı, Üretim Operatörü, etc.)",
+      "GET /api/dashboard/alerts?tenant=<perakende>": "PASS — 200 OK"
+    },
+    "banking_regression": {
+      "GET /api/dashboard/overview?tenant=yapikredi": "PASS — banking depts intact, no retail leakage",
+      "GET /api/career-paths?tenant=yapikredi": "PASS — no RL/PL/HL paths"
+    },
+    "cleanup": {
+      "DELETE /api/tenants/{id} removes tenant": "PASS — subsequent GET returns 404"
+    }
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_perakende_sector.py",
+    "/app/test_reports/pytest/iter12_perakende.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "taxonomy_loader.py uses a module-level mutable _config_cache (dict). If the perakende_kutuphane.json is ever hot-edited, the cache is never invalidated until backend restart. Consider exposing a clear_cache() helper for admin reload, or use functools.lru_cache.",
+    "server.py is now ~2796 lines with many endpoints calling `sector = await _resolve_sector(tenant)` followed by `cfg = _cfg(sector)` boilerplate. Recommend a FastAPI dependency: `cfg: dict = Depends(get_tenant_cfg)` to DRY up >20 endpoints.",
+    "routes_auth.py seed_tenant_data lacks idempotency safeguard — calling seed twice will duplicate 500 employees per call. Either delete existing employees before seeding or return early if employee_count > 0 with a 'force=true' override.",
+    "_resolve_sector falls back to 'Bankacılık' when slug not in DB. This silent fallback could mask integration bugs where a typo in tenant slug returns banking data instead of a 404. Consider raising HTTPException(404, 'Tenant not found') from dashboard endpoints when tenant param is provided but not found.",
+    "Cookie security flags: routes_auth.py login sets secure=False on access_token/refresh_token cookies. Acceptable for preview but MUST be secure=True in production (currently the deployed URL is HTTPS so cookies could be hardened immediately)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_perakende_sector.py (new)"
+  ],
+  "success_rate": {"backend": "100% (14/14)", "frontend": "not tested (per request)"},
+  "test_credentials": "admin@plenalitik.com / Plena2025! (httpOnly cookie auth)",
+  "seed_data_creation": "Created and deleted ephemeral Perakende tenants (slug prefix 'test-perakende-' and 'test-cleanup-'). 500 employees seeded per tenant during test then cleaned up on session teardown.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Dynamic sector taxonomy is fully wired. test_perakende_sector.py is a reusable regression suite: it logs in via cookies, spins up a throwaway Perakende tenant, seeds 500 employees, validates 9 dashboard endpoints, then verifies yapikredi banking regression and cleans up. Run with: pytest /app/backend/tests/test_perakende_sector.py -v. To add a new sector (e.g., 'Saglik'), extend taxonomy_loader._build_<sector>_config() and add a parallel test class mirroring TestRetailEndpoints.",
+  "rca_of_the_issue": "n/a — no issues found"
+}

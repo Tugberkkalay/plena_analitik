@@ -1,0 +1,1925 @@
+{
+  "meta": {
+    "version": "2.0",
+    "client": "Olka / Skechers Türkiye",
+    "edition": "Plenalitik Perakende Edisyonu",
+    "description": "Üç iş gücü segmenti için yetkinlik kütüphanesi, KPI setleri ve kariyer basamakları. Üst segment seçici ile filtrelenir (Mağaza / Üretim / Ofis).",
+    "proficiency_scale": {
+      "1": "Farkında — temel bilgi, gözetim altında uygular",
+      "2": "Gelişiyor — bilinen durumlarda bağımsız uygular",
+      "3": "Yetkin — bağımsız, çoğu durumda güvenilir (HEDEF SEVİYE)",
+      "4": "İleri — karmaşık durumları yönetir, başkalarına yol gösterir",
+      "5": "Uzman — standart belirler, mentorluk yapar, sistem geliştirir"
+    },
+    "kpi_rating_logic": "Her KPI hedefe göre gerçekleşme % olarak ölçülür; <85 kırmızı, 85-99 amber, >=100 yeşil (mevcut Plenalitik renk semantiği).",
+    "notes": "Eşik değerleri, KPI hedefleri ve prim oranları örnektir; pilotta Olka'nın gerçek verisiyle kalibre edilmelidir.",
+    "enrichment": "Davranışsal seviye tanımları, KPI hedef/eşik/prim, yatay kariyer geçişleri, segmentler arası mobilite, yetkinlik ağırlıkları ve onboarding zaman çizelgeleri eklendi.",
+    "bands": {
+      "A": "Giriş seviye / Aday — temel görevler, yoğun gözetim",
+      "B": "Yetkin uygulayıcı — bağımsız çalışır",
+      "C": "Kıdemli / Uzman — derinlik + akran rehberliği",
+      "D": "Yönetici / Lider — ekip ve sonuç sorumluluğu",
+      "E": "Üst yönetici / Direktör — strateji ve çoklu ekip"
+    },
+    "version_note": "v2.0 — zenginleştirilmiş: davranışsal anchor'lar, KPI hedef/eşik/prim, segment-arası geçiş, onboarding, sezonsallık, rol-yetkinlik profilleri."
+  },
+  "segments": [
+    {
+      "id": "RETAIL",
+      "name": "Mağaza / Perakende",
+      "icon": "building-store",
+      "description": "Mağaza satış ve operasyon iş gücü"
+    },
+    {
+      "id": "PROD",
+      "name": "Üretim",
+      "icon": "settings",
+      "description": "Esenyurt & Şanlıurfa üretim tesisleri mavi yaka iş gücü"
+    },
+    {
+      "id": "HQ",
+      "name": "Merkez Ofis",
+      "icon": "briefcase",
+      "description": "Tasarım, Ar-Ge, pazarlama, operasyon, destek fonksiyonları"
+    }
+  ],
+  "competencies": {
+    "CORE": [
+      {
+        "id": "C01",
+        "name": "Marka & Ürün Bilgisi",
+        "category": "Domain",
+        "desc": "Skechers ürün gamı, teknolojiler (Hands-Free Slip-ins, hava paneli), koleksiyon bilgisi",
+        "levels": {
+          "1": "Marka & Ürün Bilgisi konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda marka & ürün bilgisi görevlerini bağımsız yürütür.",
+          "3": "Marka & Ürün Bilgisi alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık marka & ürün bilgisi durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Marka & Ürün Bilgisi alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 1
+      },
+      {
+        "id": "C02",
+        "name": "Müşteri Odaklılık",
+        "category": "Soft",
+        "desc": "Müşteri ihtiyacını anlama ve önceliklendirme",
+        "levels": {
+          "1": "Müşteri Odaklılık konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda müşteri odaklılık görevlerini bağımsız yürütür.",
+          "3": "Müşteri Odaklılık alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık müşteri odaklılık durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Müşteri Odaklılık alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 0.8
+      },
+      {
+        "id": "C03",
+        "name": "İletişim",
+        "category": "Soft",
+        "desc": "Net, etkili sözlü ve yazılı iletişim",
+        "levels": {
+          "1": "İletişim konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda i̇letişim görevlerini bağımsız yürütür.",
+          "3": "İletişim alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık i̇letişim durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "İletişim alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 0.8
+      },
+      {
+        "id": "C04",
+        "name": "Takım Çalışması",
+        "category": "Soft",
+        "desc": "Ekip içi işbirliği ve destek",
+        "levels": {
+          "1": "Takım Çalışması konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda takım çalışması görevlerini bağımsız yürütür.",
+          "3": "Takım Çalışması alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık takım çalışması durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Takım Çalışması alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 0.8
+      },
+      {
+        "id": "C05",
+        "name": "Dijital Okuryazarlık",
+        "category": "Tech",
+        "desc": "Temel sistem/uygulama kullanımı (POS, ERP, mobil araçlar)",
+        "levels": {
+          "1": "Dijital Okuryazarlık konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda dijital okuryazarlık görevlerini bağımsız yürütür.",
+          "3": "Dijital Okuryazarlık alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık dijital okuryazarlık durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Dijital Okuryazarlık alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 1.2
+      },
+      {
+        "id": "C06",
+        "name": "Sonuç Odaklılık",
+        "category": "Soft",
+        "desc": "Hedefe ve teslimata odaklanma",
+        "levels": {
+          "1": "Sonuç Odaklılık konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda sonuç odaklılık görevlerini bağımsız yürütür.",
+          "3": "Sonuç Odaklılık alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık sonuç odaklılık durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Sonuç Odaklılık alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 0.8
+      },
+      {
+        "id": "C07",
+        "name": "Uyum & Etik",
+        "category": "Domain",
+        "desc": "Şirket politikaları, KVKK, iş etiği, GPTW kültürel değerleri",
+        "levels": {
+          "1": "Uyum & Etik konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda uyum & etik görevlerini bağımsız yürütür.",
+          "3": "Uyum & Etik alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık uyum & etik durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Uyum & Etik alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 1
+      }
+    ],
+    "RETAIL": [
+      {
+        "id": "R01",
+        "name": "Satış Teknikleri",
+        "category": "Domain",
+        "desc": "İhtiyaç analizi, çapraz/üst satış, kapanış",
+        "levels": {
+          "1": "Ürünü tanıtır, fiyat söyler; kapanışı yönlendirmeyle yapar.",
+          "2": "İhtiyaç sorularını sorar, uygun ürünü önerir, tek ürün satışını kapatır.",
+          "3": "İhtiyaç analizi + çapraz/üst satış yapar, itirazları karşılar, satışı bağımsız kapatır. (hedef)",
+          "4": "Zor müşteride dahi değer satışı kurar; ekip arkadaşlarına teknik gösterir.",
+          "5": "Mağaza satış yaklaşımını şekillendirir, koçluk yapar, en iyi pratikleri yayar."
+        },
+        "target_level": 3,
+        "weight": 1
+      },
+      {
+        "id": "R02",
+        "name": "Müşteri Deneyimi (CX)",
+        "category": "Soft",
+        "desc": "Karşılama, danışmanlık, şikayet yönetimi, NPS bilinci",
+        "levels": {
+          "1": "Müşteriyi karşılar, temel nezaket kurallarını uygular.",
+          "2": "Müşteri sorularını yanıtlar, basit şikayetleri çözer.",
+          "3": "Uçtan uca olumlu deneyim yaratır, şikayeti fırsata çevirir, NPS bilinciyle hareket eder. (hedef)",
+          "4": "Kritik/öfkeli müşteriyi yönetir, deneyim standardını ekibe taşır.",
+          "5": "Mağaza CX kültürünü kurar, deneyim ölçümünü yönlendirir."
+        },
+        "target_level": 3,
+        "weight": 0.8
+      },
+      {
+        "id": "R03",
+        "name": "Kasa & POS İşlemleri",
+        "category": "Tech",
+        "desc": "Satış, iade, değişim, ödeme türleri, gün sonu",
+        "levels": {
+          "1": "Kasa & POS İşlemleri konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda kasa & pos i̇şlemleri görevlerini bağımsız yürütür.",
+          "3": "Kasa & POS İşlemleri alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık kasa & pos i̇şlemleri durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Kasa & POS İşlemleri alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 1.2
+      },
+      {
+        "id": "R04",
+        "name": "Stok & Mağaza Operasyonu",
+        "category": "Domain",
+        "desc": "Stok sayımı, transfer, reyon düzeni, kayıp önleme",
+        "levels": {
+          "1": "Stok & Mağaza Operasyonu konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda stok & mağaza operasyonu görevlerini bağımsız yürütür.",
+          "3": "Stok & Mağaza Operasyonu alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık stok & mağaza operasyonu durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Stok & Mağaza Operasyonu alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 1
+      },
+      {
+        "id": "R05",
+        "name": "Görsel Düzenleme (VM)",
+        "category": "Domain",
+        "desc": "Vitrin ve reyon görsel standartları, kampanya kurulumu",
+        "levels": {
+          "1": "Görsel Düzenleme (VM) konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda görsel düzenleme (vm) görevlerini bağımsız yürütür.",
+          "3": "Görsel Düzenleme (VM) alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık görsel düzenleme (vm) durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Görsel Düzenleme (VM) alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 1
+      },
+      {
+        "id": "R06",
+        "name": "Sadakat Programı (Skechers Plus)",
+        "category": "Domain",
+        "desc": "Üyelik kazanımı, kişiselleştirilmiş hizmet, CRM kullanımı",
+        "levels": {
+          "1": "Sadakat Programı (Skechers Plus) konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda sadakat programı (skechers plus) görevlerini bağımsız yürütür.",
+          "3": "Sadakat Programı (Skechers Plus) alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık sadakat programı (skechers plus) durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Sadakat Programı (Skechers Plus) alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 1
+      },
+      {
+        "id": "R07",
+        "name": "Mağaza Yönetimi",
+        "category": "Domain",
+        "desc": "Vardiya planlama, hedef takibi, ekip koordinasyonu (yönetici)",
+        "levels": {
+          "1": "Temel açılış/kapanış rutinlerini bilir.",
+          "2": "Vardiya içi görev dağılımı yapar, hedefi takip eder.",
+          "3": "Vardiya planlar, günlük hedef-gerçekleşme yönetir, ekibi koordine eder. (hedef)",
+          "4": "Mağaza P&L'ini optimize eder, sezon planlaması yapar, krizleri yönetir.",
+          "5": "Çoklu mağaza standardı kurar, bölge pratiklerini şekillendirir."
+        },
+        "target_level": 3,
+        "weight": 1
+      },
+      {
+        "id": "R08",
+        "name": "Ekip Liderliği & Koçluk",
+        "category": "Soft",
+        "desc": "Saha ekibini motive etme, geri bildirim, geliştirme (yönetici)",
+        "levels": {
+          "1": "Ekip arkadaşına yardımcı olur.",
+          "2": "Yeni başlayana işi gösterir, basit geri bildirim verir.",
+          "3": "Düzenli birebir yapar, hedef koyar, performansı geliştirir, motive eder. (hedef)",
+          "4": "Düşük performansı yönetir, yetenek geliştirir, halef hazırlar.",
+          "5": "Liderlik kültürü kurar, yöneticileri geliştirir."
+        },
+        "target_level": 3,
+        "weight": 0.8
+      },
+      {
+        "id": "R09",
+        "name": "P&L / Mağaza Karlılığı",
+        "category": "Domain",
+        "desc": "Ciro, dönüşüm, sepet, gider yönetimi okuma (yönetici/bölge)",
+        "levels": {
+          "1": "P&L / Mağaza Karlılığı konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda p&l / mağaza karlılığı görevlerini bağımsız yürütür.",
+          "3": "P&L / Mağaza Karlılığı alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık p&l / mağaza karlılığı durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "P&L / Mağaza Karlılığı alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 1
+      },
+      {
+        "id": "R10",
+        "name": "Omnichannel & E-ticaret Entegrasyonu",
+        "category": "Tech",
+        "desc": "Click&collect, online-offline stok, dijital satış kanalları",
+        "levels": {
+          "1": "Omnichannel & E-ticaret Entegrasyonu konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda omnichannel & e-ticaret entegrasyonu görevlerini bağımsız yürütür.",
+          "3": "Omnichannel & E-ticaret Entegrasyonu alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık omnichannel & e-ticaret entegrasyonu durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Omnichannel & E-ticaret Entegrasyonu alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 1.2
+      }
+    ],
+    "PROD": [
+      {
+        "id": "P01",
+        "name": "Kesimhane Operasyonları",
+        "category": "Tech",
+        "desc": "Deri/tekstil kesim, fire yönetimi, kalıp kullanımı",
+        "levels": {
+          "1": "Kesimhane Operasyonları konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda kesimhane operasyonları görevlerini bağımsız yürütür.",
+          "3": "Kesimhane Operasyonları alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık kesimhane operasyonları durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Kesimhane Operasyonları alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 1.2
+      },
+      {
+        "id": "P02",
+        "name": "Saya Dikim",
+        "category": "Tech",
+        "desc": "Dikiş teknikleri, makine kullanımı, kalite standardı",
+        "levels": {
+          "1": "Saya Dikim konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda saya dikim görevlerini bağımsız yürütür.",
+          "3": "Saya Dikim alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık saya dikim durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Saya Dikim alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 1.2
+      },
+      {
+        "id": "P03",
+        "name": "Baskı & Kaynak",
+        "category": "Tech",
+        "desc": "Baskı prosesleri, kaynak/yapıştırma teknikleri",
+        "levels": {
+          "1": "Baskı & Kaynak konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda baskı & kaynak görevlerini bağımsız yürütür.",
+          "3": "Baskı & Kaynak alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık baskı & kaynak durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Baskı & Kaynak alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 1.2
+      },
+      {
+        "id": "P04",
+        "name": "Taban Üretimi (EVA)",
+        "category": "Tech",
+        "desc": "Orta taban kalıplama, malzeme prosesleri",
+        "levels": {
+          "1": "Taban Üretimi (EVA) konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda taban üretimi (eva) görevlerini bağımsız yürütür.",
+          "3": "Taban Üretimi (EVA) alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık taban üretimi (eva) durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Taban Üretimi (EVA) alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 1.2
+      },
+      {
+        "id": "P05",
+        "name": "Montaj",
+        "category": "Tech",
+        "desc": "Saya-taban birleştirme, son montaj, hat dengeleme",
+        "levels": {
+          "1": "Montaj konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda montaj görevlerini bağımsız yürütür.",
+          "3": "Montaj alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık montaj durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Montaj alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 1.2
+      },
+      {
+        "id": "P06",
+        "name": "Kalite Kontrol",
+        "category": "Domain",
+        "desc": "Ürün kalite standartları, hata tespiti, AQL",
+        "levels": {
+          "1": "Bariz hataları fark eder.",
+          "2": "Kontrol listesine göre denetler, hatayı raporlar.",
+          "3": "AQL'e göre bağımsız denetim yapar, kök neden ayırt eder. (hedef)",
+          "4": "Kalite trendlerini analiz eder, önleyici aksiyon tanımlar.",
+          "5": "Kalite sistemini (ISO) kurar ve denetler."
+        },
+        "target_level": 3,
+        "weight": 1
+      },
+      {
+        "id": "P07",
+        "name": "İş Sağlığı & Güvenliği (İSG)",
+        "category": "Domain",
+        "desc": "Güvenlik prosedürleri, KKD kullanımı, risk farkındalığı",
+        "levels": {
+          "1": "KKD kullanır, temel kuralları bilir.",
+          "2": "Prosedürlere uyar, riski bildirir.",
+          "3": "Güvenli çalışma standardını uygular, akranı uyarır, riski önler. (hedef)",
+          "4": "Risk değerlendirmesi yapar, ekibin güvenliğini yönetir.",
+          "5": "İSG kültürü ve sistemini kurar."
+        },
+        "target_level": 3,
+        "weight": 1
+      },
+      {
+        "id": "P08",
+        "name": "Üretim Verimliliği (OEE)",
+        "category": "Domain",
+        "desc": "Hat verimi, duruş azaltma, yalın üretim ilkeleri",
+        "levels": {
+          "1": "Hat hızını takip eder.",
+          "2": "Duruşları kaydeder, basit darboğazı fark eder.",
+          "3": "OEE okur, kaybı analiz eder, yalın iyileştirme önerir. (hedef)",
+          "4": "Hat dengeleme ve verimlilik projeleri yürütür.",
+          "5": "Üretim sistemini optimize eder, sürekli iyileştirme kültürü kurar."
+        },
+        "target_level": 3,
+        "weight": 1
+      },
+      {
+        "id": "P09",
+        "name": "Vardiya & Ekip Yönetimi",
+        "category": "Soft",
+        "desc": "Vardiya planlama, hat ekibi koordinasyonu (vardiya amiri)",
+        "levels": {
+          "1": "Vardiya & Ekip Yönetimi konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda vardiya & ekip yönetimi görevlerini bağımsız yürütür.",
+          "3": "Vardiya & Ekip Yönetimi alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık vardiya & ekip yönetimi durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Vardiya & Ekip Yönetimi alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 0.8
+      },
+      {
+        "id": "P10",
+        "name": "Bakım & Arıza Giderme",
+        "category": "Tech",
+        "desc": "Önleyici bakım, temel arıza müdahalesi",
+        "levels": {
+          "1": "Bakım & Arıza Giderme konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda bakım & arıza giderme görevlerini bağımsız yürütür.",
+          "3": "Bakım & Arıza Giderme alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık bakım & arıza giderme durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Bakım & Arıza Giderme alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 1.2
+      }
+    ],
+    "HQ": [
+      {
+        "id": "H01",
+        "name": "Ürün Tasarımı",
+        "category": "Tech",
+        "desc": "Ayakkabı/tekstil tasarım, trend yorumlama, koleksiyon geliştirme",
+        "levels": {
+          "1": "Mevcut tasarımları uyarlar.",
+          "2": "Brief'e göre tasarım varyasyonu üretir.",
+          "3": "Trendi yorumlar, koleksiyon parçası tasarlar, üretilebilirliği gözetir. (hedef)",
+          "4": "Koleksiyon yönü belirler, çapraz fonksiyon çalışır.",
+          "5": "Marka tasarım dilini şekillendirir, ekibi yönlendirir."
+        },
+        "target_level": 3,
+        "weight": 1.2
+      },
+      {
+        "id": "H02",
+        "name": "Ar-Ge & Malzeme Geliştirme",
+        "category": "Tech",
+        "desc": "Yeni malzeme, teknoloji uyarlama, numune geliştirme",
+        "levels": {
+          "1": "Ar-Ge & Malzeme Geliştirme konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda ar-ge & malzeme geliştirme görevlerini bağımsız yürütür.",
+          "3": "Ar-Ge & Malzeme Geliştirme alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık ar-ge & malzeme geliştirme durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Ar-Ge & Malzeme Geliştirme alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 1.2
+      },
+      {
+        "id": "H03",
+        "name": "Kategori & Ürün Yönetimi",
+        "category": "Domain",
+        "desc": "Asortiman planlama, fiyatlandırma, ürün yaşam döngüsü",
+        "levels": {
+          "1": "Kategori & Ürün Yönetimi konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda kategori & ürün yönetimi görevlerini bağımsız yürütür.",
+          "3": "Kategori & Ürün Yönetimi alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık kategori & ürün yönetimi durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Kategori & Ürün Yönetimi alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 1
+      },
+      {
+        "id": "H04",
+        "name": "Pazarlama & Marka",
+        "category": "Domain",
+        "desc": "Kampanya yönetimi, marka iletişimi, dijital pazarlama",
+        "levels": {
+          "1": "Pazarlama & Marka konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda pazarlama & marka görevlerini bağımsız yürütür.",
+          "3": "Pazarlama & Marka alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık pazarlama & marka durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Pazarlama & Marka alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 1
+      },
+      {
+        "id": "H05",
+        "name": "Tedarik Zinciri & Planlama",
+        "category": "Domain",
+        "desc": "Talep planlama, ithalat, lojistik, stok optimizasyonu",
+        "levels": {
+          "1": "Tedarik Zinciri & Planlama konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda tedarik zinciri & planlama görevlerini bağımsız yürütür.",
+          "3": "Tedarik Zinciri & Planlama alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık tedarik zinciri & planlama durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Tedarik Zinciri & Planlama alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 1
+      },
+      {
+        "id": "H06",
+        "name": "Finans & Raporlama",
+        "category": "Domain",
+        "desc": "Mali analiz, bütçe, performans raporlama",
+        "levels": {
+          "1": "Finans & Raporlama konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda finans & raporlama görevlerini bağımsız yürütür.",
+          "3": "Finans & Raporlama alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık finans & raporlama durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Finans & Raporlama alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 1
+      },
+      {
+        "id": "H07",
+        "name": "Veri Analitiği",
+        "category": "Tech",
+        "desc": "Satış/operasyon verisi analizi, raporlama, içgörü üretimi",
+        "levels": {
+          "1": "Hazır raporu okur.",
+          "2": "Excel/BI'da temel analiz yapar.",
+          "3": "Satış/operasyon verisini analiz eder, içgörü üretir, raporlar. (hedef)",
+          "4": "Tahminsel modeller kurar, karar destek sağlar.",
+          "5": "Analitik altyapıyı ve veri kültürünü kurar."
+        },
+        "target_level": 3,
+        "weight": 1.2
+      },
+      {
+        "id": "H08",
+        "name": "İnsan Kaynakları",
+        "category": "Domain",
+        "desc": "İşe alım, çalışan deneyimi, yetenek yönetimi",
+        "levels": {
+          "1": "İnsan Kaynakları konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda i̇nsan kaynakları görevlerini bağımsız yürütür.",
+          "3": "İnsan Kaynakları alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık i̇nsan kaynakları durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "İnsan Kaynakları alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 1
+      },
+      {
+        "id": "H09",
+        "name": "Proje & Paydaş Yönetimi",
+        "category": "Soft",
+        "desc": "Kapsam, zaman, paydaş koordinasyonu",
+        "levels": {
+          "1": "Proje & Paydaş Yönetimi konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda proje & paydaş yönetimi görevlerini bağımsız yürütür.",
+          "3": "Proje & Paydaş Yönetimi alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık proje & paydaş yönetimi durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Proje & Paydaş Yönetimi alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 0.8
+      },
+      {
+        "id": "H10",
+        "name": "Liderlik & Strateji",
+        "category": "Soft",
+        "desc": "Vizyon, ekip geliştirme, stratejik karar (yönetici)",
+        "levels": {
+          "1": "Liderlik & Strateji konusunda temel farkındalık; yönlendirmeyle uygular.",
+          "2": "Bilinen durumlarda liderlik & strateji görevlerini bağımsız yürütür.",
+          "3": "Liderlik & Strateji alanında güvenilir ve bağımsız; çoğu durumu kendi çözer. (hedef)",
+          "4": "Karmaşık liderlik & strateji durumlarını yönetir, akranlarına yol gösterir.",
+          "5": "Liderlik & Strateji alanında standart belirler, mentorluk yapar, süreç geliştirir."
+        },
+        "target_level": 3,
+        "weight": 0.8
+      }
+    ]
+  },
+  "kpi_sets": {
+    "RETAIL": [
+      {
+        "id": "RK01",
+        "name": "Satış Hedefi Gerçekleşme",
+        "unit": "%",
+        "type": "primary",
+        "desc": "Bireysel/mağaza ciro hedefine ulaşma",
+        "drives_commission": true,
+        "target": 100,
+        "target_label": "% hedef",
+        "thresholds": {
+          "green": 100,
+          "amber": 85,
+          "direction": "up"
+        },
+        "weight_in_review": 0.35,
+        "commission": {
+          "tiers": [
+            {
+              "from": 0,
+              "to": 85,
+              "rate": 0
+            },
+            {
+              "from": 85,
+              "to": 100,
+              "rate": 0.5
+            },
+            {
+              "from": 100,
+              "to": 120,
+              "rate": 1
+            },
+            {
+              "from": 120,
+              "to": 999,
+              "rate": 1.5
+            }
+          ],
+          "note": "Eşik %85; %120 üstü hızlandırıcı."
+        }
+      },
+      {
+        "id": "RK02",
+        "name": "Dönüşüm Oranı",
+        "unit": "%",
+        "type": "primary",
+        "desc": "Mağazaya giren ziyaretçinin alışverişe dönüşmesi",
+        "target": 25,
+        "target_label": "% dönüşüm",
+        "thresholds": {
+          "green": 25,
+          "amber": 18,
+          "direction": "up"
+        },
+        "weight_in_review": 0.15
+      },
+      {
+        "id": "RK03",
+        "name": "Ortalama Sepet Tutarı (ATV)",
+        "unit": "TL",
+        "type": "primary",
+        "desc": "İşlem başına ortalama satış",
+        "target": 1200,
+        "target_label": "TL/işlem",
+        "thresholds": {
+          "green": 1200,
+          "amber": 950,
+          "direction": "up"
+        },
+        "weight_in_review": 0.1
+      },
+      {
+        "id": "RK04",
+        "name": "Birim/İşlem (UPT)",
+        "unit": "adet",
+        "type": "secondary",
+        "desc": "İşlem başına ürün adedi (çapraz satış göstergesi)",
+        "target": 1.8,
+        "target_label": "ürün/işlem",
+        "thresholds": {
+          "green": 1.8,
+          "amber": 1.4,
+          "direction": "up"
+        },
+        "weight_in_review": 0.1
+      },
+      {
+        "id": "RK05",
+        "name": "Skechers Plus Üye Kazanımı",
+        "unit": "adet",
+        "type": "secondary",
+        "desc": "Sadakat programı yeni üye sayısı",
+        "target": 30,
+        "target_label": "üye/ay",
+        "thresholds": {
+          "green": 30,
+          "amber": 20,
+          "direction": "up"
+        },
+        "weight_in_review": 0.08
+      },
+      {
+        "id": "RK06",
+        "name": "Müşteri Memnuniyeti / NPS",
+        "unit": "skor",
+        "type": "primary",
+        "desc": "Mağaza müşteri deneyimi skoru",
+        "target": 75,
+        "target_label": "NPS",
+        "thresholds": {
+          "green": 75,
+          "amber": 55,
+          "direction": "up"
+        },
+        "weight_in_review": 0.12
+      },
+      {
+        "id": "RK07",
+        "name": "Stok Doğruluğu",
+        "unit": "%",
+        "type": "secondary",
+        "desc": "Sayım sonrası sistem-fiili uyumu, kayıp oranı",
+        "target": 98,
+        "target_label": "% doğruluk",
+        "thresholds": {
+          "green": 98,
+          "amber": 93,
+          "direction": "up"
+        },
+        "weight_in_review": 0.1
+      },
+      {
+        "id": "RK08",
+        "name": "Personel Devir (Mağaza)",
+        "unit": "%",
+        "type": "health",
+        "desc": "Mağaza bazlı sirkülasyon (düşük iyi)",
+        "target": 18,
+        "target_label": "% yıllık devir",
+        "thresholds": {
+          "green": 18,
+          "amber": 28,
+          "direction": "down"
+        },
+        "weight_in_review": 0,
+        "threshold_note": "Sağlık metriği; mağaza skorunu doğrudan etkilemez ama uyarı üretir."
+      }
+    ],
+    "PROD": [
+      {
+        "id": "PK01",
+        "name": "Üretim Adedi / Hedef",
+        "unit": "%",
+        "type": "primary",
+        "desc": "Vardiya/hat üretim hedefine ulaşma",
+        "target": 100,
+        "target_label": "% üretim hedefi",
+        "thresholds": {
+          "green": 100,
+          "amber": 90,
+          "direction": "up"
+        },
+        "weight_in_review": 0.3
+      },
+      {
+        "id": "PK02",
+        "name": "Kalite / Hata Oranı (PPM)",
+        "unit": "ppm",
+        "type": "primary",
+        "desc": "Milyon adette hatalı ürün (düşük iyi)",
+        "target": 500,
+        "target_label": "ppm",
+        "thresholds": {
+          "green": 500,
+          "amber": 1500,
+          "direction": "down"
+        },
+        "weight_in_review": 0.2
+      },
+      {
+        "id": "PK03",
+        "name": "OEE (Genel Ekipman Etkinliği)",
+        "unit": "%",
+        "type": "primary",
+        "desc": "Kullanılabilirlik × Performans × Kalite",
+        "target": 85,
+        "target_label": "% OEE",
+        "thresholds": {
+          "green": 85,
+          "amber": 70,
+          "direction": "up"
+        },
+        "weight_in_review": 0.2
+      },
+      {
+        "id": "PK04",
+        "name": "Fire Oranı",
+        "unit": "%",
+        "type": "secondary",
+        "desc": "Malzeme fire/atık (düşük iyi)",
+        "target": 3,
+        "target_label": "% fire",
+        "thresholds": {
+          "green": 3,
+          "amber": 6,
+          "direction": "down"
+        },
+        "weight_in_review": 0.1
+      },
+      {
+        "id": "PK05",
+        "name": "İSG — Kazasız Gün",
+        "unit": "gün",
+        "type": "health",
+        "desc": "İş kazası olmadan geçen süre",
+        "target": 180,
+        "target_label": "kazasız gün",
+        "thresholds": {
+          "green": 180,
+          "amber": 90,
+          "direction": "up"
+        },
+        "weight_in_review": 0.08
+      },
+      {
+        "id": "PK06",
+        "name": "Devamsızlık Oranı",
+        "unit": "%",
+        "type": "health",
+        "desc": "Planlanmamış devamsızlık (düşük iyi)",
+        "target": 3,
+        "target_label": "% devamsızlık",
+        "thresholds": {
+          "green": 3,
+          "amber": 6,
+          "direction": "down"
+        },
+        "weight_in_review": 0.07
+      },
+      {
+        "id": "PK07",
+        "name": "Personel Devir (Üretim)",
+        "unit": "%",
+        "type": "health",
+        "desc": "Tesis/hat bazlı sirkülasyon (düşük iyi)",
+        "target": 20,
+        "target_label": "% yıllık devir",
+        "thresholds": {
+          "green": 20,
+          "amber": 30,
+          "direction": "down"
+        },
+        "weight_in_review": 0,
+        "threshold_note": "Sağlık metriği."
+      },
+      {
+        "id": "PK08",
+        "name": "Eğitim Tamamlama",
+        "unit": "%",
+        "type": "secondary",
+        "desc": "Zorunlu beceri/güvenlik eğitimleri tamamlanma",
+        "target": 100,
+        "target_label": "% tamamlama",
+        "thresholds": {
+          "green": 100,
+          "amber": 85,
+          "direction": "up"
+        },
+        "weight_in_review": 0.05
+      }
+    ],
+    "HQ": [
+      {
+        "id": "HK01",
+        "name": "Hedef/OKR Gerçekleşme",
+        "unit": "%",
+        "type": "primary",
+        "desc": "Fonksiyon/birey hedeflerine ulaşma",
+        "target": 100,
+        "target_label": "% OKR",
+        "thresholds": {
+          "green": 100,
+          "amber": 80,
+          "direction": "up"
+        },
+        "weight_in_review": 0.35
+      },
+      {
+        "id": "HK02",
+        "name": "Proje Zamanında Teslim",
+        "unit": "%",
+        "type": "primary",
+        "desc": "Planlanan tarihte tamamlanan proje oranı",
+        "target": 90,
+        "target_label": "% zamanında",
+        "thresholds": {
+          "green": 90,
+          "amber": 75,
+          "direction": "up"
+        },
+        "weight_in_review": 0.2
+      },
+      {
+        "id": "HK03",
+        "name": "Koleksiyon/Ürün Başarısı",
+        "unit": "skor",
+        "type": "primary",
+        "desc": "Tasarım: piyasaya çıkan ürünün satış performansı (tasarım/kategori)",
+        "target": 80,
+        "target_label": "başarı skoru",
+        "thresholds": {
+          "green": 80,
+          "amber": 60,
+          "direction": "up"
+        },
+        "weight_in_review": 0.2
+      },
+      {
+        "id": "HK04",
+        "name": "Performans Skoru",
+        "unit": "/5",
+        "type": "primary",
+        "desc": "Yıllık/dönemsel performans değerlendirme",
+        "target": 3.5,
+        "target_label": "/5",
+        "thresholds": {
+          "green": 3.5,
+          "amber": 2.8,
+          "direction": "up"
+        },
+        "weight_in_review": 0.15
+      },
+      {
+        "id": "HK05",
+        "name": "Bağlılık (Engagement)",
+        "unit": "/10",
+        "type": "health",
+        "desc": "GPTW/iç anket bağlılık skoru",
+        "target": 7.5,
+        "target_label": "/10",
+        "thresholds": {
+          "green": 7.5,
+          "amber": 6,
+          "direction": "up"
+        },
+        "weight_in_review": 0,
+        "threshold_note": "Sağlık metriği."
+      },
+      {
+        "id": "HK06",
+        "name": "Gelişim Saati / Kişi",
+        "unit": "saat",
+        "type": "secondary",
+        "desc": "Kişi başı eğitim/gelişim yatırımı",
+        "target": 14,
+        "target_label": "saat/yıl",
+        "thresholds": {
+          "green": 14,
+          "amber": 7,
+          "direction": "up"
+        },
+        "weight_in_review": 0.05
+      },
+      {
+        "id": "HK07",
+        "name": "İç Terfi Oranı",
+        "unit": "%",
+        "type": "secondary",
+        "desc": "Açık pozisyonların içeriden doldurulması",
+        "target": 60,
+        "target_label": "% iç terfi",
+        "thresholds": {
+          "green": 60,
+          "amber": 40,
+          "direction": "up"
+        },
+        "weight_in_review": 0.05
+      }
+    ]
+  },
+  "career_ladders": {
+    "RETAIL": [
+      {
+        "path_id": "RL1",
+        "name": "Mağaza Satış Yolu",
+        "steps": [
+          {
+            "band": "A",
+            "role": "Satış Danışmanı (Aday/Part-time)",
+            "duration": "0-6 ay",
+            "key_competencies": [
+              "C01",
+              "R01",
+              "R02",
+              "R03"
+            ],
+            "target_kpis": [
+              "RK01",
+              "RK06"
+            ],
+            "expected_levels": {
+              "C01": 2,
+              "R01": 2,
+              "R02": 2,
+              "R03": 2
+            }
+          },
+          {
+            "band": "B",
+            "role": "Satış Danışmanı",
+            "duration": "6 ay-2 yıl",
+            "key_competencies": [
+              "R01",
+              "R02",
+              "R04",
+              "R06"
+            ],
+            "target_kpis": [
+              "RK01",
+              "RK02",
+              "RK03",
+              "RK05"
+            ],
+            "expected_levels": {
+              "R01": 3,
+              "R02": 3,
+              "R04": 3,
+              "R06": 3
+            }
+          },
+          {
+            "band": "C",
+            "role": "Kıdemli Satış Danışmanı / Takım Lideri",
+            "duration": "2-4 yıl",
+            "key_competencies": [
+              "R01",
+              "R05",
+              "R08",
+              "C06"
+            ],
+            "target_kpis": [
+              "RK01",
+              "RK04",
+              "RK06"
+            ],
+            "expected_levels": {
+              "R01": 3,
+              "R05": 3,
+              "R08": 3,
+              "C06": 3
+            }
+          },
+          {
+            "band": "D",
+            "role": "Mağaza Müdür Yardımcısı",
+            "duration": "3-5 yıl",
+            "key_competencies": [
+              "R07",
+              "R08",
+              "R04",
+              "R09"
+            ],
+            "target_kpis": [
+              "RK01",
+              "RK02",
+              "RK07",
+              "RK08"
+            ],
+            "expected_levels": {
+              "R07": 4,
+              "R08": 4,
+              "R04": 4,
+              "R09": 4
+            }
+          },
+          {
+            "band": "D",
+            "role": "Mağaza Müdürü",
+            "duration": "5+ yıl",
+            "key_competencies": [
+              "R07",
+              "R08",
+              "R09",
+              "R10"
+            ],
+            "target_kpis": [
+              "RK01",
+              "RK02",
+              "RK06",
+              "RK08"
+            ],
+            "expected_levels": {
+              "R07": 4,
+              "R08": 4,
+              "R09": 4,
+              "R10": 4
+            }
+          },
+          {
+            "band": "E",
+            "role": "Bölge Müdürü",
+            "duration": "8+ yıl",
+            "key_competencies": [
+              "R09",
+              "R08",
+              "H10",
+              "C06"
+            ],
+            "target_kpis": [
+              "RK01",
+              "RK08",
+              "RK06"
+            ],
+            "expected_levels": {
+              "R09": 4,
+              "R08": 4,
+              "H10": 4,
+              "C06": 4
+            }
+          }
+        ]
+      },
+      {
+        "path_id": "RL2",
+        "name": "Görsel Düzenleme (VM) Yolu",
+        "steps": [
+          {
+            "band": "B",
+            "role": "VM Sorumlusu (Mağaza)",
+            "duration": "0-2 yıl",
+            "key_competencies": [
+              "R05",
+              "C01",
+              "R04"
+            ],
+            "target_kpis": [
+              "RK06",
+              "RK02"
+            ],
+            "expected_levels": {
+              "R05": 3,
+              "C01": 3,
+              "R04": 3
+            }
+          },
+          {
+            "band": "C",
+            "role": "Bölge VM Uzmanı",
+            "duration": "2-5 yıl",
+            "key_competencies": [
+              "R05",
+              "R10",
+              "C03"
+            ],
+            "target_kpis": [
+              "RK06"
+            ],
+            "expected_levels": {
+              "R05": 3,
+              "R10": 3,
+              "C03": 3
+            }
+          },
+          {
+            "band": "D",
+            "role": "VM & Mağaza Konsept Müdürü",
+            "duration": "5+ yıl",
+            "key_competencies": [
+              "R05",
+              "H04",
+              "H09"
+            ],
+            "target_kpis": [
+              "RK06",
+              "RK02"
+            ],
+            "expected_levels": {
+              "R05": 4,
+              "H04": 4,
+              "H09": 4
+            }
+          }
+        ]
+      },
+      {
+        "path_id": "RL3",
+        "name": "Perakende Operasyon Yolu",
+        "steps": [
+          {
+            "band": "B",
+            "role": "Perakende Operasyon Uzman Yrd.",
+            "duration": "0-2 yıl",
+            "key_competencies": [
+              "R04",
+              "R10",
+              "C05"
+            ],
+            "target_kpis": [
+              "RK07"
+            ],
+            "expected_levels": {
+              "R04": 3,
+              "R10": 3,
+              "C05": 3
+            }
+          },
+          {
+            "band": "C",
+            "role": "Perakende Operasyon Uzmanı",
+            "duration": "2-5 yıl",
+            "key_competencies": [
+              "R04",
+              "R10",
+              "H05"
+            ],
+            "target_kpis": [
+              "RK07",
+              "RK08"
+            ],
+            "expected_levels": {
+              "R04": 3,
+              "R10": 3,
+              "H05": 3
+            }
+          },
+          {
+            "band": "D",
+            "role": "Operasyon Müdürü",
+            "duration": "5+ yıl",
+            "key_competencies": [
+              "R09",
+              "H05",
+              "H09"
+            ],
+            "target_kpis": [
+              "RK07",
+              "RK08",
+              "RK01"
+            ],
+            "expected_levels": {
+              "R09": 4,
+              "H05": 4,
+              "H09": 4
+            }
+          }
+        ]
+      }
+    ],
+    "PROD": [
+      {
+        "path_id": "PL1",
+        "name": "Üretim Operatör Yolu",
+        "steps": [
+          {
+            "band": "A",
+            "role": "Üretim Operatörü (Aday)",
+            "duration": "0-6 ay",
+            "key_competencies": [
+              "C07",
+              "P07",
+              "P02"
+            ],
+            "target_kpis": [
+              "PK01",
+              "PK05",
+              "PK08"
+            ],
+            "expected_levels": {
+              "C07": 2,
+              "P07": 2,
+              "P02": 2
+            }
+          },
+          {
+            "band": "B",
+            "role": "Üretim Operatörü",
+            "duration": "6 ay-3 yıl",
+            "key_competencies": [
+              "P01",
+              "P02",
+              "P05",
+              "P06"
+            ],
+            "target_kpis": [
+              "PK01",
+              "PK02",
+              "PK04"
+            ],
+            "expected_levels": {
+              "P01": 3,
+              "P02": 3,
+              "P05": 3,
+              "P06": 3
+            }
+          },
+          {
+            "band": "C",
+            "role": "Kıdemli Operatör / Usta",
+            "duration": "3-5 yıl",
+            "key_competencies": [
+              "P02",
+              "P06",
+              "P08",
+              "P10"
+            ],
+            "target_kpis": [
+              "PK02",
+              "PK03",
+              "PK04"
+            ],
+            "expected_levels": {
+              "P02": 3,
+              "P06": 3,
+              "P08": 3,
+              "P10": 3
+            }
+          },
+          {
+            "band": "D",
+            "role": "Vardiya Amiri / Hat Sorumlusu",
+            "duration": "5-8 yıl",
+            "key_competencies": [
+              "P09",
+              "P08",
+              "P07",
+              "C06"
+            ],
+            "target_kpis": [
+              "PK01",
+              "PK03",
+              "PK05",
+              "PK06"
+            ],
+            "expected_levels": {
+              "P09": 4,
+              "P08": 4,
+              "P07": 4,
+              "C06": 4
+            }
+          },
+          {
+            "band": "E",
+            "role": "Üretim Müdürü",
+            "duration": "8+ yıl",
+            "key_competencies": [
+              "P08",
+              "P09",
+              "H10",
+              "H05"
+            ],
+            "target_kpis": [
+              "PK01",
+              "PK02",
+              "PK03",
+              "PK07"
+            ],
+            "expected_levels": {
+              "P08": 4,
+              "P09": 4,
+              "H10": 4,
+              "H05": 4
+            }
+          }
+        ]
+      },
+      {
+        "path_id": "PL2",
+        "name": "Kalite Yolu",
+        "steps": [
+          {
+            "band": "B",
+            "role": "Kalite Kontrol Elemanı",
+            "duration": "0-3 yıl",
+            "key_competencies": [
+              "P06",
+              "C07",
+              "P02"
+            ],
+            "target_kpis": [
+              "PK02"
+            ],
+            "expected_levels": {
+              "P06": 3,
+              "C07": 3,
+              "P02": 3
+            }
+          },
+          {
+            "band": "C",
+            "role": "Kalite Uzmanı",
+            "duration": "3-5 yıl",
+            "key_competencies": [
+              "P06",
+              "P08",
+              "H07"
+            ],
+            "target_kpis": [
+              "PK02",
+              "PK04"
+            ],
+            "expected_levels": {
+              "P06": 3,
+              "P08": 3,
+              "H07": 3
+            }
+          },
+          {
+            "band": "D",
+            "role": "Kalite Müdürü",
+            "duration": "5+ yıl",
+            "key_competencies": [
+              "P06",
+              "H10",
+              "H09"
+            ],
+            "target_kpis": [
+              "PK02",
+              "PK03"
+            ],
+            "expected_levels": {
+              "P06": 4,
+              "H10": 4,
+              "H09": 4
+            }
+          }
+        ]
+      },
+      {
+        "path_id": "PL3",
+        "name": "Bakım & Teknik Yol",
+        "steps": [
+          {
+            "band": "B",
+            "role": "Bakım Teknisyeni",
+            "duration": "0-3 yıl",
+            "key_competencies": [
+              "P10",
+              "P07",
+              "C05"
+            ],
+            "target_kpis": [
+              "PK03",
+              "PK05"
+            ],
+            "expected_levels": {
+              "P10": 3,
+              "P07": 3,
+              "C05": 3
+            }
+          },
+          {
+            "band": "C",
+            "role": "Kıdemli Bakım Teknisyeni",
+            "duration": "3-6 yıl",
+            "key_competencies": [
+              "P10",
+              "P08",
+              "P07"
+            ],
+            "target_kpis": [
+              "PK03"
+            ],
+            "expected_levels": {
+              "P10": 3,
+              "P08": 3,
+              "P07": 3
+            }
+          },
+          {
+            "band": "D",
+            "role": "Bakım & Teknik Müdür",
+            "duration": "6+ yıl",
+            "key_competencies": [
+              "P10",
+              "P08",
+              "H09"
+            ],
+            "target_kpis": [
+              "PK03",
+              "PK05"
+            ],
+            "expected_levels": {
+              "P10": 4,
+              "P08": 4,
+              "H09": 4
+            }
+          }
+        ]
+      }
+    ],
+    "HQ": [
+      {
+        "path_id": "HL1",
+        "name": "Tasarım & Ar-Ge Yolu",
+        "steps": [
+          {
+            "band": "B",
+            "role": "Tasarım Asistanı",
+            "duration": "0-2 yıl",
+            "key_competencies": [
+              "H01",
+              "C01",
+              "C03"
+            ],
+            "target_kpis": [
+              "HK02",
+              "HK04"
+            ],
+            "expected_levels": {
+              "H01": 3,
+              "C01": 3,
+              "C03": 3
+            }
+          },
+          {
+            "band": "C",
+            "role": "Tasarımcı",
+            "duration": "2-5 yıl",
+            "key_competencies": [
+              "H01",
+              "H02",
+              "C01"
+            ],
+            "target_kpis": [
+              "HK03",
+              "HK04"
+            ],
+            "expected_levels": {
+              "H01": 3,
+              "H02": 3,
+              "C01": 3
+            }
+          },
+          {
+            "band": "D",
+            "role": "Kıdemli Tasarımcı / Ar-Ge Lideri",
+            "duration": "5-8 yıl",
+            "key_competencies": [
+              "H01",
+              "H02",
+              "H09"
+            ],
+            "target_kpis": [
+              "HK03",
+              "HK02"
+            ],
+            "expected_levels": {
+              "H01": 4,
+              "H02": 4,
+              "H09": 4
+            }
+          },
+          {
+            "band": "E",
+            "role": "Tasarım Direktörü",
+            "duration": "8+ yıl",
+            "key_competencies": [
+              "H01",
+              "H10",
+              "H03"
+            ],
+            "target_kpis": [
+              "HK03",
+              "HK01"
+            ],
+            "expected_levels": {
+              "H01": 4,
+              "H10": 4,
+              "H03": 4
+            }
+          }
+        ]
+      },
+      {
+        "path_id": "HL2",
+        "name": "Ticari / Kategori Yolu",
+        "steps": [
+          {
+            "band": "B",
+            "role": "Kategori Uzman Yardımcısı",
+            "duration": "0-2 yıl",
+            "key_competencies": [
+              "H03",
+              "C01",
+              "H07"
+            ],
+            "target_kpis": [
+              "HK01",
+              "HK04"
+            ],
+            "expected_levels": {
+              "H03": 3,
+              "C01": 3,
+              "H07": 3
+            }
+          },
+          {
+            "band": "C",
+            "role": "Kategori Uzmanı",
+            "duration": "2-5 yıl",
+            "key_competencies": [
+              "H03",
+              "H05",
+              "H07"
+            ],
+            "target_kpis": [
+              "HK01",
+              "HK03"
+            ],
+            "expected_levels": {
+              "H03": 3,
+              "H05": 3,
+              "H07": 3
+            }
+          },
+          {
+            "band": "D",
+            "role": "Kategori/Ürün Müdürü",
+            "duration": "5+ yıl",
+            "key_competencies": [
+              "H03",
+              "H04",
+              "H10"
+            ],
+            "target_kpis": [
+              "HK01",
+              "HK03"
+            ],
+            "expected_levels": {
+              "H03": 4,
+              "H04": 4,
+              "H10": 4
+            }
+          }
+        ]
+      },
+      {
+        "path_id": "HL3",
+        "name": "Destek Fonksiyon Yolu (Finans/İK/Pazarlama)",
+        "steps": [
+          {
+            "band": "B",
+            "role": "Uzman Yardımcısı",
+            "duration": "0-2 yıl",
+            "key_competencies": [
+              "C03",
+              "C05",
+              "H06"
+            ],
+            "target_kpis": [
+              "HK01",
+              "HK04"
+            ],
+            "expected_levels": {
+              "C03": 3,
+              "C05": 3,
+              "H06": 3
+            }
+          },
+          {
+            "band": "C",
+            "role": "Uzman",
+            "duration": "2-5 yıl",
+            "key_competencies": [
+              "H06",
+              "H08",
+              "H09"
+            ],
+            "target_kpis": [
+              "HK01",
+              "HK02"
+            ],
+            "expected_levels": {
+              "H06": 3,
+              "H08": 3,
+              "H09": 3
+            }
+          },
+          {
+            "band": "D",
+            "role": "Müdür",
+            "duration": "5+ yıl",
+            "key_competencies": [
+              "H10",
+              "H09",
+              "C06"
+            ],
+            "target_kpis": [
+              "HK01",
+              "HK05",
+              "HK07"
+            ],
+            "expected_levels": {
+              "H10": 4,
+              "H09": 4,
+              "C06": 4
+            }
+          }
+        ]
+      },
+      {
+        "path_id": "HL4",
+        "name": "Dijital & E-ticaret Yolu",
+        "steps": [
+          {
+            "band": "B",
+            "role": "E-ticaret Uzman Yrd.",
+            "duration": "0-2 yıl",
+            "key_competencies": [
+              "H04",
+              "H07",
+              "C05"
+            ],
+            "target_kpis": [
+              "HK01",
+              "HK02"
+            ],
+            "expected_levels": {
+              "H04": 3,
+              "H07": 3,
+              "C05": 3
+            }
+          },
+          {
+            "band": "C",
+            "role": "E-ticaret / Dijital Uzman",
+            "duration": "2-5 yıl",
+            "key_competencies": [
+              "H04",
+              "H07",
+              "H03"
+            ],
+            "target_kpis": [
+              "HK01",
+              "HK03"
+            ],
+            "expected_levels": {
+              "H04": 3,
+              "H07": 3,
+              "H03": 3
+            }
+          },
+          {
+            "band": "D",
+            "role": "Dijital Ticaret Müdürü",
+            "duration": "5+ yıl",
+            "key_competencies": [
+              "H04",
+              "H10",
+              "H05"
+            ],
+            "target_kpis": [
+              "HK01",
+              "HK03"
+            ],
+            "expected_levels": {
+              "H04": 4,
+              "H10": 4,
+              "H05": 4
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "cross_moves": [
+    {
+      "from": "RETAIL / Mağaza Müdürü (D)",
+      "to": "HQ / Kategori Müdürü (D)",
+      "type": "segment-geçiş",
+      "rationale": "Saha satış içgörüsü kategori yönetimine değer katar.",
+      "bridge_competencies": [
+        "H03",
+        "H07"
+      ]
+    },
+    {
+      "from": "RETAIL / Kıdemli Satış Danışmanı (C)",
+      "to": "HQ / Pazarlama Uzmanı (C)",
+      "type": "segment-geçiş",
+      "rationale": "Müşteri ve ürün bilgisi pazarlamaya aktarılır.",
+      "bridge_competencies": [
+        "H04",
+        "H07"
+      ]
+    },
+    {
+      "from": "PROD / Kalite Uzmanı (C)",
+      "to": "HQ / Tedarik Zinciri Uzmanı (C)",
+      "type": "segment-geçiş",
+      "rationale": "Üretim ve kalite bilgisi tedarik planlamada kritik.",
+      "bridge_competencies": [
+        "H05",
+        "H07"
+      ]
+    },
+    {
+      "from": "PROD / Vardiya Amiri (D)",
+      "to": "PROD / Kalite Müdürü (D)",
+      "type": "yatay",
+      "rationale": "Operasyon liderliğinden kalite liderliğine.",
+      "bridge_competencies": [
+        "P06"
+      ]
+    },
+    {
+      "from": "HQ / Veri Analitiği Uzmanı (C)",
+      "to": "any / İK Analitiği",
+      "type": "yatay",
+      "rationale": "Analitik beceri tüm segmentlerde değerli (Plenalitik power-user).",
+      "bridge_competencies": [
+        "H08"
+      ]
+    }
+  ],
+  "onboarding": {
+    "RETAIL": {
+      "ramp_weeks": 6,
+      "milestones": [
+        {
+          "week": 1,
+          "focus": "Marka & ürün bilgisi, POS temel",
+          "target": "İlk gözetimli satış"
+        },
+        {
+          "week": 3,
+          "focus": "Satış teknikleri, CX, Skechers Plus",
+          "target": "Bağımsız satış, %60 hedef"
+        },
+        {
+          "week": 6,
+          "focus": "Çapraz satış, stok/VM",
+          "target": "Tam verim, %90+ hedef"
+        }
+      ],
+      "early_attrition_risk": "İlk 90 gün — perakendede en kritik dönem"
+    },
+    "PROD": {
+      "ramp_weeks": 8,
+      "milestones": [
+        {
+          "week": 1,
+          "focus": "İSG, hat tanıtımı, KKD",
+          "target": "Güvenli gözetimli çalışma"
+        },
+        {
+          "week": 4,
+          "focus": "İstasyon becerisi, kalite standardı",
+          "target": "Bağımsız istasyon, %70 hız"
+        },
+        {
+          "week": 8,
+          "focus": "Hız + kalite dengesi",
+          "target": "Tam hat hızı, hedef PPM"
+        }
+      ],
+      "early_attrition_risk": "İlk 90 gün + vardiya uyumu"
+    },
+    "HQ": {
+      "ramp_weeks": 12,
+      "milestones": [
+        {
+          "week": 2,
+          "focus": "Sistem/araç, ekip, süreçler",
+          "target": "İlk görev teslimi"
+        },
+        {
+          "week": 6,
+          "focus": "Fonksiyon derinliği, paydaşlar",
+          "target": "Bağımsız proje katkısı"
+        },
+        {
+          "week": 12,
+          "focus": "Tam sorumluluk",
+          "target": "Sahiplenilen proje/hedef"
+        }
+      ],
+      "early_attrition_risk": "İlk 6 ay — kültür ve rol netliği"
+    }
+  },
+  "seasonality": {
+    "note": "Perakende ve üretimde kadro ihtiyacı sezonsaldır; şube kadro planlama ve sirkülasyon tahmini bunu dikkate almalı.",
+    "RETAIL_peaks": [
+      {
+        "period": "Kasım-Aralık",
+        "driver": "Yılbaşı + indirim sezonu",
+        "staffing": "+%30 geçici/part-time"
+      },
+      {
+        "period": "Ağustos-Eylül",
+        "driver": "Okul dönemi",
+        "staffing": "+%20"
+      },
+      {
+        "period": "Ramazan/Bayram",
+        "driver": "Bayram alışverişi",
+        "staffing": "+%15"
+      }
+    ],
+    "PROD_peaks": [
+      {
+        "period": "Ocak-Mart",
+        "driver": "İlkbahar-yaz koleksiyonu üretimi",
+        "staffing": "yüksek kapasite"
+      },
+      {
+        "period": "Temmuz-Eylül",
+        "driver": "Sonbahar-kış koleksiyonu",
+        "staffing": "yüksek kapasite"
+      }
+    ]
+  }
+}

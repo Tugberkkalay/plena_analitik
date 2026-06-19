@@ -166,6 +166,7 @@ def setup_tenant_routes(db):
         if not tenant:
             raise HTTPException(404, "Müşteri bulunamadı")
         slug = tenant["slug"]
+        sector = tenant.get("sector", "Bankacılık")
         # Import generators from server
         from server import (generate_seed_data, generate_branches,  generate_sales_data,
                            generate_recruitment_data, generate_training_data,
@@ -175,10 +176,10 @@ def setup_tenant_routes(db):
         for coll in ["employees", "branches", "sales_performance", "recruitment", "training", "engagement"]:
             await db[coll].delete_many({"tenant_id": slug})
         # Generate employees (includes branch assignment internally)
-        emps = generate_seed_data(500)
+        emps = generate_seed_data(500, sector=sector)
         for emp in emps:
             random.seed(hash(emp['id']) % 2**32)
-            emp['skills'] = generate_employee_skills(emp.get('department',''), emp.get('band','B'))
+            emp['skills'] = generate_employee_skills(emp.get('department',''), emp.get('band','B'), sector=sector)
             emp["tenant_id"] = slug
         # Generate branches
         branches = generate_branches()
@@ -190,7 +191,7 @@ def setup_tenant_routes(db):
         for s in sales:
             s["tenant_id"] = slug
         # Recruitment
-        recruitment = generate_recruitment_data(200)
+        recruitment = generate_recruitment_data(200, sector=sector)
         for r in recruitment:
             r["tenant_id"] = slug
         # Training

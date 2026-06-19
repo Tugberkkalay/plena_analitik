@@ -14,6 +14,8 @@ import pandas as pd
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
+from taxonomy_loader import get_sector_config
+
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
@@ -205,7 +207,10 @@ def generate_sales_data(employees, branches):
             })
     return sales
 
-def generate_seed_data(count=500):
+def generate_seed_data(count=500, sector="Bankacılık"):
+    cfg = _cfg(sector)
+    DEPTS = cfg["DEPARTMENTS"]
+    DW = cfg["DEPT_WEIGHTS"]
     random.seed(42)
     employees = []
     # Seasonal hiring weights: Q1 high, Q2 medium, Q3 high, Q4 low
@@ -236,8 +241,8 @@ def generate_seed_data(count=500):
         hd = random.randint(1, 28)
         hire_date = f"{hy}-{hm:02d}-{hd:02d}"
         seniority = max(0, round(2025 - hy + random.uniform(-0.5, 0.5), 1))
-        dept = random.choices(DEPARTMENTS, weights=DEPT_WEIGHTS, k=1)[0]
-        pos = get_role_for_employee(dept, band)
+        dept = random.choices(DEPTS, weights=DW, k=1)[0]
+        pos = get_role_for_employee(dept, band, sector)
         edu = random.choices(EDUCATION_LEVELS, weights=EDUCATION_WEIGHTS, k=1)[0]
         uni = random.choice(UNIVERSITIES) if edu != "High School" else None
         marital = random.choices(MARITAL_STATUS, weights=MARITAL_WEIGHTS, k=1)[0]
@@ -298,14 +303,14 @@ def generate_seed_data(count=500):
             bid = random.choice(small_city_branches) if small_city_branches else random.choice(branch_ids)
         emp["branch_id"] = bid
         emp["region"] = branch_regions[bid]
-        if emp["department"] == "Sales" or (emp["band"] in ["A","B"] and random.random() < 0.4):
+        if emp["department"] == "Sales" or emp["department"] == "Mağaza Satış" or (emp["band"] in ["A","B"] and random.random() < 0.4):
             emp["role_type"] = "sales"
         elif emp["is_manager"]:
             emp["role_type"] = "manager"
         else:
             emp["role_type"] = "support"
         # Assign banking taxonomy skills
-        emp["skills"] = generate_employee_skills(emp["department"], emp["band"])
+        emp["skills"] = generate_employee_skills(emp["department"], emp["band"], sector)
     # Update branch headcounts
     for b in branches:
         b["headcount"] = len([e for e in employees if e["branch_id"] == b["id"] and e["status"] == "active"])
@@ -356,16 +361,22 @@ CAREER_PATH_BANDS = {
     "E": {"next": "E", "title": "Üst Yönetim", "timeline": "devam eden"}
 }
 
-def generate_employee_skills(department, band):
-    """Generate skills from real banking taxonomy for an employee."""
-    clusters = DEPT_SKILL_CLUSTERS.get(department, ["liderlik-yonetim","davranissal-iletisim"])
-    # Always add leadership/behavioral for managers
-    all_clusters = list(set(clusters + ["liderlik-yonetim","davranissal-iletisim"]))
+def generate_employee_skills(department, band, sector="Bankacılık"):
+    """Generate skills from sector taxonomy for an employee."""
+    cfg = _cfg(sector)
+    skill_tax = cfg["SKILL_TAXONOMY"]
+    dept_clusters = cfg["DEPT_SKILL_CLUSTERS"]
+    clusters = dept_clusters.get(department, list(dept_clusters.values())[0] if dept_clusters else ["liderlik-yonetim","davranissal-iletisim"])
+    # Always add core/leadership clusters
+    if sector == "Perakende":
+        all_clusters = list(set(clusters + ["core"]))
+    else:
+        all_clusters = list(set(clusters + ["liderlik-yonetim","davranissal-iletisim"]))
     # Get skills from relevant clusters
-    dept_skills = [s for s in SKILL_TAXONOMY if s["kume_id"] in all_clusters]
-    primary_skills = [s for s in SKILL_TAXONOMY if s["kume_id"] in clusters]
+    dept_skills = [s for s in skill_tax if s["kume_id"] in all_clusters]
+    primary_skills = [s for s in skill_tax if s["kume_id"] in clusters]
     if not dept_skills:
-        dept_skills = SKILL_TAXONOMY[:20]
+        dept_skills = skill_tax[:20]
         primary_skills = dept_skills
     band_range = {"A": (1,3), "B": (2,4), "C": (2,5), "D": (3,5), "E": (3,5)}
     mn, mx = band_range.get(band, (1,5))
@@ -375,17 +386,24 @@ def generate_employee_skills(department, band):
     for s in random.sample(primary_skills, n_primary):
         skills.append({"skill": s["ad"], "skill_id": s["id"], "category": s["kume_id"], "proficiency": random.randint(mn, mx)})
     # Soft/leadership skills
-    soft_skills = [s for s in SKILL_TAXONOMY if s["kume_id"] in ["liderlik-yonetim","davranissal-iletisim"]]
+    if sector == "Perakende":
+        soft_skills = [s for s in skill_tax if s.get("kategori") == "Soft" or s["kume_id"] == "core"]
+    else:
+        soft_skills = [s for s in skill_tax if s["kume_id"] in ["liderlik-yonetim","davranissal-iletisim"]]
     n_soft = min(len(soft_skills), random.randint(2, 4))
     for s in random.sample(soft_skills, n_soft):
         if s["ad"] not in [sk["skill"] for sk in skills]:
             skills.append({"skill": s["ad"], "skill_id": s["id"], "category": s["kume_id"], "proficiency": random.randint(max(1,mn-1), mx)})
     return skills
 
-def get_role_for_employee(department, band):
+def get_role_for_employee(department, band, sector="Bankacılık"):
     """Get a matching role title from taxonomy based on department and band."""
-    families = DEPT_ROLE_FAMILIES.get(department, [])
-    matching_roles = [r for r in ROLE_TAXONOMY if r["aile"] in families]
+    cfg = _cfg(sector)
+    role_tax = cfg["ROLE_TAXONOMY"]
+    dept_families = cfg["DEPT_ROLE_FAMILIES"]
+    pos_by_band = cfg["POSITIONS_BY_BAND"]
+    families = dept_families.get(department, [])
+    matching_roles = [r for r in role_tax if r["aile"] in families]
     band_kademe = {"A": [1], "B": [2], "C": [3], "D": [4], "E": [5,6]}
     target_kademeler = band_kademe.get(band, [1,2])
     exact = [r for r in matching_roles if r["kademe_seviyesi"] in target_kademeler]
@@ -393,17 +411,21 @@ def get_role_for_employee(department, band):
         return random.choice(exact)["unvan"]
     if matching_roles:
         return random.choice(matching_roles)["unvan"]
-    return random.choice(POSITIONS_BY_BAND.get(band, ["Uzman"]))
+    return random.choice(pos_by_band.get(band, ["Uzman"]))
 
 
-def generate_recruitment_data(count=200):
+def generate_recruitment_data(count=200, sector="Bankacılık"):
+    cfg = _cfg(sector)
+    DEPTS = cfg["DEPARTMENTS"]
+    DW = cfg["DEPT_WEIGHTS"]
+    PBB = cfg["POSITIONS_BY_BAND"]
     random.seed(43)
     candidates = []
     for i in range(count):
         gender = random.choice(["Male","Female"])
         name = f"{random.choice(MALE_NAMES if gender=='Male' else FEMALE_NAMES)} {random.choice(LAST_NAMES)}"
-        dept = random.choices(DEPARTMENTS, weights=DEPT_WEIGHTS, k=1)[0]
-        pos = random.choice(sum(POSITIONS_BY_BAND.values(), []))
+        dept = random.choices(DEPTS, weights=DW, k=1)[0]
+        pos = random.choice(sum(PBB.values(), []))
         source = random.choice(RECRUITMENT_SOURCES)
         r = random.random()
         if r < 0.12: stage = "Hired"
@@ -513,6 +535,22 @@ async def get_filtered(year, country=None, tenant=None):
 def safe_avg(items, key):
     vals = [i.get(key, 0) for i in items if i.get(key) is not None]
     return round(sum(vals)/len(vals), 1) if vals else 0
+
+async def _resolve_sector(tenant_slug):
+    """Look up tenant sector from DB. Returns 'Bankacılık' as default."""
+    if not tenant_slug:
+        return "Bankacılık"
+    t = await db.tenants.find_one({"slug": tenant_slug}, {"sector": 1})
+    return t.get("sector", "Bankacılık") if t else "Bankacılık"
+
+def _cfg(sector=None):
+    """Shorthand to get sector config."""
+    return get_sector_config(sector or "Bankacılık")
+
+async def _resolve_dept_list(tenant_slug):
+    """Get departments list for a tenant."""
+    sector = await _resolve_sector(tenant_slug)
+    return _cfg(sector)["DEPARTMENTS"]
 
 # ---- Startup ----
 @app.on_event("startup")
@@ -812,6 +850,8 @@ def _compute_group_turnover(active, left, groups, group_key, label_key="name", l
 
 @api_router.get("/dashboard/turnover")
 async def get_turnover(year: int = 2025, country: str = None, tenant: str = None):
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
     all_emp, active, hired, left = await get_filtered(year, country, tenant=tenant)
     hc = len(active)
     vol = [e for e in left if e.get('termination_type') == 'voluntary']
@@ -826,7 +866,7 @@ async def get_turnover(year: int = 2025, country: str = None, tenant: str = None
         reason = emp.get('leaving_reason', 'Unknown')
         reasons[reason] = reasons.get(reason, 0) + 1
 
-    dept_turnover = _compute_group_turnover(active, left, [shorten_dept(d) for d in DEPARTMENTS], 'department', 'department',
+    dept_turnover = _compute_group_turnover(active, left, [shorten_dept(d) for d in cfg["DEPARTMENTS"]], 'department', 'department',
                                              lambda e: shorten_dept(e['department']))
     age_turnover = _compute_group_turnover(active, left, AGE_RANGES, 'age', 'range', lambda e: get_age_range(e['age']))
     gender_turnover = _compute_group_turnover(active, left, ["Male", "Female"], 'gender', 'gender')
@@ -856,6 +896,8 @@ async def get_turnover(year: int = 2025, country: str = None, tenant: str = None
 # ---- Movement ----
 @api_router.get("/dashboard/movement")
 async def get_movement(year: int = 2025, tenant: str = None):
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
     all_emp, active, hired, left = await get_filtered(year, tenant=tenant)
     hc = len(active)
     early_left = [e for e in left if e['hire_date'][:4]==str(year) or (int(e.get('termination_date','2025')[:4]) - int(e['hire_date'][:4])) < 1]
@@ -867,8 +909,8 @@ async def get_movement(year: int = 2025, tenant: str = None):
         l = len([e for e in left if e.get('termination_date','')[:7]==ms])
         hl_month.append({"month": mn, "hires": h, "leaves": l})
     hl_dept = []
-    for dept in DEPARTMENTS:
-        short = dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
+    for dept in cfg["DEPARTMENTS"]:
+        short = shorten_dept(dept)
         h = len([e for e in hired if e['department']==dept])
         l = len([e for e in left if e['department']==dept])
         hl_dept.append({"department": short, "hires": h, "leaves": l})
@@ -909,9 +951,11 @@ def _compute_headcount_forecast(hc, net, year):
         forecast.append({"month": f"{month_name} {year}", "predicted": cur, "lower": int(cur * 0.95), "upper": int(cur * 1.05)})
     return forecast
 
-def _compute_dept_risks(active, left):
+def _compute_dept_risks(active, left, departments=None):
+    if departments is None:
+        departments = DEPARTMENTS
     risks = []
-    for dept in DEPARTMENTS:
+    for dept in departments:
         dept_active = [e for e in active if e['department'] == dept]
         dept_left = [e for e in left if e['department'] == dept]
         risk = round(len(dept_left) / len(dept_active) * 100, 1) if dept_active else 0
@@ -928,13 +972,15 @@ def _build_at_risk_list(active):
 async def ai_forecast(body: ForecastRequest):
     year = body.year
     tenant = body.tenant
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
     all_emp, active, hired, left = await get_filtered(year, tenant=tenant)
     hc = len(active)
     turnover_rate = len(left) / hc if hc else 0
     net = len(hired) / 12 - len(left) / 12
 
     hc_forecast = _compute_headcount_forecast(hc, net, year)
-    dept_risks = _compute_dept_risks(active, left)
+    dept_risks = _compute_dept_risks(active, left, cfg["DEPARTMENTS"])
     at_risk_list = _build_at_risk_list(active)
 
     attrition_level = "Düşük" if turnover_rate < 0.1 else "Orta" if turnover_rate < 0.2 else "Yüksek"
@@ -1114,6 +1160,8 @@ async def get_recruitment(year: int = 2025, tenant: str = None):
 # ---- Performance ----
 @api_router.get("/dashboard/performance")
 async def get_performance(year: int = 2025, tenant: str = None):
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
     _, active, _, _ = await get_filtered(year, tenant=tenant)
     scores = [e.get('performance_score', 3) for e in active]
     avg_score = round(sum(scores)/len(scores), 1) if scores else 0
@@ -1122,10 +1170,10 @@ async def get_performance(year: int = 2025, tenant: str = None):
     hc = len(active)
     dist = [{"range": "1.0-2.0", "count": len([s for s in scores if s < 2.0])}, {"range": "2.0-2.5", "count": len([s for s in scores if 2.0 <= s < 2.5])}, {"range": "2.5-3.0", "count": len([s for s in scores if 2.5 <= s < 3.0])}, {"range": "3.0-3.5", "count": len([s for s in scores if 3.0 <= s < 3.5])}, {"range": "3.5-4.0", "count": len([s for s in scores if 3.5 <= s < 4.0])}, {"range": "4.0-4.5", "count": len([s for s in scores if 4.0 <= s < 4.5])}, {"range": "4.5-5.0", "count": len([s for s in scores if s >= 4.5])}]
     by_dept = []
-    for dept in DEPARTMENTS:
+    for dept in cfg["DEPARTMENTS"]:
         de = [e for e in active if e['department'] == dept]
         avg = safe_avg(de, 'performance_score')
-        short = dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
+        short = shorten_dept(dept)
         by_dept.append({"department": short, "score": avg, "count": len(de)})
     by_band = [{"band": b, "score": safe_avg([e for e in active if e['band']==b], 'performance_score')} for b in BANDS]
     top = sorted(active, key=lambda e: -e.get('performance_score', 0))[:10]
@@ -1138,6 +1186,8 @@ async def get_performance(year: int = 2025, tenant: str = None):
 # ---- Learning ----
 @api_router.get("/dashboard/learning")
 async def get_learning(year: int = 2025, tenant: str = None):
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
     tq = {"tenant_id": tenant} if tenant else {}
     all_trn = await db.training.find(tq, {"_id": 0}).to_list(10000)
     trn = [t for t in all_trn if t.get('date','')[:4] == str(year)]
@@ -1155,9 +1205,9 @@ async def get_learning(year: int = 2025, tenant: str = None):
     by_cat = count_by(trn, 'category')
     by_status = [{"status": s, "count": len([t for t in trn if t['status']==s])} for s in ["Completed","In Progress","Not Started"]]
     by_dept = []
-    for dept in DEPARTMENTS:
+    for dept in cfg["DEPARTMENTS"]:
         dt = [t for t in trn if t['department'] == dept]
-        short = dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
+        short = shorten_dept(dept)
         by_dept.append({"department": short, "hours": round(sum(t.get('hours',0) for t in dt),1), "count": len(dt)})
     top_courses = {}
     for t in trn:
@@ -1172,6 +1222,8 @@ async def get_learning(year: int = 2025, tenant: str = None):
 # ---- Compensation ----
 @api_router.get("/dashboard/compensation")
 async def get_compensation(year: int = 2025, tenant: str = None):
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
     _, active, _, _ = await get_filtered(year, tenant=tenant)
     salaries = [e.get('salary', 0) for e in active]
     avg_sal = round(sum(salaries)/len(salaries)) if salaries else 0
@@ -1189,9 +1241,9 @@ async def get_compensation(year: int = 2025, tenant: str = None):
     female_avg = safe_avg([e for e in active if e['gender']=='Female'], 'salary')
     pay_gap = round((male_avg - female_avg) / male_avg * 100, 1) if male_avg else 0
     by_dept = []
-    for dept in DEPARTMENTS:
+    for dept in cfg["DEPARTMENTS"]:
         de = [e for e in active if e['department'] == dept]
-        short = dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
+        short = shorten_dept(dept)
         by_dept.append({"department": short, "avg_salary": safe_avg(de, 'salary'), "count": len(de)})
     sal_ranges = [{"range":"0-25K","count":len([s for s in salaries if s<25000])},{"range":"25-50K","count":len([s for s in salaries if 25000<=s<50000])},{"range":"50-75K","count":len([s for s in salaries if 50000<=s<75000])},{"range":"75-100K","count":len([s for s in salaries if 75000<=s<100000])},{"range":"100-150K","count":len([s for s in salaries if 100000<=s<150000])},{"range":"150K+","count":len([s for s in salaries if s>=150000])}]
     gender_by_band = [{"band": b, "male": safe_avg([e for e in active if e['band']==b and e['gender']=='Male'], 'salary'), "female": safe_avg([e for e in active if e['band']==b and e['gender']=='Female'], 'salary')} for b in BANDS]
@@ -1203,6 +1255,8 @@ async def get_compensation(year: int = 2025, tenant: str = None):
 # ---- Engagement ----
 @api_router.get("/dashboard/engagement")
 async def get_engagement(year: int = 2025, tenant: str = None):
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
     eq = {"tenant_id": tenant} if tenant else {}
     all_eng = await db.engagement.find(eq, {"_id": 0}).to_list(10000)
     surveys = all_eng
@@ -1217,9 +1271,9 @@ async def get_engagement(year: int = 2025, tenant: str = None):
     avg_absent = round(sum(s.get('absenteeism_days', 0) for s in surveys) / total, 1)
     drivers = [{"driver": "Satisfaction", "score": round(sum(s['satisfaction'] for s in surveys)/total,1)}, {"driver": "Work-Life Balance", "score": round(sum(s['work_life_balance'] for s in surveys)/total,1)}, {"driver": "Career Growth", "score": round(sum(s['career_growth'] for s in surveys)/total,1)}, {"driver": "Manager Rating", "score": round(sum(s['manager_rating'] for s in surveys)/total,1)}, {"driver": "Recognition", "score": round(sum(s['recognition'] for s in surveys)/total,1)}, {"driver": "Culture", "score": round(sum(s['culture_alignment'] for s in surveys)/total,1)}]
     by_dept = []
-    for dept in DEPARTMENTS:
+    for dept in cfg["DEPARTMENTS"]:
         ds = [s for s in surveys if s['department'] == dept]
-        short = dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
+        short = shorten_dept(dept)
         if ds:
             by_dept.append({"department": short, "engagement": round(sum(s['engagement_score'] for s in ds)/len(ds),1), "enps": round(sum(s['enps_score'] for s in ds)/len(ds),1), "count": len(ds)})
     score_dist = [{"range":"1-3","count":len([s for s in surveys if s['engagement_score']<3])},{"range":"3-5","count":len([s for s in surveys if 3<=s['engagement_score']<5])},{"range":"5-7","count":len([s for s in surveys if 5<=s['engagement_score']<7])},{"range":"7-9","count":len([s for s in surveys if 7<=s['engagement_score']<9])},{"range":"9-10","count":len([s for s in surveys if s['engagement_score']>=9])}]
@@ -1232,6 +1286,8 @@ async def get_engagement(year: int = 2025, tenant: str = None):
 # ---- Career & Talent ----
 @api_router.get("/dashboard/career")
 async def get_career(year: int = 2025, tenant: str = None):
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
     _, active, hired, left = await get_filtered(year, tenant=tenant)
     hc = len(active)
     talents = [e for e in active if e.get('is_talent')]
@@ -1240,10 +1296,10 @@ async def get_career(year: int = 2025, tenant: str = None):
     internal_mobility = round(len([e for e in hired if e.get('data_source') != 'upload']) / hc * 100, 1) if hc else 0
     succession = round(len([e for e in active if e.get('is_talent') and e.get('band') in ['C','D']]) / len(managers) * 100, 1) if managers else 0
     talent_by_dept = []
-    for dept in DEPARTMENTS:
+    for dept in cfg["DEPARTMENTS"]:
         de = [e for e in active if e['department'] == dept]
         dt = [e for e in de if e.get('is_talent')]
-        short = dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
+        short = shorten_dept(dept)
         talent_by_dept.append({"department": short, "total": len(de), "talents": len(dt), "ratio": round(len(dt)/len(de)*100,1) if de else 0})
     talent_by_band = [{"band": b, "count": len([e for e in talents if e['band']==b])} for b in BANDS]
     pipeline = [{"level": "Individual Contributor", "count": len([e for e in active if e['band'] in ['A','B','C'] and not e.get('is_manager')])}, {"level": "Manager", "count": len([e for e in active if e['band']=='D'])}, {"level": "Director+", "count": len([e for e in active if e['band']=='E'])}]
@@ -1255,6 +1311,8 @@ async def get_career(year: int = 2025, tenant: str = None):
 # ---- HR Operations ----
 @api_router.get("/dashboard/hr-operations")
 async def get_hr_operations(year: int = 2025, tenant: str = None):
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
     _, active, hired, left = await get_filtered(year, tenant=tenant)
     hc = len(active)
     ft = len([e for e in active if e.get('is_full_time')])
@@ -1265,9 +1323,9 @@ async def get_hr_operations(year: int = 2025, tenant: str = None):
     avg_sen = safe_avg(active, 'seniority_years')
     gen_dist = count_by(active, 'gender')
     dept_size = []
-    for dept in DEPARTMENTS:
+    for dept in cfg["DEPARTMENTS"]:
         de = [e for e in active if e['department'] == dept]
-        short = dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
+        short = shorten_dept(dept)
         dept_size.append({"department": short, "count": len(de), "managers": len([e for e in de if e.get('is_manager')]), "span": round(len(de)/max(1,len([e for e in de if e.get('is_manager')])),1)})
     metrics = [{"metric": "Onboarding Completion", "value": 94.2, "target": 95},{"metric": "Payroll Accuracy", "value": 99.1, "target": 99.5},{"metric": "Document Compliance", "value": 91.8, "target": 95},{"metric": "Ticket Resolution (days)", "value": 2.3, "target": 2},{"metric": "Digital Process Rate", "value": 78.5, "target": 85},{"metric": "Automation Rate", "value": 62.0, "target": 75}]
     return {
@@ -1352,6 +1410,8 @@ async def get_career_plan(body: CareerPlanRequest):
     if not emp:
         raise HTTPException(404, "Employee not found")
     tenant = emp.get("tenant_id")
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
     skills = emp.get('skills', [])
     skill_text = ", ".join([f"{s['skill']}({s['proficiency']}/5)" for s in skills])
     weak_skills = [s for s in skills if s['proficiency'] <= 2]
@@ -1370,11 +1430,11 @@ async def get_career_plan(body: CareerPlanRequest):
                             "matching_skills": [{"skill": s['skill'], "proficiency": s['proficiency']} for s in matching[:4]],
                             "match_score": len(matching)})
     mentors = sorted(mentors, key=lambda x: -x['match_score'])[:5]
-    career = CAREER_PATH_BANDS.get(emp.get('band','A'), {})
+    career = cfg["CAREER_PATH_BANDS"].get(emp.get('band','A'), {})
     # Find matching career paths from taxonomy
     emp_dept = emp.get('department','')
-    emp_role_families = DEPT_ROLE_FAMILIES.get(emp_dept, [])
-    taxonomy_paths = [p for p in CAREER_PATHS if any(fam in str(p) for fam in emp_role_families)]
+    emp_role_families = cfg["DEPT_ROLE_FAMILIES"].get(emp_dept, [])
+    taxonomy_paths = [p for p in cfg["CAREER_PATHS"] if any(fam in str(p) for fam in emp_role_families)]
     career_path_info = ""
     if taxonomy_paths:
         tp = taxonomy_paths[0]
@@ -1427,18 +1487,20 @@ Toplam 200 kelimeyi geçme. Somut ve uygulanabilir yaz."""
 
 # ---- Career Paths API ----
 @api_router.get("/career-paths")
-async def get_career_paths(department: Optional[str] = None):
+async def get_career_paths(department: Optional[str] = None, tenant: str = None):
     """Return all career paths from taxonomy with resolved role names."""
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
     paths = []
-    for p in CAREER_PATHS:
+    for p in cfg["CAREER_PATHS"]:
         # Filter by department if specified
         if department:
-            dept_families = DEPT_ROLE_FAMILIES.get(department, [])
+            dept_families = cfg["DEPT_ROLE_FAMILIES"].get(department, [])
             if not any(fam in str(p.get("aile", "")) for fam in dept_families):
                 continue
         steps = []
         for a in p.get("adimlar", []):
-            role = ROLE_MAP.get(a["rol_id"], {})
+            role = cfg["ROLE_MAP"].get(a["rol_id"], {})
             steps.append({
                 "sira": a["sira"],
                 "rol_id": a["rol_id"],
@@ -1451,7 +1513,7 @@ async def get_career_paths(department: Optional[str] = None):
             })
         alt_paths = []
         for alt_id in p.get("alternatif_yollar", []):
-            alt = next((cp for cp in CAREER_PATHS if cp["id"] == alt_id), None)
+            alt = next((cp for cp in cfg["CAREER_PATHS"] if cp["id"] == alt_id), None)
             if alt:
                 alt_paths.append({"id": alt["id"], "ad": alt["ad"]})
         paths.append({
@@ -1466,19 +1528,21 @@ async def get_career_paths(department: Optional[str] = None):
     return {"career_paths": paths, "total": len(paths)}
 
 @api_router.get("/career-paths/{path_id}")
-async def get_career_path_detail(path_id: str):
+async def get_career_path_detail(path_id: str, tenant: str = None):
     """Return single career path detail with full role info."""
-    path = next((p for p in CAREER_PATHS if p["id"] == path_id), None)
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
+    path = next((p for p in cfg["CAREER_PATHS"] if p["id"] == path_id), None)
     if not path:
         raise HTTPException(404, "Career path not found")
     steps = []
     for a in path.get("adimlar", []):
-        role = ROLE_MAP.get(a["rol_id"], {})
+        role = cfg["ROLE_MAP"].get(a["rol_id"], {})
         # Get required skills for the role
         required_skills = []
         for sk_ref in role.get("gerekli_beceriler", []):
             sk_id = sk_ref["skill_id"] if isinstance(sk_ref, dict) else sk_ref
-            sk = SKILL_MAP.get(sk_id, {})
+            sk = cfg["SKILL_MAP"].get(sk_id, {})
             if sk:
                 required_skills.append({"id": sk["id"], "ad": sk["ad"], "kume_id": sk.get("kume_id", ""),
                                         "gerekli_seviye": sk_ref.get("gerekli_seviye") if isinstance(sk_ref, dict) else None})
@@ -1495,7 +1559,7 @@ async def get_career_path_detail(path_id: str):
         })
     alt_paths = []
     for alt_id in path.get("alternatif_yollar", []):
-        alt = next((cp for cp in CAREER_PATHS if cp["id"] == alt_id), None)
+        alt = next((cp for cp in cfg["CAREER_PATHS"] if cp["id"] == alt_id), None)
         if alt:
             alt_paths.append({"id": alt["id"], "ad": alt["ad"], "tur": alt.get("tur", "dikey")})
     return {
@@ -1511,13 +1575,15 @@ async def get_career_path_detail(path_id: str):
 # ---- Internal Mobility & Skill Gap by Department ----
 @api_router.get("/dashboard/internal-mobility")
 async def get_internal_mobility(year: int = 2025, tenant: str = None):
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
     _, active, _, _ = await get_filtered(year, tenant=tenant)
     dept_needs = {}
     dept_surplus = {}
-    for dept_name in DEPARTMENTS:
-        short = dept_name.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
+    for dept_name in cfg["DEPARTMENTS"]:
+        short = shorten_dept(dept_name)
         dept_emps = [e for e in active if e['department'] == dept_name]
-        focus = DEPT_SKILL_FOCUS.get(dept_name, {})
+        focus = cfg["DEPT_SKILL_FOCUS"].get(dept_name, {})
         required = set(focus.get("tech",[]) + focus.get("soft",[]) + focus.get("domain",[]))
         covered = {}
         for emp in dept_emps:
@@ -1561,6 +1627,8 @@ class ScenarioRequest(BaseModel):
 @api_router.post("/simulator/scenario")
 async def run_scenario(body: ScenarioRequest):
     tenant = body.tenant
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
     _, active, hired, left = await get_filtered(body.year, tenant=tenant)
     hc = len(active)
     current_attrition = len(left)/hc if hc else 0
@@ -1579,9 +1647,9 @@ async def run_scenario(body: ScenarioRequest):
         projections.append({"month": MONTHS[m-1], "headcount": cur_hc, "cost": round(cost), "hires": monthly_growth + new_loc, "attrition": monthly_attrition})
     final_hc = projections[-1]["headcount"]
     dept_impact = []
-    for dept in DEPARTMENTS:
+    for dept in cfg["DEPARTMENTS"]:
         de = [e for e in active if e['department']==dept]
-        short = dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
+        short = shorten_dept(dept)
         projected = int(len(de) * (1 + growth))
         dept_impact.append({"department": short, "current": len(de), "projected": projected, "delta": projected - len(de)})
     # Location breakdown
@@ -1732,9 +1800,9 @@ async def get_burnout(year: int = 2025, tenant: str = None):
                           "work_life_balance": wlb, "performance": perf, "seniority": seniority})
     risk_list = sorted(risk_list, key=lambda x: -x['risk_score'])
     dept_risk = []
-    for dept in DEPARTMENTS:
+    for dept in (await _resolve_dept_list(tenant)):
         de = [r for r in risk_list if r['department']==dept]
-        short = dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
+        short = shorten_dept(dept)
         if de:
             dept_risk.append({"department": short, "avg_risk": round(sum(r['risk_score'] for r in de)/len(de),1), "critical": len([r for r in de if r['risk_level']=='Kritik']), "high": len([r for r in de if r['risk_level']=='Yüksek']), "count": len(de)})
     dist = [{"level": lv, "count": len([r for r in risk_list if r['risk_level']==lv])} for lv in ["Kritik","Yüksek","Orta","Düşük"]]
@@ -1760,16 +1828,19 @@ TARGET_HEADCOUNT = {
 
 @api_router.get("/dashboard/headcount-plan")
 async def get_headcount_plan(year: int = 2025, country: str = None, tenant: str = None):
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
+    THC = cfg["TARGET_HEADCOUNT"]
     _, active, hired, left = await get_filtered(year, country, tenant=tenant)
     hc = len(active)
-    total_target = sum(t["target"] for t in TARGET_HEADCOUNT.values())
+    total_target = sum(t["target"] for t in THC.values())
     total_gap = total_target - hc
     dept_plan = []
     critical_gaps = []
-    for dept_name in DEPARTMENTS:
+    for dept_name in cfg["DEPARTMENTS"]:
         short = shorten_dept(dept_name)
         dept_emps = [e for e in active if e['department'] == dept_name]
-        target_info = TARGET_HEADCOUNT.get(dept_name, {"target": len(dept_emps), "critical_roles": []})
+        target_info = THC.get(dept_name, {"target": len(dept_emps), "critical_roles": []})
         current = len(dept_emps)
         target = target_info["target"]
         gap = target - current
@@ -1860,9 +1931,11 @@ STRATEGIC_OBJECTIVES = [
 
 @api_router.get("/dashboard/workforce-alignment")
 async def get_workforce_alignment(year: int = 2025, tenant: str = None):
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
     _, active, _, _ = await get_filtered(year, tenant=tenant)
     objectives = []
-    for obj in STRATEGIC_OBJECTIVES:
+    for obj in cfg["STRATEGIC_OBJECTIVES"]:
         target_emps = [e for e in active if e['department'] in obj["target_departments"]]
         skill_coverage = {}
         for skill in obj["required_skills"]:
@@ -1905,6 +1978,8 @@ async def get_workforce_alignment(year: int = 2025, tenant: str = None):
 # ---- Org Health (Structure Analysis) ----
 @api_router.get("/dashboard/org-health")
 async def get_org_health(year: int = 2025, country: str = None, tenant: str = None):
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
     _, active, _, _ = await get_filtered(year, country, tenant=tenant)
     hc = len(active)
     total_managers = len([e for e in active if e.get('is_manager')])
@@ -1914,7 +1989,7 @@ async def get_org_health(year: int = 2025, country: str = None, tenant: str = No
     band_counts = {b: len([e for e in active if e['band'] == b]) for b in BANDS}
     hierarchy_depth = len([b for b in BANDS if band_counts[b] > 0])
     dept_health = []
-    for dept_name in DEPARTMENTS:
+    for dept_name in cfg["DEPARTMENTS"]:
         short = shorten_dept(dept_name)
         dept_emps = [e for e in active if e['department'] == dept_name]
         managers = [e for e in dept_emps if e.get('is_manager')]
@@ -1961,10 +2036,14 @@ async def get_org_health(year: int = 2025, country: str = None, tenant: str = No
     }
 
 # ---- Open Positions Generation ----
-def generate_open_positions(active_employees):
+def generate_open_positions(active_employees, sector="Bankacılık"):
+    cfg = _cfg(sector)
+    THC = cfg["TARGET_HEADCOUNT"]
+    DSF = cfg["DEPT_SKILL_FOCUS"]
+    PBB = cfg["POSITIONS_BY_BAND"]
     random.seed(50)
     positions = []
-    for dept_name, target in TARGET_HEADCOUNT.items():
+    for dept_name, target in THC.items():
         dept_emps = [e for e in active_employees if e['department'] == dept_name]
         gap = target["target"] - len(dept_emps)
         if gap <= 0:
@@ -1972,9 +2051,9 @@ def generate_open_positions(active_employees):
         num_open = min(gap, random.randint(2, max(3, gap // 2)))
         for i in range(num_open):
             band = random.choices(BANDS, weights=[15, 30, 30, 15, 10], k=1)[0]
-            title = random.choice(target["critical_roles"]) if random.random() < 0.4 else random.choice(POSITIONS_BY_BAND[band])
+            title = random.choice(target["critical_roles"]) if random.random() < 0.4 else random.choice(PBB[band])
             city = random.choices(CITIES, weights=CITY_WEIGHTS, k=1)[0]
-            focus = DEPT_SKILL_FOCUS.get(dept_name, {"tech": ["Data Analytics"], "soft": ["Communication"], "domain": ["Project Management"]})
+            focus = DSF.get(dept_name, {"tech": ["Data Analytics"], "soft": ["Communication"], "domain": ["Project Management"]})
             req_skills = random.sample(focus.get("tech", [])[:6], min(3, len(focus.get("tech", [])))) + \
                          random.sample(focus.get("soft", [])[:4], min(1, len(focus.get("soft", [])))) + \
                          random.sample(focus.get("domain", [])[:3], min(1, len(focus.get("domain", []))))
@@ -1993,6 +2072,8 @@ def generate_open_positions(active_employees):
 # ---- Enhanced Skills Map ----
 @api_router.get("/dashboard/skills-map-v2")
 async def get_skills_map_v2(year: int = 2025, tenant: str = None):
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
     _, active, _, _ = await get_filtered(year, tenant=tenant)
     hc = len(active)
     skill_agg = {}
@@ -2021,7 +2102,7 @@ async def get_skills_map_v2(year: int = 2025, tenant: str = None):
     all_skills = sorted(skill_agg.values(), key=lambda x: -x["count"])
     # Derive future demand from strategic objectives
     skill_demand = {}
-    for obj in STRATEGIC_OBJECTIVES:
+    for obj in cfg["STRATEGIC_OBJECTIVES"]:
         for sk in obj["required_skills"]:
             if sk not in skill_demand:
                 skill_demand[sk] = 0
@@ -2064,9 +2145,9 @@ async def get_skills_map_v2(year: int = 2025, tenant: str = None):
     avg_cov = round(sum(capped_coverages) / len(capped_coverages), 1) if capped_coverages else 0
     # Build cluster breakdown from taxonomy
     cluster_breakdown = []
-    for cluster in CLUSTER_TAXONOMY:
+    for cluster in cfg["CLUSTER_TAXONOMY"]:
         cid = cluster["id"]
-        cluster_skills_tax = [s for s in SKILL_TAXONOMY if s["kume_id"] == cid]
+        cluster_skills_tax = [s for s in cfg["SKILL_TAXONOMY"] if s["kume_id"] == cid]
         # Aggregate employee data for each skill in this cluster
         cluster_skill_details = []
         total_experts = 0
@@ -2117,8 +2198,9 @@ async def get_skills_map_v2(year: int = 2025, tenant: str = None):
 # ---- Internal Mobility (Positions + Matching) ----
 @api_router.get("/dashboard/positions")
 async def get_positions(year: int = 2025, tenant: str = None):
+    sector = await _resolve_sector(tenant)
     _, active, _, _ = await get_filtered(year, tenant=tenant)
-    positions = generate_open_positions(active)
+    positions = generate_open_positions(active, sector)
     filled_count = random.Random(51).randint(8, 18)
     internal_fill = random.Random(51).randint(3, filled_count)
     avg_ttf = round(random.Random(51).uniform(22, 42), 1)
@@ -2168,8 +2250,9 @@ def _compute_matches(position, active_employees):
 
 @api_router.get("/dashboard/positions/{position_id}/matches")
 async def get_position_matches(position_id: str, year: int = 2025, tenant: str = None):
+    sector = await _resolve_sector(tenant)
     _, active, _, _ = await get_filtered(year, tenant=tenant)
-    positions = generate_open_positions(active)
+    positions = generate_open_positions(active, sector)
     pos = next((p for p in positions if p["id"] == position_id), None)
     if not pos:
         raise HTTPException(404, "Position not found")
@@ -2179,12 +2262,14 @@ async def get_position_matches(position_id: str, year: int = 2025, tenant: str =
 # ---- Action Center (Alert Engine) ----
 @api_router.get("/dashboard/alerts")
 async def get_alerts(year: int = 2025, tenant: str = None):
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
     all_emp, active, hired, left = await get_filtered(year, tenant=tenant)
     hc = len(active)
     alerts = []
     alert_id = 0
     # Rule 1: Department turnover > 10%
-    for dept_name in DEPARTMENTS:
+    for dept_name in cfg["DEPARTMENTS"]:
         short = shorten_dept(dept_name)
         dept_active = [e for e in active if e['department'] == dept_name]
         dept_left = [e for e in left if e['department'] == dept_name]
@@ -2230,7 +2315,7 @@ async def get_alerts(year: int = 2025, tenant: str = None):
             "entity_ref": role['name'], "status": "active"})
     # Rule 3: Skills gap — critical coverage
     skill_demand = {}
-    for obj in STRATEGIC_OBJECTIVES:
+    for obj in cfg["STRATEGIC_OBJECTIVES"]:
         for sk in obj["required_skills"]:
             if sk not in skill_demand: skill_demand[sk] = 0
             skill_demand[sk] += max(3, obj["required_headcount"] // len(obj["required_skills"]))
@@ -2250,7 +2335,7 @@ async def get_alerts(year: int = 2025, tenant: str = None):
                 "suggested_action": f"Hedefli {sk} eğitim programı başlat (8 haftalık yoğun). İşe alımda {sk} yetkinliğini zorunlu kriter yap.",
                 "entity_ref": sk, "status": "active"})
     # Rule 4: Org Health — narrow span or high manager ratio
-    for dept_name in DEPARTMENTS:
+    for dept_name in cfg["DEPARTMENTS"]:
         short = shorten_dept(dept_name)
         dept_emps = [e for e in active if e['department'] == dept_name]
         managers = [e for e in dept_emps if e.get('is_manager')]
@@ -2278,7 +2363,7 @@ async def get_alerts(year: int = 2025, tenant: str = None):
         "{dept} için üniversite işbirliği ve stajyer programını genişlet. Yetenek havuzunu büyüt.",
         "{dept} kadro açığını kapatmak için danışman/geçici kadro desteği planla. Paralelde kalıcı işe alım yürüt.",
     ]
-    for dept_name, target in TARGET_HEADCOUNT.items():
+    for dept_name, target in cfg["TARGET_HEADCOUNT"].items():
         short = shorten_dept(dept_name)
         current = len([e for e in active if e['department'] == dept_name])
         fill_rate = round(current / target["target"] * 100, 1) if target["target"] else 100
@@ -2350,11 +2435,13 @@ async def resolve_alert(body: AlertResolveRequest):
 # ---- AI-Powered Alert Analysis ----
 class AIAlertScanRequest(BaseModel):
     year: int = 2025
+    tenant: Optional[str] = None
 
 @api_router.post("/dashboard/alerts/ai-scan")
 async def ai_alert_scan(body: AIAlertScanRequest):
     """Generate AI-powered executive brief from all active alerts + HR context."""
     year = body.year
+    tenant = body.tenant
     all_emp, active, hired, left = await get_filtered(year, tenant=tenant)
     hc = len(active)
     # Gather HR context
@@ -2368,7 +2455,7 @@ async def ai_alert_scan(body: AIAlertScanRequest):
         c = e.get('country', 'Turkey')
         country_dist[c] = country_dist.get(c, 0) + 1
     # Get alerts
-    alerts_resp = await get_alerts(year)
+    alerts_resp = await get_alerts(year, tenant=tenant)
     alerts = alerts_resp["alerts"]
     high_alerts = [a for a in alerts if a["severity"] == "high"]
     med_alerts = [a for a in alerts if a["severity"] == "med"]
