@@ -36,6 +36,10 @@ import AIForecastPage from "@/pages/AIForecastPage";
 import CapabilityForecastPage from "@/pages/CapabilityForecastPage";
 import HROperationsPage from "@/pages/HROperationsPage";
 import ScenarioSimulatorPage from "@/pages/ScenarioSimulatorPage";
+import NormKadroPage from "@/pages/NormKadroPage";
+import EkKadroPage from "@/pages/EkKadroPage";
+import TeklifAnaliziPage from "@/pages/TeklifAnaliziPage";
+import UcretBenchmarkPage from "@/pages/UcretBenchmarkPage";
 
 const API = process.env.REACT_APP_BACKEND_URL;
 
@@ -44,6 +48,10 @@ const PAGE_MAP = {
   "/": OverviewPage,
   "/headcount": HeadcountPage,
   "/hires-leaves": HiresLeavesPage,
+  "/norm-kadro": NormKadroPage,
+  "/ek-kadro": EkKadroPage,
+  "/teklif-analizi": TeklifAnaliziPage,
+  "/ucret-benchmark": UcretBenchmarkPage,
   "/turnover": TurnoverPage,
   "/movement": MovementPage,
   "/headcount-plan": HeadcountPlanPage,

@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { ChartBar, Users, UserPlus, ArrowsClockwise, ArrowsLeftRight, Brain, CloudArrowUp, List, X, Funnel, Target, GraduationCap, CurrencyDollar, Smiley, Star, Gear, Compass, UserFocus, Sliders, Binoculars, ShieldWarning, Heartbeat, FilePdf, Crosshair, TreeStructure, Strategy, Bell, UserSwitch, GridNine, Buildings, Trophy, MapPin, UsersFour } from "@phosphor-icons/react";
+import { ChartBar, Users, UserPlus, ArrowsClockwise, ArrowsLeftRight, Brain, CloudArrowUp, List, X, Funnel, Target, GraduationCap, CurrencyDollar, Smiley, Star, Gear, Compass, UserFocus, Sliders, Binoculars, ShieldWarning, Heartbeat, FilePdf, Crosshair, TreeStructure, Strategy, Bell, UserSwitch, GridNine, Buildings, Trophy, MapPin, UsersFour, Scales, ClipboardText, Handshake, ChartLine } from "@phosphor-icons/react";
 
 export const NAV_SECTIONS = [
   {
@@ -13,9 +13,18 @@ export const NAV_SECTIONS = [
     ],
   },
   {
+    label: "Kadro & Ücret",
+    items: [
+      { path: "/norm-kadro", label: "Norm Kadro", icon: Crosshair },
+      { path: "/ek-kadro", label: "Ek Kadro Talepleri", icon: ClipboardText },
+      { path: "/teklif-analizi", label: "Teklif Analizi", icon: Handshake },
+      { path: "/ucret-benchmark", label: "Ücret Benchmark", icon: Scales },
+    ],
+  },
+  {
     label: "Planlama",
     items: [
-      { path: "/headcount-plan", label: "Kadro Planlama", icon: Crosshair },
+      { path: "/headcount-plan", label: "Kadro Planlama", icon: ChartLine },
       { path: "/workforce-alignment", label: "Strateji Hizalama", icon: Strategy },
       { path: "/org-health", label: "Org. Sağlığı", icon: TreeStructure },
       { path: "/skills-map-v2", label: "Yetkinlik Haritası", icon: GridNine },

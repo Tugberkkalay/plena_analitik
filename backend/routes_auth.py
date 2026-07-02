@@ -156,6 +156,8 @@ def setup_tenant_routes(db):
         await db.recruitment.delete_many({"tenant_id": slug})
         await db.training.delete_many({"tenant_id": slug})
         await db.engagement.delete_many({"tenant_id": slug})
+        await db.ek_kadro_talepleri.delete_many({"tenant_id": slug})
+        await db.norm_kadro.delete_many({"tenant_id": slug})
         return {"message": f"{tenant['name']} silindi"}
 
     @tenant_router.post("/{tenant_id}/seed")
@@ -170,10 +172,11 @@ def setup_tenant_routes(db):
         # Import generators from server
         from server import (generate_seed_data, generate_branches,  generate_sales_data,
                            generate_recruitment_data, generate_training_data,
-                           generate_engagement_data, generate_employee_skills)
+                           generate_engagement_data, generate_employee_skills,
+                           generate_ek_kadro_talepleri, generate_norm_kadro_data)
         import random
         # Clear existing tenant data
-        for coll in ["employees", "branches", "sales_performance", "recruitment", "training", "engagement"]:
+        for coll in ["employees", "branches", "sales_performance", "recruitment", "training", "engagement", "ek_kadro_talepleri", "norm_kadro"]:
             await db[coll].delete_many({"tenant_id": slug})
         # Generate employees (includes branch assignment internally)
         emps = generate_seed_data(500, sector=sector)
@@ -215,6 +218,18 @@ def setup_tenant_routes(db):
             await db.training.insert_many(training)
         if engagement:
             await db.engagement.insert_many(engagement)
+        # Ek Kadro Talepleri
+        ek_kadro = generate_ek_kadro_talepleri(sector=sector, count=30)
+        for ek in ek_kadro:
+            ek["tenant_id"] = slug
+        if ek_kadro:
+            await db.ek_kadro_talepleri.insert_many(ek_kadro)
+        # Norm Kadro
+        norm_kadro = generate_norm_kadro_data(emps, sector=sector)
+        for nk in norm_kadro:
+            nk["tenant_id"] = slug
+        if norm_kadro:
+            await db.norm_kadro.insert_many(norm_kadro)
         # Update tenant
         await db.tenants.update_one({"id": tenant_id}, {"$set": {"employee_count": len(emps)}})
         return {"message": f"{tenant['name']} için {len(emps)} çalışan oluşturuldu", "employees": len(emps), "branches": len(branches)}

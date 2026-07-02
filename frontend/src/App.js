@@ -39,6 +39,10 @@ import BranchPerformancePage from "@/pages/BranchPerformancePage";
 import CommissionTargetsPage from "@/pages/CommissionTargetsPage";
 import BranchStaffingPage from "@/pages/BranchStaffingPage";
 import BranchMapPage from "@/pages/BranchMapPage";
+import NormKadroPage from "@/pages/NormKadroPage";
+import EkKadroPage from "@/pages/EkKadroPage";
+import TeklifAnaliziPage from "@/pages/TeklifAnaliziPage";
+import UcretBenchmarkPage from "@/pages/UcretBenchmarkPage";
 
 import LoginPage from "@/pages/LoginPage";
 import AdminDashboard from "@/pages/AdminDashboard";
@@ -50,6 +54,10 @@ const PAGE_TITLES = {
   "/": "Yönetim Özeti",
   "/headcount": "Kadro Analizi",
   "/hires-leaves": "İşe Alım & Ayrılma",
+  "/norm-kadro": "Norm Kadro Takip",
+  "/ek-kadro": "Ek Kadro Talepleri",
+  "/teklif-analizi": "Teklif Analizi",
+  "/ucret-benchmark": "Ücret Benchmark",
   "/turnover": "Personel Devir Analizi",
   "/movement": "İşgücü Hareketi",
   "/ai-forecast": "Plena AI Tahminleme",
@@ -151,6 +159,10 @@ function DashboardRoutes({ year, country, segment }) {
       <Route path="/" element={<OverviewPage year={year} country={country} />} />
       <Route path="/headcount" element={<HeadcountPage year={year} country={country} />} />
       <Route path="/hires-leaves" element={<HiresLeavesPage year={year} country={country} />} />
+      <Route path="/norm-kadro" element={<NormKadroPage year={year} />} />
+      <Route path="/ek-kadro" element={<EkKadroPage year={year} />} />
+      <Route path="/teklif-analizi" element={<TeklifAnaliziPage year={year} />} />
+      <Route path="/ucret-benchmark" element={<UcretBenchmarkPage year={year} />} />
       <Route path="/turnover" element={<TurnoverPage year={year} country={country} />} />
       <Route path="/movement" element={<MovementPage year={year} country={country} />} />
       <Route path="/recruitment" element={<RecruitmentPage year={year} />} />

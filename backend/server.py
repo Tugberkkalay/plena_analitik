@@ -448,7 +448,7 @@ def generate_recruitment_data(count=200, sector="Bankacılık"):
         elif r < 0.78: stage = "Rejected"
         else: stage = "Applied"
         applied_date = f"2025-{random.randint(1,12):02d}-{random.randint(1,28):02d}"
-        quarter = f"Q{min(4, (int(applied_date[5:7])-1)//3 + 1)}"
+        quarter = f"Ç{min(4, (int(applied_date[5:7])-1)//3 + 1)}"
         days = random.randint(15, 90) if stage in ["Hired","Offered"] else random.randint(3, 45)
         cost = round(random.uniform(2000, 15000), -2) if stage == "Hired" else 0
         hiring_reason = random.choice(HIRE_REASONS)
@@ -478,6 +478,120 @@ def generate_recruitment_data(count=200, sector="Bankacılık"):
             "created_at": datetime.now(timezone.utc).isoformat()
         })
     return candidates
+
+def generate_ek_kadro_talepleri(sector="Bankacılık", count=30):
+    """Generate additional headcount requests with reasons, approval status, cost projections."""
+    cfg = _cfg(sector)
+    DEPTS = cfg["DEPARTMENTS"]
+    DW = cfg["DEPT_WEIGHTS"]
+    PBB = cfg["POSITIONS_BY_BAND"]
+    BENCH = cfg.get("SALARY_BENCHMARK", {})
+    REASONS = ["Yeni Proje", "İş Hacmi Artışı", "Ayrılan Personel İkamesi", "Yeni Fonksiyon/Ekip Kurulumu", "Mevzuat/Uyum Gereksinimi", "Sezonluk İhtiyaç"]
+    MANAGERS = ["Ahmet Yılmaz", "Ayşe Demir", "Mehmet Kaya", "Fatma Çelik", "Ali Özkan", "Zeynep Arslan", "Hasan Şahin", "Elif Aydın"]
+    STATUSES = ["Beklemede", "Onaylandı", "Reddedildi"]
+    STATUS_WEIGHTS = [25, 55, 20]
+    random.seed(60)
+    requests = []
+    for i in range(count):
+        dept = random.choices(DEPTS, weights=DW, k=1)[0]
+        band = random.choices(BANDS, weights=BAND_WEIGHTS, k=1)[0]
+        pos = random.choice(PBB.get(band, ["Uzman"]))
+        bench = BENCH.get(band, {"mid": 30000})
+        kisi_sayisi = random.choices([1, 2, 3, 4, 5], weights=[40, 30, 15, 10, 5], k=1)[0]
+        employer_cost = round(bench["mid"] * 1.35)  # brüt + SGK + yan haklar
+        yillik_maliyet = employer_cost * kisi_sayisi * 12
+        status = random.choices(STATUSES, weights=STATUS_WEIGHTS, k=1)[0]
+        month = random.randint(1, 12)
+        quarter = f"Ç{min(4, (month-1)//3 + 1)}"
+        gerceklesen = round(yillik_maliyet * random.uniform(0.85, 1.15)) if status == "Onaylandı" and random.random() < 0.7 else 0
+        requests.append({
+            "id": str(uuid.uuid4()),
+            "talep_no": f"EK-2025-{i+1:03d}",
+            "department": dept, "position": pos, "band": band,
+            "talep_tarihi": f"2025-{month:02d}-{random.randint(1,28):02d}",
+            "quarter": quarter,
+            "talep_eden": random.choice(MANAGERS),
+            "talep_sebebi": random.choice(REASONS),
+            "kisi_sayisi": kisi_sayisi,
+            "onay_durumu": status,
+            "kisi_basi_aylik_maliyet": employer_cost,
+            "ongorulen_yillik_maliyet": yillik_maliyet,
+            "gerceklesen_maliyet": gerceklesen,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
+    return requests
+
+def generate_norm_kadro_data(employees, sector="Bankacılık"):
+    """Generate norm kadro (target vs actual) records per department per month."""
+    cfg = _cfg(sector)
+    THC = cfg["TARGET_HEADCOUNT"]
+    BENCH = cfg.get("SALARY_BENCHMARK", {})
+    random.seed(61)
+    records = []
+    active = [e for e in employees if e['status'] == 'active']
+    for dept_name, target_info in THC.items():
+        target = target_info["target"]
+        dept_emps = [e for e in active if e['department'] == dept_name]
+        # Get unique positions in this dept
+        positions = {}
+        for e in dept_emps:
+            pos = e['job_title']
+            if pos not in positions:
+                positions[pos] = {"band": e['band'], "count": 0, "salaries": []}
+            positions[pos]["count"] += 1
+            positions[pos]["salaries"].append(e.get('salary', 0))
+        # Distribute target across positions proportionally
+        total_actual = len(dept_emps)
+        for month in range(1, 13):
+            # slight monthly variation in actual headcount
+            variation = random.randint(-3, 3)
+            month_actual = max(0, total_actual + variation)
+            month_target = target
+            sapma = month_actual - month_target
+            # Calculate ek maliyet for norm-üstü
+            avg_employer_cost = 0
+            if dept_emps:
+                avg_sal = sum(e.get('salary', 0) for e in dept_emps) / len(dept_emps)
+                avg_employer_cost = round(avg_sal * 1.35)  # brüt + SGK + yan haklar
+            ek_maliyet = max(0, sapma) * avg_employer_cost if sapma > 0 else 0
+            records.append({
+                "id": str(uuid.uuid4()),
+                "department": dept_name,
+                "donem": f"2025-{month:02d}",
+                "yil": 2025, "ay": month,
+                "quarter": f"Ç{min(4, (month-1)//3 + 1)}",
+                "hedeflenen_norm": month_target,
+                "gerceklesen_kadro": month_actual,
+                "sapma": sapma,
+                "sapma_pct": round(sapma / month_target * 100, 1) if month_target else 0,
+                "ek_maliyet": ek_maliyet,
+                "avg_employer_cost": avg_employer_cost,
+            })
+            # Position-level records
+            for pos_name, pos_data in positions.items():
+                pos_target = max(1, round(pos_data["count"] * month_target / total_actual)) if total_actual else 1
+                pos_actual = pos_data["count"] + random.randint(-1, 1)
+                pos_actual = max(0, pos_actual)
+                pos_sapma = pos_actual - pos_target
+                bench = BENCH.get(pos_data["band"], {"mid": 30000})
+                pos_employer_cost = round(bench["mid"] * 1.35)
+                records.append({
+                    "id": str(uuid.uuid4()),
+                    "department": dept_name,
+                    "position": pos_name,
+                    "band": pos_data["band"],
+                    "donem": f"2025-{month:02d}",
+                    "yil": 2025, "ay": month,
+                    "quarter": f"Ç{min(4, (month-1)//3 + 1)}",
+                    "hedeflenen_norm": pos_target,
+                    "gerceklesen_kadro": pos_actual,
+                    "sapma": pos_sapma,
+                    "sapma_pct": round(pos_sapma / pos_target * 100, 1) if pos_target else 0,
+                    "ek_maliyet": max(0, pos_sapma) * pos_employer_cost if pos_sapma > 0 else 0,
+                    "avg_employer_cost": pos_employer_cost,
+                })
+    return records
+
 
 def generate_training_data(employees, count=300):
     random.seed(44)
@@ -1075,6 +1189,321 @@ async def get_compensation_benchmark(year: int = 2025, tenant: str = None, segme
                  "avg_compa_ratio": avg_compa},
         "band_summary": band_summary, "department_summary": dept_summary,
         "employee_list": sorted(emp_list, key=lambda x: -x["salary"])[:100]
+    }
+
+
+# ---- Norm Kadro Takip Raporu (Modül 1) ----
+@api_router.get("/dashboard/norm-kadro")
+async def get_norm_kadro(year: int = 2025, quarter: str = None, month: int = None, department: str = None, tenant: str = None, segment: str = None):
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
+    seg_depts = _segment_depts(sector, segment)
+    nq = {"tenant_id": tenant, "yil": year} if tenant else {"yil": year}
+    all_records = await db.norm_kadro.find(nq, {"_id": 0}).to_list(50000)
+    if seg_depts:
+        all_records = [r for r in all_records if r.get('department') in seg_depts]
+    if quarter:
+        all_records = [r for r in all_records if r.get('quarter') == quarter]
+    if month:
+        all_records = [r for r in all_records if r.get('ay') == month]
+    if department:
+        all_records = [r for r in all_records if r.get('department') == department]
+    # Separate dept-level (no position) and position-level records
+    dept_records = [r for r in all_records if 'position' not in r]
+    pos_records = [r for r in all_records if 'position' in r]
+    # Dept summary (aggregate)
+    dept_summary = {}
+    for r in dept_records:
+        d = r['department']
+        if d not in dept_summary:
+            dept_summary[d] = {"department": shorten_dept(d), "full_dept": d, "hedef": 0, "gerceklesen": 0, "sapma": 0, "ek_maliyet": 0, "months": 0}
+        dept_summary[d]["hedef"] += r["hedeflenen_norm"]
+        dept_summary[d]["gerceklesen"] += r["gerceklesen_kadro"]
+        dept_summary[d]["sapma"] += r["sapma"]
+        dept_summary[d]["ek_maliyet"] += r["ek_maliyet"]
+        dept_summary[d]["months"] += 1
+    dept_list = []
+    for d, v in dept_summary.items():
+        m = v["months"] or 1
+        dept_list.append({"department": v["department"], "full_dept": v["full_dept"],
+                         "hedef": round(v["hedef"] / m), "gerceklesen": round(v["gerceklesen"] / m),
+                         "sapma": round(v["sapma"] / m), "ek_maliyet": v["ek_maliyet"],
+                         "sapma_pct": round((v["gerceklesen"] / m - v["hedef"] / m) / (v["hedef"] / m) * 100, 1) if v["hedef"] else 0})
+    # Monthly trend
+    monthly_trend = []
+    for mi in range(1, 13):
+        month_recs = [r for r in dept_records if r['ay'] == mi]
+        h = sum(r['hedeflenen_norm'] for r in month_recs)
+        g = sum(r['gerceklesen_kadro'] for r in month_recs)
+        ek = sum(r['ek_maliyet'] for r in month_recs)
+        monthly_trend.append({"month": MONTHS[mi-1], "hedef": h, "gerceklesen": g, "ek_maliyet": ek})
+    # Quarterly trend
+    quarterly_trend = []
+    for q in range(1, 5):
+        q_recs = [r for r in dept_records if r['quarter'] == f"Ç{q}"]
+        h = sum(r['hedeflenen_norm'] for r in q_recs) // 3 if q_recs else 0
+        g = sum(r['gerceklesen_kadro'] for r in q_recs) // 3 if q_recs else 0
+        ek = sum(r['ek_maliyet'] for r in q_recs)
+        quarterly_trend.append({"quarter": f"Ç{q}", "hedef": h, "gerceklesen": g, "ek_maliyet": ek})
+    # Position drill-down (grouped by dept)
+    position_data = {}
+    for r in pos_records:
+        key = f"{r['department']}|{r.get('position','')}"
+        if key not in position_data:
+            position_data[key] = {"department": shorten_dept(r['department']), "position": r.get('position',''), "band": r.get('band',''), "hedef": 0, "gerceklesen": 0, "sapma": 0, "ek_maliyet": 0, "months": 0}
+        position_data[key]["hedef"] += r["hedeflenen_norm"]
+        position_data[key]["gerceklesen"] += r["gerceklesen_kadro"]
+        position_data[key]["sapma"] += r["sapma"]
+        position_data[key]["ek_maliyet"] += r["ek_maliyet"]
+        position_data[key]["months"] += 1
+    pos_list = []
+    for v in position_data.values():
+        m = v["months"] or 1
+        pos_list.append({"department": v["department"], "position": v["position"], "band": v["band"],
+                        "hedef": round(v["hedef"] / m), "gerceklesen": round(v["gerceklesen"] / m),
+                        "sapma": round(v["sapma"] / m), "ek_maliyet": v["ek_maliyet"]})
+    total_hedef = sum(d["hedef"] for d in dept_list)
+    total_gercek = sum(d["gerceklesen"] for d in dept_list)
+    total_ek = sum(d["ek_maliyet"] for d in dept_list)
+    return {
+        "kpis": {"total_hedef": total_hedef, "total_gerceklesen": total_gercek,
+                 "net_sapma": total_gercek - total_hedef, "toplam_ek_maliyet": total_ek,
+                 "sapma_pct": round((total_gercek - total_hedef) / total_hedef * 100, 1) if total_hedef else 0},
+        "department_summary": sorted(dept_list, key=lambda x: -abs(x["sapma"])),
+        "monthly_trend": monthly_trend, "quarterly_trend": quarterly_trend,
+        "position_detail": sorted(pos_list, key=lambda x: -abs(x["sapma"]))
+    }
+
+# ---- Ek Kadro Talepleri (Modül 2) ----
+@api_router.get("/dashboard/ek-kadro")
+async def get_ek_kadro(year: int = 2025, quarter: str = None, tenant: str = None, segment: str = None):
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
+    seg_depts = _segment_depts(sector, segment)
+    eq = {"tenant_id": tenant} if tenant else {}
+    all_talep = await db.ek_kadro_talepleri.find(eq, {"_id": 0}).to_list(5000)
+    if seg_depts:
+        all_talep = [t for t in all_talep if t.get('department') in seg_depts]
+    talep_year = [t for t in all_talep if t.get('talep_tarihi','')[:4] == str(year)]
+    if quarter:
+        talep_year = [t for t in talep_year if t.get('quarter') == quarter]
+    total = len(talep_year)
+    onaylanan = [t for t in talep_year if t['onay_durumu'] == 'Onaylandı']
+    reddedilen = [t for t in talep_year if t['onay_durumu'] == 'Reddedildi']
+    bekleyen = [t for t in talep_year if t['onay_durumu'] == 'Beklemede']
+    onay_kisi = sum(t['kisi_sayisi'] for t in onaylanan)
+    ongorulen = sum(t['ongorulen_yillik_maliyet'] for t in talep_year)
+    gerceklesen = sum(t['gerceklesen_maliyet'] for t in talep_year)
+    # Reason distribution
+    reason_dist = {}
+    for t in talep_year:
+        r = t.get('talep_sebebi', 'Diğer')
+        reason_dist[r] = reason_dist.get(r, 0) + 1
+    reasons = [{"reason": k, "count": v} for k, v in sorted(reason_dist.items(), key=lambda x: -x[1])]
+    # Dept breakdown
+    dept_breakdown = []
+    for dept in (seg_depts or cfg["DEPARTMENTS"]):
+        short = shorten_dept(dept)
+        d_talep = [t for t in talep_year if t['department'] == dept]
+        d_onay = [t for t in d_talep if t['onay_durumu'] == 'Onaylandı']
+        dept_breakdown.append({"department": short, "talep": len(d_talep), "onaylanan": len(d_onay),
+                              "kisi": sum(t['kisi_sayisi'] for t in d_talep),
+                              "maliyet": sum(t['ongorulen_yillik_maliyet'] for t in d_talep)})
+    # Quarterly trend
+    quarterly = []
+    for q in range(1, 5):
+        q_talep = [t for t in [tt for tt in all_talep if tt.get('talep_tarihi','')[:4] == str(year)] if t.get('quarter') == f"Ç{q}"]
+        quarterly.append({"quarter": f"Ç{q}", "talep": len(q_talep),
+                         "onaylanan": len([t for t in q_talep if t['onay_durumu'] == 'Onaylandı']),
+                         "maliyet": sum(t['ongorulen_yillik_maliyet'] for t in q_talep)})
+    return {
+        "kpis": {"total_talep": total, "onaylanan": len(onaylanan), "reddedilen": len(reddedilen),
+                 "bekleyen": len(bekleyen), "onay_kisi": onay_kisi,
+                 "ongorulen_maliyet": ongorulen, "gerceklesen_maliyet": gerceklesen},
+        "reason_distribution": reasons, "department_breakdown": dept_breakdown,
+        "quarterly_trend": quarterly, "talep_listesi": talep_year[:50]
+    }
+
+# ---- Teklif Red Analizi Detay (Modül 3) ----
+@api_router.get("/dashboard/teklif-analizi")
+async def get_teklif_analizi(year: int = 2025, quarter: str = None, department: str = None, tenant: str = None, segment: str = None):
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
+    seg_depts = _segment_depts(sector, segment)
+    BENCH = cfg.get("SALARY_BENCHMARK", {})
+    rq = {"tenant_id": tenant} if tenant else {}
+    all_cands = await db.recruitment.find(rq, {"_id": 0}).to_list(10000)
+    if seg_depts:
+        all_cands = [c for c in all_cands if c.get('department') in seg_depts]
+    cands_year = [c for c in all_cands if c.get('applied_date','')[:4] == str(year)]
+    if quarter:
+        cands_year = [c for c in cands_year if c.get('quarter') == quarter]
+    if department:
+        cands_year = [c for c in cands_year if c.get('department') == department]
+    offers = [c for c in cands_year if c['stage'] in ['Hired', 'Offered', 'Reddedildi']]
+    accepted = [c for c in offers if c['stage'] == 'Hired']
+    rejected = [c for c in offers if c['stage'] == 'Reddedildi']
+    # Get current employee averages per position for comparison
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment)
+    pos_avg = {}
+    for e in active:
+        pos = e.get('job_title', '')
+        if pos not in pos_avg:
+            pos_avg[pos] = {"salaries": [], "count": 0}
+        pos_avg[pos]["salaries"].append(e.get('salary', 0))
+        pos_avg[pos]["count"] += 1
+    for p in pos_avg:
+        pos_avg[p]["avg"] = round(sum(pos_avg[p]["salaries"]) / len(pos_avg[p]["salaries"]))
+    # Rejection reasons
+    rej_reasons = {}
+    for c in rejected:
+        r = c.get('rejection_reason', 'Bilinmiyor')
+        rej_reasons[r] = rej_reasons.get(r, 0) + 1
+    rej_list = [{"reason": k, "count": v, "pct": round(v / len(rejected) * 100, 1) if rejected else 0}
+                for k, v in sorted(rej_reasons.items(), key=lambda x: -x[1])]
+    maas_red = sum(1 for c in rejected if c.get('rejection_reason') == 'Maaş Beklentisi')
+    yan_hak_red = sum(1 for c in rejected if c.get('rejection_reason') in ['Yan Haklar Yetersiz', 'Vardiya/Çalışma Saati'])
+    # Scatter data: each offer with comparisons
+    scatter_data = []
+    for c in offers:
+        if not c.get('offer_salary'):
+            continue
+        band = c.get('band', 'B')
+        bench = BENCH.get(band, {"mid": 30000, "sector_avg": 28000})
+        p_avg = pos_avg.get(c.get('position', ''), {}).get("avg", bench["mid"])
+        scatter_data.append({
+            "candidate": c['candidate_name'], "position": c['position'],
+            "department": shorten_dept(c['department']), "band": band, "stage": c['stage'],
+            "offer_salary": c['offer_salary'],
+            "sirket_ort": p_avg, "sektor_ort": bench["sector_avg"], "band_ort": bench["mid"],
+            "vs_sirket": "Altında" if c['offer_salary'] < p_avg * 0.95 else "Üstünde" if c['offer_salary'] > p_avg * 1.05 else "Ortalamada",
+            "vs_sektor": c.get('offer_vs_benchmark', 'Ortalamada'),
+            "rejection_reason": c.get('rejection_reason'),
+        })
+    # Quarterly rejection trend
+    quarterly_trend = []
+    all_year_cands = [c for c in all_cands if c.get('applied_date','')[:4] == str(year)]
+    for q in range(1, 5):
+        q_offers = [c for c in all_year_cands if c.get('quarter') == f"Ç{q}" and c['stage'] in ['Hired', 'Offered', 'Reddedildi']]
+        q_rej = [c for c in q_offers if c['stage'] == 'Reddedildi']
+        q_maas = len([c for c in q_rej if c.get('rejection_reason') == 'Maaş Beklentisi'])
+        q_yan = len([c for c in q_rej if c.get('rejection_reason') in ['Yan Haklar Yetersiz', 'Vardiya/Çalışma Saati']])
+        q_diger = len(q_rej) - q_maas - q_yan
+        quarterly_trend.append({"quarter": f"Ç{q}", "toplam_teklif": len(q_offers),
+                               "kabul": len([c for c in q_offers if c['stage'] == 'Hired']),
+                               "red": len(q_rej), "maas_red": q_maas, "yan_hak_red": q_yan, "diger_red": q_diger})
+    # Dept red rates
+    dept_red = []
+    for dept in (seg_depts or cfg["DEPARTMENTS"]):
+        short = shorten_dept(dept)
+        d_offers = [c for c in offers if c['department'] == dept]
+        d_rej = [c for c in d_offers if c['stage'] == 'Reddedildi']
+        dept_red.append({"department": short, "teklif": len(d_offers), "red": len(d_rej),
+                        "red_oran": round(len(d_rej) / len(d_offers) * 100, 1) if d_offers else 0})
+    return {
+        "kpis": {"toplam_teklif": len(offers), "kabul": len(accepted), "red": len(rejected),
+                 "kabul_orani": round(len(accepted) / len(offers) * 100, 1) if offers else 0,
+                 "maas_red_pct": round(maas_red / len(rejected) * 100, 1) if rejected else 0,
+                 "yan_hak_red_pct": round(yan_hak_red / len(rejected) * 100, 1) if rejected else 0},
+        "rejection_reasons": rej_list, "scatter_data": scatter_data,
+        "quarterly_trend": quarterly_trend, "department_red": dept_red
+    }
+
+# ---- Maaş Band & Benchmark (Modül 4) ----
+@api_router.get("/dashboard/ucret-benchmark")
+async def get_ucret_benchmark(year: int = 2025, department: str = None, position: str = None, tenant: str = None, segment: str = None):
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
+    seg_depts = _segment_depts(sector, segment)
+    BENCH = cfg.get("SALARY_BENCHMARK", {})
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment)
+    if department:
+        active = [e for e in active if shorten_dept(e['department']) == department or e['department'] == department]
+    if position:
+        active = [e for e in active if e.get('job_title') == position]
+    # Build employee-level data
+    emp_list = []
+    for emp in active:
+        b = emp.get('band', 'A')
+        sal = emp.get('salary', 0)
+        bench = BENCH.get(b, {"min": 15000, "mid": 25000, "max": 40000, "sector_avg": 22000})
+        compa = round(sal / bench["mid"], 2) if bench["mid"] else 0
+        vs_sector = "Üstünde" if sal > bench["sector_avg"] * 1.05 else "Altında" if sal < bench["sector_avg"] * 0.95 else "Ortalamada"
+        vs_band = "Üstünde" if sal > bench["mid"] * 1.05 else "Altında" if sal < bench["mid"] * 0.95 else "Ortalamada"
+        risk = sal < bench["sector_avg"] * 0.9 and emp.get('performance_score', 3) >= 3.5
+        emp_list.append({
+            "name": emp['name'], "department": shorten_dept(emp['department']), "full_dept": emp['department'],
+            "position": emp['job_title'], "band": b, "kidem": emp.get('seniority_years', 0),
+            "salary": sal, "band_min": bench["min"], "band_mid": bench["mid"], "band_max": bench["max"],
+            "sector_avg": bench["sector_avg"], "compa_ratio": compa,
+            "vs_sector": vs_sector, "vs_band": vs_band,
+            "fark_tl": sal - bench["sector_avg"], "fark_pct": round((sal - bench["sector_avg"]) / bench["sector_avg"] * 100, 1) if bench["sector_avg"] else 0,
+            "risk": risk
+        })
+    # 3-level drill-down: Birim → Pozisyon → Kişi
+    birim_summary = {}
+    for e in emp_list:
+        dept = e["department"]
+        if dept not in birim_summary:
+            birim_summary[dept] = {"above": 0, "below": 0, "at": 0, "salaries": [], "risk": 0}
+        birim_summary[dept]["salaries"].append(e["salary"])
+        if e["vs_sector"] == "Üstünde": birim_summary[dept]["above"] += 1
+        elif e["vs_sector"] == "Altında": birim_summary[dept]["below"] += 1
+        else: birim_summary[dept]["at"] += 1
+        if e["risk"]: birim_summary[dept]["risk"] += 1
+    birim_list = [{"department": k, "count": len(v["salaries"]), "avg": round(sum(v["salaries"])/len(v["salaries"])),
+                   "min": min(v["salaries"]), "max": max(v["salaries"]),
+                   "above": v["above"], "below": v["below"], "at": v["at"], "risk": v["risk"]}
+                  for k, v in birim_summary.items()]
+    # Position-level
+    pos_summary = {}
+    for e in emp_list:
+        key = f"{e['department']}|{e['position']}|{e['band']}"
+        if key not in pos_summary:
+            pos_summary[key] = {"department": e["department"], "position": e["position"], "band": e["band"],
+                               "salaries": [], "band_min": e["band_min"], "band_mid": e["band_mid"],
+                               "band_max": e["band_max"], "sector_avg": e["sector_avg"],
+                               "above": 0, "below": 0, "at": 0, "risk": 0}
+        pos_summary[key]["salaries"].append(e["salary"])
+        if e["vs_sector"] == "Üstünde": pos_summary[key]["above"] += 1
+        elif e["vs_sector"] == "Altında": pos_summary[key]["below"] += 1
+        else: pos_summary[key]["at"] += 1
+        if e["risk"]: pos_summary[key]["risk"] += 1
+    pos_list = []
+    for v in pos_summary.values():
+        sals = v["salaries"]
+        pos_list.append({"department": v["department"], "position": v["position"], "band": v["band"],
+                        "count": len(sals), "avg": round(sum(sals)/len(sals)), "min": min(sals), "max": max(sals),
+                        "band_min": v["band_min"], "band_mid": v["band_mid"], "band_max": v["band_max"],
+                        "sector_avg": v["sector_avg"], "above": v["above"], "below": v["below"], "at": v["at"],
+                        "risk": v["risk"],
+                        "compa_ratio": round(sum(sals)/len(sals) / v["band_mid"], 2) if v["band_mid"] else 0})
+    # Risk list
+    risk_employees = sorted([e for e in emp_list if e["risk"]], key=lambda x: x["fark_pct"])
+    # Band summary for box-plot
+    band_box = []
+    for b in BANDS:
+        b_emps = [e for e in emp_list if e["band"] == b]
+        if b_emps:
+            sals = sorted([e["salary"] for e in b_emps])
+            n = len(sals)
+            band_box.append({"band": b, "min": sals[0], "q1": sals[n//4] if n >= 4 else sals[0],
+                            "median": sals[n//2], "q3": sals[3*n//4] if n >= 4 else sals[-1], "max": sals[-1],
+                            "band_min": BENCH.get(b,{}).get("min",0), "band_mid": BENCH.get(b,{}).get("mid",0),
+                            "band_max": BENCH.get(b,{}).get("max",0), "sector_avg": BENCH.get(b,{}).get("sector_avg",0),
+                            "count": n})
+    total_above = sum(1 for e in emp_list if e["vs_sector"] == "Üstünde")
+    total_below = sum(1 for e in emp_list if e["vs_sector"] == "Altında")
+    total_risk = sum(1 for e in emp_list if e["risk"])
+    return {
+        "kpis": {"total": len(emp_list), "band_alti": sum(1 for e in emp_list if e["vs_band"] == "Altında"),
+                 "band_ustu": sum(1 for e in emp_list if e["vs_band"] == "Üstünde"),
+                 "sektor_alti": total_below, "sektor_ustu": total_above, "risk_sayisi": total_risk},
+        "birim_summary": sorted(birim_list, key=lambda x: -x["risk"]),
+        "position_summary": sorted(pos_list, key=lambda x: -x["risk"]),
+        "employee_list": sorted(emp_list, key=lambda x: x["fark_pct"])[:100],
+        "risk_employees": risk_employees[:30],
+        "band_box": band_box
     }
 
 # ---- Turnover ----
