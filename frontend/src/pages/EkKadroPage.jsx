@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { ClipboardText, CheckCircle, XCircle, Clock, Users, CurrencyCircleDollar } from "@phosphor-icons/react";
+import { ClipboardText, CheckCircle, XCircle, Clock, Users, CurrencyCircleDollar, TrendUp, TrendDown, Warning } from "@phosphor-icons/react";
 import KPICard from "@/components/KPICard";
 import ChartCard, { CHART_COLORS, DARK_TOOLTIP } from "@/components/ChartCard";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, CartesianGrid, ComposedChart, Line } from "recharts";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const fmt = (n) => n ? n.toLocaleString("tr-TR") : "0";
@@ -27,19 +27,39 @@ export default function EkKadroPage({ year }) {
 
   return (
     <div data-testid="ek-kadro-page" className="space-y-6">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      {/* KPIs - Budget vs Actual */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
         <KPICard title="Toplam Talep" value={kpis.total_talep} icon={ClipboardText} color="blue" />
-        <KPICard title="Onaylanan" value={kpis.onaylanan} icon={CheckCircle} color="green" />
-        <KPICard title="Reddedilen" value={kpis.reddedilen} icon={XCircle} color="red" />
-        <KPICard title="Bekleyen" value={kpis.bekleyen} icon={Clock} color="amber" />
-        <KPICard title="Onay Kadro" value={kpis.onay_kisi} icon={Users} color="teal" />
-        <KPICard title="Öngörülen Gider" value={`₺${fmtK(kpis.ongorulen_maliyet)}`} icon={CurrencyCircleDollar} color="purple" />
+        <KPICard title="Onaylanan" value={kpis.onaylanan} icon={CheckCircle} color="green" subtitle={`Red: ${kpis.reddedilen} · Bekl: ${kpis.bekleyen}`} />
+        <KPICard title="Bütçelenen Kişi" value={kpis.butcelenen_kisi} icon={Users} color="teal" />
+        <KPICard title="Gerçekleşen Kişi" value={kpis.gerceklesen_kisi} icon={Users} color={kpis.kisi_sapma > 0 ? "red" : "green"}
+          subtitle={`${kpis.kisi_sapma > 0 ? "+" : ""}${kpis.kisi_sapma} sapma`} />
+        <KPICard title="Maliyet Sapması" value={`₺${fmtK(Math.abs(kpis.maliyet_sapma))}`}
+          icon={kpis.maliyet_sapma > 0 ? TrendUp : TrendDown}
+          color={kpis.maliyet_sapma > 0 ? "red" : "green"}
+          subtitle={kpis.maliyet_sapma > 0 ? "Bütçe aşımı" : "Bütçe altı"} />
+      </div>
+
+      {/* Budget vs Actual summary bar */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div className="bg-white rounded-lg border border-slate-200 p-4">
+          <p className="text-xs text-slate-400 uppercase tracking-wider mb-2">Bütçelenen Toplam Maliyet</p>
+          <p className="text-2xl font-bold text-slate-800">₺{fmt(kpis.butcelenen_maliyet)}</p>
+        </div>
+        <div className={`rounded-lg border p-4 ${kpis.maliyet_sapma > 0 ? "bg-red-50 border-red-200" : "bg-emerald-50 border-emerald-200"}`}>
+          <p className="text-xs text-slate-400 uppercase tracking-wider mb-2">Gerçekleşen Toplam Maliyet</p>
+          <p className={`text-2xl font-bold ${kpis.maliyet_sapma > 0 ? "text-red-700" : "text-emerald-700"}`}>₺{fmt(kpis.gerceklesen_maliyet)}</p>
+          <p className={`text-xs mt-1 ${kpis.maliyet_sapma > 0 ? "text-red-500" : "text-emerald-500"}`}>
+            {kpis.maliyet_sapma > 0 ? "+" : ""}₺{fmt(kpis.maliyet_sapma)} fark
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Talep Sebebi */}
         <ChartCard title="Talep Sebebi Dağılımı" testId="chart-ek-reasons">
-          <ResponsiveContainer width="100%" height={280}>
-            <PieChart><Pie data={data.reason_distribution} cx="50%" cy="50%" innerRadius={55} outerRadius={90} dataKey="count" nameKey="reason" strokeWidth={0}>
+          <ResponsiveContainer width="100%" height={260}>
+            <PieChart><Pie data={data.reason_distribution} cx="50%" cy="50%" innerRadius={50} outerRadius={85} dataKey="count" nameKey="reason" strokeWidth={0}>
               {data.reason_distribution.map((e, i) => <Cell key={e.reason} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
             </Pie><Tooltip {...DARK_TOOLTIP} /></PieChart>
           </ResponsiveContainer>
@@ -48,66 +68,120 @@ export default function EkKadroPage({ year }) {
           </div>
         </ChartCard>
 
-        <ChartCard title="Çeyrek Bazlı Talep Trendi" testId="chart-ek-quarterly">
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={data.quarterly_trend}>
+        {/* Çeyrek Trend: Bütçelenen vs Gerçekleşen */}
+        <ChartCard title="Çeyrek Bazlı Bütçelenen vs Gerçekleşen" testId="chart-ek-quarterly">
+          <ResponsiveContainer width="100%" height={260}>
+            <ComposedChart data={data.quarterly_trend}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.4} />
               <XAxis dataKey="quarter" tick={{ fill: "#64748B", fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} />
-              <Tooltip {...DARK_TOOLTIP} />
-              <Bar dataKey="talep" name="Talep" fill="#94A3B8" radius={[3, 3, 0, 0]} />
-              <Bar dataKey="onaylanan" name="Onaylanan" fill="#14B8A6" radius={[3, 3, 0, 0]} />
+              <YAxis tick={{ fill: "#64748B", fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={fmtK} />
+              <Tooltip {...DARK_TOOLTIP} formatter={(v) => `₺${fmt(v)}`} />
+              <Bar dataKey="butcelenen" name="Bütçelenen" fill="#94A3B8" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="gerceklesen" name="Gerçekleşen" fill="#14B8A6" radius={[3, 3, 0, 0]} />
+              <Line type="monotone" dataKey="sapma" name="Sapma" stroke="#EF4444" strokeWidth={2} dot={{ r: 4 }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-            </BarChart>
+            </ComposedChart>
           </ResponsiveContainer>
         </ChartCard>
+      </div>
 
-        <ChartCard title="Departman Bazlı Talepler" className="lg:col-span-2" testId="chart-ek-dept">
+      {/* Departman Bazlı Bütçe Karşılaştırma */}
+      <ChartCard title="Departman Bazlı Bütçe vs Gerçekleşen" subtitle="Kişi sayısı ve maliyet sapması" testId="table-ek-dept">
+        <div className="overflow-x-auto px-2">
+          <Table><TableHeader><TableRow className="border-slate-100">
+            <TableHead className="text-slate-400 text-xs">Departman</TableHead>
+            <TableHead className="text-slate-400 text-xs text-center">Talep</TableHead>
+            <TableHead className="text-slate-400 text-xs text-center">Onay</TableHead>
+            <TableHead className="text-slate-400 text-xs text-center">Bütçe Kişi</TableHead>
+            <TableHead className="text-slate-400 text-xs text-center">Gerçek Kişi</TableHead>
+            <TableHead className="text-slate-400 text-xs text-center">Kişi Sapma</TableHead>
+            <TableHead className="text-slate-400 text-xs text-right">Bütçe Maliyet</TableHead>
+            <TableHead className="text-slate-400 text-xs text-right">Gerçek Maliyet</TableHead>
+            <TableHead className="text-slate-400 text-xs text-right">Maliyet Sapma</TableHead>
+          </TableRow></TableHeader><TableBody>
+            {data.department_breakdown.filter(d => d.talep_sayisi > 0).map(d => (
+              <TableRow key={d.department} className={`border-slate-100 hover:bg-slate-50 ${d.maliyet_sapma > 0 ? "bg-red-50/40" : ""}`}>
+                <TableCell className="text-slate-900 text-sm font-medium">{d.department}</TableCell>
+                <TableCell className="text-center text-sm">{d.talep_sayisi}</TableCell>
+                <TableCell className="text-center text-sm text-emerald-600 font-medium">{d.onaylanan}</TableCell>
+                <TableCell className="text-center text-sm">{d.butcelenen_kisi}</TableCell>
+                <TableCell className="text-center text-sm font-medium">{d.gerceklesen_kisi}</TableCell>
+                <TableCell className="text-center">
+                  {d.kisi_sapma !== 0 && <span className={`px-2 py-0.5 rounded text-xs font-medium ${d.kisi_sapma > 0 ? "bg-red-100 text-red-700" : "bg-emerald-100 text-emerald-700"}`}>{d.kisi_sapma > 0 ? "+" : ""}{d.kisi_sapma}</span>}
+                </TableCell>
+                <TableCell className="text-right text-sm text-slate-500">₺{fmtK(d.butcelenen_maliyet)}</TableCell>
+                <TableCell className="text-right text-sm font-medium">₺{fmtK(d.gerceklesen_maliyet)}</TableCell>
+                <TableCell className="text-right">
+                  {d.maliyet_sapma !== 0 && <span className={`text-xs font-medium ${d.maliyet_sapma > 0 ? "text-red-600" : "text-emerald-600"}`}>{d.maliyet_sapma > 0 ? "+" : ""}₺{fmtK(d.maliyet_sapma)}</span>}
+                </TableCell>
+              </TableRow>))}
+          </TableBody></Table>
+        </div>
+      </ChartCard>
+
+      {/* Bütçe Aşımı Yapan Talepler */}
+      {data.asim_listesi?.length > 0 && (
+        <ChartCard title="Bütçe Aşımı Yapan Talepler" subtitle="Bütçelenenden fazla kişi alınmış talepler — en yüksek maliyet aşımına göre sıralı" testId="table-asim">
           <div className="overflow-x-auto px-2">
             <Table><TableHeader><TableRow className="border-slate-100">
+              <TableHead className="text-slate-400 text-xs">Talep No</TableHead>
               <TableHead className="text-slate-400 text-xs">Departman</TableHead>
-              <TableHead className="text-slate-400 text-xs text-center">Talep</TableHead>
-              <TableHead className="text-slate-400 text-xs text-center">Onaylanan</TableHead>
-              <TableHead className="text-slate-400 text-xs text-center">Kişi Sayısı</TableHead>
-              <TableHead className="text-slate-400 text-xs text-right">Öngörülen Maliyet</TableHead>
+              <TableHead className="text-slate-400 text-xs">Pozisyon</TableHead>
+              <TableHead className="text-slate-400 text-xs text-center">Band</TableHead>
+              <TableHead className="text-slate-400 text-xs text-center">Bütçe</TableHead>
+              <TableHead className="text-slate-400 text-xs text-center">Gerçek</TableHead>
+              <TableHead className="text-slate-400 text-xs text-center">+Fazla</TableHead>
+              <TableHead className="text-slate-400 text-xs text-right">Brüt Maaş</TableHead>
+              <TableHead className="text-slate-400 text-xs text-right">Bütçe Maliyet</TableHead>
+              <TableHead className="text-slate-400 text-xs text-right">Gerçek Maliyet</TableHead>
+              <TableHead className="text-slate-400 text-xs text-right">Aşım</TableHead>
             </TableRow></TableHeader><TableBody>
-              {data.department_breakdown.map(d => (
-                <TableRow key={d.department} className="border-slate-100 hover:bg-slate-50">
-                  <TableCell className="text-slate-900 text-sm font-medium">{d.department}</TableCell>
-                  <TableCell className="text-center text-sm">{d.talep}</TableCell>
-                  <TableCell className="text-center text-sm text-emerald-600 font-medium">{d.onaylanan}</TableCell>
-                  <TableCell className="text-center text-sm">{d.kisi}</TableCell>
-                  <TableCell className="text-right text-sm font-medium">₺{fmtK(d.maliyet)}</TableCell>
+              {data.asim_listesi.map(t => (
+                <TableRow key={t.talep_no} className="border-slate-100 bg-red-50/30 hover:bg-red-50">
+                  <TableCell className="text-slate-700 text-xs font-mono">{t.talep_no}</TableCell>
+                  <TableCell className="text-slate-900 text-sm">{t.department}</TableCell>
+                  <TableCell className="text-slate-600 text-sm">{t.position}</TableCell>
+                  <TableCell className="text-center"><span className="px-2 py-0.5 rounded text-xs bg-slate-100">{t.band}</span></TableCell>
+                  <TableCell className="text-center text-sm">{t.butcelenen_kisi}</TableCell>
+                  <TableCell className="text-center text-sm font-bold text-red-700">{t.gerceklesen_kisi}</TableCell>
+                  <TableCell className="text-center"><span className="px-2 py-0.5 rounded text-xs bg-red-100 text-red-700 font-bold">+{t.sapma_kisi}</span></TableCell>
+                  <TableCell className="text-right text-sm text-slate-500">₺{fmt(t.brut_maas)}</TableCell>
+                  <TableCell className="text-right text-sm">₺{fmtK(t.butcelenen_yillik_maliyet)}</TableCell>
+                  <TableCell className="text-right text-sm font-medium">₺{fmtK(t.gerceklesen_yillik_maliyet)}</TableCell>
+                  <TableCell className="text-right"><span className="text-red-600 font-bold text-sm">+₺{fmtK(t.sapma_maliyet)}</span></TableCell>
                 </TableRow>))}
             </TableBody></Table>
           </div>
         </ChartCard>
-      </div>
+      )}
 
       {/* Full request list */}
-      <ChartCard title="Talep Listesi" subtitle="Tüm ek kadro talepleri" testId="table-ek-list">
+      <ChartCard title="Tüm Talep Listesi" testId="table-ek-list">
         <div className="overflow-x-auto px-2">
           <Table><TableHeader><TableRow className="border-slate-100">
-            <TableHead className="text-slate-400 text-xs">Talep No</TableHead>
+            <TableHead className="text-slate-400 text-xs">No</TableHead>
             <TableHead className="text-slate-400 text-xs">Departman</TableHead>
             <TableHead className="text-slate-400 text-xs">Pozisyon</TableHead>
             <TableHead className="text-slate-400 text-xs">Sebep</TableHead>
-            <TableHead className="text-slate-400 text-xs text-center">Kişi</TableHead>
+            <TableHead className="text-slate-400 text-xs text-center">Bütçe</TableHead>
+            <TableHead className="text-slate-400 text-xs text-center">Gerçek</TableHead>
             <TableHead className="text-slate-400 text-xs text-center">Durum</TableHead>
             <TableHead className="text-slate-400 text-xs">Talep Eden</TableHead>
-            <TableHead className="text-slate-400 text-xs">Tarih</TableHead>
+            <TableHead className="text-slate-400 text-xs text-right">Kişi/Ay Maliyet</TableHead>
             <TableHead className="text-slate-400 text-xs text-right">Yıllık Maliyet</TableHead>
           </TableRow></TableHeader><TableBody>
             {data.talep_listesi.map(t => (
-              <TableRow key={t.talep_no} className="border-slate-100 hover:bg-slate-50">
+              <TableRow key={t.talep_no} className={`border-slate-100 hover:bg-slate-50 ${t.sapma_kisi > 0 ? "bg-red-50/30" : ""}`}>
                 <TableCell className="text-slate-700 text-xs font-mono">{t.talep_no}</TableCell>
                 <TableCell className="text-slate-900 text-sm">{t.department}</TableCell>
                 <TableCell className="text-slate-600 text-sm">{t.position}</TableCell>
                 <TableCell className="text-slate-600 text-sm">{t.talep_sebebi}</TableCell>
-                <TableCell className="text-center text-sm font-medium">{t.kisi_sayisi}</TableCell>
+                <TableCell className="text-center text-sm">{t.butcelenen_kisi} kişi</TableCell>
+                <TableCell className="text-center text-sm font-medium">{t.gerceklesen_kisi > 0 ? `${t.gerceklesen_kisi} kişi` : "-"}</TableCell>
                 <TableCell className="text-center"><span className={`px-2 py-0.5 rounded text-xs font-medium ${STATUS_STYLE[t.onay_durumu] || ""}`}>{t.onay_durumu}</span></TableCell>
                 <TableCell className="text-slate-600 text-sm">{t.talep_eden}</TableCell>
-                <TableCell className="text-slate-500 text-sm">{t.talep_tarihi}</TableCell>
-                <TableCell className="text-right text-sm font-medium">₺{fmtK(t.ongorulen_yillik_maliyet)}</TableCell>
+                <TableCell className="text-right text-sm text-slate-500">₺{fmt(t.kisi_basi_aylik_maliyet)}</TableCell>
+                <TableCell className="text-right text-sm font-medium">₺{fmtK(t.butcelenen_yillik_maliyet)}</TableCell>
               </TableRow>))}
           </TableBody></Table>
         </div>

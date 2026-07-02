@@ -480,7 +480,8 @@ def generate_recruitment_data(count=200, sector="Bankacılık"):
     return candidates
 
 def generate_ek_kadro_talepleri(sector="Bankacılık", count=30):
-    """Generate additional headcount requests with reasons, approval status, cost projections."""
+    """Generate additional headcount requests: budgeted vs actual with cost variance.
+    Some requests end up hiring more people than budgeted, creating cost overrun."""
     cfg = _cfg(sector)
     DEPTS = cfg["DEPARTMENTS"]
     DW = cfg["DEPT_WEIGHTS"]
@@ -488,8 +489,6 @@ def generate_ek_kadro_talepleri(sector="Bankacılık", count=30):
     BENCH = cfg.get("SALARY_BENCHMARK", {})
     REASONS = ["Yeni Proje", "İş Hacmi Artışı", "Ayrılan Personel İkamesi", "Yeni Fonksiyon/Ekip Kurulumu", "Mevzuat/Uyum Gereksinimi", "Sezonluk İhtiyaç"]
     MANAGERS = ["Ahmet Yılmaz", "Ayşe Demir", "Mehmet Kaya", "Fatma Çelik", "Ali Özkan", "Zeynep Arslan", "Hasan Şahin", "Elif Aydın"]
-    STATUSES = ["Beklemede", "Onaylandı", "Reddedildi"]
-    STATUS_WEIGHTS = [25, 55, 20]
     random.seed(60)
     requests = []
     for i in range(count):
@@ -497,13 +496,41 @@ def generate_ek_kadro_talepleri(sector="Bankacılık", count=30):
         band = random.choices(BANDS, weights=BAND_WEIGHTS, k=1)[0]
         pos = random.choice(PBB.get(band, ["Uzman"]))
         bench = BENCH.get(band, {"mid": 30000})
-        kisi_sayisi = random.choices([1, 2, 3, 4, 5], weights=[40, 30, 15, 10, 5], k=1)[0]
-        employer_cost = round(bench["mid"] * 1.35)  # brüt + SGK + yan haklar
-        yillik_maliyet = employer_cost * kisi_sayisi * 12
-        status = random.choices(STATUSES, weights=STATUS_WEIGHTS, k=1)[0]
+        brut_maas = round(bench["mid"] * random.uniform(0.85, 1.15), -2)
+        sgk_isverenp = round(brut_maas * 0.225)  # ~%22.5 SGK işveren payı
+        yan_haklar = round(brut_maas * random.uniform(0.08, 0.18), -2)  # %8-18 yan haklar
+        kisi_basi_aylik = brut_maas + sgk_isverenp + yan_haklar
+
+        # Budgeted headcount
+        butcelenen_kisi = random.choices([1, 2, 3, 4, 5], weights=[25, 35, 20, 12, 8], k=1)[0]
+        butcelenen_yillik = kisi_basi_aylik * butcelenen_kisi * 12
+
         month = random.randint(1, 12)
         quarter = f"Ç{min(4, (month-1)//3 + 1)}"
-        gerceklesen = round(yillik_maliyet * random.uniform(0.85, 1.15)) if status == "Onaylandı" and random.random() < 0.7 else 0
+
+        # Approval status
+        status = random.choices(["Onaylandı", "Reddedildi", "Beklemede"], weights=[55, 15, 30], k=1)[0]
+
+        # For approved: actual hiring may exceed budget
+        gerceklesen_kisi = 0
+        gerceklesen_yillik = 0
+        sapma_kisi = 0
+        sapma_maliyet = 0
+        if status == "Onaylandı":
+            # ~40% exceed budget, ~30% match, ~30% under
+            r = random.random()
+            if r < 0.4:
+                gerceklesen_kisi = butcelenen_kisi + random.randint(1, 3)  # Over budget
+            elif r < 0.7:
+                gerceklesen_kisi = butcelenen_kisi  # On budget
+            else:
+                gerceklesen_kisi = max(1, butcelenen_kisi - random.randint(0, 1))  # Under budget
+            # Actual cost may also differ per person
+            gerceklesen_kisi_basi = round(kisi_basi_aylik * random.uniform(0.9, 1.2), -2)
+            gerceklesen_yillik = gerceklesen_kisi_basi * gerceklesen_kisi * 12
+            sapma_kisi = gerceklesen_kisi - butcelenen_kisi
+            sapma_maliyet = gerceklesen_yillik - butcelenen_yillik
+
         requests.append({
             "id": str(uuid.uuid4()),
             "talep_no": f"EK-2025-{i+1:03d}",
@@ -512,11 +539,21 @@ def generate_ek_kadro_talepleri(sector="Bankacılık", count=30):
             "quarter": quarter,
             "talep_eden": random.choice(MANAGERS),
             "talep_sebebi": random.choice(REASONS),
-            "kisi_sayisi": kisi_sayisi,
             "onay_durumu": status,
-            "kisi_basi_aylik_maliyet": employer_cost,
-            "ongorulen_yillik_maliyet": yillik_maliyet,
-            "gerceklesen_maliyet": gerceklesen,
+            # Maliyet bileşenleri
+            "brut_maas": brut_maas,
+            "sgk_isveren": sgk_isverenp,
+            "yan_haklar": yan_haklar,
+            "kisi_basi_aylik_maliyet": kisi_basi_aylik,
+            # Bütçelenen
+            "butcelenen_kisi": butcelenen_kisi,
+            "butcelenen_yillik_maliyet": butcelenen_yillik,
+            # Gerçekleşen
+            "gerceklesen_kisi": gerceklesen_kisi,
+            "gerceklesen_yillik_maliyet": gerceklesen_yillik,
+            # Sapma
+            "sapma_kisi": sapma_kisi,
+            "sapma_maliyet": sapma_maliyet,
             "created_at": datetime.now(timezone.utc).isoformat()
         })
     return requests
@@ -1310,37 +1347,55 @@ async def get_ek_kadro(year: int = 2025, quarter: str = None, tenant: str = None
     onaylanan = [t for t in talep_year if t['onay_durumu'] == 'Onaylandı']
     reddedilen = [t for t in talep_year if t['onay_durumu'] == 'Reddedildi']
     bekleyen = [t for t in talep_year if t['onay_durumu'] == 'Beklemede']
-    onay_kisi = sum(t['kisi_sayisi'] for t in onaylanan)
-    ongorulen = sum(t['ongorulen_yillik_maliyet'] for t in talep_year)
-    gerceklesen = sum(t['gerceklesen_maliyet'] for t in talep_year)
+    butcelenen_kisi_toplam = sum(t.get('butcelenen_kisi', 0) for t in onaylanan)
+    gerceklesen_kisi_toplam = sum(t.get('gerceklesen_kisi', 0) for t in onaylanan)
+    butcelenen_maliyet = sum(t.get('butcelenen_yillik_maliyet', 0) for t in talep_year)
+    gerceklesen_maliyet = sum(t.get('gerceklesen_yillik_maliyet', 0) for t in onaylanan)
+    sapma_maliyet = sum(t.get('sapma_maliyet', 0) for t in onaylanan)
     # Reason distribution
     reason_dist = {}
     for t in talep_year:
         r = t.get('talep_sebebi', 'Diğer')
         reason_dist[r] = reason_dist.get(r, 0) + 1
     reasons = [{"reason": k, "count": v} for k, v in sorted(reason_dist.items(), key=lambda x: -x[1])]
-    # Dept breakdown
+    # Dept breakdown with budget vs actual
     dept_breakdown = []
     for dept in (seg_depts or cfg["DEPARTMENTS"]):
         short = shorten_dept(dept)
         d_talep = [t for t in talep_year if t['department'] == dept]
         d_onay = [t for t in d_talep if t['onay_durumu'] == 'Onaylandı']
-        dept_breakdown.append({"department": short, "talep": len(d_talep), "onaylanan": len(d_onay),
-                              "kisi": sum(t['kisi_sayisi'] for t in d_talep),
-                              "maliyet": sum(t['ongorulen_yillik_maliyet'] for t in d_talep)})
+        d_butce_kisi = sum(t.get('butcelenen_kisi', 0) for t in d_onay)
+        d_gercek_kisi = sum(t.get('gerceklesen_kisi', 0) for t in d_onay)
+        d_butce_mal = sum(t.get('butcelenen_yillik_maliyet', 0) for t in d_talep)
+        d_gercek_mal = sum(t.get('gerceklesen_yillik_maliyet', 0) for t in d_onay)
+        d_sapma = sum(t.get('sapma_maliyet', 0) for t in d_onay)
+        dept_breakdown.append({"department": short, "talep_sayisi": len(d_talep), "onaylanan": len(d_onay),
+                              "butcelenen_kisi": d_butce_kisi, "gerceklesen_kisi": d_gercek_kisi,
+                              "kisi_sapma": d_gercek_kisi - d_butce_kisi,
+                              "butcelenen_maliyet": d_butce_mal, "gerceklesen_maliyet": d_gercek_mal,
+                              "maliyet_sapma": d_sapma})
     # Quarterly trend
     quarterly = []
     for q in range(1, 5):
         q_talep = [t for t in [tt for tt in all_talep if tt.get('talep_tarihi','')[:4] == str(year)] if t.get('quarter') == f"Ç{q}"]
-        quarterly.append({"quarter": f"Ç{q}", "talep": len(q_talep),
-                         "onaylanan": len([t for t in q_talep if t['onay_durumu'] == 'Onaylandı']),
-                         "maliyet": sum(t['ongorulen_yillik_maliyet'] for t in q_talep)})
+        q_onay = [t for t in q_talep if t['onay_durumu'] == 'Onaylandı']
+        quarterly.append({"quarter": f"Ç{q}", "talep": len(q_talep), "onaylanan": len(q_onay),
+                         "butcelenen": sum(t.get('butcelenen_yillik_maliyet', 0) for t in q_talep),
+                         "gerceklesen": sum(t.get('gerceklesen_yillik_maliyet', 0) for t in q_onay),
+                         "sapma": sum(t.get('sapma_maliyet', 0) for t in q_onay)})
+    # Aşım yapan talepler (sapma_kisi > 0)
+    asim_listesi = [t for t in onaylanan if t.get('sapma_kisi', 0) > 0]
+    asim_listesi = sorted(asim_listesi, key=lambda x: -x.get('sapma_maliyet', 0))
     return {
         "kpis": {"total_talep": total, "onaylanan": len(onaylanan), "reddedilen": len(reddedilen),
-                 "bekleyen": len(bekleyen), "onay_kisi": onay_kisi,
-                 "ongorulen_maliyet": ongorulen, "gerceklesen_maliyet": gerceklesen},
+                 "bekleyen": len(bekleyen),
+                 "butcelenen_kisi": butcelenen_kisi_toplam, "gerceklesen_kisi": gerceklesen_kisi_toplam,
+                 "kisi_sapma": gerceklesen_kisi_toplam - butcelenen_kisi_toplam,
+                 "butcelenen_maliyet": butcelenen_maliyet, "gerceklesen_maliyet": gerceklesen_maliyet,
+                 "maliyet_sapma": sapma_maliyet},
         "reason_distribution": reasons, "department_breakdown": dept_breakdown,
-        "quarterly_trend": quarterly, "talep_listesi": talep_year[:50]
+        "quarterly_trend": quarterly, "talep_listesi": talep_year[:50],
+        "asim_listesi": asim_listesi[:20]
     }
 
 # ---- Teklif Red Analizi Detay (Modül 3) ----
