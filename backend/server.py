@@ -522,17 +522,33 @@ def generate_ek_kadro_talepleri(sector="Bankacılık", count=30):
     return requests
 
 def generate_norm_kadro_data(employees, sector="Bankacılık"):
-    """Generate norm kadro (target vs actual) records per department per month."""
+    """Generate norm kadro (target vs actual) records per department per month.
+    Some departments intentionally over-hire (norm üstü) to create realistic cost variance."""
     cfg = _cfg(sector)
     THC = cfg["TARGET_HEADCOUNT"]
     BENCH = cfg.get("SALARY_BENCHMARK", {})
+    DEPTS = cfg["DEPARTMENTS"]
     random.seed(61)
     records = []
     active = [e for e in employees if e['status'] == 'active']
+
+    # ~40% of departments over-hired (norm üstü)
+    dept_list = list(THC.keys())
+    random.shuffle(dept_list)
+    overhire_depts = set(dept_list[:max(3, len(dept_list) * 4 // 10)])
+
     for dept_name, target_info in THC.items():
-        target = target_info["target"]
+        base_target = target_info["target"]
         dept_emps = [e for e in active if e['department'] == dept_name]
-        # Get unique positions in this dept
+        actual_count = len(dept_emps)
+
+        # For overhire depts: set budgeted norm LOWER than actual (they hired more than planned)
+        if dept_name in overhire_depts:
+            budgeted_norm = max(5, int(actual_count * random.uniform(0.65, 0.85)))
+        else:
+            budgeted_norm = max(actual_count, base_target)
+
+        # Get unique positions
         positions = {}
         for e in dept_emps:
             pos = e['job_title']
@@ -540,20 +556,19 @@ def generate_norm_kadro_data(employees, sector="Bankacılık"):
                 positions[pos] = {"band": e['band'], "count": 0, "salaries": []}
             positions[pos]["count"] += 1
             positions[pos]["salaries"].append(e.get('salary', 0))
-        # Distribute target across positions proportionally
-        total_actual = len(dept_emps)
+
         for month in range(1, 13):
-            # slight monthly variation in actual headcount
-            variation = random.randint(-3, 3)
-            month_actual = max(0, total_actual + variation)
-            month_target = target
+            variation = random.randint(-2, 2)
+            month_actual = max(0, actual_count + variation)
+            month_target = budgeted_norm
             sapma = month_actual - month_target
-            # Calculate ek maliyet for norm-üstü
-            avg_employer_cost = 0
-            if dept_emps:
-                avg_sal = sum(e.get('salary', 0) for e in dept_emps) / len(dept_emps)
-                avg_employer_cost = round(avg_sal * 1.35)  # brüt + SGK + yan haklar
+
+            # Employer cost = brüt maaş × 1.35 (SGK + yan haklar)
+            avg_salary = sum(e.get('salary', 0) for e in dept_emps) / len(dept_emps) if dept_emps else 30000
+            avg_employer_cost = round(avg_salary * 1.35)
+            # Ek maliyet only for norm-üstü (positive sapma)
             ek_maliyet = max(0, sapma) * avg_employer_cost if sapma > 0 else 0
+
             records.append({
                 "id": str(uuid.uuid4()),
                 "department": dept_name,
@@ -567,12 +582,16 @@ def generate_norm_kadro_data(employees, sector="Bankacılık"):
                 "ek_maliyet": ek_maliyet,
                 "avg_employer_cost": avg_employer_cost,
             })
+
             # Position-level records
             for pos_name, pos_data in positions.items():
-                pos_target = max(1, round(pos_data["count"] * month_target / total_actual)) if total_actual else 1
                 pos_actual = pos_data["count"] + random.randint(-1, 1)
                 pos_actual = max(0, pos_actual)
-                pos_sapma = pos_actual - pos_target
+                # Position norm proportional to dept norm
+                pos_norm = max(1, round(pos_data["count"] * budgeted_norm / actual_count)) if actual_count else 1
+                if dept_name in overhire_depts:
+                    pos_norm = max(1, int(pos_norm * random.uniform(0.7, 0.95)))
+                pos_sapma = pos_actual - pos_norm
                 bench = BENCH.get(pos_data["band"], {"mid": 30000})
                 pos_employer_cost = round(bench["mid"] * 1.35)
                 records.append({
@@ -583,10 +602,10 @@ def generate_norm_kadro_data(employees, sector="Bankacılık"):
                     "donem": f"2025-{month:02d}",
                     "yil": 2025, "ay": month,
                     "quarter": f"Ç{min(4, (month-1)//3 + 1)}",
-                    "hedeflenen_norm": pos_target,
+                    "hedeflenen_norm": pos_norm,
                     "gerceklesen_kadro": pos_actual,
                     "sapma": pos_sapma,
-                    "sapma_pct": round(pos_sapma / pos_target * 100, 1) if pos_target else 0,
+                    "sapma_pct": round(pos_sapma / pos_norm * 100, 1) if pos_norm else 0,
                     "ek_maliyet": max(0, pos_sapma) * pos_employer_cost if pos_sapma > 0 else 0,
                     "avg_employer_cost": pos_employer_cost,
                 })
