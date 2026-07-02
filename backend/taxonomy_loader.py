@@ -131,6 +131,15 @@ def _build_banking_config():
         "PROFICIENCY_LEVELS": _BANKING_PROFICIENCY,
         "SKILL_MAP": {s["id"]: s for s in _BANKING_SKILLS},
         "ROLE_MAP": {r["id"]: r for r in _BANKING_ROLES},
+        "SALARY_BENCHMARK": {
+            "A": {"min": 16000, "mid": 22000, "max": 30000, "sector_avg": 20000},
+            "B": {"min": 30000, "mid": 40000, "max": 52000, "sector_avg": 38000},
+            "C": {"min": 50000, "mid": 65000, "max": 82000, "sector_avg": 62000},
+            "D": {"min": 82000, "mid": 105000, "max": 135000, "sector_avg": 100000},
+            "E": {"min": 135000, "mid": 185000, "max": 260000, "sector_avg": 175000},
+        },
+        "HIRING_REASONS": ["Yeni Pozisyon", "Ayrılma Yerine", "Büyüme", "Yedekleme", "Proje Bazlı", "Reorganizasyon"],
+        "REJECTION_REASONS": ["Maaş Beklentisi", "Yan Haklar Yetersiz", "Konum/Uzaklık", "Karşı Teklif", "Kültür Uyumsuzluğu", "Kariyer Beklentisi"],
     }
 
 
@@ -393,6 +402,15 @@ def _build_retail_config():
         "PROFICIENCY_LEVELS": raw.get("meta", {}).get("proficiency_scale", {}),
         "SKILL_MAP": skill_map,
         "ROLE_MAP": role_map,
+        "SALARY_BENCHMARK": {
+            "A": {"min": 12000, "mid": 17000, "max": 24000, "sector_avg": 16000},
+            "B": {"min": 22000, "mid": 32000, "max": 42000, "sector_avg": 30000},
+            "C": {"min": 40000, "mid": 55000, "max": 72000, "sector_avg": 52000},
+            "D": {"min": 70000, "mid": 92000, "max": 120000, "sector_avg": 88000},
+            "E": {"min": 115000, "mid": 160000, "max": 230000, "sector_avg": 150000},
+        },
+        "HIRING_REASONS": ["Yeni Pozisyon", "Ayrılma Yerine", "Sezon Takviyesi", "Mağaza Açılışı", "Büyüme", "Reorganizasyon"],
+        "REJECTION_REASONS": ["Maaş Beklentisi", "Yan Haklar Yetersiz", "Vardiya/Çalışma Saati", "Karşı Teklif", "Konum/Uzaklık", "Kariyer Beklentisi"],
     }
 
 

@@ -428,13 +428,17 @@ def generate_recruitment_data(count=200, sector="Bankacılık"):
     DEPTS = cfg["DEPARTMENTS"]
     DW = cfg["DEPT_WEIGHTS"]
     PBB = cfg["POSITIONS_BY_BAND"]
+    BENCH = cfg.get("SALARY_BENCHMARK", {})
+    HIRE_REASONS = cfg.get("HIRING_REASONS", ["Yeni Pozisyon", "Ayrılma Yerine", "Büyüme"])
+    REJ_REASONS = cfg.get("REJECTION_REASONS", ["Maaş Beklentisi", "Yan Haklar Yetersiz", "Konum/Uzaklık"])
     random.seed(43)
     candidates = []
     for i in range(count):
         gender = random.choice(["Male","Female"])
         name = f"{random.choice(MALE_NAMES if gender=='Male' else FEMALE_NAMES)} {random.choice(LAST_NAMES)}"
         dept = random.choices(DEPTS, weights=DW, k=1)[0]
-        pos = random.choice(sum(PBB.values(), []))
+        band = random.choices(BANDS, weights=BAND_WEIGHTS, k=1)[0]
+        pos = random.choice(PBB.get(band, ["Uzman"]))
         source = random.choice(RECRUITMENT_SOURCES)
         r = random.random()
         if r < 0.12: stage = "Hired"
@@ -444,9 +448,35 @@ def generate_recruitment_data(count=200, sector="Bankacılık"):
         elif r < 0.78: stage = "Rejected"
         else: stage = "Applied"
         applied_date = f"2025-{random.randint(1,12):02d}-{random.randint(1,28):02d}"
+        quarter = f"Q{min(4, (int(applied_date[5:7])-1)//3 + 1)}"
         days = random.randint(15, 90) if stage in ["Hired","Offered"] else random.randint(3, 45)
         cost = round(random.uniform(2000, 15000), -2) if stage == "Hired" else 0
-        candidates.append({"id": str(uuid.uuid4()), "candidate_name": name, "position": pos, "department": dept, "source": source, "stage": stage, "applied_date": applied_date, "days_in_pipeline": days, "cost": cost, "experience_years": random.randint(0, 20), "education": random.choices(EDUCATION_LEVELS, weights=EDUCATION_WEIGHTS, k=1)[0], "created_at": datetime.now(timezone.utc).isoformat()})
+        hiring_reason = random.choice(HIRE_REASONS)
+        # Offer details for Offered/Hired stages
+        bench = BENCH.get(band, {"min": 15000, "mid": 25000, "max": 40000, "sector_avg": 22000})
+        offer_salary = round(random.uniform(bench["min"] * 0.9, bench["max"] * 1.1), -2) if stage in ["Hired", "Offered"] else None
+        offer_vs_benchmark = None
+        rejection_reason = None
+        if offer_salary:
+            offer_vs_benchmark = "Üstünde" if offer_salary > bench["sector_avg"] else "Altında" if offer_salary < bench["sector_avg"] * 0.95 else "Ortalamada"
+        if stage == "Offered":
+            # ~60% of offers are rejected
+            if random.random() < 0.6:
+                stage = "Reddedildi"
+                rejection_reason = random.choices(REJ_REASONS, weights=[35, 20, 15, 15, 10, 5], k=1)[0]
+        candidates.append({
+            "id": str(uuid.uuid4()), "candidate_name": name, "position": pos,
+            "department": dept, "band": band, "source": source, "stage": stage,
+            "applied_date": applied_date, "quarter": quarter,
+            "days_in_pipeline": days, "cost": cost,
+            "experience_years": random.randint(0, 20),
+            "education": random.choices(EDUCATION_LEVELS, weights=EDUCATION_WEIGHTS, k=1)[0],
+            "hiring_reason": hiring_reason,
+            "offer_salary": offer_salary,
+            "offer_vs_benchmark": offer_vs_benchmark,
+            "rejection_reason": rejection_reason,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
     return candidates
 
 def generate_training_data(employees, count=300):
@@ -851,6 +881,200 @@ async def get_leaves(year: int = 2025, tenant: str = None, segment: str = None):
         "department_distribution": count_by(left, 'department'),
         "leaving_reasons": [{"reason": k, "count": v} for k, v in sorted(reasons.items(), key=lambda x:-x[1])],
         "employee_list": emp_list
+    }
+
+
+# ---- Hiring Plan (Kadro Planlama vs Gerçekleşme) ----
+@api_router.get("/dashboard/hiring-plan")
+async def get_hiring_plan(year: int = 2025, tenant: str = None, segment: str = None):
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
+    seg_depts = _segment_depts(sector, segment)
+    THC = cfg["TARGET_HEADCOUNT"]
+    _, active, hired, left = await get_filtered(year, tenant=tenant, segment=segment)
+    rq = {"tenant_id": tenant} if tenant else {}
+    all_cands = await db.recruitment.find(rq, {"_id": 0}).to_list(10000)
+    if seg_depts:
+        all_cands = [c for c in all_cands if c.get('department') in seg_depts]
+    cands_year = [c for c in all_cands if c.get('applied_date','')[:4] == str(year)]
+    hired_cands = [c for c in cands_year if c['stage'] == 'Hired']
+    # Department breakdown
+    dept_plan = []
+    for dept_name in (seg_depts or cfg["DEPARTMENTS"]):
+        short = shorten_dept(dept_name)
+        dept_active = len([e for e in active if e['department'] == dept_name])
+        target = THC.get(dept_name, {}).get("target", dept_active)
+        dept_hired = len([c for c in hired_cands if c['department'] == dept_name])
+        dept_left = len([e for e in left if e['department'] == dept_name])
+        gap = target - dept_active
+        dept_hire_cost = sum(c.get('cost', 0) for c in hired_cands if c['department'] == dept_name)
+        dept_plan.append({"department": short, "full_dept": dept_name, "target": target, "current": dept_active,
+                         "hired": dept_hired, "left": dept_left, "gap": gap,
+                         "fill_rate": round(dept_active / target * 100, 1) if target else 100,
+                         "cost": dept_hire_cost})
+    # Quarterly breakdown
+    quarterly = []
+    for q in range(1, 5):
+        q_months = [f"{year}-{m:02d}" for m in range((q-1)*3+1, q*3+1)]
+        q_hired = [c for c in hired_cands if c.get('applied_date','')[:7] in q_months]
+        q_left = [e for e in left if e.get('termination_date','')[:7] in q_months]
+        q_cost = sum(c.get('cost', 0) for c in q_hired)
+        quarterly.append({"quarter": f"Q{q}", "hired": len(q_hired), "left": len(q_left),
+                         "net": len(q_hired) - len(q_left), "cost": q_cost})
+    # Monthly breakdown
+    monthly = []
+    for mi, mn in enumerate(MONTHS):
+        ms = f"{year}-{mi+1:02d}"
+        m_hired = [c for c in hired_cands if c.get('applied_date','')[:7] == ms]
+        m_left = [e for e in left if e.get('termination_date','')[:7] == ms]
+        monthly.append({"month": mn, "hired": len(m_hired), "left": len(m_left),
+                       "net": len(m_hired) - len(m_left), "cost": sum(c.get('cost',0) for c in m_hired)})
+    # Hiring reason breakdown
+    reason_dist = {}
+    for c in hired_cands:
+        r = c.get('hiring_reason', 'Bilinmiyor')
+        reason_dist[r] = reason_dist.get(r, 0) + 1
+    reasons = [{"reason": k, "count": v} for k, v in sorted(reason_dist.items(), key=lambda x: -x[1])]
+    total_cost = sum(c.get('cost', 0) for c in hired_cands)
+    total_target = sum(THC.get(d, {}).get("target", 0) for d in (seg_depts or cfg["DEPARTMENTS"]))
+    return {
+        "kpis": {"total_target": total_target, "total_current": len(active), "total_hired": len(hired_cands),
+                 "total_gap": total_target - len(active), "total_cost": total_cost,
+                 "fill_rate": round(len(active) / total_target * 100, 1) if total_target else 100},
+        "department_plan": dept_plan, "quarterly": quarterly, "monthly": monthly, "hiring_reasons": reasons
+    }
+
+# ---- Offer Analysis (Teklif & Red Analizi) ----
+@api_router.get("/dashboard/offer-analysis")
+async def get_offer_analysis(year: int = 2025, tenant: str = None, segment: str = None):
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
+    seg_depts = _segment_depts(sector, segment)
+    BENCH = cfg.get("SALARY_BENCHMARK", {})
+    rq = {"tenant_id": tenant} if tenant else {}
+    all_cands = await db.recruitment.find(rq, {"_id": 0}).to_list(10000)
+    if seg_depts:
+        all_cands = [c for c in all_cands if c.get('department') in seg_depts]
+    cands_year = [c for c in all_cands if c.get('applied_date','')[:4] == str(year)]
+    # Offers = Hired + Offered + Reddedildi
+    offers = [c for c in cands_year if c['stage'] in ['Hired', 'Offered', 'Reddedildi']]
+    accepted = [c for c in offers if c['stage'] == 'Hired']
+    rejected = [c for c in offers if c['stage'] == 'Reddedildi']
+    pending = [c for c in offers if c['stage'] == 'Offered']
+    # Rejection reasons
+    rej_reasons = {}
+    for c in rejected:
+        r = c.get('rejection_reason', 'Bilinmiyor')
+        rej_reasons[r] = rej_reasons.get(r, 0) + 1
+    rej_list = [{"reason": k, "count": v, "pct": round(v / len(rejected) * 100, 1) if rejected else 0}
+                for k, v in sorted(rej_reasons.items(), key=lambda x: -x[1])]
+    # Offer vs benchmark
+    above = len([c for c in offers if c.get('offer_vs_benchmark') == 'Üstünde'])
+    below = len([c for c in offers if c.get('offer_vs_benchmark') == 'Altında'])
+    at_avg = len([c for c in offers if c.get('offer_vs_benchmark') == 'Ortalamada'])
+    # Average offer by band
+    band_offers = []
+    for b in BANDS:
+        b_offers = [c for c in offers if c.get('band') == b and c.get('offer_salary')]
+        if b_offers:
+            avg_offer = round(sum(c['offer_salary'] for c in b_offers) / len(b_offers))
+            bench = BENCH.get(b, {})
+            band_offers.append({"band": b, "avg_offer": avg_offer, "sector_avg": bench.get("sector_avg", 0),
+                               "benchmark_mid": bench.get("mid", 0), "count": len(b_offers),
+                               "diff_pct": round((avg_offer - bench.get("sector_avg", avg_offer)) / bench.get("sector_avg", avg_offer) * 100, 1) if bench.get("sector_avg") else 0})
+    # Department offer analysis
+    dept_offers = []
+    for dept in (seg_depts or cfg["DEPARTMENTS"]):
+        short = shorten_dept(dept)
+        d_offers = [c for c in offers if c['department'] == dept]
+        d_accepted = [c for c in d_offers if c['stage'] == 'Hired']
+        d_rejected = [c for c in d_offers if c['stage'] == 'Reddedildi']
+        avg_sal = round(sum(c['offer_salary'] for c in d_offers if c.get('offer_salary')) / len([c for c in d_offers if c.get('offer_salary')])) if [c for c in d_offers if c.get('offer_salary')] else 0
+        dept_offers.append({"department": short, "total": len(d_offers), "accepted": len(d_accepted),
+                           "rejected": len(d_rejected), "avg_salary": avg_sal,
+                           "accept_rate": round(len(d_accepted) / len(d_offers) * 100, 1) if d_offers else 0})
+    return {
+        "kpis": {"total_offers": len(offers), "accepted": len(accepted), "rejected": len(rejected),
+                 "pending": len(pending), "accept_rate": round(len(accepted) / len(offers) * 100, 1) if offers else 0,
+                 "avg_offer_salary": round(sum(c['offer_salary'] for c in offers if c.get('offer_salary')) / len([c for c in offers if c.get('offer_salary')])) if [c for c in offers if c.get('offer_salary')] else 0},
+        "rejection_reasons": rej_list,
+        "benchmark_comparison": {"above": above, "below": below, "at_avg": at_avg},
+        "band_offers": band_offers, "department_offers": dept_offers
+    }
+
+# ---- Compensation Benchmark (Ücret Kıyaslama) ----
+@api_router.get("/dashboard/compensation-benchmark")
+async def get_compensation_benchmark(year: int = 2025, tenant: str = None, segment: str = None):
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
+    seg_depts = _segment_depts(sector, segment)
+    BENCH = cfg.get("SALARY_BENCHMARK", {})
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment)
+    # Per-employee benchmark comparison
+    emp_list = []
+    band_stats = {}
+    dept_stats = {}
+    for emp in active:
+        b = emp.get('band', 'A')
+        dept = emp['department']
+        sal = emp.get('salary', 0)
+        bench = BENCH.get(b, {"min": 15000, "mid": 25000, "max": 40000, "sector_avg": 22000})
+        vs_sector = "Üstünde" if sal > bench["sector_avg"] * 1.05 else "Altında" if sal < bench["sector_avg"] * 0.95 else "Ortalamada"
+        vs_band_mid = "Üstünde" if sal > bench["mid"] * 1.05 else "Altında" if sal < bench["mid"] * 0.95 else "Ortalamada"
+        compa_ratio = round(sal / bench["mid"], 2) if bench["mid"] else 0
+        emp_list.append({"name": emp['name'], "department": shorten_dept(dept), "full_dept": dept,
+                        "position": emp['job_title'], "band": b, "salary": sal,
+                        "sector_avg": bench["sector_avg"], "band_mid": bench["mid"],
+                        "vs_sector": vs_sector, "vs_band": vs_band_mid, "compa_ratio": compa_ratio})
+        # Aggregate by band
+        if b not in band_stats:
+            band_stats[b] = {"salaries": [], "bench": bench}
+        band_stats[b]["salaries"].append(sal)
+        # Aggregate by dept
+        short = shorten_dept(dept)
+        if short not in dept_stats:
+            dept_stats[short] = {"salaries": [], "bands": {}}
+        dept_stats[short]["salaries"].append(sal)
+        if b not in dept_stats[short]["bands"]:
+            dept_stats[short]["bands"][b] = []
+        dept_stats[short]["bands"][b].append(sal)
+    # Band summary
+    band_summary = []
+    for b in BANDS:
+        if b in band_stats:
+            sals = band_stats[b]["salaries"]
+            bench = band_stats[b]["bench"]
+            avg = round(sum(sals) / len(sals))
+            above = len([s for s in sals if s > bench["sector_avg"] * 1.05])
+            below = len([s for s in sals if s < bench["sector_avg"] * 0.95])
+            band_summary.append({"band": b, "count": len(sals), "avg_salary": avg, "min": min(sals), "max": max(sals),
+                                "sector_avg": bench["sector_avg"], "band_mid": bench["mid"],
+                                "above_sector": above, "below_sector": below, "at_sector": len(sals) - above - below,
+                                "compa_ratio": round(avg / bench["mid"], 2) if bench["mid"] else 0})
+    # Dept summary
+    dept_summary = []
+    for dept_name in (seg_depts or cfg["DEPARTMENTS"]):
+        short = shorten_dept(dept_name)
+        if short in dept_stats:
+            sals = dept_stats[short]["salaries"]
+            avg = round(sum(sals) / len(sals))
+            above = len([e for e in emp_list if e["full_dept"] == dept_name and e["vs_sector"] == "Üstünde"])
+            below = len([e for e in emp_list if e["full_dept"] == dept_name and e["vs_sector"] == "Altında"])
+            dept_summary.append({"department": short, "count": len(sals), "avg_salary": avg,
+                                "min": min(sals), "max": max(sals),
+                                "above_sector": above, "below_sector": below, "at_sector": len(sals) - above - below})
+    # Overall stats
+    all_sals = [e.get('salary', 0) for e in active]
+    total_above = len([e for e in emp_list if e["vs_sector"] == "Üstünde"])
+    total_below = len([e for e in emp_list if e["vs_sector"] == "Altında"])
+    total_at = len(emp_list) - total_above - total_below
+    avg_compa = round(sum(e["compa_ratio"] for e in emp_list) / len(emp_list), 2) if emp_list else 0
+    return {
+        "kpis": {"total_employees": len(active), "avg_salary": round(sum(all_sals) / len(all_sals)) if all_sals else 0,
+                 "above_sector": total_above, "below_sector": total_below, "at_sector": total_at,
+                 "avg_compa_ratio": avg_compa},
+        "band_summary": band_summary, "department_summary": dept_summary,
+        "employee_list": sorted(emp_list, key=lambda x: -x["salary"])[:100]
     }
 
 # ---- Turnover ----
