@@ -107,8 +107,8 @@ EDUCATION_WEIGHTS = [10,50,30,10]
 UNIVERSITIES = ["Boğaziçi Üniversitesi","İTÜ","ODTÜ","Bilkent Üniversitesi","Koç Üniversitesi","Sabancı Üniversitesi","İstanbul Üniversitesi","Galatasaray Üniversitesi","Hacettepe Üniversitesi","Yıldız Teknik Üniversitesi","Marmara Üniversitesi","Ege Üniversitesi","Dokuz Eylül Üniversitesi","Gazi Üniversitesi","Anadolu Üniversitesi"]
 MARITAL_STATUS = ["Bekar","Evli","Boşanmış"]
 MARITAL_WEIGHTS = [35,55,10]
-LEAVING_REASONS_VOL = ["Resignation","Better Opportunity","Relocation","Personal Reasons","Career Change","Retirement"]
-LEAVING_REASONS_INVOL = ["Performance Issues","Restructuring","End of Contract"]
+LEAVING_REASONS_VOL = ["İstifa","Daha İyi Fırsat","Taşınma/Konum","Kişisel Nedenler","Kariyer Değişikliği","Emeklilik"]
+LEAVING_REASONS_INVOL = ["Performans Yetersizliği","Reorganizasyon","Sözleşme Bitişi"]
 SALARY_BY_BAND = {"A":(15000,30000),"B":(30000,50000),"C":(50000,80000),"D":(80000,130000),"E":(130000,250000)}
 
 # ---- Branch / Sales Constants ----
@@ -228,7 +228,7 @@ def generate_seed_data(count=500, sector="Bankacılık"):
     # Department-specific turnover multiplier
     DEPT_TURNOVER = {"Sales":1.6, "Marketing":1.3, "Operations":1.4, "Information Technology":1.1, "Human Resources":0.9, "Finance":0.8, "Legal":0.7, "Research & Development":0.9, "Administration":1.0, "Supply Chain":1.2}
     # Weighted leaving reasons
-    LEAVE_WEIGHTS = [("Better Opportunity","voluntary",28),("Resignation","voluntary",22),("Personal Reasons","voluntary",14),("Career Change","voluntary",10),("Relocation","voluntary",6),("Retirement","voluntary",3),("Performance Issues","involuntary",9),("Restructuring","involuntary",5),("End of Contract","involuntary",3)]
+    LEAVE_WEIGHTS = [("Daha İyi Fırsat","voluntary",28),("İstifa","voluntary",22),("Kişisel Nedenler","voluntary",14),("Kariyer Değişikliği","voluntary",10),("Taşınma/Konum","voluntary",6),("Emeklilik","voluntary",3),("Performans Yetersizliği","involuntary",9),("Reorganizasyon","involuntary",5),("Sözleşme Bitişi","involuntary",3)]
     leave_reasons = [l[0] for l in LEAVE_WEIGHTS]
     leave_types = [l[1] for l in LEAVE_WEIGHTS]
     leave_w = [l[2] for l in LEAVE_WEIGHTS]
