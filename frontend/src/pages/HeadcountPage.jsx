@@ -3,6 +3,7 @@ import axios from "axios";
 import { Users, GenderFemale, Star, CalendarBlank, Clock } from "@phosphor-icons/react";
 import KPICard from "@/components/KPICard";
 import ChartCard, { CHART_COLORS, DARK_TOOLTIP } from "@/components/ChartCard";
+import ExcelExportButton from "@/components/ExcelExportButton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, CartesianGrid, Legend } from "recharts";
 
@@ -133,7 +134,8 @@ export default function HeadcountPage({ year, country }) {
         </ChartCard>
       </div>
 
-      <ChartCard title="Çalışan Listesi" subtitle="İlk 50 aktif çalışan" testId="chart-employee-list">
+      <ChartCard title="Çalışan Listesi" subtitle="İlk 50 aktif çalışan" testId="chart-employee-list"
+        headerRight={<ExcelExportButton data={data.employee_list} filename="calisan-listesi" sheetName="Çalışanlar" />}>
         <div className="overflow-x-auto px-2">
           <Table>
             <TableHeader>

@@ -3,6 +3,7 @@ import axios from "axios";
 import { Brain, Warning, Lightning, TrendUp, ShieldWarning, Heartbeat } from "@phosphor-icons/react";
 import KPICard from "@/components/KPICard";
 import ChartCard, { CHART_COLORS, DARK_TOOLTIP } from "@/components/ChartCard";
+import ExcelExportButton from "@/components/ExcelExportButton";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area, CartesianGrid } from "recharts";
@@ -139,7 +140,8 @@ export default function AIForecastPage({ year }) {
       )}
 
       {data.at_risk_employees?.length > 0 && (
-        <ChartCard title="Risk Altındaki Çalışanlar" subtitle="Yüksek ayrılma veya performans riski olan çalışanlar" testId="chart-at-risk">
+        <ChartCard title="Risk Altındaki Çalışanlar" subtitle="Yüksek ayrılma veya performans riski olan çalışanlar" testId="chart-at-risk"
+          headerRight={<ExcelExportButton data={data.at_risk_employees} filename="risk-calisanlar" sheetName="Risk Listesi" />}>
           <div className="overflow-x-auto px-2">
             <Table>
               <TableHeader>

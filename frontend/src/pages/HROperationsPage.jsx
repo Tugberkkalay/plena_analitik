@@ -3,6 +3,7 @@ import axios from "axios";
 import { Gear, Users, Buildings, GraduationCap, GenderIntersex, ChartBar } from "@phosphor-icons/react";
 import KPICard from "@/components/KPICard";
 import ChartCard, { CHART_COLORS, DARK_TOOLTIP } from "@/components/ChartCard";
+import ExcelExportButton from "@/components/ExcelExportButton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell } from "recharts";
 import { Progress } from "@/components/ui/progress";
@@ -56,7 +57,8 @@ export default function HROperationsPage({ year }) {
       </ChartCard>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ChartCard title="Departman Metrikleri" testId="chart-dept-metrics">
+        <ChartCard title="Departman Metrikleri" testId="chart-dept-metrics"
+          headerRight={<ExcelExportButton data={data.department_metrics} filename="dept-metrikleri" sheetName="Dept Metrikler" />}>
           <div className="overflow-x-auto px-2">
             <Table>
               <TableHeader><TableRow className="border-slate-100 hover:bg-transparent">

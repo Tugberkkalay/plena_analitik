@@ -1324,7 +1324,10 @@ async def get_norm_kadro(year: int = 2025, quarter: str = None, month: int = Non
         all_records = [r for r in all_records if r.get('ay') == month]
     if department:
         all_records = [r for r in all_records if r.get('department') == department]
-    # Separate dept-level (no position) and position-level records
+    if hrbp:
+        hrbp_map = cfg.get("HRBP_MAP", {})
+        hrbp_depts = [d for d, h in hrbp_map.items() if h == hrbp]
+        all_records = [r for r in all_records if r.get('department') in hrbp_depts]
     dept_records = [r for r in all_records if 'position' not in r]
     pos_records = [r for r in all_records if 'position' in r]
     # Dept summary (aggregate)
@@ -1403,6 +1406,12 @@ async def get_ek_kadro(year: int = 2025, quarter: str = None, tenant: str = None
     talep_year = [t for t in all_talep if t.get('talep_tarihi','')[:4] == str(year)]
     if quarter:
         talep_year = [t for t in talep_year if t.get('quarter') == quarter]
+    if department:
+        talep_year = [t for t in talep_year if t.get('department') == department]
+    if hrbp:
+        hrbp_map = cfg.get("HRBP_MAP", {})
+        hrbp_depts = [d for d, h in hrbp_map.items() if h == hrbp]
+        talep_year = [t for t in talep_year if t.get('department') in hrbp_depts]
     total = len(talep_year)
     onaylanan = [t for t in talep_year if t['onay_durumu'] == 'Onaylandı']
     reddedilen = [t for t in talep_year if t['onay_durumu'] == 'Reddedildi']

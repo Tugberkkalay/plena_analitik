@@ -3,6 +3,7 @@ import axios from "axios";
 import { ChartBar, TrendUp, TrendDown, Star, Target } from "@phosphor-icons/react";
 import KPICard from "@/components/KPICard";
 import ChartCard, { CHART_COLORS, DARK_TOOLTIP } from "@/components/ChartCard";
+import ExcelExportButton from "@/components/ExcelExportButton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from "recharts";
 
@@ -73,7 +74,8 @@ export default function PerformancePage({ year }) {
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
-        <ChartCard title="En İyi 10 Çalışan" testId="chart-top-perf">
+        <ChartCard title="En İyi 10 Çalışan" testId="chart-top-perf"
+          headerRight={<ExcelExportButton data={data.top_performers} filename="en-iyi-performans" sheetName="Top Performans" />}>
           <div className="overflow-x-auto px-2">
             <Table>
               <TableHeader><TableRow className="border-slate-100 hover:bg-transparent">

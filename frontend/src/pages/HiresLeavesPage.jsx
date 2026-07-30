@@ -3,6 +3,7 @@ import axios from "axios";
 import { UserPlus, UserMinus, CalendarBlank, ShieldCheck, Target, CurrencyCircleDollar, ChartBar, Warning, TrendUp, TrendDown, Minus, Briefcase, HandCoins } from "@phosphor-icons/react";
 import KPICard from "@/components/KPICard";
 import ChartCard, { CHART_COLORS, DARK_TOOLTIP } from "@/components/ChartCard";
+import ExcelExportButton from "@/components/ExcelExportButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend } from "recharts";
@@ -66,7 +67,8 @@ function HiresTab({ data }) {
           </ResponsiveContainer>
         </ChartCard>
       </div>
-      <ChartCard title="Son Alımlar" testId="chart-hire-list">
+      <ChartCard title="Son Alımlar" testId="chart-hire-list"
+        headerRight={<ExcelExportButton data={data.employee_list} filename="son-alimlar" sheetName="Alımlar" />}>
         <div className="overflow-x-auto px-2">
           <Table><TableHeader><TableRow className="border-slate-100 hover:bg-transparent">
             <TableHead className="text-slate-400 text-xs">İsim</TableHead><TableHead className="text-slate-400 text-xs">Departman</TableHead>
@@ -124,7 +126,8 @@ function LeavesTab({ data }) {
           </ResponsiveContainer>
         </ChartCard>
       </div>
-      <ChartCard title="Son Ayrılmalar" testId="chart-leave-list">
+      <ChartCard title="Son Ayrılmalar" testId="chart-leave-list"
+        headerRight={<ExcelExportButton data={data.employee_list} filename="son-ayrilmalar" sheetName="Ayrılmalar" />}>
         <div className="overflow-x-auto px-2">
           <Table><TableHeader><TableRow className="border-slate-100 hover:bg-transparent">
             <TableHead className="text-slate-400 text-xs">İsim</TableHead><TableHead className="text-slate-400 text-xs">Departman</TableHead>
@@ -276,7 +279,8 @@ function OfferAnalysisTab({ data }) {
           </ResponsiveContainer>
         </ChartCard>
       </div>
-      <ChartCard title="Departman Teklif Özeti" testId="chart-dept-offers">
+      <ChartCard title="Departman Teklif Özeti" testId="chart-dept-offers"
+        headerRight={<ExcelExportButton data={data.department_offers} filename="dept-teklif-ozeti" sheetName="Dept Teklif" />}>
         <div className="overflow-x-auto px-2">
           <Table><TableHeader><TableRow className="border-slate-100">
             <TableHead className="text-slate-400 text-xs">Departman</TableHead>
@@ -348,7 +352,8 @@ function CompBenchmarkTab({ data }) {
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
-        <ChartCard title="Departman Bazlı Ücret Karşılaştırma" className="lg:col-span-2" testId="chart-dept-comp">
+        <ChartCard title="Departman Bazlı Ücret Karşılaştırma" className="lg:col-span-2" testId="chart-dept-comp"
+          headerRight={<ExcelExportButton data={data.department_summary} filename="dept-ucret-kiyaslama" sheetName="Dept Ücret" />}>
           <div className="overflow-x-auto px-2">
             <Table><TableHeader><TableRow className="border-slate-100">
               <TableHead className="text-slate-400 text-xs">Departman</TableHead>
@@ -373,7 +378,8 @@ function CompBenchmarkTab({ data }) {
           </div>
         </ChartCard>
       </div>
-      <ChartCard title="Kişi Bazlı Ücret Kıyaslama (Top 50)" testId="chart-emp-comp">
+      <ChartCard title="Kişi Bazlı Ücret Kıyaslama (Top 50)" testId="chart-emp-comp"
+        headerRight={<ExcelExportButton data={data.employee_list?.slice(0, 50)} filename="kisi-ucret-kiyaslama" sheetName="Kişi Ücret" />}>
         <div className="overflow-x-auto px-2">
           <Table><TableHeader><TableRow className="border-slate-100">
             <TableHead className="text-slate-400 text-xs">İsim</TableHead>
