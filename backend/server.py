@@ -823,6 +823,20 @@ def _segment_depts(sector, segment):
     seg_map = cfg.get("DEPT_SEGMENT_MAP", {})
     return [dept for dept, seg in seg_map.items() if seg == segment]
 
+def _effective_depts(sector, segment=None, department=None, hrbp=None):
+    """Return the effective department list considering all filters.
+    Used for chart iterations so filtered views only show relevant departments."""
+    cfg = _cfg(sector)
+    all_depts = cfg["DEPARTMENTS"]
+    depts = _segment_depts(sector, segment) or all_depts
+    if department:
+        depts = [d for d in depts if d == department]
+    if hrbp:
+        hrbp_map = cfg.get("HRBP_MAP", {})
+        hrbp_depts = [d for d, h in hrbp_map.items() if h == hrbp]
+        depts = [d for d in depts if d in hrbp_depts]
+    return depts
+
 # ---- Startup ----
 @app.on_event("startup")
 async def startup():
@@ -1214,7 +1228,7 @@ async def get_offer_analysis(year: int = 2025, tenant: str = None, segment: str 
                                "diff_pct": round((avg_offer - bench.get("sector_avg", avg_offer)) / bench.get("sector_avg", avg_offer) * 100, 1) if bench.get("sector_avg") else 0})
     # Department offer analysis
     dept_offers = []
-    for dept in (seg_depts or cfg["DEPARTMENTS"]):
+    for dept in _effective_depts(sector, segment, department, hrbp):
         short = shorten_dept(dept)
         d_offers = [c for c in offers if c['department'] == dept]
         d_accepted = [c for c in d_offers if c['stage'] == 'Hired']
@@ -1429,7 +1443,7 @@ async def get_ek_kadro(year: int = 2025, quarter: str = None, tenant: str = None
     reasons = [{"reason": k, "count": v} for k, v in sorted(reason_dist.items(), key=lambda x: -x[1])]
     # Dept breakdown with budget vs actual
     dept_breakdown = []
-    for dept in (seg_depts or cfg["DEPARTMENTS"]):
+    for dept in _effective_depts(sector, segment, department, hrbp):
         short = shorten_dept(dept)
         d_talep = [t for t in talep_year if t['department'] == dept]
         d_onay = [t for t in d_talep if t['onay_durumu'] == 'Onaylandı']
@@ -1539,7 +1553,7 @@ async def get_teklif_analizi(year: int = 2025, quarter: str = None, department: 
                                "red": len(q_rej), "maas_red": q_maas, "yan_hak_red": q_yan, "diger_red": q_diger})
     # Dept red rates
     dept_red = []
-    for dept in (seg_depts or cfg["DEPARTMENTS"]):
+    for dept in _effective_depts(sector, segment, department, hrbp):
         short = shorten_dept(dept)
         d_offers = [c for c in offers if c['department'] == dept]
         d_rej = [c for c in d_offers if c['stage'] == 'Reddedildi']
@@ -1756,7 +1770,7 @@ async def get_aday_hunisi(year: int = 2025, tenant: str = None, segment: str = N
                       "pct_of_total": round(count/total*100,1) if total else 0})
     # Dept funnel
     dept_funnels = []
-    for dept in (seg_depts or cfg["DEPARTMENTS"]):
+    for dept in _effective_depts(sector, segment, department, hrbp):
         short = shorten_dept(dept)
         d_cands = [c for c in cands if c['department'] == dept]
         if not d_cands:
@@ -1976,7 +1990,7 @@ async def get_movement(year: int = 2025, tenant: str = None, segment: str = None
         l = len([e for e in left if e.get('termination_date','')[:7]==ms])
         hl_month.append({"month": mn, "hires": h, "leaves": l})
     hl_dept = []
-    for dept in (seg_depts or cfg["DEPARTMENTS"]):
+    for dept in _effective_depts(sector, segment, department, hrbp):
         short = shorten_dept(dept)
         h = len([e for e in hired if e['department']==dept])
         l = len([e for e in left if e['department']==dept])
@@ -2247,7 +2261,7 @@ async def get_performance(year: int = 2025, tenant: str = None, segment: str = N
     hc = len(active)
     dist = [{"range": "1.0-2.0", "count": len([s for s in scores if s < 2.0])}, {"range": "2.0-2.5", "count": len([s for s in scores if 2.0 <= s < 2.5])}, {"range": "2.5-3.0", "count": len([s for s in scores if 2.5 <= s < 3.0])}, {"range": "3.0-3.5", "count": len([s for s in scores if 3.0 <= s < 3.5])}, {"range": "3.5-4.0", "count": len([s for s in scores if 3.5 <= s < 4.0])}, {"range": "4.0-4.5", "count": len([s for s in scores if 4.0 <= s < 4.5])}, {"range": "4.5-5.0", "count": len([s for s in scores if s >= 4.5])}]
     by_dept = []
-    for dept in (seg_depts or cfg["DEPARTMENTS"]):
+    for dept in _effective_depts(sector, segment, department, hrbp):
         de = [e for e in active if e['department'] == dept]
         avg = safe_avg(de, 'performance_score')
         short = shorten_dept(dept)
@@ -2288,7 +2302,7 @@ async def get_learning(year: int = 2025, tenant: str = None, segment: str = None
     by_cat = count_by(trn, 'category')
     by_status = [{"status": s, "count": len([t for t in trn if t['status']==s])} for s in ["Completed","In Progress","Not Started"]]
     by_dept = []
-    for dept in (seg_depts or cfg["DEPARTMENTS"]):
+    for dept in _effective_depts(sector, segment, department, hrbp):
         dt = [t for t in trn if t['department'] == dept]
         short = shorten_dept(dept)
         by_dept.append({"department": short, "hours": round(sum(t.get('hours',0) for t in dt),1), "count": len(dt)})
@@ -2325,7 +2339,7 @@ async def get_compensation(year: int = 2025, tenant: str = None, segment: str = 
     female_avg = safe_avg([e for e in active if e['gender']=='Female'], 'salary')
     pay_gap = round((male_avg - female_avg) / male_avg * 100, 1) if male_avg else 0
     by_dept = []
-    for dept in (seg_depts or cfg["DEPARTMENTS"]):
+    for dept in _effective_depts(sector, segment, department, hrbp):
         de = [e for e in active if e['department'] == dept]
         short = shorten_dept(dept)
         by_dept.append({"department": short, "avg_salary": safe_avg(de, 'salary'), "count": len(de)})
@@ -2362,7 +2376,7 @@ async def get_engagement(year: int = 2025, tenant: str = None, segment: str = No
     avg_absent = round(sum(s.get('absenteeism_days', 0) for s in surveys) / total, 1)
     drivers = [{"driver": "Satisfaction", "score": round(sum(s['satisfaction'] for s in surveys)/total,1)}, {"driver": "Work-Life Balance", "score": round(sum(s['work_life_balance'] for s in surveys)/total,1)}, {"driver": "Career Growth", "score": round(sum(s['career_growth'] for s in surveys)/total,1)}, {"driver": "Manager Rating", "score": round(sum(s['manager_rating'] for s in surveys)/total,1)}, {"driver": "Recognition", "score": round(sum(s['recognition'] for s in surveys)/total,1)}, {"driver": "Culture", "score": round(sum(s['culture_alignment'] for s in surveys)/total,1)}]
     by_dept = []
-    for dept in (seg_depts or cfg["DEPARTMENTS"]):
+    for dept in _effective_depts(sector, segment, department, hrbp):
         ds = [s for s in surveys if s['department'] == dept]
         short = shorten_dept(dept)
         if ds:
@@ -2388,7 +2402,7 @@ async def get_career(year: int = 2025, tenant: str = None, segment: str = None, 
     internal_mobility = round(len([e for e in hired if e.get('data_source') != 'upload']) / hc * 100, 1) if hc else 0
     succession = round(len([e for e in active if e.get('is_talent') and e.get('band') in ['C','D']]) / len(managers) * 100, 1) if managers else 0
     talent_by_dept = []
-    for dept in (seg_depts or cfg["DEPARTMENTS"]):
+    for dept in _effective_depts(sector, segment, department, hrbp):
         de = [e for e in active if e['department'] == dept]
         dt = [e for e in de if e.get('is_talent')]
         short = shorten_dept(dept)
@@ -2416,7 +2430,7 @@ async def get_hr_operations(year: int = 2025, tenant: str = None, segment: str =
     avg_sen = safe_avg(active, 'seniority_years')
     gen_dist = count_by(active, 'gender')
     dept_size = []
-    for dept in (seg_depts or cfg["DEPARTMENTS"]):
+    for dept in _effective_depts(sector, segment, department, hrbp):
         de = [e for e in active if e['department'] == dept]
         short = shorten_dept(dept)
         dept_size.append({"department": short, "count": len(de), "managers": len([e for e in de if e.get('is_manager')]), "span": round(len(de)/max(1,len([e for e in de if e.get('is_manager')])),1)})

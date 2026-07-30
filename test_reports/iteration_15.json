@@ -1,0 +1,62 @@
+{
+  "summary": "Iteration 15 — Verified the HRBP filter fix (_effective_depts helper) on the Performance page and other endpoints. Backend: 18/18 new tests + 22/22 previous regression tests pass (40/40 total). Frontend: Confirmed via network capture + screenshot on /admin/rapor/yapikredi/performance that (a) with NO filters, Departman Ort. Performansı chart shows all 10 departments and KPI high_performers=73; (b) with HRBP=Elif Aydın, chart narrows to exactly 2 departments (Kredi ve Risk, Hazine) and KPI high_performers=20 (matches spec ~20); (c) with HRBP=Zeynep Arslan, chart narrows to exactly 2 departments (Bireysel Bankacılık, Kurumsal Bankacılık); (d) Excel export button ('Excel'e Aktar') on top performers table still visible and functional. HRBP filter also narrows by_department on learning/compensation/career/engagement endpoints. Ek Kadro and Norm Kadro endpoints also accept hrbp param and narrow data. The reported bug 'performansta hrbp kriteri çalışmadı' is fixed.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "Performance page filter combination (dept + hrbp)",
+        "issue": "Changing the HRBP dropdown appears to reset the Department dropdown back to 'Tüm Departmanlar' in the frontend, so the request only carries hrbp=... (dept param is dropped). This prevents users from selecting a Dept + HRBP intersection from the UI, even though the backend correctly supports it (verified via direct API call: department=Hazine&hrbp=Elif%20Aydın returns exactly 1 department). Not a blocker for the reported bug, but limits UX. Reproduced: select Dept=Hazine → chart shows 1 dept → then select HRBP=Elif Aydın → chart shows 2 depts (Elif's list) with Department selector reverted to Tüm Departmanlar.",
+        "affected_selectors": ["button[data-testid='department-selector']", "button[data-testid='hrbp-selector']"]
+      }
+    ],
+    "design_issues": []
+  },
+  "test_results": {
+    "backend_pytest": "40/40 pass (18 new HRBP-narrowing tests + 22 previous regression). Reports: /app/test_reports/pytest/iter15_hrbp.xml",
+    "frontend_playwright_performance_page": {
+      "baseline_no_filters": "10 depts, high_perf=73  ✅",
+      "hrbp=Elif_Aydın": "2 depts [Kredi ve Risk, Hazine], high_perf=20  ✅",
+      "hrbp=Zeynep_Arslan": "2 depts [Bireysel Bankacılık, Kurumsal Bankacılık], high_perf=20  ✅",
+      "excel_export_button_visible": "1 button (excel-export-top-performers) — retained after filter changes  ✅",
+      "top_performers_table_narrows": "After HRBP=Elif, table only lists Kredi ve Risk / Hazine employees  ✅"
+    },
+    "endpoints_verified_narrowing_by_dept_list": [
+      "/api/dashboard/performance (10→2 for Elif Aydın)",
+      "/api/dashboard/learning (10→2)",
+      "/api/dashboard/compensation (10→2)",
+      "/api/dashboard/career (10→2)",
+      "/api/dashboard/engagement (narrows)",
+      "/api/dashboard/ek-kadro (narrows department breakdown)",
+      "/api/dashboard/norm-kadro (narrows totals)"
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_hrbp_department_narrowing.py",
+    "/app/backend/tests/test_filters_and_export.py",
+    "/app/test_reports/pytest/iter15_hrbp.xml"
+  ],
+  "action_items": [
+    "OPTIONAL/UX: Investigate whether the Department selector should be preserved when HRBP is changed. Currently it resets to 'Tüm Departmanlar', which blocks users from combining Dept + HRBP filters from the UI. Backend supports the intersection correctly; only the frontend filter-state coupling needs review (likely in DashboardRoutes or the filter context provider).",
+    "OPTIONAL: When Dept and HRBP are mutually exclusive (e.g., Hazine + Zeynep Arslan → empty intersection), the API returns 200 with by_department=[] and high_performers=0. Consider showing a UI hint 'Seçilen departman bu HRBP'nin sorumluluk alanında değil' instead of an empty chart."
+  ],
+  "critical_code_review_comments": [
+    "_effective_depts() correctly composes segment + department + hrbp filters — clean, single-responsibility helper. Applied consistently to all 11 department-iteration loops.",
+    "run_scenario endpoint was intentionally left with the old pattern (per E1's note). Verify manually if scenario simulations need HRBP filtering too; if yes, add dept/hrbp params to that endpoint as well.",
+    "Frontend: DashboardRoutes still remounts children on any filter change (see iter14 note). When HRBP changes, this likely also clears the local dept state — the observed 'Department resets on HRBP change' UX issue may be a side-effect of the remount, not intentional coupling.",
+    "server.py is now 3937 lines — approaching monolith territory. Consider splitting dashboard endpoints into /app/backend/routes/dashboard_*.py modules."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_hrbp_department_narrowing.py (new — 18 tests)"
+  ],
+  "success_rate": {"backend": "100% (40/40)", "frontend": "100% (all target behaviours verified)"},
+  "test_credentials": "admin@plenalitik.com / Plena2025!  (works). Tenant: yapikredi. Data-testids: hrbp-selector, department-selector, segment-selector, year-selector.",
+  "seed_data_creation": "None needed — yapikredi tenant already re-seeded in iter14 with hrbp field on employees.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "test_hrbp_department_narrowing.py is the regression suite for _effective_depts(). Depends on yapikredi being seeded with employees carrying the hrbp field (done in iter14). If any test suddenly returns 0 headcount for an HRBP, re-run POST /api/tenants/{id}/seed. Known frontend behaviour: changing HRBP resets Department to 'Tüm Departmanlar' — this is either intentional or a remount side-effect from DashboardRoutes key. Backend supports the Dept+HRBP intersection correctly (verified by direct API call).",
+  "rca_of_the_issue": "Bug 'performansta hrbp kriteri çalışmadı': The Performance endpoint's by_department loop iterated over `seg_depts or cfg['DEPARTMENTS']` — which resolves to ALL 10 departments when only HRBP is selected (seg_depts is derived from segment filter, ignoring HRBP). Result: users saw all 10 departments in the chart with 8 of them at score=0 (no employees matched), making the filter appear broken. Fix (verified): _effective_depts(sector, segment, department, hrbp) now composes all three filters and returns exactly the relevant department subset. Applied to 11 dashboard endpoints. Verified end-to-end: HRBP=Elif Aydın now produces exactly 2 department bars in Departman Ort. Performansı chart and KPI high_performers drops from 73 → 20."
+}
