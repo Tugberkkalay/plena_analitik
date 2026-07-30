@@ -6,15 +6,18 @@ export const DARK_TOOLTIP = {
   itemStyle: { color: "#475569", fontSize: 12 },
 };
 
-export default function ChartCard({ title, subtitle, children, className = "", testId }) {
+export default function ChartCard({ title, subtitle, children, className = "", testId, headerRight }) {
   return (
     <div
       data-testid={testId || `chart-${title?.toLowerCase().replace(/\s+/g, "-")}`}
       className={`bg-white border border-slate-200 rounded-md overflow-hidden shadow-sm ${className}`}
     >
-      <div className="px-4 pt-4 pb-2">
-        <h3 className="text-sm font-medium text-slate-800">{title}</h3>
-        {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+      <div className="px-4 pt-4 pb-2 flex items-start justify-between gap-2">
+        <div>
+          <h3 className="text-sm font-medium text-slate-800">{title}</h3>
+          {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+        </div>
+        {headerRight && <div className="flex-shrink-0">{headerRight}</div>}
       </div>
       <div className="px-2 pb-4">{children}</div>
     </div>

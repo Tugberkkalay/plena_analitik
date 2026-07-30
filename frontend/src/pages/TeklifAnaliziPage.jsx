@@ -3,6 +3,7 @@ import axios from "axios";
 import { Handshake, CheckCircle, XCircle, CurrencyCircleDollar, ChartBar, TrendUp, TrendDown } from "@phosphor-icons/react";
 import KPICard from "@/components/KPICard";
 import ChartCard, { CHART_COLORS, DARK_TOOLTIP } from "@/components/ChartCard";
+import ExcelExportButton from "@/components/ExcelExportButton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ScatterChart, Scatter, ZAxis, Cell, CartesianGrid, Legend, ReferenceLine } from "recharts";
 
@@ -104,7 +105,8 @@ export default function TeklifAnaliziPage({ year }) {
       </ChartCard>
 
       {/* Department red rates */}
-      <ChartCard title="Departman & Pozisyon Bazlı Red Oranı" testId="table-dept-red">
+      <ChartCard title="Departman & Pozisyon Bazlı Red Oranı" testId="table-dept-red"
+        headerRight={<ExcelExportButton data={data.department_red.filter(d => d.teklif > 0)} filename="teklif-dept-red" sheetName="Departman Red" />}>
         <div className="overflow-x-auto px-2">
           <Table><TableHeader><TableRow className="border-slate-100">
             <TableHead className="text-slate-400 text-xs">Departman</TableHead>
@@ -124,7 +126,8 @@ export default function TeklifAnaliziPage({ year }) {
       </ChartCard>
 
       {/* Detailed offer table */}
-      <ChartCard title="Teklif Detayları" subtitle="Her teklifin şirket, sektör ve band ortalamasına göre konumu" testId="table-offers-detail">
+      <ChartCard title="Teklif Detayları" subtitle="Her teklifin şirket, sektör ve band ortalamasına göre konumu" testId="table-offers-detail"
+        headerRight={<ExcelExportButton data={data.scatter_data} filename="teklif-detay" sheetName="Teklif Detayları" />}>
         <div className="overflow-x-auto px-2">
           <Table><TableHeader><TableRow className="border-slate-100">
             <TableHead className="text-slate-400 text-xs">Aday</TableHead>

@@ -140,6 +140,13 @@ def _build_banking_config():
         },
         "HIRING_REASONS": ["Yeni Pozisyon", "Ayrılma Yerine", "Büyüme", "Yedekleme", "Proje Bazlı", "Reorganizasyon"],
         "REJECTION_REASONS": ["Maaş Beklentisi", "Yan Haklar Yetersiz", "Konum/Uzaklık", "Karşı Teklif", "Kültür Uyumsuzluğu", "Kariyer Beklentisi"],
+        "HRBP_MAP": {
+            "Kredi ve Risk": "Elif Aydın", "Hazine": "Elif Aydın",
+            "Bireysel Bankacılık": "Zeynep Arslan", "Kurumsal Bankacılık": "Zeynep Arslan",
+            "Şube Operasyonları": "Hasan Şahin", "Dijital Bankacılık": "Hasan Şahin",
+            "Uyum ve Mevzuat": "Fatma Çelik", "Veri ve Analitik": "Fatma Çelik",
+            "İnsan Kaynakları": "Ayşe Demir", "Operasyon ve Süreç": "Ayşe Demir",
+        },
     }
 
 
@@ -411,6 +418,12 @@ def _build_retail_config():
         },
         "HIRING_REASONS": ["Yeni Pozisyon", "Ayrılma Yerine", "Sezon Takviyesi", "Mağaza Açılışı", "Büyüme", "Reorganizasyon"],
         "REJECTION_REASONS": ["Maaş Beklentisi", "Yan Haklar Yetersiz", "Vardiya/Çalışma Saati", "Karşı Teklif", "Konum/Uzaklık", "Kariyer Beklentisi"],
+        "HRBP_MAP": {
+            "Mağaza Satış": "Ayşe Demir", "Görsel Düzenleme": "Ayşe Demir", "Perakende Operasyon": "Ayşe Demir",
+            "Üretim": "Mehmet Kaya", "Kalite Kontrol": "Mehmet Kaya", "Bakım ve Teknik": "Mehmet Kaya",
+            "Tasarım ve Ar-Ge": "Zeynep Arslan", "Kategori Yönetimi": "Zeynep Arslan",
+            "İK ve Destek": "Fatma Çelik", "Dijital ve E-ticaret": "Fatma Çelik",
+        },
     }
 
 

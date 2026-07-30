@@ -3,6 +3,7 @@ import axios from "axios";
 import { GraduationCap, Users, ChartBar, TrendUp } from "@phosphor-icons/react";
 import KPICard from "@/components/KPICard";
 import ChartCard, { CHART_COLORS, DARK_TOOLTIP } from "@/components/ChartCard";
+import ExcelExportButton from "@/components/ExcelExportButton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
 
@@ -48,7 +49,8 @@ export default function UniversiteAnaliziPage({ year }) {
         </ResponsiveContainer>
       </ChartCard>
 
-      <ChartCard title="Üniversite Detay Tablosu" testId="table-uni-detail">
+      <ChartCard title="Üniversite Detay Tablosu" testId="table-uni-detail"
+        headerRight={<ExcelExportButton data={data.university_breakdown} filename="universite-detay" sheetName="Üniversite Detay" />}>
         <div className="overflow-x-auto px-2">
           <Table><TableHeader><TableRow className="border-slate-100">
             <TableHead className="text-slate-400 text-xs">Üniversite</TableHead>

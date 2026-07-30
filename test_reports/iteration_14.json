@@ -1,0 +1,63 @@
+{
+  "summary": "Iteration 14 — Verified Department + HRBP filter dropdowns and Excel export buttons across yapikredi tenant. All 22 backend pytest tests pass. Frontend: dept-selector + hrbp-selector render on TopBar with correct 10 depts and 5 HRBPs, selection triggers refetch with correct query params, Excel export buttons visible on all 8 target pages. Public /raporlar/yapikredi report page also renders dept + hrbp dropdowns after password. Important: yapikredi and parakende tenants needed re-seeding — pre-existing employee records had no `hrbp` field, causing HRBP filter to return 0 rows. After POST /api/tenants/{id}/seed the filter works end-to-end.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/dashboard/*", "issue": "hrbp filter silently returns 0 rows if tenant seeded before the hrbp field was added to generate_seed_data. Any tenant not re-seeded after the HRBP feature will look broken. Consider a data-migration script that back-fills hrbp on existing employees from HRBP_MAP[department], instead of requiring a full destructive re-seed."},
+      {"endpoint": "/api/dashboard/*", "issue": "Filter validation is missing: passing hrbp='NonExistent' or department='Foo' returns 200 with headcount=0 instead of 400. For hygiene, validate against the tenant's HRBP/DEPT list."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "TopBar (yapikredi admin)", "issues": ["With PDF + country + dept + hrbp + year selectors all shown, the TopBar becomes crowded on <1440px screens. flex-wrap is set so it wraps to a second line, but the visual density is high — consider grouping filters behind a Funnel popover on narrow screens."]}
+    ]
+  },
+  "test_results": {
+    "backend_pytest": "22/22 pass — /app/backend/tests/test_filters_and_export.py (segments endpoint, dept filter, hrbp filter, and dept+hrbp combo on 17 endpoints)",
+    "frontend_playwright": {
+      "admin login": "PASS",
+      "dept-selector visible on /admin/rapor/yapikredi/ek-kadro": "PASS",
+      "dept options == ['Tüm Departmanlar', +10 banking depts]": "PASS",
+      "hrbp options == ['Tüm HRBP', +5 HRBPs (Ayşe Demir, Elif Aydın, Fatma Çelik, Hasan Şahin, Zeynep Arslan)]": "PASS",
+      "selecting Hazine triggers 2 dashboard requests carrying department=Hazine": "PASS",
+      "selecting Ayşe Demir triggers dashboard requests carrying hrbp=Ay%C5%9Fe%20Demir": "PASS",
+      "ek-kadro Excel buttons": "3 visible (ek-kadro-departman, ek-kadro-asim, ek-kadro-talepler)",
+      "norm-kadro Excel buttons": "1 visible",
+      "teklif-analizi Excel buttons": "2 visible",
+      "ucret-benchmark Excel buttons": "2 visible (review request said 4; only 2 render — likely ExcelExportButton returns null for empty data arrays on 2 of the 4 sections)",
+      "kaynak-analizi Excel buttons": "2 visible",
+      "universite-analizi Excel buttons": "1 visible",
+      "maliyet-analizi Excel buttons": "2 visible",
+      "aday-hunisi Excel buttons": "2 visible",
+      "public /raporlar/yapikredi after password shows report-department-selector + report-hrbp-selector with same options": "PASS"
+    }
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_filters_and_export.py",
+    "/app/test_reports/pytest/iter14_filters.xml"
+  ],
+  "action_items": [
+    "Add a lightweight data migration (script or startup routine) that back-fills `hrbp` on employees using HRBP_MAP[department] so existing tenants don't need destructive re-seed to activate the HRBP filter.",
+    "Verify whether Ücret Benchmark is expected to expose 4 Excel buttons; only 2 render at runtime because ExcelExportButton returns null on empty data. If the other 2 sections are supposed to always have data, populate their arrays or move the export button into the same JSX branch as the table.",
+    "Consider validating `department` and `hrbp` query params against the tenant taxonomy and returning 400 on unknown values instead of silently returning empty results."
+  ],
+  "critical_code_review_comments": [
+    "tenantInterceptor.js only appends department/hrbp for POST/PUT to segment (not department/hrbp), so form submits that go to any /api endpoint won't be tenant-scoped by dept/hrbp. Harmless today because no dashboard endpoint is POST, but a footgun.",
+    "ExcelExportButton returns null for empty arrays — silently hides. This makes it hard for QA/PM to confirm that a page is 'export-enabled'; consider rendering a disabled button with a tooltip 'Veri bulunamadı' instead so its absence isn't confused with a missing feature.",
+    "DashboardRoutes uses `key={`seg-${segment}-dept-${department}-hrbp-${hrbp}`}` on a wrapper <div>. Any filter change fully remounts every route child, discarding local UI state (open accordions, scroll positions, sub-tab selection). Prefer passing filters as props and letting children refetch on prop change.",
+    "generate_seed_data writes `hrbp` denormalised per-employee. Same fragility as `segment`: any future importer path (excel_handler.py) or bulk update MUST populate this field. Recommend deriving hrbp server-side at query time from HRBP_MAP[department] so the filter is not schema-dependent.",
+    "PATCH is not supported on /api/tenants/{id} (returns 405); only PUT is registered. Fine but inconsistent with REST norms; document or add PATCH."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_filters_and_export.py (new)"
+  ],
+  "success_rate": {"backend": "100% (22/22)", "frontend": "100% (all checks pass)"},
+  "test_credentials": "admin@plenalitik.com / Plena2025!  ;  public report password for yapikredi set to 'TestPass2026!' by this test run (was unknown/bcrypt-only before).",
+  "seed_data_creation": "Re-seeded yapikredi and parakende tenants via POST /api/tenants/{id}/seed to give employees the new `hrbp` field. Also set yapikredi access_password to 'TestPass2026!' so public report page can be tested.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "test_filters_and_export.py is the reusable regression suite for the dept/hrbp filter feature. It depends on yapikredi (and parakende) being re-seeded so employees carry the `hrbp` field. If HRBP-filter tests suddenly return 0 headcount, the fix is a re-seed via POST /api/tenants/<id>/seed. Public report password for yapikredi is 'TestPass2026!'. Admin data-testids: department-selector, hrbp-selector, year-selector, segment-selector, country-selector. Public data-testids: report-department-selector, report-hrbp-selector. Excel buttons: [data-testid^=\"excel-export-\"].",
+  "rca_of_the_issue": "HRBP filter appeared broken (0 headcount for every HRBP) because the yapikredi tenant was originally seeded before the `hrbp` field was added to generate_seed_data(). MongoDB employees documents had no `hrbp` key, so the query `{'hrbp': 'Ayşe Demir'}` matched nothing. Reproduction: 1) generate_seed_data assigns hrbp only at write time; 2) existing DB documents lack the key; 3) get_filtered() adds `query['hrbp']=hrbp`, filtering to zero. Mitigation applied: POST /api/tenants/{id}/seed re-seeded both tenants. Long-term mitigation: implement a one-shot back-fill (`db.employees.update_many({'hrbp': {'$exists': False}}, {'$set': {'hrbp': HRBP_MAP[dept]}})` for each dept) or derive hrbp at query time by translating `hrbp` param to `{'department': {'$in': dept_list_for_that_hrbp}}`."
+}

@@ -3,6 +3,7 @@ import axios from "axios";
 import { Funnel, Users, Clock, TrendDown, ChartBar, Warning } from "@phosphor-icons/react";
 import KPICard from "@/components/KPICard";
 import ChartCard, { CHART_COLORS, DARK_TOOLTIP } from "@/components/ChartCard";
+import ExcelExportButton from "@/components/ExcelExportButton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, Cell } from "recharts";
 
@@ -77,7 +78,8 @@ export default function AdayHunisiPage({ year }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Dept conversion table */}
-        <ChartCard title="Departman Dönüşüm Oranları" testId="table-dept-conv">
+        <ChartCard title="Departman Dönüşüm Oranları" testId="table-dept-conv"
+          headerRight={<ExcelExportButton data={data.department_funnels} filename="aday-dept-donusum" sheetName="Dept Dönüşüm" />}>
           <div className="overflow-x-auto px-2">
             <Table><TableHeader><TableRow className="border-slate-100">
               <TableHead className="text-slate-400 text-xs">Departman</TableHead>
@@ -97,7 +99,8 @@ export default function AdayHunisiPage({ year }) {
         </ChartCard>
 
         {/* Dropout detail */}
-        <ChartCard title="Aşama Bazlı Kayıp Sebepleri" testId="table-dropout-detail">
+        <ChartCard title="Aşama Bazlı Kayıp Sebepleri" testId="table-dropout-detail"
+          headerRight={<ExcelExportButton data={data.dropout_detail} filename="aday-kayip-sebepleri" sheetName="Kayıp Sebepleri" />}>
           <div className="overflow-x-auto px-2">
             <Table><TableHeader><TableRow className="border-slate-100">
               <TableHead className="text-slate-400 text-xs">Aşama</TableHead>

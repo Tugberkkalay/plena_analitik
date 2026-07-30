@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { Lock, FileText } from "@phosphor-icons/react";
-import { setActiveTenant, setActiveSegment } from "@/lib/tenantInterceptor";
+import { setActiveTenant, setActiveSegment, setActiveDepartment, setActiveHrbp } from "@/lib/tenantInterceptor";
 import { NAV_SECTIONS } from "@/components/Sidebar";
 import PdfExportButton from "@/components/PdfExportButton";
 
@@ -156,6 +156,10 @@ function ReportDashboard({ slug, tenant }) {
   const [activePath, setActivePath] = useState("/");
   const [segment, setSegment] = useState(null);
   const [segments, setSegments] = useState([]);
+  const [department, setDepartment] = useState(null);
+  const [departments, setDepartments] = useState([]);
+  const [hrbp, setHrbp] = useState(null);
+  const [hrbps, setHrbps] = useState([]);
   const year = 2025;
   const color = tenant.primary_color || "#0D9488";
   const API_BASE = process.env.REACT_APP_BACKEND_URL;
@@ -163,18 +167,28 @@ function ReportDashboard({ slug, tenant }) {
 
   useEffect(() => {
     setActiveTenant(slug);
-    // Fetch segments
-    if (isRetail) {
-      axios.get(`${API_BASE}/api/dashboard/segments?tenant=${slug}`)
-        .then(r => setSegments(r.data.segments || []))
-        .catch(() => {});
-    }
-    return () => { setActiveTenant(null); setActiveSegment(null); };
-  }, [slug, isRetail, API_BASE]);
+    // Fetch segments, departments, hrbps
+    axios.get(`${API_BASE}/api/dashboard/segments?tenant=${slug}`)
+      .then(r => {
+        setSegments(r.data.segments || []);
+        setDepartments(r.data.departments || []);
+        setHrbps(r.data.hrbps || []);
+      })
+      .catch(() => {});
+    return () => { setActiveTenant(null); setActiveSegment(null); setActiveDepartment(null); setActiveHrbp(null); };
+  }, [slug, API_BASE]);
 
   useEffect(() => {
     setActiveSegment(segment);
   }, [segment]);
+
+  useEffect(() => {
+    setActiveDepartment(department);
+  }, [department]);
+
+  useEffect(() => {
+    setActiveHrbp(hrbp);
+  }, [hrbp]);
 
   const Component = PAGE_MAP[activePath] || OverviewPage;
   const props = { year };
@@ -268,17 +282,38 @@ function ReportDashboard({ slug, tenant }) {
             <h1 className="text-xl font-semibold text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               {currentLabel}
             </h1>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 flex-wrap justify-end">
               {isRetail && segments.length > 0 && (
                 <select
                   data-testid="report-segment-selector"
                   value={segment || ""}
                   onChange={(e) => setSegment(e.target.value || null)}
                   className="px-3 py-1.5 rounded-md bg-slate-50 border border-slate-200 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-1"
-                  style={{ focusRingColor: color }}
                 >
                   <option value="">Tüm Segmentler</option>
                   {segments.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              )}
+              {departments.length > 0 && (
+                <select
+                  data-testid="report-department-selector"
+                  value={department || ""}
+                  onChange={(e) => setDepartment(e.target.value || null)}
+                  className="px-3 py-1.5 rounded-md bg-slate-50 border border-slate-200 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-1"
+                >
+                  <option value="">Tüm Departmanlar</option>
+                  {departments.map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
+              )}
+              {hrbps.length > 0 && (
+                <select
+                  data-testid="report-hrbp-selector"
+                  value={hrbp || ""}
+                  onChange={(e) => setHrbp(e.target.value || null)}
+                  className="px-3 py-1.5 rounded-md bg-slate-50 border border-slate-200 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-1"
+                >
+                  <option value="">Tüm HRBP</option>
+                  {hrbps.map(h => <option key={h} value={h}>{h}</option>)}
                 </select>
               )}
               <PdfExportButton tenantName={tenant.name} sectionLabel={currentLabel} />
@@ -286,7 +321,7 @@ function ReportDashboard({ slug, tenant }) {
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto p-6" data-testid="report-content" key={`seg-${segment || 'all'}`}>
+          <div className="flex-1 overflow-y-auto p-6" data-testid="report-content" key={`seg-${segment || 'all'}-dept-${department || 'all'}-hrbp-${hrbp || 'all'}`}>
             <Component {...props} />
           </div>
         </div>

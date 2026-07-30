@@ -3,11 +3,11 @@ import "@/App.css";
 import { BrowserRouter, Routes, Route, useLocation, useParams, Navigate } from "react-router-dom";
 import axios from "axios";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import { setActiveTenant, setActiveSegment } from "@/lib/tenantInterceptor";
+import { setActiveTenant, setActiveSegment, setActiveDepartment, setActiveHrbp } from "@/lib/tenantInterceptor";
 import Sidebar from "@/components/Sidebar";
 import PdfExportButton from "@/components/PdfExportButton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CalendarBlank, GlobeHemisphereWest, Funnel } from "@phosphor-icons/react";
+import { CalendarBlank, GlobeHemisphereWest, Funnel, Buildings, UserCircle } from "@phosphor-icons/react";
 import OverviewPage from "@/pages/OverviewPage";
 import HeadcountPage from "@/pages/HeadcountPage";
 import HiresLeavesPage from "@/pages/HiresLeavesPage";
@@ -95,7 +95,8 @@ const PAGE_TITLES = {
   "/branch-map": "Şube Haritası",
 };
 
-function TopBar({ year, setYear, years, country, setCountry, segment, setSegment, segments, sector }) {
+function TopBar({ year, setYear, years, country, setCountry, segment, setSegment, segments, sector,
+  department, setDepartment, departments, hrbp, setHrbp, hrbps }) {
   const location = useLocation();
   const cleanPath = location.pathname.replace(/^\/admin\/rapor\/[^/]+/, "");
   const title = PAGE_TITLES[cleanPath || "/"] || PAGE_TITLES[location.pathname] || "Dashboard";
@@ -108,7 +109,7 @@ function TopBar({ year, setYear, years, country, setCountry, segment, setSegment
           {title}
         </h1>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 flex-wrap justify-end">
         <PdfExportButton tenantName="Plenalitik" sectionLabel={title} />
         {isRetail && segments.length > 0 ? (
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-50 border border-slate-200">
@@ -140,6 +141,38 @@ function TopBar({ year, setYear, years, country, setCountry, segment, setSegment
             </Select>
           </div>
         )}
+        {departments && departments.length > 0 && (
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-50 border border-slate-200">
+            <Buildings size={16} className="text-slate-500" />
+            <Select value={department || "all"} onValueChange={(v) => setDepartment(v === "all" ? null : v)}>
+              <SelectTrigger data-testid="department-selector" className="w-[140px] border-0 bg-transparent h-7 text-sm text-slate-700 p-0 focus:ring-0">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-white border-slate-200">
+                <SelectItem value="all" className="text-slate-700 focus:bg-slate-100">Tüm Departmanlar</SelectItem>
+                {departments.map((d) => (
+                  <SelectItem key={d} value={d} className="text-slate-700 focus:bg-slate-100">{d}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+        {hrbps && hrbps.length > 0 && (
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-50 border border-slate-200">
+            <UserCircle size={16} className="text-slate-500" />
+            <Select value={hrbp || "all"} onValueChange={(v) => setHrbp(v === "all" ? null : v)}>
+              <SelectTrigger data-testid="hrbp-selector" className="w-[140px] border-0 bg-transparent h-7 text-sm text-slate-700 p-0 focus:ring-0">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-white border-slate-200">
+                <SelectItem value="all" className="text-slate-700 focus:bg-slate-100">Tüm HRBP</SelectItem>
+                {hrbps.map((h) => (
+                  <SelectItem key={h} value={h} className="text-slate-700 focus:bg-slate-100">{h}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-50 border border-slate-200">
           <CalendarBlank size={16} className="text-slate-500" />
           <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
@@ -160,9 +193,9 @@ function TopBar({ year, setYear, years, country, setCountry, segment, setSegment
   );
 }
 
-function DashboardRoutes({ year, country, segment }) {
+function DashboardRoutes({ year, country, segment, department, hrbp }) {
   return (
-    <div key={`seg-${segment || 'all'}`}>
+    <div key={`seg-${segment || 'all'}-dept-${department || 'all'}-hrbp-${hrbp || 'all'}`}>
     <Routes>
       <Route path="/" element={<OverviewPage year={year} country={country} />} />
       <Route path="/headcount" element={<HeadcountPage year={year} country={country} />} />
@@ -216,6 +249,10 @@ function ProtectedDashboard() {
   const [country, setCountry] = useState(null);
   const [segment, setSegment] = useState(null);
   const [segments, setSegments] = useState([]);
+  const [department, setDepartment] = useState(null);
+  const [departments, setDepartments] = useState([]);
+  const [hrbp, setHrbp] = useState(null);
+  const [hrbps, setHrbps] = useState([]);
   const [tenantInfo, setTenantInfo] = useState(null);
 
   // Set tenant context for all API calls
@@ -232,11 +269,15 @@ function ProtectedDashboard() {
           if (t) setTenantInfo({ name: t.name, slug: t.slug, logo_url: t.logo_url, primary_color: t.primary_color, report_title: t.report_title, sector: t.sector });
         }).catch(() => {});
       });
-      // Fetch segments for this tenant
+      // Fetch segments, departments, hrbps for this tenant
       axios.get(`${API}/dashboard/segments`).then(r => {
         const segs = r.data.segments || [];
         const sec = r.data.sector || "Bankacılık";
+        const depts = r.data.departments || [];
+        const hrbpList = r.data.hrbps || [];
         setSegments(segs);
+        setDepartments(depts);
+        setHrbps(hrbpList);
         // Also set sector on tenantInfo if not set
         setTenantInfo(prev => prev ? { ...prev, sector: prev.sector || sec } : { sector: sec });
       }).catch(() => {});
@@ -244,14 +285,26 @@ function ProtectedDashboard() {
       setActiveTenant(null);
       setTenantInfo(null);
       setSegments([]);
+      setDepartments([]);
+      setHrbps([]);
     }
-    return () => { setActiveTenant(null); setActiveSegment(null); };
+    return () => { setActiveTenant(null); setActiveSegment(null); setActiveDepartment(null); setActiveHrbp(null); };
   }, [slug]);
 
   // Sync segment to interceptor
   useEffect(() => {
     setActiveSegment(segment);
   }, [segment]);
+
+  // Sync department to interceptor
+  useEffect(() => {
+    setActiveDepartment(department);
+  }, [department]);
+
+  // Sync hrbp to interceptor
+  useEffect(() => {
+    setActiveHrbp(hrbp);
+  }, [hrbp]);
 
   useEffect(() => {
     axios.get(`${API}/dashboard/years`).then((res) => {
@@ -280,9 +333,11 @@ function ProtectedDashboard() {
       <Sidebar open={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} basePath={basePath} brandColor={brandColor} brandLogo={brandLogo} brandName={tenantInfo?.report_title || tenantInfo?.name} />
       <div className="hrlytic-main">
         <TopBar year={year} setYear={setYear} years={years} country={country} setCountry={setCountry}
-          segment={segment} setSegment={setSegment} segments={segments} sector={tenantInfo?.sector} />
+          segment={segment} setSegment={setSegment} segments={segments} sector={tenantInfo?.sector}
+          department={department} setDepartment={setDepartment} departments={departments}
+          hrbp={hrbp} setHrbp={setHrbp} hrbps={hrbps} />
         <div className="hrlytic-content">
-          <DashboardRoutes year={year} country={country} segment={segment} />
+          <DashboardRoutes year={year} country={country} segment={segment} department={department} hrbp={hrbp} />
         </div>
       </div>
     </div>

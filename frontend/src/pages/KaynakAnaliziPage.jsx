@@ -3,6 +3,7 @@ import axios from "axios";
 import { Funnel, Users, CurrencyCircleDollar, ChartBar, TrendDown, Clock } from "@phosphor-icons/react";
 import KPICard from "@/components/KPICard";
 import ChartCard, { CHART_COLORS, DARK_TOOLTIP } from "@/components/ChartCard";
+import ExcelExportButton from "@/components/ExcelExportButton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, FunnelChart, Cell } from "recharts";
 
@@ -52,7 +53,8 @@ export default function KaynakAnaliziPage({ year }) {
       </ChartCard>
 
       {/* Channel detail table */}
-      <ChartCard title="Kanal Detay Tablosu" subtitle="Dönüşüm oranı, maliyet ve süre karşılaştırma" testId="table-channel">
+      <ChartCard title="Kanal Detay Tablosu" subtitle="Dönüşüm oranı, maliyet ve süre karşılaştırma" testId="table-channel"
+        headerRight={<ExcelExportButton data={data.channel_breakdown} filename="kaynak-kanal-detay" sheetName="Kanal Detay" />}>
         <div className="overflow-x-auto px-2">
           <Table><TableHeader><TableRow className="border-slate-100">
             <TableHead className="text-slate-400 text-xs">Kanal</TableHead>
@@ -82,7 +84,8 @@ export default function KaynakAnaliziPage({ year }) {
       </ChartCard>
 
       {/* Dropout Analysis */}
-      <ChartCard title="Aday Kaybı Analizi" subtitle="Hangi aşamada, neden kaybediliyor" testId="table-dropout">
+      <ChartCard title="Aday Kaybı Analizi" subtitle="Hangi aşamada, neden kaybediliyor" testId="table-dropout"
+        headerRight={<ExcelExportButton data={data.dropout_analysis} filename="kaynak-aday-kaybi" sheetName="Aday Kaybı" />}>
         <div className="overflow-x-auto px-2">
           <Table><TableHeader><TableRow className="border-slate-100">
             <TableHead className="text-slate-400 text-xs">Aşama</TableHead>

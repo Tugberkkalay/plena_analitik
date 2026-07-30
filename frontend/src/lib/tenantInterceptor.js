@@ -6,40 +6,30 @@ import axios from "axios";
  */
 let _currentTenant = null;
 let _currentSegment = null;
+let _currentDepartment = null;
+let _currentHrbp = null;
 
-export function setActiveTenant(slug) {
-  _currentTenant = slug;
-}
-
-export function getActiveTenant() {
-  return _currentTenant;
-}
-
-export function setActiveSegment(segment) {
-  _currentSegment = segment;
-}
-
-export function getActiveSegment() {
-  return _currentSegment;
-}
+export function setActiveTenant(slug) { _currentTenant = slug; }
+export function getActiveTenant() { return _currentTenant; }
+export function setActiveSegment(segment) { _currentSegment = segment; }
+export function getActiveSegment() { return _currentSegment; }
+export function setActiveDepartment(dept) { _currentDepartment = dept; }
+export function getActiveDepartment() { return _currentDepartment; }
+export function setActiveHrbp(hrbp) { _currentHrbp = hrbp; }
+export function getActiveHrbp() { return _currentHrbp; }
 
 // Add request interceptor
 axios.interceptors.request.use((config) => {
   if (_currentTenant && config.url && config.url.includes("/api/")) {
-    // Add tenant to URL query params
     const sep = config.url.includes("?") ? "&" : "?";
     config.url = `${config.url}${sep}tenant=${_currentTenant}`;
-    // Add segment if set
-    if (_currentSegment) {
-      config.url = `${config.url}&segment=${encodeURIComponent(_currentSegment)}`;
-    }
-    // Also add to POST/PUT body if it's JSON
+    if (_currentSegment) config.url += `&segment=${encodeURIComponent(_currentSegment)}`;
+    if (_currentDepartment) config.url += `&department=${encodeURIComponent(_currentDepartment)}`;
+    if (_currentHrbp) config.url += `&hrbp=${encodeURIComponent(_currentHrbp)}`;
     if (config.method === "post" || config.method === "put") {
       if (config.data && typeof config.data === "object" && !(config.data instanceof FormData)) {
         config.data = { ...config.data, tenant: _currentTenant };
-        if (_currentSegment) {
-          config.data.segment = _currentSegment;
-        }
+        if (_currentSegment) config.data.segment = _currentSegment;
       }
     }
   }

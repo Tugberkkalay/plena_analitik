@@ -3,6 +3,7 @@ import axios from "axios";
 import { Crosshair, Users, Warning, CurrencyCircleDollar, TrendUp, TrendDown } from "@phosphor-icons/react";
 import KPICard from "@/components/KPICard";
 import ChartCard, { CHART_COLORS, DARK_TOOLTIP } from "@/components/ChartCard";
+import ExcelExportButton from "@/components/ExcelExportButton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend, ComposedChart } from "recharts";
 
@@ -69,7 +70,8 @@ export default function NormKadroPage({ year }) {
       </div>
 
       {/* Department detail table */}
-      <ChartCard title="Departman Sapma Detayı" subtitle="Sapması pozitif olanlar norm üstü (kırmızı)" testId="table-norm-dept">
+      <ChartCard title="Departman Sapma Detayı" subtitle="Sapması pozitif olanlar norm üstü (kırmızı)" testId="table-norm-dept"
+        headerRight={<ExcelExportButton data={data.department_summary} filename="norm-kadro-departman" sheetName="Departman Sapma" />}>
         <div className="overflow-x-auto px-2">
           <Table><TableHeader><TableRow className="border-slate-100">
             <TableHead className="text-slate-400 text-xs">Departman</TableHead>
@@ -95,7 +97,8 @@ export default function NormKadroPage({ year }) {
 
       {/* Position drill-down */}
       {selectedDept && (
-        <ChartCard title={`Pozisyon Kırılımı — ${selectedDept}`} subtitle="Departmana tıklayarak pozisyon detayını görün" testId="table-norm-pos">
+        <ChartCard title={`Pozisyon Kırılımı — ${selectedDept}`} subtitle="Departmana tıklayarak pozisyon detayını görün" testId="table-norm-pos"
+          headerRight={<ExcelExportButton data={filteredPositions} filename={`norm-kadro-pozisyon-${selectedDept}`} sheetName="Pozisyon Kırılımı" />}>
           <div className="overflow-x-auto px-2">
             <Table><TableHeader><TableRow className="border-slate-100">
               <TableHead className="text-slate-400 text-xs">Pozisyon</TableHead>

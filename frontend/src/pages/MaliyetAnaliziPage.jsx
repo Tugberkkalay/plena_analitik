@@ -3,6 +3,7 @@ import axios from "axios";
 import { CurrencyCircleDollar, Users, ChartBar, Briefcase } from "@phosphor-icons/react";
 import KPICard from "@/components/KPICard";
 import ChartCard, { CHART_COLORS, DARK_TOOLTIP } from "@/components/ChartCard";
+import ExcelExportButton from "@/components/ExcelExportButton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, ComposedChart, Line, PieChart, Pie, Cell } from "recharts";
 
@@ -81,7 +82,8 @@ export default function MaliyetAnaliziPage({ year }) {
       </ChartCard>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ChartCard title="Departman Bazlı İşe Alım Gideri" testId="table-dept-cost">
+        <ChartCard title="Departman Bazlı İşe Alım Gideri" testId="table-dept-cost"
+          headerRight={<ExcelExportButton data={data.department_costs} filename="maliyet-departman" sheetName="Departman Maliyet" />}>
           <div className="overflow-x-auto px-2">
             <Table><TableHeader><TableRow className="border-slate-100">
               <TableHead className="text-slate-400 text-xs">Departman</TableHead>
@@ -104,7 +106,8 @@ export default function MaliyetAnaliziPage({ year }) {
           </div>
         </ChartCard>
 
-        <ChartCard title="Pozisyon Bazlı İşe Alım Maliyeti" testId="table-pos-cost">
+        <ChartCard title="Pozisyon Bazlı İşe Alım Maliyeti" testId="table-pos-cost"
+          headerRight={<ExcelExportButton data={data.position_costs} filename="maliyet-pozisyon" sheetName="Pozisyon Maliyet" />}>
           <div className="overflow-x-auto px-2">
             <Table><TableHeader><TableRow className="border-slate-100">
               <TableHead className="text-slate-400 text-xs">Pozisyon</TableHead>

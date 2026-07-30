@@ -3,6 +3,7 @@ import axios from "axios";
 import { Scales, TrendUp, TrendDown, Warning, Users, ChartBar, Minus } from "@phosphor-icons/react";
 import KPICard from "@/components/KPICard";
 import ChartCard, { CHART_COLORS, DARK_TOOLTIP } from "@/components/ChartCard";
+import ExcelExportButton from "@/components/ExcelExportButton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, Cell, ReferenceArea } from "recharts";
 
@@ -98,7 +99,8 @@ export default function UcretBenchmarkPage({ year }) {
 
       {/* Birim level */}
       {drillLevel === "birim" && (
-        <ChartCard title="Birim Bazlı Ücret Karşılaştırma" subtitle="Birime tıklayarak pozisyon kırılımına inin" testId="table-birim">
+        <ChartCard title="Birim Bazlı Ücret Karşılaştırma" subtitle="Birime tıklayarak pozisyon kırılımına inin" testId="table-birim"
+          headerRight={<ExcelExportButton data={data.birim_summary} filename="ucret-birim" sheetName="Birim Bazlı" />}>
           <div className="overflow-x-auto px-2">
             <Table><TableHeader><TableRow className="border-slate-100">
               <TableHead className="text-slate-400 text-xs">Birim</TableHead>
@@ -128,7 +130,8 @@ export default function UcretBenchmarkPage({ year }) {
 
       {/* Position level */}
       {drillLevel === "pozisyon" && (
-        <ChartCard title={`Pozisyon Bazlı — ${selectedDept}`} subtitle="Pozisyona tıklayarak kişi detayına inin" testId="table-position">
+        <ChartCard title={`Pozisyon Bazlı — ${selectedDept}`} subtitle="Pozisyona tıklayarak kişi detayına inin" testId="table-position"
+          headerRight={<ExcelExportButton data={filteredPositions} filename={`ucret-pozisyon-${selectedDept}`} sheetName="Pozisyon" />}>
           <div className="overflow-x-auto px-2">
             <Table><TableHeader><TableRow className="border-slate-100">
               <TableHead className="text-slate-400 text-xs">Pozisyon</TableHead>
@@ -158,7 +161,8 @@ export default function UcretBenchmarkPage({ year }) {
 
       {/* Person level */}
       {drillLevel === "kisi" && (
-        <ChartCard title={`Kişi Bazlı — ${selectedDept}${selectedPos ? ` / ${selectedPos}` : ""}`} testId="table-person">
+        <ChartCard title={`Kişi Bazlı — ${selectedDept}${selectedPos ? ` / ${selectedPos}` : ""}`} testId="table-person"
+          headerRight={<ExcelExportButton data={filteredEmployees.slice(0, 50)} filename="ucret-kisi" sheetName="Kişi Bazlı" />}>
           <div className="overflow-x-auto px-2">
             <Table><TableHeader><TableRow className="border-slate-100">
               <TableHead className="text-slate-400 text-xs">Çalışan</TableHead>
@@ -192,7 +196,8 @@ export default function UcretBenchmarkPage({ year }) {
 
       {/* Risk employees */}
       {data.risk_employees.length > 0 && (
-        <ChartCard title="Riskli Çalışanlar" subtitle="Hem sektör ortalamasının altında maaş alan hem yüksek performanslı — kaybetme riski yüksek" testId="table-risk">
+        <ChartCard title="Riskli Çalışanlar" subtitle="Hem sektör ortalamasının altında maaş alan hem yüksek performanslı — kaybetme riski yüksek" testId="table-risk"
+          headerRight={<ExcelExportButton data={data.risk_employees} filename="ucret-risk" sheetName="Risk Listesi" />}>
           <div className="overflow-x-auto px-2">
             <Table><TableHeader><TableRow className="border-slate-100">
               <TableHead className="text-slate-400 text-xs">Çalışan</TableHead>

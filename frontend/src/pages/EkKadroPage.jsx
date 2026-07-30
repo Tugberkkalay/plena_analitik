@@ -3,6 +3,7 @@ import axios from "axios";
 import { ClipboardText, CheckCircle, XCircle, Clock, Users, CurrencyCircleDollar, TrendUp, TrendDown, Warning } from "@phosphor-icons/react";
 import KPICard from "@/components/KPICard";
 import ChartCard, { CHART_COLORS, DARK_TOOLTIP } from "@/components/ChartCard";
+import ExcelExportButton from "@/components/ExcelExportButton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, CartesianGrid, ComposedChart, Line } from "recharts";
 
@@ -86,7 +87,8 @@ export default function EkKadroPage({ year }) {
       </div>
 
       {/* Departman Bazlı Bütçe Karşılaştırma */}
-      <ChartCard title="Departman Bazlı Bütçe vs Gerçekleşen" subtitle="Kişi sayısı ve maliyet sapması" testId="table-ek-dept">
+      <ChartCard title="Departman Bazlı Bütçe vs Gerçekleşen" subtitle="Kişi sayısı ve maliyet sapması" testId="table-ek-dept"
+        headerRight={<ExcelExportButton data={data.department_breakdown.filter(d => d.talep_sayisi > 0)} filename="ek-kadro-departman" sheetName="Departman Bütçe" />}>
         <div className="overflow-x-auto px-2">
           <Table><TableHeader><TableRow className="border-slate-100">
             <TableHead className="text-slate-400 text-xs">Departman</TableHead>
@@ -121,7 +123,8 @@ export default function EkKadroPage({ year }) {
 
       {/* Bütçe Aşımı Yapan Talepler */}
       {data.asim_listesi?.length > 0 && (
-        <ChartCard title="Bütçe Aşımı Yapan Talepler" subtitle="Bütçelenenden fazla kişi alınmış talepler — en yüksek maliyet aşımına göre sıralı" testId="table-asim">
+        <ChartCard title="Bütçe Aşımı Yapan Talepler" subtitle="Bütçelenenden fazla kişi alınmış talepler — en yüksek maliyet aşımına göre sıralı" testId="table-asim"
+          headerRight={<ExcelExportButton data={data.asim_listesi} filename="ek-kadro-asim" sheetName="Bütçe Aşımı" />}>
           <div className="overflow-x-auto px-2">
             <Table><TableHeader><TableRow className="border-slate-100">
               <TableHead className="text-slate-400 text-xs">Talep No</TableHead>
@@ -156,7 +159,8 @@ export default function EkKadroPage({ year }) {
       )}
 
       {/* Full request list */}
-      <ChartCard title="Tüm Talep Listesi" testId="table-ek-list">
+      <ChartCard title="Tüm Talep Listesi" testId="table-ek-list"
+        headerRight={<ExcelExportButton data={data.talep_listesi} filename="ek-kadro-talepler" sheetName="Talep Listesi" />}>
         <div className="overflow-x-auto px-2">
           <Table><TableHeader><TableRow className="border-slate-100">
             <TableHead className="text-slate-400 text-xs">No</TableHead>
