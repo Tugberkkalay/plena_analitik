@@ -22,6 +22,15 @@ export const NAV_SECTIONS = [
     ],
   },
   {
+    label: "İşe Alım",
+    items: [
+      { path: "/kaynak-analizi", label: "Kaynak Analizi", icon: Funnel },
+      { path: "/universite-analizi", label: "Üniversite Analizi", icon: GraduationCap },
+      { path: "/maliyet-analizi", label: "Maliyet Analizi", icon: CurrencyDollar },
+      { path: "/aday-hunisi", label: "Aday Hunisi", icon: ChartLine },
+    ],
+  },
+  {
     label: "Planlama",
     items: [
       { path: "/headcount-plan", label: "Kadro Planlama", icon: ChartLine },

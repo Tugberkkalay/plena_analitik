@@ -326,7 +326,19 @@ def generate_seed_data(count=500, sector="Bankacılık"):
     return employees
 
 # ---- New Module Constants ----
-RECRUITMENT_SOURCES = ["LinkedIn","Referral","Career Site","Agency","Job Board","University","Social Media"]
+RECRUITMENT_SOURCES = ["LinkedIn", "Kariyer.net", "İşin Olsun", "Indeed", "Referans", "QR Kod", "Şirket Web Sitesi", "Kariyer Fuarı", "Ajans", "Sosyal Medya"]
+RECRUITMENT_SOURCE_WEIGHTS = [22, 18, 10, 8, 15, 5, 7, 4, 6, 5]
+RECRUITMENT_SOURCE_COSTS = {"LinkedIn": 3500, "Kariyer.net": 2800, "İşin Olsun": 2200, "Indeed": 2500, "Referans": 500, "QR Kod": 200, "Şirket Web Sitesi": 300, "Kariyer Fuarı": 4000, "Ajans": 12000, "Sosyal Medya": 1500}
+TURKISH_UNIVERSITIES = [
+    "Boğaziçi Üniversitesi", "İTÜ", "ODTÜ", "Bilkent Üniversitesi", "Koç Üniversitesi",
+    "Sabancı Üniversitesi", "Marmara Üniversitesi", "İstanbul Üniversitesi", "Galatasaray Üniversitesi",
+    "Yıldız Teknik Üniversitesi", "Ankara Üniversitesi", "Ege Üniversitesi", "Dokuz Eylül Üniversitesi",
+    "Hacettepe Üniversitesi", "Gazi Üniversitesi", "Uludağ Üniversitesi", "Erciyes Üniversitesi",
+    "Çukurova Üniversitesi", "Anadolu Üniversitesi", "Karadeniz Teknik Üniversitesi",
+    "Özyeğin Üniversitesi", "Bahçeşehir Üniversitesi", "Yeditepe Üniversitesi", "İstanbul Bilgi Üniversitesi",
+]
+UNIVERSITY_WEIGHTS = [12, 11, 10, 8, 7, 6, 6, 5, 4, 5, 3, 3, 3, 3, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1]
+FUNNEL_STAGES = ["Başvuru", "Ön Eleme", "Mülakat", "Teknik Test", "Teklif", "Kabul"]
 COURSE_NAMES = ["Leadership Fundamentals","Advanced Project Management","Data Analytics","Cybersecurity Basics","Effective Communication","Python Programming","Cloud Architecture","Financial Modeling","Design Thinking","Agile Methodology","Machine Learning","Compliance Training","Time Management","Presentation Skills","Strategic Planning","Team Building"]
 COURSE_CATEGORIES = ["Technical","Leadership","Compliance","Soft Skills","Language"]
 
@@ -439,18 +451,47 @@ def generate_recruitment_data(count=200, sector="Bankacılık"):
         dept = random.choices(DEPTS, weights=DW, k=1)[0]
         band = random.choices(BANDS, weights=BAND_WEIGHTS, k=1)[0]
         pos = random.choice(PBB.get(band, ["Uzman"]))
-        source = random.choice(RECRUITMENT_SOURCES)
+        source = random.choices(RECRUITMENT_SOURCES, weights=RECRUITMENT_SOURCE_WEIGHTS, k=1)[0]
+        university = random.choices(TURKISH_UNIVERSITIES, weights=UNIVERSITY_WEIGHTS, k=1)[0]
+        # Funnel stage progression with dropout
+        funnel_reached = "Başvuru"
+        funnel_stages_passed = ["Başvuru"]
         r = random.random()
-        if r < 0.12: stage = "Hired"
-        elif r < 0.22: stage = "Offered"
-        elif r < 0.42: stage = "Interviewed"
-        elif r < 0.62: stage = "Screened"
-        elif r < 0.78: stage = "Rejected"
+        if r < 0.65:  # 65% pass ön eleme
+            funnel_reached = "Ön Eleme"; funnel_stages_passed.append("Ön Eleme")
+            if r < 0.35:  # 35% reach mülakat
+                funnel_reached = "Mülakat"; funnel_stages_passed.append("Mülakat")
+                if r < 0.22:  # 22% reach teknik test
+                    funnel_reached = "Teknik Test"; funnel_stages_passed.append("Teknik Test")
+                    if r < 0.15:  # 15% reach teklif
+                        funnel_reached = "Teklif"; funnel_stages_passed.append("Teklif")
+                        if r < 0.10:  # 10% kabul
+                            funnel_reached = "Kabul"; funnel_stages_passed.append("Kabul")
+        # Map funnel to stage
+        if funnel_reached == "Kabul": stage = "Hired"
+        elif funnel_reached == "Teklif": stage = random.choice(["Offered", "Reddedildi"])
+        elif funnel_reached in ["Mülakat", "Teknik Test"]: stage = "Interviewed"
+        elif funnel_reached == "Ön Eleme": stage = "Screened"
         else: stage = "Applied"
+        # Dropout reason for non-hired
+        dropout_reason = None
+        if funnel_reached != "Kabul":
+            dropout_reasons_map = {
+                "Başvuru": ["Nitelik Uyumsuzluğu", "Eksik Belge", "Aday Vazgeçti"],
+                "Ön Eleme": ["Deneyim Yetersiz", "Maaş Beklentisi Yüksek", "Aday Vazgeçti"],
+                "Mülakat": ["Kültür Uyumsuzluğu", "Teknik Yetersizlik", "Aday Vazgeçti", "Karşı Teklif Aldı"],
+                "Teknik Test": ["Test Başarısız", "Aday Vazgeçti", "Süre Aşımı"],
+                "Teklif": ["Maaş Beklentisi", "Yan Haklar Yetersiz", "Karşı Teklif Aldı", "Aday Vazgeçti"],
+            }
+            dropout_reason = random.choice(dropout_reasons_map.get(funnel_reached, ["Bilinmiyor"]))
         applied_date = f"2025-{random.randint(1,12):02d}-{random.randint(1,28):02d}"
         quarter = f"Ç{min(4, (int(applied_date[5:7])-1)//3 + 1)}"
         days = random.randint(15, 90) if stage in ["Hired","Offered"] else random.randint(3, 45)
-        cost = round(random.uniform(2000, 15000), -2) if stage == "Hired" else 0
+        # Cost per hire (ilan + mülakat + onboarding)
+        channel_cost = RECRUITMENT_SOURCE_COSTS.get(source, 2000)
+        interview_cost = random.randint(500, 3000) if funnel_reached in ["Mülakat", "Teknik Test", "Teklif", "Kabul"] else 0
+        onboarding_cost = random.randint(3000, 8000) if stage == "Hired" else 0
+        total_cost = channel_cost + interview_cost + onboarding_cost
         hiring_reason = random.choice(HIRE_REASONS)
         # Offer details for Offered/Hired stages
         bench = BENCH.get(band, {"min": 15000, "mid": 25000, "max": 40000, "sector_avg": 22000})
@@ -468,10 +509,15 @@ def generate_recruitment_data(count=200, sector="Bankacılık"):
             "id": str(uuid.uuid4()), "candidate_name": name, "position": pos,
             "department": dept, "band": band, "source": source, "stage": stage,
             "applied_date": applied_date, "quarter": quarter,
-            "days_in_pipeline": days, "cost": cost,
+            "days_in_pipeline": days, "cost": total_cost,
+            "channel_cost": channel_cost, "interview_cost": interview_cost, "onboarding_cost": onboarding_cost,
             "experience_years": random.randint(0, 20),
             "education": random.choices(EDUCATION_LEVELS, weights=EDUCATION_WEIGHTS, k=1)[0],
+            "university": university,
             "hiring_reason": hiring_reason,
+            "funnel_reached": funnel_reached,
+            "funnel_stages": funnel_stages_passed,
+            "dropout_reason": dropout_reason,
             "offer_salary": offer_salary,
             "offer_vs_benchmark": offer_vs_benchmark,
             "rejection_reason": rejection_reason,
@@ -1481,6 +1527,239 @@ async def get_teklif_analizi(year: int = 2025, quarter: str = None, department: 
                  "yan_hak_red_pct": round(yan_hak_red / len(rejected) * 100, 1) if rejected else 0},
         "rejection_reasons": rej_list, "scatter_data": scatter_data,
         "quarterly_trend": quarterly_trend, "department_red": dept_red
+    }
+
+
+# ---- Kaynak Analizi (Kanal Bazlı) ----
+@api_router.get("/dashboard/kaynak-analizi")
+async def get_kaynak_analizi(year: int = 2025, tenant: str = None, segment: str = None):
+    sector = await _resolve_sector(tenant)
+    seg_depts = _segment_depts(sector, segment)
+    rq = {"tenant_id": tenant} if tenant else {}
+    all_cands = await db.recruitment.find(rq, {"_id": 0}).to_list(10000)
+    if seg_depts:
+        all_cands = [c for c in all_cands if c.get('department') in seg_depts]
+    cands = [c for c in all_cands if c.get('applied_date','')[:4] == str(year)]
+    total = len(cands)
+    hired = [c for c in cands if c['stage'] == 'Hired']
+    # Channel breakdown
+    channels = {}
+    for c in cands:
+        src = c.get('source', 'Diğer')
+        if src not in channels:
+            channels[src] = {"basvuru": 0, "on_eleme": 0, "mulakat": 0, "teklif": 0, "hired": 0, "cost": 0, "days": []}
+        channels[src]["basvuru"] += 1
+        stages = c.get('funnel_stages', [])
+        if "Ön Eleme" in stages: channels[src]["on_eleme"] += 1
+        if "Mülakat" in stages: channels[src]["mulakat"] += 1
+        if "Teklif" in stages: channels[src]["teklif"] += 1
+        if c['stage'] == 'Hired':
+            channels[src]["hired"] += 1
+            channels[src]["cost"] += c.get('cost', 0)
+        channels[src]["days"].append(c.get('days_in_pipeline', 0))
+    channel_list = []
+    for src, v in sorted(channels.items(), key=lambda x: -x[1]["basvuru"]):
+        avg_days = round(sum(v["days"]) / len(v["days"]), 1) if v["days"] else 0
+        cost_per_hire = round(v["cost"] / v["hired"]) if v["hired"] else 0
+        channel_list.append({"source": src, "basvuru": v["basvuru"], "on_eleme": v["on_eleme"],
+                            "mulakat": v["mulakat"], "teklif": v["teklif"], "hired": v["hired"],
+                            "conversion": round(v["hired"] / v["basvuru"] * 100, 1) if v["basvuru"] else 0,
+                            "cost_per_hire": cost_per_hire, "total_cost": v["cost"], "avg_days": avg_days})
+    # Dropout analysis by stage
+    dropout = {}
+    for c in cands:
+        reason = c.get('dropout_reason')
+        if reason:
+            stage = c.get('funnel_reached', 'Başvuru')
+            key = f"{stage}|{reason}"
+            if key not in dropout:
+                dropout[key] = {"stage": stage, "reason": reason, "count": 0}
+            dropout[key]["count"] += 1
+    dropout_list = sorted(dropout.values(), key=lambda x: -x["count"])
+    # Aday vazgeçme oranı
+    vazgecme = len([c for c in cands if (c.get('dropout_reason') or '').startswith('Aday Vazgeçti')])
+    total_cost = sum(c.get('cost', 0) for c in hired)
+    avg_cost = round(total_cost / len(hired)) if hired else 0
+    return {
+        "kpis": {"total_basvuru": total, "total_hired": len(hired), "overall_conversion": round(len(hired)/total*100,1) if total else 0,
+                 "total_cost": total_cost, "avg_cost_per_hire": avg_cost, "aday_vazgecme": vazgecme,
+                 "vazgecme_pct": round(vazgecme/total*100,1) if total else 0},
+        "channel_breakdown": channel_list, "dropout_analysis": dropout_list[:25]
+    }
+
+# ---- Üniversite Analizi ----
+@api_router.get("/dashboard/universite-analizi")
+async def get_universite_analizi(year: int = 2025, tenant: str = None, segment: str = None):
+    sector = await _resolve_sector(tenant)
+    seg_depts = _segment_depts(sector, segment)
+    rq = {"tenant_id": tenant} if tenant else {}
+    all_cands = await db.recruitment.find(rq, {"_id": 0}).to_list(10000)
+    if seg_depts:
+        all_cands = [c for c in all_cands if c.get('department') in seg_depts]
+    cands = [c for c in all_cands if c.get('applied_date','')[:4] == str(year)]
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment)
+    # University breakdown from candidates
+    unis = {}
+    for c in cands:
+        u = c.get('university', 'Bilinmiyor')
+        if u not in unis:
+            unis[u] = {"basvuru": 0, "hired": 0, "on_eleme": 0, "mulakat": 0, "cost": 0}
+        unis[u]["basvuru"] += 1
+        stages = c.get('funnel_stages', [])
+        if "Ön Eleme" in stages: unis[u]["on_eleme"] += 1
+        if "Mülakat" in stages: unis[u]["mulakat"] += 1
+        if c['stage'] == 'Hired':
+            unis[u]["hired"] += 1
+            unis[u]["cost"] += c.get('cost', 0)
+    uni_list = []
+    for u, v in sorted(unis.items(), key=lambda x: -x[1]["basvuru"]):
+        uni_list.append({"university": u, "basvuru": v["basvuru"], "on_eleme": v["on_eleme"],
+                        "mulakat": v["mulakat"], "hired": v["hired"],
+                        "conversion": round(v["hired"]/v["basvuru"]*100,1) if v["basvuru"] else 0,
+                        "cost_per_hire": round(v["cost"]/v["hired"]) if v["hired"] else 0})
+    # Current employees by university (from education field - approximate)
+    emp_unis = {}
+    for e in active:
+        edu = e.get('education', '')
+        if 'Lisans' in edu or 'Yüksek' in edu or edu in ['Bachelor','Master','PhD']:
+            # Assign a random university for demo (in real data this would come from employee profile)
+            pass
+    return {
+        "kpis": {"total_universities": len(unis), "total_basvuru": len(cands), "top_university": uni_list[0]["university"] if uni_list else "-",
+                 "top_conversion": max((u["conversion"] for u in uni_list), default=0)},
+        "university_breakdown": uni_list[:30]
+    }
+
+# ---- İşe Alım Maliyet Analizi ----
+@api_router.get("/dashboard/ise-alim-maliyet")
+async def get_ise_alim_maliyet(year: int = 2025, tenant: str = None, segment: str = None):
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
+    seg_depts = _segment_depts(sector, segment)
+    rq = {"tenant_id": tenant} if tenant else {}
+    all_cands = await db.recruitment.find(rq, {"_id": 0}).to_list(10000)
+    if seg_depts:
+        all_cands = [c for c in all_cands if c.get('department') in seg_depts]
+    cands = [c for c in all_cands if c.get('applied_date','')[:4] == str(year)]
+    hired = [c for c in cands if c['stage'] == 'Hired']
+    # Position-level cost
+    pos_costs = {}
+    for c in hired:
+        pos = c.get('position', 'Bilinmiyor')
+        if pos not in pos_costs:
+            pos_costs[pos] = {"count": 0, "total": 0, "channel": 0, "interview": 0, "onboarding": 0, "dept": c.get('department',''), "band": c.get('band','B')}
+        pos_costs[pos]["count"] += 1
+        pos_costs[pos]["total"] += c.get('cost', 0)
+        pos_costs[pos]["channel"] += c.get('channel_cost', 0)
+        pos_costs[pos]["interview"] += c.get('interview_cost', 0)
+        pos_costs[pos]["onboarding"] += c.get('onboarding_cost', 0)
+    pos_list = [{"position": k, "department": shorten_dept(v["dept"]), "band": v["band"], "count": v["count"],
+                 "avg_cost": round(v["total"]/v["count"]), "channel_cost": v["channel"], "interview_cost": v["interview"],
+                 "onboarding_cost": v["onboarding"], "total_cost": v["total"]}
+                for k, v in sorted(pos_costs.items(), key=lambda x: -x[1]["total"])]
+    # Dept-level cost
+    dept_costs = {}
+    for c in hired:
+        d = shorten_dept(c.get('department', ''))
+        if d not in dept_costs:
+            dept_costs[d] = {"count": 0, "total": 0, "channel": 0, "interview": 0, "onboarding": 0}
+        dept_costs[d]["count"] += 1
+        dept_costs[d]["total"] += c.get('cost', 0)
+        dept_costs[d]["channel"] += c.get('channel_cost', 0)
+        dept_costs[d]["interview"] += c.get('interview_cost', 0)
+        dept_costs[d]["onboarding"] += c.get('onboarding_cost', 0)
+    dept_list = [{"department": k, "count": v["count"], "avg_cost": round(v["total"]/v["count"]) if v["count"] else 0,
+                  "channel_cost": v["channel"], "interview_cost": v["interview"],
+                  "onboarding_cost": v["onboarding"], "total_cost": v["total"]}
+                 for k, v in sorted(dept_costs.items(), key=lambda x: -x[1]["total"])]
+    # Channel cost comparison
+    ch_costs = {}
+    for c in hired:
+        src = c.get('source', 'Diğer')
+        if src not in ch_costs:
+            ch_costs[src] = {"count": 0, "total": 0}
+        ch_costs[src]["count"] += 1
+        ch_costs[src]["total"] += c.get('cost', 0)
+    ch_list = [{"source": k, "count": v["count"], "avg_cost": round(v["total"]/v["count"]) if v["count"] else 0, "total_cost": v["total"]}
+               for k, v in sorted(ch_costs.items(), key=lambda x: -x[1]["total"])]
+    # Monthly trend
+    monthly = []
+    for mi in range(1, 13):
+        ms = f"{year}-{mi+0:02d}"
+        m_hired = [c for c in hired if c.get('applied_date','')[:7] == ms]
+        monthly.append({"month": MONTHS[mi-1], "hired": len(m_hired), "cost": sum(c.get('cost',0) for c in m_hired),
+                       "avg_cost": round(sum(c.get('cost',0) for c in m_hired)/len(m_hired)) if m_hired else 0})
+    total_cost = sum(c.get('cost', 0) for c in hired)
+    return {
+        "kpis": {"total_hired": len(hired), "total_cost": total_cost,
+                 "avg_cost_per_hire": round(total_cost/len(hired)) if hired else 0,
+                 "channel_total": sum(c.get('channel_cost',0) for c in hired),
+                 "interview_total": sum(c.get('interview_cost',0) for c in hired),
+                 "onboarding_total": sum(c.get('onboarding_cost',0) for c in hired)},
+        "position_costs": pos_list, "department_costs": dept_list,
+        "channel_costs": ch_list, "monthly_trend": monthly
+    }
+
+# ---- Aday Hunisi (Funnel) ----
+@api_router.get("/dashboard/aday-hunisi")
+async def get_aday_hunisi(year: int = 2025, tenant: str = None, segment: str = None):
+    sector = await _resolve_sector(tenant)
+    cfg = _cfg(sector)
+    seg_depts = _segment_depts(sector, segment)
+    rq = {"tenant_id": tenant} if tenant else {}
+    all_cands = await db.recruitment.find(rq, {"_id": 0}).to_list(10000)
+    if seg_depts:
+        all_cands = [c for c in all_cands if c.get('department') in seg_depts]
+    cands = [c for c in all_cands if c.get('applied_date','')[:4] == str(year)]
+    total = len(cands)
+    # Overall funnel
+    funnel = []
+    for stage in FUNNEL_STAGES:
+        count = len([c for c in cands if stage in c.get('funnel_stages', [])])
+        prev = funnel[-1]["count"] if funnel else total
+        drop = prev - count
+        funnel.append({"stage": stage, "count": count, "drop": drop,
+                      "drop_pct": round(drop/prev*100,1) if prev else 0,
+                      "pct_of_total": round(count/total*100,1) if total else 0})
+    # Dept funnel
+    dept_funnels = []
+    for dept in (seg_depts or cfg["DEPARTMENTS"]):
+        short = shorten_dept(dept)
+        d_cands = [c for c in cands if c['department'] == dept]
+        if not d_cands:
+            continue
+        d_total = len(d_cands)
+        d_funnel = {}
+        for stage in FUNNEL_STAGES:
+            d_funnel[stage] = len([c for c in d_cands if stage in c.get('funnel_stages', [])])
+        dept_funnels.append({"department": short, "basvuru": d_total,
+                            "on_eleme": d_funnel.get("Ön Eleme",0), "mulakat": d_funnel.get("Mülakat",0),
+                            "teknik_test": d_funnel.get("Teknik Test",0), "teklif": d_funnel.get("Teklif",0),
+                            "kabul": d_funnel.get("Kabul",0),
+                            "conversion": round(d_funnel.get("Kabul",0)/d_total*100,1) if d_total else 0})
+    # Dropout by stage
+    stage_dropout = {}
+    for stage in FUNNEL_STAGES[:-1]:
+        stage_dropout[stage] = {}
+        stage_cands = [c for c in cands if c.get('funnel_reached') == stage]
+        for c in stage_cands:
+            reason = c.get('dropout_reason', 'Bilinmiyor')
+            stage_dropout[stage][reason] = stage_dropout[stage].get(reason, 0) + 1
+    dropout_detail = []
+    for stage, reasons in stage_dropout.items():
+        for reason, count in sorted(reasons.items(), key=lambda x: -x[1]):
+            dropout_detail.append({"stage": stage, "reason": reason, "count": count})
+    # Avg days per stage
+    avg_days = round(sum(c.get('days_in_pipeline',0) for c in cands)/total) if total else 0
+    hired_days = [c.get('days_in_pipeline',0) for c in cands if c['stage']=='Hired']
+    avg_hire_days = round(sum(hired_days)/len(hired_days)) if hired_days else 0
+    return {
+        "kpis": {"total_basvuru": total, "total_kabul": funnel[-1]["count"] if funnel else 0,
+                 "overall_conversion": funnel[-1]["pct_of_total"] if funnel else 0,
+                 "biggest_drop_stage": max(funnel[1:], key=lambda x: x["drop_pct"])["stage"] if len(funnel) > 1 else "-",
+                 "biggest_drop_pct": max(funnel[1:], key=lambda x: x["drop_pct"])["drop_pct"] if len(funnel) > 1 else 0,
+                 "avg_days_to_hire": avg_hire_days, "avg_pipeline_days": avg_days},
+        "funnel": funnel, "department_funnels": dept_funnels, "dropout_detail": dropout_detail[:30]
     }
 
 # ---- Maaş Band & Benchmark (Modül 4) ----

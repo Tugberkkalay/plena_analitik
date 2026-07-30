@@ -1,27 +1,22 @@
 # Plenalitik — Enterprise HR & Sales Analytics Platform
 
-## Problem Statement
-Multi-tenant HR analytics SaaS with sector-specific taxonomies (Banking, Retail).
-
 ## Completed Features
 - ✅ Multi-tenant admin, branding, Excel import/export, PDF, Turkish UI
 - ✅ Dynamic Sector Taxonomy (Banking/Retail) + Segment Filtering
-- ✅ İşe Alım Analitik (Alım & Ayrılma tabları: Kadro Planlama, Teklif Analizi, Ücret Kıyaslama)
-- ✅ **4 Yeni Modül (Feb 2026):**
-  - **Norm Kadro Takip**: Hedef vs gerçekleşen, pozisyon kırılımı, aylık trend + ek maliyet dual-axis, drill-down
-  - **Ek Kadro Talepleri**: Talep no, sebep, onay durumu, kişi sayısı, maliyet takibi, çeyrek trend
-  - **Teklif Analizi Detay**: Red sebepleri, scatter plot (rekabetçilik), çeyrek red trendi, departman/pozisyon kırılımı
-  - **Ücret Benchmark**: 3-seviye drill-down (birim→pozisyon→kişi), band box-plot, risk çalışan listesi, compa ratio
-- ✅ Sector salary benchmarks (banking & retail specific)
-- ✅ All alert categories populated
+- ✅ Kadro & Ücret: Norm Kadro, Ek Kadro Talepleri, Teklif Analizi, Ücret Benchmark
+- ✅ **İşe Alım Modülü** (Feb 2026): 4 ayrı sayfa
+  - Kaynak Analizi: 10 kanal (LinkedIn, Kariyer.net, QR Kod vb.), kanal bazlı dönüşüm hunisi, aday vazgeçme oranı
+  - Üniversite Analizi: 24 Türk üniversitesi, başvuru/dönüşüm karşılaştırma
+  - Maliyet Analizi: Pozisyon/departman/kanal bazlı maliyet (ilan+mülakat+onboarding), aylık trend
+  - Aday Hunisi: 6 aşamalı funnel (Başvuru→Ön Eleme→Mülakat→Teknik Test→Teklif→Kabul), her aşamada kayıp sebepleri
 
-## Architecture
-- Frontend: React 18, Tailwind, Recharts, Shadcn UI
-- Backend: FastAPI, MongoDB, taxonomy_loader.py
-- AI: GPT-5.2 via Emergent LLM Key
-- DB Collections: employees, branches, sales_performance, recruitment, training, engagement, ek_kadro_talepleri, norm_kadro
+## Sidebar Structure
+- İşgücü: Genel Bakış, Kadro, Alım & Ayrılma, Devir, Hareket
+- Kadro & Ücret: Norm Kadro, Ek Kadro Talepleri, Teklif Analizi, Ücret Benchmark
+- İşe Alım: Kaynak Analizi, Üniversite Analizi, Maliyet Analizi, Aday Hunisi
+- Planlama: Kadro Planlama, Strateji Hizalama, Org Sağlığı, Yetkinlik, Senaryo, Yedekleme
+- Kariyer & Gelişim, Şube, AI, Ayarlar
 
 ## Upcoming
-- P1: server.py modularization (~3000+ lines)
-- P2: CRUD screens for Ek Kadro Talepleri
-- P2: Excel export for tables, PNG for charts
+- P1: server.py modularization (~3800+ lines)
+- P2: Ek Kadro CRUD

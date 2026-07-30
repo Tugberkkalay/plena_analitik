@@ -40,6 +40,10 @@ import NormKadroPage from "@/pages/NormKadroPage";
 import EkKadroPage from "@/pages/EkKadroPage";
 import TeklifAnaliziPage from "@/pages/TeklifAnaliziPage";
 import UcretBenchmarkPage from "@/pages/UcretBenchmarkPage";
+import KaynakAnaliziPage from "@/pages/KaynakAnaliziPage";
+import UniversiteAnaliziPage from "@/pages/UniversiteAnaliziPage";
+import MaliyetAnaliziPage from "@/pages/MaliyetAnaliziPage";
+import AdayHunisiPage from "@/pages/AdayHunisiPage";
 
 const API = process.env.REACT_APP_BACKEND_URL;
 
@@ -52,6 +56,10 @@ const PAGE_MAP = {
   "/ek-kadro": EkKadroPage,
   "/teklif-analizi": TeklifAnaliziPage,
   "/ucret-benchmark": UcretBenchmarkPage,
+  "/kaynak-analizi": KaynakAnaliziPage,
+  "/universite-analizi": UniversiteAnaliziPage,
+  "/maliyet-analizi": MaliyetAnaliziPage,
+  "/aday-hunisi": AdayHunisiPage,
   "/turnover": TurnoverPage,
   "/movement": MovementPage,
   "/headcount-plan": HeadcountPlanPage,
