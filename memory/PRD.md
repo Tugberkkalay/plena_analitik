@@ -13,34 +13,16 @@ Develop an Enterprise HR Analytics application ("Plenalitik") that serves as a m
 - ✅ Dynamic Sector Taxonomy (Banking/Retail) + Segment Filtering
 - ✅ Kadro & Ücret: Norm Kadro, Ek Kadro Talepleri, Teklif Analizi, Ücret Benchmark
 - ✅ İşe Alım Modülü: Kaynak Analizi, Üniversite Analizi, Maliyet Analizi, Aday Hunisi
-- ✅ **Department & HRBP Filters** (Jul 2026): Dropdowns in TopBar (admin) and public report page. Works on ALL endpoints including Norm Kadro and Ek Kadro (HRBP → department mapping via HRBP_MAP)
-- ✅ **Excel Export** (Jul 2026): "Excel'e Aktar" button on ALL 13 table-heavy pages:
-  - Kadro & Ücret: Norm Kadro (2), Ek Kadro (3), Teklif Analizi (2), Ücret Benchmark (4)
-  - İşe Alım: Kaynak Analizi (2), Üniversite Analizi (1), Maliyet Analizi (2), Aday Hunisi (2)
-  - İşgücü: Kadro/Çalışan Listesi (1), Alım & Ayrılma (5 tables across tabs)
-  - Diğer: Performans (1), İK Operasyonları (1), AI Tahmin (1)
-
-## Sidebar Structure
-- İşgücü: Genel Bakış, Kadro, Alım & Ayrılma, Devir, Hareket
-- Kadro & Ücret: Norm Kadro, Ek Kadro Talepleri, Teklif Analizi, Ücret Benchmark
-- İşe Alım: Kaynak Analizi, Üniversite Analizi, Maliyet Analizi, Aday Hunisi
-- Planlama: Kadro Planlama, Strateji Hizalama, Org Sağlığı, Yetkinlik, Senaryo, Yedekleme
-- Kariyer & Gelişim, Şube, AI, Ayarlar
+- ✅ **Department & HRBP Filters** (Jul 2026): Full filtering across ALL endpoints. _effective_depts() helper ensures department charts only show relevant departments when HRBP is selected
+- ✅ **Excel Export** (Jul 2026): "Excel'e Aktar" on 13 table-heavy pages across all modules
+- ✅ **HRBP Filter Bug Fix** (Jul 2026): Department charts now properly narrow to HRBP's departments (was showing all 10 with 8 at zero)
 
 ## Upcoming / Backlog
-- **P1**: Refactor `server.py` (~3900 lines) into modular route files
+- **P1**: Refactor `server.py` (~3937 lines) into modular route files
 - **P2**: Persist alert resolutions in Action Center to DB
-- **P2**: HRBP back-fill migration for existing employee data (auto-fill from HRBP_MAP)
+- **P2**: HRBP back-fill migration for existing employee data
 - **P3**: Responsive TopBar filter grouping for narrow screens
-
-## Key Files
-- `/app/backend/server.py` — Core backend monolith
-- `/app/frontend/src/App.js` — Routing, TopBar, filter state management
-- `/app/frontend/src/lib/tenantInterceptor.js` — Axios interceptor for tenant/segment/dept/hrbp
-- `/app/frontend/src/lib/exportToExcel.js` — Excel export utility
-- `/app/frontend/src/components/ExcelExportButton.jsx` — Reusable export button
-- `/app/frontend/src/components/ChartCard.jsx` — Chart card with headerRight prop
-- `/app/frontend/src/pages/PublicReportPage.jsx` — Public report with filters
+- **P3**: Show "no data" hint when Dept+HRBP intersection is empty
 
 ## Tenants
 - `yapikredi` — Bankacılık (10 departments, 5 HRBPs)
