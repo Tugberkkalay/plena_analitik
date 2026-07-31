@@ -438,6 +438,209 @@ def _parse_duration(dur_str):
     return 12
 
 
+# ─────────────────────────────────────────────
+#  TEKNOLOJİ / TELEKOM CONFIG (TürkNet)
+# ─────────────────────────────────────────────
+def _build_teknoloji_config():
+    return {
+        "DEPARTMENTS": [
+            "Müşteri Deneyimi", "Teknoloji & Ar-Ge", "Network & Altyapı",
+            "Satış & Pazarlama", "Finans & Satın Alma", "İnsan & Kültür",
+            "Hukuk & Regülasyon", "İdari İşler & İSG", "Strateji & PMO"
+        ],
+        "DEPT_WEIGHTS": [40, 15, 19, 11, 5, 3, 2, 3, 2],
+        "DEPT_SEGMENT_MAP": {
+            "Müşteri Deneyimi": "Operasyon",
+            "Network & Altyapı": "Operasyon",
+            "Teknoloji & Ar-Ge": "Teknoloji",
+            "Strateji & PMO": "Teknoloji",
+            "Satış & Pazarlama": "Ticari",
+            "Finans & Satın Alma": "Destek",
+            "İnsan & Kültür": "Destek",
+            "Hukuk & Regülasyon": "Destek",
+            "İdari İşler & İSG": "Destek",
+        },
+        "SEGMENTS": ["Operasyon", "Teknoloji", "Ticari", "Destek"],
+        "DEPT_ROLE_FAMILIES": {
+            "Müşteri Deneyimi": ["Çağrı Merkezi", "Teknik Destek", "Müşteri Deneyimi"],
+            "Teknoloji & Ar-Ge": ["Yazılım Geliştirme", "Veri & Analitik", "Ürün Yönetimi"],
+            "Network & Altyapı": ["Network Operasyon", "Saha Operasyon", "Altyapı Planlama"],
+            "Satış & Pazarlama": ["Satış", "Dijital Pazarlama", "Kurumsal Satış"],
+            "Finans & Satın Alma": ["Finans", "Satın Alma"],
+            "İnsan & Kültür": ["İK", "Öğrenme & Gelişim"],
+            "Hukuk & Regülasyon": ["Hukuk", "Uyum"],
+            "İdari İşler & İSG": ["İdari İşler", "İSG"],
+            "Strateji & PMO": ["Strateji", "PMO"],
+        },
+        "DEPT_SKILL_CLUSTERS": {
+            "Müşteri Deneyimi": ["musteri-deneyimi", "cagri-merkezi", "teknik-destek"],
+            "Teknoloji & Ar-Ge": ["yazilim-gelistirme", "veri-analitik", "devops-sre"],
+            "Network & Altyapı": ["network-altyapi", "saha-operasyon", "veri-merkezi"],
+            "Satış & Pazarlama": ["satis-pazarlama", "dijital-pazarlama", "kurumsal-satis"],
+            "Finans & Satın Alma": ["finans-muhasebe", "satin-alma"],
+            "İnsan & Kültür": ["ik-yonetimi", "ogrenme-gelisim"],
+            "Hukuk & Regülasyon": ["hukuk-uyum", "regulasyon"],
+            "İdari İşler & İSG": ["idari-isler", "isg"],
+            "Strateji & PMO": ["strateji", "proje-yonetimi"],
+        },
+        "DEPT_SKILL_FOCUS": {
+            "Müşteri Deneyimi": {
+                "tech": ["CRM Yönetimi", "Çağrı Merkezi Sistemleri", "Teknik Sorun Giderme (L1/L2)", "WFM & Tahminleme"],
+                "soft": ["Müşteri Odaklılık", "İletişim Becerileri", "Stres Yönetimi"],
+                "domain": ["Churn Önleme & Retention", "Kalite Değerlendirme", "Sosyal Medya Yönetimi"]
+            },
+            "Teknoloji & Ar-Ge": {
+                "tech": [".NET/Java/Python", "React/JavaScript", "Mobil Geliştirme", "SQL & Veri Modelleme", "Kubernetes & Cloud", "CI/CD Pipeline", "Test Otomasyonu"],
+                "soft": ["Problem Çözme", "Çevik Düşünme"],
+                "domain": ["Ürün Yönetimi", "UX Araştırma", "Veri Analitiği & BI", "Makine Öğrenmesi"]
+            },
+            "Network & Altyapı": {
+                "tech": ["IP/MPLS & BGP", "DWDM & Transmisyon", "FTTH Kurulum", "NOC İzleme (7/24)", "Kapasite Planlama"],
+                "soft": ["Sahiplenme", "Takım Çalışması"],
+                "domain": ["Veri Merkezi İşletimi", "Fiber Planlama & Yatırım", "Saha Yönetimi"]
+            },
+            "Satış & Pazarlama": {
+                "tech": ["Dijital Performans Pazarlama", "SEO/SEM", "Kampanya Analitiği"],
+                "soft": ["Müzakere", "Sonuç Odaklılık"],
+                "domain": ["Kurumsal Satış (B2B)", "Online Satış (B2C)", "Tele-satış", "Marka İletişimi"]
+            },
+            "Finans & Satın Alma": {
+                "tech": ["SAP/ERP", "Excel & Finansal Modelleme"],
+                "soft": ["Analitik Düşünme", "Detay Odaklılık"],
+                "domain": ["Tekdüzen Muhasebe", "Bütçe & Raporlama", "Tahsilat/Kredi Kontrol", "Tedarikçi Yönetimi"]
+            },
+            "İnsan & Kültür": {
+                "tech": ["İK Bilgi Sistemleri", "İK Analitiği"],
+                "soft": ["Koçluk & Mentorluk", "Değişim Yönetimi"],
+                "domain": ["İşe Alım", "Bordro & Özlük", "TurkNet Academy", "İK İş Ortaklığı"]
+            },
+            "Hukuk & Regülasyon": {
+                "tech": ["Hukuki Araştırma Sistemleri"],
+                "soft": ["Yazılı İletişim", "Eleştirel Düşünme"],
+                "domain": ["BTK Regülasyonları", "KVKK & Uyum", "Sözleşme Yönetimi", "Dava & İcra"]
+            },
+            "İdari İşler & İSG": {
+                "tech": ["İSG Yönetim Sistemleri"],
+                "soft": ["Organizasyon Becerisi"],
+                "domain": ["İş Güvenliği", "Tesis Yönetimi", "Lojistik/Depo", "İş Sürekliliği & Risk"]
+            },
+            "Strateji & PMO": {
+                "tech": ["Proje Yönetim Araçları (Jira/MS Project)", "Veri Analitiği"],
+                "soft": ["Stratejik Düşünme", "Sunum Becerileri"],
+                "domain": ["İş Analizi", "OKR/KPI Yönetimi", "Pazar Araştırması"]
+            },
+        },
+        "TARGET_HEADCOUNT": {
+            "Müşteri Deneyimi": {"target": 340, "critical_roles": ["Teknik Destek Uzmanı (L2)", "Retention Uzmanı", "WFM Planlama Uzmanı"]},
+            "Teknoloji & Ar-Ge": {"target": 128, "critical_roles": ["Kıdemli Backend Geliştirici", "DevOps Mühendisi", "Veri Bilimci", "Ürün Müdürü"]},
+            "Network & Altyapı": {"target": 162, "critical_roles": ["NOC Mühendisi", "FTTH Saha Teknisyeni", "IP Core Uzmanı", "Bölge Yöneticisi (Saha)"]},
+            "Satış & Pazarlama": {"target": 94, "critical_roles": ["Kurumsal Satış Yöneticisi", "Dijital Pazarlama Uzmanı", "Tele-satış Takım Lideri"]},
+            "Finans & Satın Alma": {"target": 43, "critical_roles": ["Finansal Analiz Uzmanı", "Satın Alma Uzmanı"]},
+            "İnsan & Kültür": {"target": 22, "critical_roles": ["İşe Alım Uzmanı", "İK İş Ortağı", "Öğrenme & Gelişim Uzmanı"]},
+            "Hukuk & Regülasyon": {"target": 15, "critical_roles": ["BTK Uzmanı", "KVKK Sorumlusu"]},
+            "İdari İşler & İSG": {"target": 28, "critical_roles": ["İSG Uzmanı", "İş Sürekliliği Uzmanı"]},
+            "Strateji & PMO": {"target": 18, "critical_roles": ["Kıdemli İş Analisti", "Proje Yöneticisi"]},
+        },
+        "STRATEGIC_OBJECTIVES": [
+            {"id": "gigafiber_buyume", "name": "Gigafiber Altyapı Büyümesi",
+             "description": "FTTH altyapı yatırımlarının hızlandırılması, yeni il/ilçe genişlemesi",
+             "priority": "Kritik",
+             "required_skills": ["FTTH Kurulum", "Fiber Planlama & Yatırım", "Kapasite Planlama", "IP/MPLS & BGP", "Saha Yönetimi"],
+             "required_headcount": 180, "target_departments": ["Network & Altyapı"],
+             "timeline": "Q1-Q4 2025"},
+            {"id": "musteri_deneyimi_donusum", "name": "Müşteri Deneyimi Dönüşümü",
+             "description": "NPS artışı, dijital self-servis oranını yükseltme, churn azaltma",
+             "priority": "Kritik",
+             "required_skills": ["Churn Önleme & Retention", "CRM Yönetimi", "Çağrı Merkezi Sistemleri", "Müşteri Odaklılık", "WFM & Tahminleme"],
+             "required_headcount": 340, "target_departments": ["Müşteri Deneyimi"],
+             "timeline": "Q1-Q4 2025"},
+            {"id": "dijital_urun_gelistirme", "name": "Dijital Ürün Geliştirme",
+             "description": "Mobil uygulama, self-servis portal, otomasyon projeleri",
+             "priority": "Kritik",
+             "required_skills": [".NET/Java/Python", "React/JavaScript", "Mobil Geliştirme", "Ürün Yönetimi", "UX Araştırma", "CI/CD Pipeline", "Kubernetes & Cloud"],
+             "required_headcount": 128, "target_departments": ["Teknoloji & Ar-Ge"],
+             "timeline": "Q1-Q4 2025"},
+            {"id": "kurumsal_buyume", "name": "Kurumsal Segment Büyümesi",
+             "description": "Veri merkezi, IP VPN ve barındırma hizmetlerinde büyüme",
+             "priority": "Yüksek",
+             "required_skills": ["Kurumsal Satış (B2B)", "Veri Merkezi İşletimi", "Teklif Yönetimi"],
+             "required_headcount": 50, "target_departments": ["Satış & Pazarlama", "Network & Altyapı"],
+             "timeline": "Q2-Q4 2025"},
+            {"id": "veri_odakli_kultur", "name": "Veri Odaklı Karar Alma Kültürü",
+             "description": "İK analitiği, iş zekası ve veri platformu güçlendirme",
+             "priority": "Yüksek",
+             "required_skills": ["Veri Analitiği & BI", "Makine Öğrenmesi", "SQL & Veri Modelleme", "İK Analitiği"],
+             "required_headcount": 35, "target_departments": ["Teknoloji & Ar-Ge", "İnsan & Kültür"],
+             "timeline": "Q1-Q4 2025"},
+            {"id": "liderlik_akademi", "name": "TurkNet Academy & Liderlik Gelişimi",
+             "description": "Yeni nesil lider yetiştirme, onboarding iyileştirme, öğrenme kültürü",
+             "priority": "Orta",
+             "required_skills": ["Koçluk & Mentorluk", "Değişim Yönetimi", "TurkNet Academy", "İK İş Ortaklığı"],
+             "required_headcount": 22, "target_departments": ["İnsan & Kültür"],
+             "timeline": "Q1-Q4 2025"},
+        ],
+        "POSITIONS_BY_BAND": {
+            "A": ["Müşteri Temsilcisi", "Stajyer", "Uzman Yardımcısı", "Saha Teknisyeni", "Asistan"],
+            "B": ["Kıdemli Müşteri Temsilcisi", "Uzman", "Yazılım Geliştirici", "Network Uzmanı", "Analist", "Teknisyen"],
+            "C": ["Takım Lideri", "Kıdemli Uzman", "Kıdemli Geliştirici", "Süpervizör", "Bölge Yöneticisi (Saha)", "Kıdemli Analist"],
+            "D": ["Yönetici", "Müdür", "Müdür Yardımcısı", "Teknik Müdür", "Satış Müdürü"],
+            "E": ["Direktör", "Genel Müdür Yardımcısı", "CTO", "CFO", "CHRO"],
+        },
+        "CAREER_PATH_BANDS": {
+            "A": {"next": "B", "title": "Uzman / Kıdemli MT", "timeline": "12-18 ay"},
+            "B": {"next": "C", "title": "Kıdemli Uzman / Takım Lideri", "timeline": "18-24 ay"},
+            "C": {"next": "D", "title": "Yönetici", "timeline": "24-36 ay"},
+            "D": {"next": "E", "title": "Direktör", "timeline": "36-48 ay"},
+            "E": {"next": "E", "title": "Üst Yönetim", "timeline": "devam eden"},
+        },
+        "SKILL_TAXONOMY": [],
+        "ROLE_TAXONOMY": [],
+        "CAREER_PATHS": [],
+        "CLUSTER_TAXONOMY": [],
+        "PROFICIENCY_LEVELS": [],
+        "SKILL_MAP": {},
+        "ROLE_MAP": {},
+        "SALARY_BENCHMARK": {
+            "A": {"min": 22000, "mid": 30000, "max": 40000, "sector_avg": 28000},
+            "B": {"min": 38000, "mid": 52000, "max": 68000, "sector_avg": 48000},
+            "C": {"min": 65000, "mid": 85000, "max": 110000, "sector_avg": 80000},
+            "D": {"min": 105000, "mid": 140000, "max": 185000, "sector_avg": 130000},
+            "E": {"min": 180000, "mid": 250000, "max": 380000, "sector_avg": 230000},
+        },
+        "HIRING_REASONS": ["Büyüme", "Ayrılma Yerine", "Yeni Proje", "Kadro Devri", "Staj Programı", "Mevsimsel Takviye"],
+        "REJECTION_REASONS": ["Maaş Beklentisi", "Karşı Teklif", "Başka Teklif Kabul", "Çalışma Modeli Uyuşmazlığı", "Konum/Uzaklık", "Süreç Uzunluğu"],
+        "HRBP_MAP": {
+            "Müşteri Deneyimi": "Selin Yılmaz",
+            "Teknoloji & Ar-Ge": "Burcu Aydın",
+            "Network & Altyapı": "Selin Yılmaz",
+            "Satış & Pazarlama": "Emre Karaca",
+            "Finans & Satın Alma": "Emre Karaca",
+            "İnsan & Kültür": "Burcu Aydın",
+            "Hukuk & Regülasyon": "Emre Karaca",
+            "İdari İşler & İSG": "Emre Karaca",
+            "Strateji & PMO": "Burcu Aydın",
+        },
+        # TürkNet-specific: departman bazlı devir oranı çarpanları
+        "DEPT_TURNOVER_MULT": {
+            "Müşteri Deneyimi": 2.2,     # Çağrı merkezi = yüksek devir
+            "Teknoloji & Ar-Ge": 0.9,
+            "Network & Altyapı": 1.3,     # Saha = ortanın üstü
+            "Satış & Pazarlama": 1.4,
+            "Finans & Satın Alma": 0.7,
+            "İnsan & Kültür": 0.6,
+            "Hukuk & Regülasyon": 0.5,
+            "İdari İşler & İSG": 0.8,
+            "Strateji & PMO": 0.7,
+        },
+        # İşe alım kaynak kanalları
+        "RECRUITMENT_SOURCES": [
+            "LinkedIn", "Kariyer.net", "Kurumsal Kariyer Sitesi", "Çalışan Referansı",
+            "Techcareer", "Üniversite & Staj", "Headhunter", "İç İlan", "Sosyal Medya"
+        ],
+        "SOURCE_WEIGHTS": [22, 18, 15, 14, 8, 8, 5, 6, 4],
+    }
+
+
 # ─── Caching ───
 _config_cache = {}
 
@@ -446,6 +649,8 @@ def get_sector_config(sector="Bankacılık"):
     if sector not in _config_cache:
         if sector == "Perakende":
             _config_cache[sector] = _build_retail_config()
+        elif sector == "Teknoloji":
+            _config_cache[sector] = _build_teknoloji_config()
         else:
             _config_cache[sector] = _build_banking_config()
     return _config_cache[sector]

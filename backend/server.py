@@ -226,8 +226,8 @@ def generate_seed_data(count=500, sector="Bankacılık"):
     MONTH_HIRE_WEIGHTS = [12,10,11, 8,7,6, 10,11,9, 6,5,5]
     # Year hiring distribution: more recent = more hires
     YEAR_WEIGHTS = {2018:40, 2019:50, 2020:35, 2021:55, 2022:70, 2023:80, 2024:90, 2025:80}
-    # Department-specific turnover multiplier
-    DEPT_TURNOVER = {"Sales":1.6, "Marketing":1.3, "Operations":1.4, "Information Technology":1.1, "Human Resources":0.9, "Finance":0.8, "Legal":0.7, "Research & Development":0.9, "Administration":1.0, "Supply Chain":1.2}
+    # Department-specific turnover multiplier (use sector config if available)
+    DEPT_TURNOVER = cfg.get("DEPT_TURNOVER_MULT", {"Sales":1.6, "Marketing":1.3, "Operations":1.4, "Information Technology":1.1, "Human Resources":0.9, "Finance":0.8, "Legal":0.7, "Research & Development":0.9, "Administration":1.0, "Supply Chain":1.2})
     # Weighted leaving reasons
     LEAVE_WEIGHTS = [("Daha İyi Fırsat","voluntary",28),("İstifa","voluntary",22),("Kişisel Nedenler","voluntary",14),("Kariyer Değişikliği","voluntary",10),("Taşınma/Konum","voluntary",6),("Emeklilik","voluntary",3),("Performans Yetersizliği","involuntary",9),("Reorganizasyon","involuntary",5),("Sözleşme Bitişi","involuntary",3)]
     leave_reasons = [l[0] for l in LEAVE_WEIGHTS]
@@ -255,8 +255,13 @@ def generate_seed_data(count=500, sector="Bankacılık"):
         edu = random.choices(EDUCATION_LEVELS, weights=EDUCATION_WEIGHTS, k=1)[0]
         uni = random.choice(UNIVERSITIES) if edu != "High School" else None
         marital = random.choices(MARITAL_STATUS, weights=MARITAL_WEIGHTS, k=1)[0]
-        sal_range = SALARY_BY_BAND[band]
-        salary = round(random.uniform(sal_range[0], sal_range[1]), -2)
+        # Salary from sector benchmark if available, otherwise default
+        bench = cfg.get("SALARY_BENCHMARK", {}).get(band, None)
+        if bench:
+            salary = round(random.uniform(bench["min"], bench["max"]), -2)
+        else:
+            sal_range = SALARY_BY_BAND[band]
+            salary = round(random.uniform(sal_range[0], sal_range[1]), -2)
         # Performance: department and band affect score
         base_perf = 3.5 if band in ["D","E"] else 3.3
         perf = max(1.0, min(5.0, round(random.gauss(base_perf, 0.8), 1)))

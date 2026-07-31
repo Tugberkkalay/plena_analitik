@@ -178,8 +178,11 @@ def setup_tenant_routes(db):
         # Clear existing tenant data
         for coll in ["employees", "branches", "sales_performance", "recruitment", "training", "engagement", "ek_kadro_talepleri", "norm_kadro"]:
             await db[coll].delete_many({"tenant_id": slug})
-        # Generate employees (includes branch assignment internally)
-        emps = generate_seed_data(500, sector=sector)
+        # Generate employees — use target headcount from sector config
+        from taxonomy_loader import get_sector_config as get_cfg
+        sector_cfg = get_cfg(sector)
+        target_hc = sum(v["target"] for v in sector_cfg.get("TARGET_HEADCOUNT", {}).values()) or 500
+        emps = generate_seed_data(target_hc, sector=sector)
         for emp in emps:
             random.seed(hash(emp['id']) % 2**32)
             emp['skills'] = generate_employee_skills(emp.get('department',''), emp.get('band','B'), sector=sector)
