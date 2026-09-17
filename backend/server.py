@@ -4123,6 +4123,11 @@ from routes_report_designer import router as report_designer_router, setup_repor
 setup_report_designer(db)
 app.include_router(report_designer_router)
 
+# Survey Analytics routes
+from routes_surveys import router as survey_router, setup_surveys
+setup_surveys(db)
+app.include_router(survey_router)
+
 # Serve uploaded files (logos etc.)
 from fastapi.staticfiles import StaticFiles
 app.mount("/api/uploads", StaticFiles(directory="/app/backend/uploads"), name="uploads")

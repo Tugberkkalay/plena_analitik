@@ -47,6 +47,7 @@ import AdayHunisiPage from "@/pages/AdayHunisiPage";
 import YetenekProgramlariPage from "@/pages/YetenekProgramlariPage";
 import GuvenlikSoruPage from "@/pages/GuvenlikSoruPage";
 import ReportDesignerPage from "@/pages/ReportDesignerPage";
+import AnketAnaliziPage from "@/pages/AnketAnaliziPage";
 
 const API = process.env.REACT_APP_BACKEND_URL;
 
@@ -66,6 +67,7 @@ const PAGE_MAP = {
   "/yetenek-programlari": YetenekProgramlariPage,
   "/guvenlik-sorusturmasi": GuvenlikSoruPage,
   "/rapor-tasarimcisi": ReportDesignerPage,
+  "/anket-analizi": AnketAnaliziPage,
   "/turnover": TurnoverPage,
   "/movement": MovementPage,
   "/headcount-plan": HeadcountPlanPage,

@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { ChartBar, Users, UserPlus, ArrowsClockwise, ArrowsLeftRight, Brain, CloudArrowUp, List, X, Funnel, Target, GraduationCap, CurrencyDollar, Smiley, Star, Gear, Compass, UserFocus, Sliders, Binoculars, ShieldWarning, Heartbeat, FilePdf, Crosshair, TreeStructure, Strategy, Bell, UserSwitch, GridNine, Buildings, Trophy, MapPin, UsersFour, Scales, ClipboardText, Handshake, ChartLine, ShieldCheck, Medal, PaintBrushBroad } from "@phosphor-icons/react";
+import { ChartBar, Users, UserPlus, ArrowsClockwise, ArrowsLeftRight, Brain, CloudArrowUp, List, X, Funnel, Target, GraduationCap, CurrencyDollar, Smiley, Star, Gear, Compass, UserFocus, Sliders, Binoculars, ShieldWarning, Heartbeat, FilePdf, Crosshair, TreeStructure, Strategy, Bell, UserSwitch, GridNine, Buildings, Trophy, MapPin, UsersFour, Scales, ClipboardText, Handshake, ChartLine, ShieldCheck, Medal, PaintBrushBroad, Notepad } from "@phosphor-icons/react";
 
 export const NAV_SECTIONS = [
   {
@@ -30,6 +30,7 @@ export const NAV_SECTIONS = [
       { path: "/aday-hunisi", label: "Aday Hunisi", icon: ChartLine },
       { path: "/yetenek-programlari", label: "Yetenek Programları", icon: Medal },
       { path: "/guvenlik-sorusturmasi", label: "Güvenlik Soruşturması", icon: ShieldCheck },
+      { path: "/anket-analizi", label: "Anket Analizi", icon: Notepad },
     ],
   },
   {
