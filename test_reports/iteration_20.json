@@ -1,0 +1,50 @@
+{
+  "summary": "Iteration 20 — Verified KPI label fix + Dashboard Manager (Rapor Tasarımcısı Faz 2). Backend 12/12 pytest pass (Dashboard CRUD + publish + duplicate, plus KPI data availability). Frontend end-to-end: KPI labels ('BAĞLILIK SKORU', 'ENPS', 'YANIT SAYISI', 'TOPLAM ÇIKIŞ', 'GÖNÜLLÜ', 'ORT. KIDEM', 'ÇALIŞAN SAYISI', 'İŞE ALIM') all visible on TUSAS anket-analizi/exit/overview. Dashboard Manager: sidebar link present, list page + 'Yeni Dashboard' button work, editor opens, 'Widget Ekle' modal shows saved reports, adding a report renders it as a resizable widget with a bar chart, Kaydet & Yayınla both succeed. TürkNet skills-map still shows '36'.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_results": {
+    "backend_pytest": "12/12 pass — /app/test_reports/pytest/iter20.xml",
+    "verified_endpoints": {
+      "POST /api/dashboards": "creates draft dashboard, returns id, no _id leak ✅",
+      "GET /api/dashboards": "lists dashboards for tenant ✅",
+      "GET /api/dashboards/{id}": "returns single dashboard ✅",
+      "PUT /api/dashboards/{id}": "updates name + widgets ✅",
+      "POST /api/dashboards/{id}/publish": "flips status to published ✅",
+      "POST /api/dashboards/{id}/duplicate": "creates copy with (Kopya) suffix ✅",
+      "DELETE /api/dashboards/{id}": "removes and subsequent GET returns 404 ✅",
+      "GET /api/dashboard/engagement?tenant=tusas": "kpis returned ✅",
+      "GET /api/dashboard/survey-analytics?survey_type=exit&tenant=tusas": "kpis.total_exits=335 ✅",
+      "GET /api/dashboard/skills-map?tenant=turknet": "total_unique_skills=36 ✅",
+      "GET /api/report-designer/reports": "list returned (1 report available) ✅"
+    },
+    "frontend_playwright": {
+      "/admin/rapor/tusas/anket-analizi (Bağlılık tab)": "BAĞLILIK SKORU / ENPS / YANIT SAYISI visible ✅",
+      "/admin/rapor/tusas/anket-analizi (Çıkış tab)": "TOPLAM ÇIKIŞ / GÖNÜLLÜ / ORT. KIDEM visible ✅",
+      "/admin/rapor/tusas/": "ÇALIŞAN SAYISI / İŞE ALIM visible ✅",
+      "/admin/rapor/tusas/dashboard-yonetimi": "list + 'Yeni Dashboard' button ✅; sidebar 'Dashboard Yönetimi' under AYARLAR ✅",
+      "Dashboard editor flow": "New Dashboard → editor renders → Widget Ekle modal shows report → adding report renders bar chart in grid cell → Kaydet OK → Yayınla OK ✅",
+      "/admin/rapor/turknet/skills-map": "'36' visible ✅"
+    }
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter20_dashboards_and_kpi.py",
+    "/app/test_reports/pytest/iter20.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "routes_dashboards.py: PUT /api/dashboards/{id}/widgets accepts raw list body — works, but consider Pydantic model for validation. Non-blocking.",
+    "DashboardManagerPage.jsx line 158: unused `layout` variable defined outside GridArea (recomputed inside). Minor dead code.",
+    "server.py still ~4100 lines; modularization deferred from prior iterations remains open (non-blocking).",
+    "Frontend axios calls have no error toasts (silent catch in executeWidget). Widget failures will show 'Yükleniyor…' forever — consider a visible error state."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter20_dashboards_and_kpi.py (new)"
+  ],
+  "success_rate": {"backend": "100% (12/12)", "frontend": "100% (all requested flows verified)"},
+  "test_credentials": "admin@plenalitik.com / Plena2025! — works",
+  "seed_data_creation": "None; a TEST_ dashboard was created and cleaned up by the pytest suite. One dashboard 'Yeni Dashboard' was created via UI test and published — main agent may wish to clean it up.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "test_iter20_dashboards_and_kpi.py covers full Dashboard CRUD + publish/duplicate lifecycle and key KPI endpoints. UI flow: /admin/rapor/{tenant}/dashboard-yonetimi → [data-testid='new-dashboard-btn'] → [data-testid='add-widget-btn'] → [data-testid='add-report-{id}'] → widget grid renders via react-grid-layout v2 useContainerWidth hook. Requires at least one saved report from Report Designer (currently 1 exists).",
+  "rca_of_the_issue": "N/A — features work as specified. KPICard.jsx correctly aliases label→title with `displayTitle = title || label`, uses font-semibold + text-slate-600 for labels. Dashboard grid mounts correctly using useContainerWidth hook (v2 API)."
+}
