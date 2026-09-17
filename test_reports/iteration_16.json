@@ -1,0 +1,61 @@
+{
+  "summary": "Iteration 16 — Verified 3 new TUSAŞ features: (1) Project filter dropdown in TopBar, (2) Yetenek Programları page, (3) Güvenlik Soruşturması page. Backend: 12/12 new pytest cases pass. All KPI numbers match the spec exactly (700/627/352/301, 3000/289/223, KAAN=467). Frontend: Confirmed via Playwright + screenshots — project dropdown shows all 8 expected options (KAAN, HURJET, ANKA, AKSUNGUR, GOKBEY, A400M Yapısallar, Uzay Sistemleri, Genel), selecting KAAN reduces headcount from 2020 → 467, Yetenek Programları page shows 6 program breakdown (SKY Stajyer, MGP, LIFT UP, Kadin Mentorluk, LIFT UP+, SKY int) with Excel export, Güvenlik Soruşturması page shows all 7 funnel stages (Başvuru→Online Değerlendirme→İK Mülakatı→Teknik Mülakat→Güvenlik Soruşturması→Teklif→İşe Başlama) with department table + Excel export + duration distribution. Sidebar menu items 'Yetenek Programları' & 'Güvenlik Soruşturması' correctly placed under İşe Alım. yapikredi tenant does NOT show project selector (banking has no PROJECTS config) — confirmed.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Yetenek Programları / Güvenlik Soruşturması",
+        "issues": ["Program name shown as 'Kadin Mentorluk' (Latin i) instead of 'Kadın Mentorluk' (Turkish ı) — check seed data / Excel source. Backend returns it as 'Kadin Mentorluk' consistently."]
+      }
+    ]
+  },
+  "test_results": {
+    "backend_pytest": "12/12 pass — /app/test_reports/pytest/iter16_tusas.xml",
+    "verified_endpoints": {
+      "/api/dashboard/segments?tenant=tusas": "returns projects=[KAAN, HURJET, ANKA, AKSUNGUR, GOKBEY, A400M Yapısallar, Uzay Sistemleri, Genel]",
+      "/api/dashboard/segments?tenant=yapikredi": "projects=[] (correct — banking has no PROJECTS)",
+      "/api/dashboard/overview?tenant=tusas": "headcount=2020",
+      "/api/dashboard/overview?tenant=tusas&project=KAAN": "headcount=467 ✅",
+      "/api/dashboard/yetenek-programlari?tenant=tusas": "kpis={total:700, completed:627, hired:352, retained:301, completion_rate:89.6, hire_rate:50.3, retention_rate:85.5}, 6 programs",
+      "/api/dashboard/guvenlik-sorusturmasi?tenant=tusas": "kpis={total_basvuru:3000, guvenlik_asamasina_gelen:289, guvenlik_gecen:243, ise_alinan:223, ort_guvenlik_suresi:60.3}, 7 funnel stages"
+    },
+    "frontend_playwright": {
+      "project_dropdown_options": "8/8 correct",
+      "kaan_filter_ui_headcount": "467 rendered on Overview KPI card ✅",
+      "yetenek_programlari_page": "KPIs 700/627/352/301, 6 program breakdown, 2 Excel export buttons visible ✅",
+      "guvenlik_sorusturmasi_page": "KPIs 3000/289/223/60.3gün/45.7gün/84.1%, 7 funnel bars (3000→1066→574→341→289→243→223), duration distribution chart, dept table with Excel export ✅",
+      "sidebar_menu_items": "Yetenek Programları + Güvenlik Soruşturması both visible ✅",
+      "yapikredi_no_project_selector": "confirmed — [data-testid=project-selector] not present ✅"
+    }
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_tusas_new_features.py",
+    "/app/test_reports/pytest/iter16_tusas.xml"
+  ],
+  "action_items": [
+    "OPTIONAL/MINOR: Route /admin/rapor/tusas/overview returns a blank page (only TopBar + sidebar render). Only /admin/rapor/tusas/ (without trailing /overview) maps to the Genel Bakış component. Navigation via sidebar works fine, but if any deep link uses /overview it will 404-render. Consider adding a route alias or redirect from /overview → / in App.js. NOT a regression from this iteration.",
+    "OPTIONAL: 'Kadın Mentorluk' program name is stored as 'Kadin Mentorluk' (missing Turkish ı) — verify against source Excel; may be an ETL normalization issue."
+  ],
+  "critical_code_review_comments": [
+    "get_filtered() cleanly adds project param at Mongo query level — no code duplication, applied uniformly across ~25 endpoints.",
+    "Overview page URL/route mismatch: direct navigation to /admin/rapor/tusas/overview renders blank because there is no /overview child route (root path is the overview). Not caused by this iteration but worth documenting.",
+    "server.py now 4132 lines — continues to grow. Consider splitting into route modules (previous iter also flagged this).",
+    "Both new endpoints correctly use projection {'_id': 0} — no ObjectId leaks.",
+    "guvenlik-sorusturmasi endpoint accepts project param but does NOT actually filter by project (query dict only adds tenant/department/hrbp). If project filtering is required for recruitment data, add `if project: query['project'] = project` around line 4007."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_tusas_new_features.py (new — 12 tests)"
+  ],
+  "success_rate": {"backend": "100% (12/12)", "frontend": "100% (all 3 new features render + integrate correctly)"},
+  "test_credentials": "admin@plenalitik.com / Plena2025! — works. Tenant slugs: tusas, yapikredi.",
+  "seed_data_creation": "None — collections talent_programs (700 records) and recruitment (3000 records) already seeded for tusas.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "test_tusas_new_features.py is the regression suite for the project filter, /dashboard/yetenek-programlari and /dashboard/guvenlik-sorusturmasi endpoints. It uses REACT_APP_BACKEND_URL from /app/frontend/.env if the env var is not exported to the shell. Data-testid for project selector: [data-testid='project-selector']. Frontend Overview route is /admin/rapor/tusas/ (no /overview suffix) — use sidebar 'Genel Bakış' link to reach it. Programs and stages should match: 6 talent programs & 7 recruitment funnel stages exactly.",
+  "rca_of_the_issue": "N/A — all 3 features work as spec'd. Only cosmetic observation: 'Kadin Mentorluk' vs 'Kadın Mentorluk' Turkish diacritics missing on one program name (source data issue)."
+}
