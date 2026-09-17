@@ -641,6 +641,137 @@ def _build_teknoloji_config():
     }
 
 
+# ─────────────────────────────────────────────
+#  SAVUNMA / HAVACILIK CONFIG (TUSAŞ)
+# ─────────────────────────────────────────────
+def _build_savunma_config():
+    return {
+        "DEPARTMENTS": [
+            "Montaj Hattı", "CNC ve Talaşlı İmalat", "Kompozit Üretim",
+            "Aviyonik Sistemler", "Yapısal Tasarım", "Sistem Mühendisliği",
+            "Yazılım Mühendisliği", "Test ve Doğrulama", "Uçuş Bilimleri",
+            "Kalite Güvence", "Tedarik Zinciri", "Proje Yönetimi",
+            "Bilgi Teknolojileri", "İnsan Kaynakları"
+        ],
+        "DEPT_WEIGHTS": [13, 8, 8, 9, 7, 8, 7, 8, 6, 7, 6, 5, 4, 4],
+        "DEPT_SEGMENT_MAP": {
+            "Montaj Hattı": "Üretim", "CNC ve Talaşlı İmalat": "Üretim", "Kompozit Üretim": "Üretim",
+            "Aviyonik Sistemler": "Mühendislik", "Yapısal Tasarım": "Mühendislik",
+            "Sistem Mühendisliği": "Mühendislik", "Yazılım Mühendisliği": "Mühendislik",
+            "Test ve Doğrulama": "Mühendislik", "Uçuş Bilimleri": "Mühendislik",
+            "Kalite Güvence": "Destek", "Tedarik Zinciri": "Destek",
+            "Proje Yönetimi": "Destek", "Bilgi Teknolojileri": "Destek",
+            "İnsan Kaynakları": "Destek",
+        },
+        "SEGMENTS": ["Mühendislik", "Üretim", "Destek"],
+        "DEPT_ROLE_FAMILIES": {
+            "Montaj Hattı": ["Üretim"], "CNC ve Talaşlı İmalat": ["Üretim"], "Kompozit Üretim": ["Üretim"],
+            "Aviyonik Sistemler": ["Mühendislik"], "Yapısal Tasarım": ["Mühendislik"],
+            "Sistem Mühendisliği": ["Mühendislik"], "Yazılım Mühendisliği": ["Mühendislik"],
+            "Test ve Doğrulama": ["Mühendislik"], "Uçuş Bilimleri": ["Mühendislik"],
+            "Kalite Güvence": ["Kalite"], "Tedarik Zinciri": ["Tedarik"],
+            "Proje Yönetimi": ["Yönetim"], "Bilgi Teknolojileri": ["BT"],
+            "İnsan Kaynakları": ["İK"],
+        },
+        "DEPT_SKILL_CLUSTERS": {
+            "Montaj Hattı": ["uretim-montaj", "kalite"], "CNC ve Talaşlı İmalat": ["uretim-cnc", "kalite"],
+            "Kompozit Üretim": ["uretim-kompozit", "kalite"], "Aviyonik Sistemler": ["aviyonik", "elektronik"],
+            "Yapısal Tasarım": ["yapisal", "cad-cam"], "Sistem Mühendisliği": ["sistem-muh", "entegrasyon"],
+            "Yazılım Mühendisliği": ["yazilim", "gömülü-sistemler"], "Test ve Doğrulama": ["test-dogrulama", "kalite"],
+            "Uçuş Bilimleri": ["ucus", "aerodinamik"], "Kalite Güvence": ["kalite", "sertifikasyon"],
+            "Tedarik Zinciri": ["tedarik", "lojistik"], "Proje Yönetimi": ["proje-yonetimi"],
+            "Bilgi Teknolojileri": ["bt-altyapi", "yazilim"], "İnsan Kaynakları": ["ik-yonetimi"],
+        },
+        "DEPT_SKILL_FOCUS": {
+            "Montaj Hattı": {"tech": ["Uçak Montaj Teknikleri", "Yapısal Bütünlük Kontrolü", "Tork/Bağlantı Elemanları"], "soft": ["Takım Çalışması", "Detay Odaklılık"], "domain": ["Havacılık Standartları (AS9100)", "FOD Yönetimi"]},
+            "CNC ve Talaşlı İmalat": {"tech": ["CNC Programlama (G-Code)", "CAM Yazılımları", "Hassas İşleme"], "soft": ["Detay Odaklılık"], "domain": ["Titanyum/Alüminyum İşleme", "Tolerans Yönetimi"]},
+            "Kompozit Üretim": {"tech": ["Otoklav Kürlenme", "Hand Lay-up", "RTM/VARTM"], "soft": ["Kalite Bilinci"], "domain": ["Karbon Fiber Teknolojisi", "NDT Muayene"]},
+            "Aviyonik Sistemler": {"tech": ["Aviyonik Sistem Entegrasyonu", "ARINC/MIL-STD", "Radar & EW Sistemleri"], "soft": ["Analitik Düşünme"], "domain": ["DO-178C", "DO-254", "Uçuş Kontrol Sistemleri"]},
+            "Yapısal Tasarım": {"tech": ["CATIA/NX", "FEA (Nastran/Abaqus)", "Yapısal Analiz"], "soft": ["Problem Çözme"], "domain": ["Havacılık Malzeme Bilgisi", "Dayanım Hesapları", "Sertifikasyon"]},
+            "Sistem Mühendisliği": {"tech": ["MBSE", "Gereksinim Yönetimi (DOORS)", "Sistem Entegrasyonu"], "soft": ["Sistem Düşüncesi"], "domain": ["V-Model Yaşam Döngüsü", "Arayüz Yönetimi"]},
+            "Yazılım Mühendisliği": {"tech": ["C/C++/Ada", "Gömülü Sistemler", "RTOS"], "soft": ["Problem Çözme"], "domain": ["DO-178C Sertifikasyonu", "Model Tabanlı Tasarım", "Güvenlik Kritik Yazılım"]},
+            "Test ve Doğrulama": {"tech": ["Yer Testleri", "Uçuş Test Enstrümantasyonu", "HIL/SIL Simülasyonu"], "soft": ["Analitik Düşünme"], "domain": ["Test Planlaması", "Hata Analizi (FMEA)"]},
+            "Uçuş Bilimleri": {"tech": ["Aerodinamik Analiz (CFD)", "Performans Hesaplama", "Uçuş Mekaniği"], "soft": ["Bilimsel Yaklaşım"], "domain": ["Uçuş Zarfı", "Stabilite & Kontrol"]},
+            "Kalite Güvence": {"tech": ["NDT Yöntemleri", "AS9100/EN9100", "İstatistiksel Proses Kontrol"], "soft": ["Detay Odaklılık"], "domain": ["EASA/SHGM Sertifikasyonu", "Müşteri Kabul"]},
+            "Tedarik Zinciri": {"tech": ["SAP/ERP", "MRP Planlama"], "soft": ["Müzakere Becerisi"], "domain": ["Offset Yönetimi", "Havacılık Tedarik Standartları"]},
+            "Proje Yönetimi": {"tech": ["MS Project/Primavera", "EVM (Kazanılmış Değer)"], "soft": ["Liderlik", "İletişim"], "domain": ["Savunma Proje Yönetimi", "Müşteri İlişkileri (SSB)"]},
+            "Bilgi Teknolojileri": {"tech": ["PLM/PDM Sistemleri", "Siber Güvenlik", "ERP"], "soft": ["Çözüm Odaklılık"], "domain": ["ITAR/Gizlilik", "Veri Güvenliği"]},
+            "İnsan Kaynakları": {"tech": ["İK Bilgi Sistemleri", "İK Analitiği"], "soft": ["İletişim", "Empati"], "domain": ["Güvenlik Soruşturması Yönetimi", "Yetenek Programları (SKY/LIFT UP)"]},
+        },
+        "TARGET_HEADCOUNT": {
+            "Montaj Hattı": {"target": 310, "critical_roles": ["Kıdemli Montaj Teknisyeni", "Montaj Takım Lideri"]},
+            "CNC ve Talaşlı İmalat": {"target": 190, "critical_roles": ["CNC Programcısı", "Hassas İşleme Uzmanı"]},
+            "Kompozit Üretim": {"target": 190, "critical_roles": ["Kompozit Üretim Uzmanı", "NDT Teknisyeni"]},
+            "Aviyonik Sistemler": {"target": 215, "critical_roles": ["Aviyonik Sistem Mühendisi", "Radar Mühendisi"]},
+            "Yapısal Tasarım": {"target": 170, "critical_roles": ["Kıdemli Yapısal Tasarım Mühendisi", "Dayanım Uzmanı"]},
+            "Sistem Mühendisliği": {"target": 190, "critical_roles": ["Sistem Entegrasyon Mühendisi", "Gereksinim Yöneticisi"]},
+            "Yazılım Mühendisliği": {"target": 170, "critical_roles": ["Gömülü Yazılım Mühendisi", "DO-178C Uzmanı"]},
+            "Test ve Doğrulama": {"target": 190, "critical_roles": ["Uçuş Test Mühendisi", "HIL/SIL Uzmanı"]},
+            "Uçuş Bilimleri": {"target": 145, "critical_roles": ["Aerodinamik Mühendisi", "Performans Mühendisi"]},
+            "Kalite Güvence": {"target": 165, "critical_roles": ["NDT Uzmanı", "Sertifikasyon Mühendisi"]},
+            "Tedarik Zinciri": {"target": 150, "critical_roles": ["Offset Yöneticisi", "Havacılık Satın Alma Uzmanı"]},
+            "Proje Yönetimi": {"target": 120, "critical_roles": ["Program Yöneticisi", "Planlama Uzmanı"]},
+            "Bilgi Teknolojileri": {"target": 100, "critical_roles": ["PLM Uzmanı", "Siber Güvenlik Uzmanı"]},
+            "İnsan Kaynakları": {"target": 95, "critical_roles": ["İşe Alım Uzmanı", "Yetenek Yönetimi Uzmanı"]},
+        },
+        "STRATEGIC_OBJECTIVES": [
+            {"id": "kaan_teslimat", "name": "KAAN Seri Üretim & Teslimat", "description": "5. nesil savaş uçağı KAAN'ın seri üretim hattı kurulumu ve ilk teslimatlar", "priority": "Kritik",
+             "required_skills": ["Uçak Montaj Teknikleri", "Aviyonik Sistem Entegrasyonu", "Uçuş Test Enstrümantasyonu"], "required_headcount": 600, "target_departments": ["Montaj Hattı", "Aviyonik Sistemler", "Test ve Doğrulama"], "timeline": "Q1-Q4 2025"},
+            {"id": "hurjet_sertifikasyon", "name": "HÜRJET Sertifikasyon", "description": "Jet eğitim uçağı HÜRJET'in uçuşa elverişlilik sertifikasyonu", "priority": "Kritik",
+             "required_skills": ["EASA/SHGM Sertifikasyonu", "DO-178C Sertifikasyonu", "Uçuş Zarfı"], "required_headcount": 250, "target_departments": ["Kalite Güvence", "Uçuş Bilimleri", "Yazılım Mühendisliği"], "timeline": "Q1-Q4 2025"},
+            {"id": "iha_kapasite", "name": "İHA/SİHA Kapasite Artışı", "description": "ANKA ve AKSUNGUR platformlarında üretim kapasitesinin artırılması", "priority": "Yüksek",
+             "required_skills": ["Kompozit Üretim", "Sistem Entegrasyonu", "MRP Planlama"], "required_headcount": 300, "target_departments": ["Kompozit Üretim", "Sistem Mühendisliği", "Tedarik Zinciri"], "timeline": "Q2-Q4 2025"},
+            {"id": "dijital_donusum", "name": "Dijital Dönüşüm (Endüstri 4.0)", "description": "Akıllı fabrika, dijital ikiz ve PLM modernizasyonu", "priority": "Yüksek",
+             "required_skills": ["PLM/PDM Sistemleri", "Siber Güvenlik", "Model Tabanlı Tasarım"], "required_headcount": 100, "target_departments": ["Bilgi Teknolojileri", "Sistem Mühendisliği"], "timeline": "Q1-Q4 2025"},
+            {"id": "yetenek_kazanimi", "name": "Kritik Yetenek Kazanımı", "description": "SKY, LIFT UP, MGP programları ile nitelikli mühendis kazanımı", "priority": "Yüksek",
+             "required_skills": ["Güvenlik Soruşturması Yönetimi", "Yetenek Programları (SKY/LIFT UP)"], "required_headcount": 95, "target_departments": ["İnsan Kaynakları"], "timeline": "Q1-Q4 2025"},
+        ],
+        "POSITIONS_BY_BAND": {
+            "A": ["Teknisyen", "Operatör", "Stajyer", "Uzman Yardımcısı"],
+            "B": ["Kıdemli Teknisyen", "Mühendis", "Uzman", "Analist"],
+            "C": ["Kıdemli Mühendis", "Kıdemli Uzman", "Takım Lideri", "Baş Mühendis"],
+            "D": ["Müdür", "Program Yöneticisi", "Bölüm Başkanı", "Teknik Müdür"],
+            "E": ["Direktör", "Genel Müdür Yardımcısı", "Başkan Yardımcısı"],
+        },
+        "CAREER_PATH_BANDS": {
+            "A": {"next": "B", "title": "Mühendis / Kıdemli Teknisyen", "timeline": "18-24 ay"},
+            "B": {"next": "C", "title": "Kıdemli Mühendis / Takım Lideri", "timeline": "24-36 ay"},
+            "C": {"next": "D", "title": "Müdür / Program Yöneticisi", "timeline": "36-48 ay"},
+            "D": {"next": "E", "title": "Direktör", "timeline": "48-60 ay"},
+            "E": {"next": "E", "title": "Üst Yönetim", "timeline": "devam eden"},
+        },
+        "SKILL_TAXONOMY": [], "ROLE_TAXONOMY": [], "CAREER_PATHS": [],
+        "CLUSTER_TAXONOMY": [], "PROFICIENCY_LEVELS": [], "SKILL_MAP": {}, "ROLE_MAP": {},
+        "SALARY_BENCHMARK": {
+            "A": {"min": 35000, "mid": 50000, "max": 68000, "sector_avg": 48000},
+            "B": {"min": 60000, "mid": 82000, "max": 110000, "sector_avg": 78000},
+            "C": {"min": 100000, "mid": 135000, "max": 175000, "sector_avg": 128000},
+            "D": {"min": 165000, "mid": 210000, "max": 280000, "sector_avg": 200000},
+            "E": {"min": 270000, "mid": 350000, "max": 480000, "sector_avg": 330000},
+        },
+        "HIRING_REASONS": ["Büyüme (Proje)", "Ayrılma Yerine", "Yeni Program", "Kapasite Artışı", "Staj/SKY Programı", "Yurt Dışı Transfer"],
+        "REJECTION_REASONS": ["Güvenlik Soruşturması", "Maaş Beklentisi", "Yurt Dışı Teklif", "Başka Savunma Şirketi", "Teknik Yeterlilik", "Süreç Uzunluğu"],
+        "HRBP_MAP": {
+            "Montaj Hattı": "Merve Aksoy", "CNC ve Talaşlı İmalat": "Merve Aksoy", "Kompozit Üretim": "Merve Aksoy",
+            "Aviyonik Sistemler": "Elif Korkmaz", "Yapısal Tasarım": "Elif Korkmaz",
+            "Sistem Mühendisliği": "Elif Korkmaz", "Yazılım Mühendisliği": "Elif Korkmaz",
+            "Test ve Doğrulama": "Deniz Yıldırım", "Uçuş Bilimleri": "Deniz Yıldırım",
+            "Kalite Güvence": "Deniz Yıldırım", "Tedarik Zinciri": "Deniz Yıldırım",
+            "Proje Yönetimi": "Ayşe Çetin", "Bilgi Teknolojileri": "Ayşe Çetin",
+            "İnsan Kaynakları": "Ayşe Çetin",
+        },
+        "DEPT_TURNOVER_MULT": {
+            "Montaj Hattı": 0.9, "CNC ve Talaşlı İmalat": 0.8, "Kompozit Üretim": 0.8,
+            "Aviyonik Sistemler": 1.3, "Yapısal Tasarım": 1.1, "Sistem Mühendisliği": 1.2,
+            "Yazılım Mühendisliği": 1.5, "Test ve Doğrulama": 1.0, "Uçuş Bilimleri": 1.1,
+            "Kalite Güvence": 0.7, "Tedarik Zinciri": 0.9, "Proje Yönetimi": 0.8,
+            "Bilgi Teknolojileri": 1.4, "İnsan Kaynakları": 0.6,
+        },
+        "RECRUITMENT_SOURCES": ["Kariyer Portalı", "LinkedIn", "SKY Programı", "Çalışan Referansı", "Kariyer Fuarı"],
+        "SOURCE_WEIGHTS": [35, 20, 18, 15, 12],
+        "PROJECTS": ["KAAN", "HURJET", "ANKA", "AKSUNGUR", "GOKBEY", "A400M Yapısallar", "Uzay Sistemleri", "Genel"],
+    }
+
 # ─── Caching ───
 _config_cache = {}
 
@@ -651,6 +782,8 @@ def get_sector_config(sector="Bankacılık"):
             _config_cache[sector] = _build_retail_config()
         elif sector == "Teknoloji":
             _config_cache[sector] = _build_teknoloji_config()
+        elif sector in ("Savunma/Havacılık", "Savunma"):
+            _config_cache[sector] = _build_savunma_config()
         else:
             _config_cache[sector] = _build_banking_config()
     return _config_cache[sector]

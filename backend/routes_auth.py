@@ -237,6 +237,63 @@ def setup_tenant_routes(db):
         await db.tenants.update_one({"id": tenant_id}, {"$set": {"employee_count": len(emps)}})
         return {"message": f"{tenant['name']} için {len(emps)} çalışan oluşturuldu", "employees": len(emps), "branches": len(branches)}
 
+    @tenant_router.post("/{tenant_id}/import-excel")
+    async def import_excel_data(tenant_id: str, request: Request):
+        """Import data from a pre-uploaded TUSAŞ Excel file."""
+        await require_admin(request)
+        tenant = await db.tenants.find_one({"id": tenant_id})
+        if not tenant:
+            raise HTTPException(404, "Müşteri bulunamadı")
+        slug = tenant["slug"]
+        import os
+        filepath = os.path.join(os.path.dirname(__file__), "uploads", f"{slug}_data.xlsx")
+        if not os.path.exists(filepath):
+            raise HTTPException(404, "Veri dosyası bulunamadı. Önce dosyayı yükleyin.")
+        from tusas_importer import import_tusas_calisanlar, import_tusas_recruitment, import_tusas_yetenek
+        from server import generate_employee_skills, generate_norm_kadro_data, generate_ek_kadro_talepleri
+        # Clear existing tenant data
+        for coll in ["employees", "recruitment", "talent_programs", "ek_kadro_talepleri", "norm_kadro"]:
+            await db[coll].delete_many({"tenant_id": slug})
+        # Import employees
+        emps = import_tusas_calisanlar(filepath, slug)
+        import random as rnd
+        for emp in emps:
+            rnd.seed(hash(emp['id']) % 2**32)
+            emp['skills'] = generate_employee_skills(emp.get('department',''), emp.get('band','B'), sector=tenant.get('sector','Savunma/Havacılık'))
+        if emps:
+            await db.employees.insert_many(emps)
+        # Import recruitment
+        recruitment = import_tusas_recruitment(filepath, slug)
+        if recruitment:
+            await db.recruitment.insert_many(recruitment)
+        # Import talent programs
+        talent = import_tusas_yetenek(filepath, slug)
+        if talent:
+            await db.talent_programs.insert_many(talent)
+        # Generate Norm Kadro & Ek Kadro from imported employees
+        sector = tenant.get("sector", "Savunma/Havacılık")
+        norm_kadro = generate_norm_kadro_data(emps, sector=sector)
+        for nk in norm_kadro:
+            nk["tenant_id"] = slug
+        if norm_kadro:
+            await db.norm_kadro.insert_many(norm_kadro)
+        ek_kadro = generate_ek_kadro_talepleri(sector=sector, count=40)
+        for ek in ek_kadro:
+            ek["tenant_id"] = slug
+        if ek_kadro:
+            await db.ek_kadro_talepleri.insert_many(ek_kadro)
+        # Update tenant
+        active_count = len([e for e in emps if e["status"] == "active"])
+        await db.tenants.update_one({"id": tenant_id}, {"$set": {"employee_count": active_count}})
+        return {
+            "message": f"{tenant['name']} için veriler yüklendi",
+            "employees": len(emps),
+            "active": active_count,
+            "recruitment": len(recruitment),
+            "talent_programs": len(talent),
+        }
+
+
     @tenant_router.post("/{tenant_id}/publish")
     async def publish_tenant(tenant_id: str, request: Request):
         await require_admin(request)

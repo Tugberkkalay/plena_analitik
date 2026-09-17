@@ -1,7 +1,7 @@
 # Plenalitik — Enterprise HR & Sales Analytics Platform
 
 ## Original Problem Statement
-Develop an Enterprise HR Analytics application ("Plenalitik") that serves as a multi-tenant platform. It must include core HR modules (recruitment, performance, succession, etc.) and custom Finance/Branch layers. The application must utilize custom sector-specific taxonomies (e.g., Banking, Retail, Teknoloji) to drive its logic, AI forecasting, data seeding, and career planning.
+Develop an Enterprise HR Analytics application ("Plenalitik") that serves as a multi-tenant platform with sector-specific taxonomies (Banking, Retail, Technology, Defense/Aerospace).
 
 ## Architecture
 - **Frontend**: React, Tailwind CSS, Recharts, Shadcn/UI, xlsx, html2canvas/jspdf
@@ -9,26 +9,21 @@ Develop an Enterprise HR Analytics application ("Plenalitik") that serves as a m
 - **Integrations**: Emergent LLM Key (GPT-5.2) for AI Forecasting/Action Center
 
 ## Completed Features
-- ✅ Multi-tenant admin, branding, Excel import/export, PDF export, full Turkish UI
-- ✅ Dynamic Sector Taxonomy (Banking/Retail/Teknoloji) + Segment Filtering
-- ✅ Department & HRBP Filters with _effective_depts() helper across all endpoints
-- ✅ Excel Export ("Excel'e Aktar") on 13 table-heavy pages
-- ✅ Kadro & Ücret: Norm Kadro, Ek Kadro Talepleri, Teklif Analizi, Ücret Benchmark
-- ✅ İşe Alım: Kaynak Analizi, Üniversite Analizi, Maliyet Analizi, Aday Hunisi
-- ✅ **TürkNet Tenant (Teknoloji Sektörü)** (Jul 2026):
-  - 9 departman (Müşteri Deneyimi %40, Network & Altyapı %19, Teknoloji & Ar-Ge %15, vb.)
-  - 850 çalışan, 3 HRBP (Selin Yılmaz, Burcu Aydın, Emre Karaca)
-  - 4 segment (Operasyon, Teknoloji, Ticari, Destek)
-  - Telekom sektörüne özel devir oranları (Müşteri Deneyimi 2.2x, Teknoloji 0.9x)
-  - Sektör bazlı maaş benchmark, pozisyon yapısı, stratejik hedefler
+- ✅ Multi-tenant admin, branding, Excel import/export, PDF, Turkish UI
+- ✅ 4 Sector Taxonomies: Bankacılık, Perakende, Teknoloji, Savunma/Havacılık
+- ✅ Department & HRBP Filters + _effective_depts() across all endpoints
+- ✅ Excel Export on 13 table-heavy pages
+- ✅ All HR modules: Kadro, İşe Alım (4 pages), Kadro & Ücret (4 pages), Planlama, Kariyer, Şube, AI
+- ✅ **TUSAŞ Tenant** (Sep 2026): Real Excel data imported — 2400 employees, 3000 recruitment records, 700 talent program participants. Savunma/Havacılık sector with 14 departments, 4 HRBPs, 3 segments, 8 projects (KAAN, HURJET, ANKA etc.)
+- ✅ **Excel Data Importer** (tusas_importer.py): Converts TUSAŞ Excel (Çalışanlar, İseAlimHunisi, YetenekProgramları) to Plenalitik data model
 
 ## Tenants
-- `yapikredi` — Bankacılık (10 departments, 5 HRBPs, ~500 employees)
-- `parakende` — Perakende (10 departments, 4 HRBPs, segments: Mağaza/Üretim/Merkez)
-- `turknet` — Teknoloji (9 departments, 3 HRBPs, 850 employees, color: #E3000F)
+- `yapikredi` — Bankacılık (500 emp, 10 depts, 5 HRBPs)
+- `parakende` — Perakende (segments: Mağaza/Üretim/Merkez)
+- `turknet` — Teknoloji (850 emp, 9 depts, 3 HRBPs, color: #E3000F)
+- `tusas` — Savunma/Havacılık (2400 emp, 14 depts, 4 HRBPs, color: #003366, Excel-imported real data)
 
 ## Upcoming / Backlog
-- **P1**: Refactor `server.py` (~3937 lines) into modular route files
-- **P2**: Persist alert resolutions in Action Center to DB
-- **P2**: HRBP back-fill migration for existing employee data
-- **P3**: Responsive TopBar filter grouping for narrow screens
+- **P0**: Rapor Tasarımcısı Admin Paneli (drag-and-drop report builder per Emergent_Rapor_Tasarimcisi_Gereksinim.md)
+- **P1**: Refactor server.py into modular route files
+- **P2**: Alert resolution persistence in Action Center
