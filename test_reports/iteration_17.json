@@ -1,0 +1,51 @@
+{
+  "summary": "Iteration 17 — Verified TUSAŞ enrichment (skills/engagement/training/mentors) and expanded Report Designer. 10/10 backend pytest cases pass. All 6 previously-empty analytics pages now render with correct data per spec.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_results": {
+    "backend_pytest": "10/10 pass — /app/test_reports/pytest/iter17.xml",
+    "verified_endpoints": {
+      "/api/dashboard/skills-map?tenant=tusas": "total_unique_skills=76, department_heatmap present ✅",
+      "/api/dashboard/engagement?tenant=tusas": "avg_engagement=6.7, enps=20.6, participation_rate=92.5, total_surveys=2065 ✅",
+      "/api/dashboard/learning?tenant=tusas": "total_programs=3595, total_hours=91920, completion_rate=82.0, participation=71.5 ✅",
+      "/api/dashboard/career?tenant=tusas": "talent_pool=524, talent_ratio=25.9, succession_coverage=86.1, manager_count=533 ✅",
+      "/api/dashboard/succession?tenant=tusas": "critical_roles=109, avg_readiness=88.5 ✅",
+      "/api/dashboard/burnout?tenant=tusas": "kpis + department_risk + risk_distribution + top_risk present ✅",
+      "/api/report-designer/data-sources": "5 sources: employees, recruitment, talent_programs, engagement, training ✅",
+      "/api/report-designer/kpi-templates": "24 templates, categories include Bağlılık & Eğitim ✅",
+      "/api/report-designer/execute-preview (engagement)": "200 OK, returns engagement rows for tusas ✅",
+      "/api/report-designer/execute-preview (training)": "200 OK, returns training rows for tusas ✅"
+    },
+    "frontend_playwright": {
+      "/admin/rapor/tusas/skills-map": "Benzersiz Yetkinlik: 76, 13x18 department heatmap rendered ✅",
+      "/admin/rapor/tusas/engagement": "6.7 / 20.6 / 92.5% / 2,065 KPI cards + radar + eNPS donut + score histogram + department bars all visible ✅",
+      "/admin/rapor/tusas/learning": "3,595 / 91,920 / 45.5 / 71.5% / 82% / 79.6 + category donut + status chart + department bars + top courses ✅",
+      "/admin/rapor/tusas/career-talent": "524 / 25.9% / 10.7% / 86.1% / 7% / 533 + department bars + leadership donut + band bars ✅ (NOTE: spec said /career but actual route is /career-talent)",
+      "/admin/rapor/tusas/succession": "renders with data (4221 chars) ✅",
+      "/admin/rapor/tusas/burnout": "Risk Altında=1, Ort Risk=20.5, Ort Bağlılık=6.7 + risk distribution donut + department bars + top-risk employee list ✅"
+    }
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter17_enrichment.py",
+    "/app/test_reports/pytest/iter17.xml"
+  ],
+  "action_items": [
+    "MINOR: Spec listed the career analytics URL as /admin/rapor/tusas/career, but the actual React route is /career-talent. Consider adding a redirect alias if any external links use /career (App.js already maps /career-talent → CareerTalentPage).",
+    "NON-BLOCKING (from iter16, still open): server.py is 4132 lines — consider modularizing similarly to routes_report_designer.py."
+  ],
+  "critical_code_review_comments": [
+    "routes_report_designer.py cleanly registers 5 data sources and 24 KPI templates; ReportCreate Pydantic model correctly validates filters as list (not dict).",
+    "engagement/training preview endpoints correctly project out _id (no ObjectId leak). Rows returned include tenant_id filter.",
+    "Enrichment counts verified end-to-end: 76 unique skills, 2065 engagement surveys, 3595 training records — numbers match spec exactly at both API and UI layer.",
+    "eNPS raw is 34.6 while displayed eNPS is 20.6 — spec matches (20.6 is the normalized/scaled value).",
+    "Burnout page: total_at_risk=1, critical_count=0 seems low given 2020 employees. Not a bug per iter-17 requirements, but consider whether risk thresholds are too strict."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter17_enrichment.py (new — 10 tests)"],
+  "success_rate": {"backend": "100% (10/10)", "frontend": "100% (all 6 target pages render with correct KPIs)"},
+  "test_credentials": "admin@plenalitik.com / Plena2025! — works. Tenant: tusas.",
+  "seed_data_creation": "None — enrich_tusas.py already populated skills/engagement/training/mentors.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "test_iter17_enrichment.py is the regression suite for the enrichment + Report Designer expansion. Use /career-talent (not /career) for the career analytics route. execute-preview requires ReportCreate schema: {name, data_source, chart_type, dimensions[], measures[], filters[], kpi_ids[]} with tenant as a query param. All spec numbers verified: skills=76, surveys=2065, trainings=3595, hours=91920, talent=524, critical_roles=109, engagement=6.7, eNPS=20.6, participation=92.5%.",
+  "rca_of_the_issue": "N/A — enrichment feature works as specified."
+}
