@@ -1,6 +1,7 @@
 import { TrendUp, TrendDown, Minus } from "@phosphor-icons/react";
 
-export default function KPICard({ title, value, subtitle, icon: Icon, color = "blue", format = "number", testId, trend }) {
+export default function KPICard({ title, label, value, subtitle, icon: Icon, color = "blue", format = "number", testId, trend }) {
+  const displayTitle = title || label;
   const colorMap = {
     blue: { bg: "bg-teal-50", text: "text-teal-700", border: "border-teal-200" },
     amber: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" },
@@ -22,18 +23,18 @@ export default function KPICard({ title, value, subtitle, icon: Icon, color = "b
 
   return (
     <div
-      data-testid={testId || `kpi-${title?.toLowerCase().replace(/\s+/g, "-")}`}
+      data-testid={testId || `kpi-${displayTitle?.toLowerCase().replace(/\s+/g, "-")}`}
       className={`bg-white border border-slate-200 rounded-md p-4 transition-all duration-300 hover:border-slate-300 shadow-sm`}
     >
-      <div className="flex items-start justify-between mb-3">
-        <p className="text-xs tracking-[0.15em] uppercase text-slate-500 font-medium">{title}</p>
+      <div className="flex items-start justify-between mb-2">
+        <p className="text-[11px] tracking-wide uppercase text-slate-600 font-semibold leading-tight">{displayTitle}</p>
         {Icon && (
           <div className={`w-8 h-8 rounded-md ${c.bg} ${c.border} border flex items-center justify-center`}>
             <Icon size={16} weight="duotone" className={c.text} />
           </div>
         )}
       </div>
-      <p className={`text-2xl font-bold ${c.text} tracking-tight`} style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+      <p className={`text-2xl font-bold ${c.text} tracking-tight mt-1`} style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
         {formatValue(value)}
       </p>
       {trend && trend.delta !== undefined && (

@@ -4128,6 +4128,11 @@ from routes_surveys import router as survey_router, setup_surveys
 setup_surveys(db)
 app.include_router(survey_router)
 
+# Dashboard Manager routes
+from routes_dashboards import router as dashboard_router, setup_dashboards
+setup_dashboards(db)
+app.include_router(dashboard_router)
+
 # Serve uploaded files (logos etc.)
 from fastapi.staticfiles import StaticFiles
 app.mount("/api/uploads", StaticFiles(directory="/app/backend/uploads"), name="uploads")
