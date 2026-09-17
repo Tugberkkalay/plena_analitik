@@ -4118,6 +4118,11 @@ setup_tenant_routes(db)
 app.include_router(auth_router)
 app.include_router(tenant_router)
 
+# Report Designer routes
+from routes_report_designer import router as report_designer_router, setup_report_designer
+setup_report_designer(db)
+app.include_router(report_designer_router)
+
 # Serve uploaded files (logos etc.)
 from fastapi.staticfiles import StaticFiles
 app.mount("/api/uploads", StaticFiles(directory="/app/backend/uploads"), name="uploads")

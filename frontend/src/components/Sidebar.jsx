@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { ChartBar, Users, UserPlus, ArrowsClockwise, ArrowsLeftRight, Brain, CloudArrowUp, List, X, Funnel, Target, GraduationCap, CurrencyDollar, Smiley, Star, Gear, Compass, UserFocus, Sliders, Binoculars, ShieldWarning, Heartbeat, FilePdf, Crosshair, TreeStructure, Strategy, Bell, UserSwitch, GridNine, Buildings, Trophy, MapPin, UsersFour, Scales, ClipboardText, Handshake, ChartLine, ShieldCheck, Medal } from "@phosphor-icons/react";
+import { ChartBar, Users, UserPlus, ArrowsClockwise, ArrowsLeftRight, Brain, CloudArrowUp, List, X, Funnel, Target, GraduationCap, CurrencyDollar, Smiley, Star, Gear, Compass, UserFocus, Sliders, Binoculars, ShieldWarning, Heartbeat, FilePdf, Crosshair, TreeStructure, Strategy, Bell, UserSwitch, GridNine, Buildings, Trophy, MapPin, UsersFour, Scales, ClipboardText, Handshake, ChartLine, ShieldCheck, Medal, PaintBrushBroad } from "@phosphor-icons/react";
 
 export const NAV_SECTIONS = [
   {
@@ -78,6 +78,7 @@ export const NAV_SECTIONS = [
 ];
 
 const BOTTOM_ITEMS = [
+  { path: "/rapor-tasarimcisi", label: "Rapor Tasarımcısı", icon: PaintBrushBroad },
   { path: "/data-upload", label: "Veri Yönetimi", icon: CloudArrowUp },
 ];
 

@@ -49,6 +49,7 @@ import MaliyetAnaliziPage from "@/pages/MaliyetAnaliziPage";
 import AdayHunisiPage from "@/pages/AdayHunisiPage";
 import YetenekProgramlariPage from "@/pages/YetenekProgramlariPage";
 import GuvenlikSoruPage from "@/pages/GuvenlikSoruPage";
+import ReportDesignerPage from "@/pages/ReportDesignerPage";
 
 import LoginPage from "@/pages/LoginPage";
 import AdminDashboard from "@/pages/AdminDashboard";
@@ -70,6 +71,7 @@ const PAGE_TITLES = {
   "/aday-hunisi": "Aday Hunisi",
   "/yetenek-programlari": "Yetenek Programları",
   "/guvenlik-sorusturmasi": "Güvenlik Soruşturması",
+  "/rapor-tasarimcisi": "Rapor Tasarımcısı",
   "/turnover": "Personel Devir Analizi",
   "/movement": "İşgücü Hareketi",
   "/ai-forecast": "Plena AI Tahminleme",
@@ -230,6 +232,7 @@ function DashboardRoutes({ year, country, segment, department, hrbp, project }) 
       <Route path="/aday-hunisi" element={<AdayHunisiPage year={year} />} />
       <Route path="/yetenek-programlari" element={<YetenekProgramlariPage year={year} />} />
       <Route path="/guvenlik-sorusturmasi" element={<GuvenlikSoruPage year={year} />} />
+      <Route path="/rapor-tasarimcisi" element={<ReportDesignerPage />} />
       <Route path="/turnover" element={<TurnoverPage year={year} country={country} />} />
       <Route path="/movement" element={<MovementPage year={year} country={country} />} />
       <Route path="/recruitment" element={<RecruitmentPage year={year} />} />
