@@ -83,6 +83,40 @@ DATA_SOURCES = {
             "ilk_yil_kaldi": {"label": "İlk Yıl Kaldı", "type": "boolean", "role": "dimension"},
         },
     },
+    "engagement": {
+        "label": "Bağlılık Anketleri",
+        "collection": "engagement",
+        "columns": {
+            "employee_name": {"label": "Ad Soyad", "type": "text", "role": "dimension"},
+            "department": {"label": "Departman", "type": "category", "role": "dimension"},
+            "survey_date": {"label": "Anket Tarihi", "type": "date", "role": "dimension"},
+            "engagement_score": {"label": "Bağlılık Skoru", "type": "number", "role": "measure"},
+            "enps_score": {"label": "eNPS Skoru", "type": "number", "role": "measure"},
+            "satisfaction": {"label": "Memnuniyet", "type": "number", "role": "measure"},
+            "work_life_balance": {"label": "İş-Yaşam Dengesi", "type": "number", "role": "measure"},
+            "career_growth": {"label": "Kariyer Gelişimi", "type": "number", "role": "measure"},
+            "manager_rating": {"label": "Yönetici Değerlendirme", "type": "number", "role": "measure"},
+            "recognition": {"label": "Tanınma", "type": "number", "role": "measure"},
+            "culture_alignment": {"label": "Kültür Uyumu", "type": "number", "role": "measure"},
+            "absenteeism_days": {"label": "Devamsızlık (gün)", "type": "number", "role": "measure"},
+        },
+    },
+    "training": {
+        "label": "Eğitim & Gelişim",
+        "collection": "training",
+        "columns": {
+            "employee_name": {"label": "Ad Soyad", "type": "text", "role": "dimension"},
+            "department": {"label": "Departman", "type": "category", "role": "dimension"},
+            "course_name": {"label": "Eğitim Adı", "type": "category", "role": "dimension"},
+            "category": {"label": "Kategori", "type": "category", "role": "dimension"},
+            "status": {"label": "Durum", "type": "category", "role": "dimension"},
+            "mandatory": {"label": "Zorunlu", "type": "boolean", "role": "dimension"},
+            "hours": {"label": "Saat", "type": "number", "role": "measure"},
+            "score": {"label": "Puan", "type": "number", "role": "measure"},
+            "cost": {"label": "Maliyet", "type": "number", "role": "measure"},
+            "date": {"label": "Tarih", "type": "date", "role": "dimension"},
+        },
+    },
 }
 
 # ─── KPI Templates ───
@@ -132,6 +166,35 @@ KPI_TEMPLATES = [
     {"id": "avg_engagement", "name": "Ortalama Bağlılık", "description": "Aktif çalışanların ortalama bağlılık skoru",
      "data_source": "employees", "formula": "avg(engagement_score) where status='active'",
      "format": "decimal", "category": "Bağlılık"},
+    # Engagement-specific KPIs
+    {"id": "enps", "name": "eNPS Skoru", "description": "Çalışan Net Tavsiye Skoru",
+     "data_source": "engagement", "formula": "(promoters - detractors) / total * 100",
+     "format": "number", "category": "Bağlılık"},
+    {"id": "avg_satisfaction", "name": "Ort. Memnuniyet", "description": "Ortalama memnuniyet puanı (1-5)",
+     "data_source": "engagement", "formula": "avg(satisfaction)",
+     "format": "decimal", "category": "Bağlılık"},
+    {"id": "avg_wlb", "name": "İş-Yaşam Dengesi", "description": "Ortalama iş-yaşam dengesi puanı (1-5)",
+     "data_source": "engagement", "formula": "avg(work_life_balance)",
+     "format": "decimal", "category": "Bağlılık"},
+    {"id": "avg_absenteeism", "name": "Ort. Devamsızlık", "description": "Ortalama devamsızlık günü",
+     "data_source": "engagement", "formula": "avg(absenteeism_days)",
+     "format": "decimal", "category": "Bağlılık"},
+    # Training KPIs
+    {"id": "training_hours", "name": "Toplam Eğitim Saati", "description": "Verilen toplam eğitim saati",
+     "data_source": "training", "formula": "sum(hours)",
+     "format": "number", "category": "Eğitim"},
+    {"id": "training_completion", "name": "Eğitim Tamamlama %", "description": "Tamamlanan / Toplam eğitim x 100",
+     "data_source": "training", "formula": "count_where(status='Completed') / count() * 100",
+     "format": "percent", "category": "Eğitim"},
+    {"id": "training_avg_score", "name": "Ort. Eğitim Puanı", "description": "Tamamlanan eğitimlerin ortalama puanı",
+     "data_source": "training", "formula": "avg(score) where status='Completed'",
+     "format": "decimal", "category": "Eğitim"},
+    {"id": "training_cost", "name": "Toplam Eğitim Maliyeti", "description": "Toplam eğitim yatırımı",
+     "data_source": "training", "formula": "sum(cost)",
+     "format": "currency", "category": "Eğitim"},
+    {"id": "hours_per_emp", "name": "Kişi Başı Eğitim Saati", "description": "Benzersiz katılımcı başına ortalama eğitim saati",
+     "data_source": "training", "formula": "sum(hours) / distinct_count(employee_id)",
+     "format": "decimal", "category": "Eğitim"},
 ]
 
 # ─── Models ───
@@ -505,6 +568,36 @@ def _compute_kpi(template, rows):
         actives = [r for r in rows if r.get("status") == "active"]
         vals = [r.get("engagement_score", 0) for r in actives if r.get("engagement_score") is not None]
         val = round(sum(vals) / len(vals), 1) if vals else 0
+    elif kid == "enps":
+        total = len(rows)
+        promoters = len([r for r in rows if r.get("enps_score", 0) >= 50])
+        detractors = len([r for r in rows if r.get("enps_score", 0) <= 0])
+        val = round((promoters - detractors) / max(total, 1) * 100, 1)
+    elif kid == "avg_satisfaction":
+        vals = [r.get("satisfaction", 0) for r in rows if r.get("satisfaction") is not None]
+        val = round(sum(vals) / len(vals), 1) if vals else 0
+    elif kid == "avg_wlb":
+        vals = [r.get("work_life_balance", 0) for r in rows if r.get("work_life_balance") is not None]
+        val = round(sum(vals) / len(vals), 1) if vals else 0
+    elif kid == "avg_absenteeism":
+        vals = [r.get("absenteeism_days", 0) for r in rows if r.get("absenteeism_days") is not None]
+        val = round(sum(vals) / len(vals), 1) if vals else 0
+    elif kid == "training_hours":
+        val = round(sum(r.get("hours", 0) or 0 for r in rows))
+    elif kid == "training_completion":
+        total = len(rows)
+        completed = len([r for r in rows if r.get("status") == "Completed"])
+        val = round(completed / max(total, 1) * 100, 1)
+    elif kid == "training_avg_score":
+        completed = [r for r in rows if r.get("status") == "Completed" and r.get("score")]
+        vals = [r["score"] for r in completed]
+        val = round(sum(vals) / len(vals), 1) if vals else 0
+    elif kid == "training_cost":
+        val = round(sum(r.get("cost", 0) or 0 for r in rows))
+    elif kid == "hours_per_emp":
+        total_hours = sum(r.get("hours", 0) or 0 for r in rows)
+        unique_emps = len(set(r.get("employee_id") for r in rows if r.get("employee_id")))
+        val = round(total_hours / max(unique_emps, 1), 1)
     else:
         val = 0
 
