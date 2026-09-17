@@ -782,7 +782,7 @@ def count_by_gender_range(items, key, fn, ranges):
 def shorten_dept(dept):
     return dept.replace("Information Technology","IT").replace("Human Resources","HR").replace("Research & Development","R&D")
 
-async def get_filtered(year, country=None, tenant=None, segment=None, department=None, hrbp=None):
+async def get_filtered(year, country=None, tenant=None, segment=None, department=None, hrbp=None, project=None):
     query = {}
     if tenant:
         query["tenant_id"] = tenant
@@ -792,6 +792,8 @@ async def get_filtered(year, country=None, tenant=None, segment=None, department
         query["department"] = department
     if hrbp:
         query["hrbp"] = hrbp
+    if project:
+        query["project"] = project
     all_emp = await db.employees.find(query, {"_id": 0}).to_list(10000)
     if country:
         all_emp = [e for e in all_emp if e.get('country') == country]
@@ -988,9 +990,11 @@ async def get_segments(tenant: str = None):
     cfg = _cfg(sector)
     hrbp_map = cfg.get("HRBP_MAP", {})
     hrbps = sorted(set(hrbp_map.values()))
+    projects = cfg.get("PROJECTS", [])
     return {"segments": cfg.get("SEGMENTS", []), "sector": sector,
             "departments": cfg["DEPARTMENTS"],
-            "hrbps": hrbps, "hrbp_map": hrbp_map}
+            "hrbps": hrbps, "hrbp_map": hrbp_map,
+            "projects": projects}
 
 @api_router.post("/seed")
 async def seed_data():
@@ -1011,8 +1015,8 @@ async def get_years():
 
 # ---- Overview ----
 @api_router.get("/dashboard/overview")
-async def get_overview(year: int = 2025, country: str = None, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
-    all_emp, active, hired, left = await get_filtered(year, country, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+async def get_overview(year: int = 2025, country: str = None, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
+    all_emp, active, hired, left = await get_filtered(year, country, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     hc = len(active)
     disabled = len([e for e in active if e.get('is_disabled')])
     managers = len([e for e in active if e.get('is_manager')])
@@ -1022,7 +1026,7 @@ async def get_overview(year: int = 2025, country: str = None, tenant: str = None
         c = len([e for e in all_emp if e['hire_date'][:7] <= ms and (not e.get('termination_date') or e['termination_date'][:7] > ms)])
         hc_by_month.append({"month": mn, "count": c})
     # Q-o-Q trends (compare with previous year same period)
-    _, prev_active, prev_hired, prev_left = await get_filtered(year - 1, country, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+    _, prev_active, prev_hired, prev_left = await get_filtered(year - 1, country, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     prev_hc = len(prev_active)
     prev_turnover = round(len(prev_left)/prev_hc*100,1) if prev_hc else 0
     cur_turnover = round(len(left)/hc*100,1) if hc else 0
@@ -1051,8 +1055,8 @@ async def get_overview(year: int = 2025, country: str = None, tenant: str = None
 
 # ---- Headcount ----
 @api_router.get("/dashboard/headcount")
-async def get_headcount(year: int = 2025, country: str = None, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
-    _, active, _, _ = await get_filtered(year, country, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+async def get_headcount(year: int = 2025, country: str = None, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
+    _, active, _, _ = await get_filtered(year, country, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     hc = len(active)
     female_leaders = len([e for e in active if e.get('gender') == 'Female' and e.get('is_manager')])
     talents = len([e for e in active if e.get('is_talent')])
@@ -1080,8 +1084,8 @@ async def get_headcount(year: int = 2025, country: str = None, tenant: str = Non
 
 # ---- Hires ----
 @api_router.get("/dashboard/hires")
-async def get_hires(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
-    _, active, hired, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+async def get_hires(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
+    _, active, hired, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     hc = len(active)
     females = len([e for e in hired if e['gender']=='Female'])
     hires_month = []
@@ -1105,8 +1109,8 @@ async def get_hires(year: int = 2025, tenant: str = None, segment: str = None, d
 
 # ---- Leaves ----
 @api_router.get("/dashboard/leaves")
-async def get_leaves(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
-    _, active, _, left = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+async def get_leaves(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
+    _, active, _, left = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     females = len([e for e in left if e['gender']=='Female'])
     leaves_month = []
     for mi, mn in enumerate(MONTHS):
@@ -1131,12 +1135,12 @@ async def get_leaves(year: int = 2025, tenant: str = None, segment: str = None, 
 
 # ---- Hiring Plan (Kadro Planlama vs Gerçekleşme) ----
 @api_router.get("/dashboard/hiring-plan")
-async def get_hiring_plan(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_hiring_plan(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
     THC = cfg["TARGET_HEADCOUNT"]
-    _, active, hired, left = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+    _, active, hired, left = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     rq = {"tenant_id": tenant} if tenant else {}
     all_cands = await db.recruitment.find(rq, {"_id": 0}).to_list(10000)
     if seg_depts:
@@ -1193,7 +1197,7 @@ async def get_hiring_plan(year: int = 2025, tenant: str = None, segment: str = N
 
 # ---- Offer Analysis (Teklif & Red Analizi) ----
 @api_router.get("/dashboard/offer-analysis")
-async def get_offer_analysis(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_offer_analysis(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
@@ -1253,12 +1257,12 @@ async def get_offer_analysis(year: int = 2025, tenant: str = None, segment: str 
 
 # ---- Compensation Benchmark (Ücret Kıyaslama) ----
 @api_router.get("/dashboard/compensation-benchmark")
-async def get_compensation_benchmark(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_compensation_benchmark(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
     BENCH = cfg.get("SALARY_BENCHMARK", {})
-    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     # Per-employee benchmark comparison
     emp_list = []
     band_stats = {}
@@ -1414,7 +1418,7 @@ async def get_norm_kadro(year: int = 2025, quarter: str = None, month: int = Non
 
 # ---- Ek Kadro Talepleri (Modül 2) ----
 @api_router.get("/dashboard/ek-kadro")
-async def get_ek_kadro(year: int = 2025, quarter: str = None, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_ek_kadro(year: int = 2025, quarter: str = None, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
@@ -1488,7 +1492,7 @@ async def get_ek_kadro(year: int = 2025, quarter: str = None, tenant: str = None
 
 # ---- Teklif Red Analizi Detay (Modül 3) ----
 @api_router.get("/dashboard/teklif-analizi")
-async def get_teklif_analizi(year: int = 2025, quarter: str = None, department: str = None, tenant: str = None, segment: str = None, hrbp: str = None):
+async def get_teklif_analizi(year: int = 2025, quarter: str = None, department: str = None, tenant: str = None, segment: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
@@ -1508,7 +1512,7 @@ async def get_teklif_analizi(year: int = 2025, quarter: str = None, department: 
     accepted = [c for c in offers if c['stage'] == 'Hired']
     rejected = [c for c in offers if c['stage'] == 'Reddedildi']
     # Get current employee averages per position for comparison
-    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     pos_avg = {}
     for e in active:
         pos = e.get('job_title', '')
@@ -1576,7 +1580,7 @@ async def get_teklif_analizi(year: int = 2025, quarter: str = None, department: 
 
 # ---- Kaynak Analizi (Kanal Bazlı) ----
 @api_router.get("/dashboard/kaynak-analizi")
-async def get_kaynak_analizi(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_kaynak_analizi(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     seg_depts = _segment_depts(sector, segment)
     rq = {"tenant_id": tenant} if tenant else {}
@@ -1635,7 +1639,7 @@ async def get_kaynak_analizi(year: int = 2025, tenant: str = None, segment: str 
 
 # ---- Üniversite Analizi ----
 @api_router.get("/dashboard/universite-analizi")
-async def get_universite_analizi(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_universite_analizi(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     seg_depts = _segment_depts(sector, segment)
     rq = {"tenant_id": tenant} if tenant else {}
@@ -1645,7 +1649,7 @@ async def get_universite_analizi(year: int = 2025, tenant: str = None, segment: 
     if department:
         all_cands = [c for c in all_cands if c.get('department') == department]
     cands = [c for c in all_cands if c.get('applied_date','')[:4] == str(year)]
-    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     # University breakdown from candidates
     unis = {}
     for c in cands:
@@ -1680,7 +1684,7 @@ async def get_universite_analizi(year: int = 2025, tenant: str = None, segment: 
 
 # ---- İşe Alım Maliyet Analizi ----
 @api_router.get("/dashboard/ise-alim-maliyet")
-async def get_ise_alim_maliyet(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_ise_alim_maliyet(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
@@ -1752,7 +1756,7 @@ async def get_ise_alim_maliyet(year: int = 2025, tenant: str = None, segment: st
 
 # ---- Aday Hunisi (Funnel) ----
 @api_router.get("/dashboard/aday-hunisi")
-async def get_aday_hunisi(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_aday_hunisi(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
@@ -1816,12 +1820,12 @@ async def get_aday_hunisi(year: int = 2025, tenant: str = None, segment: str = N
 
 # ---- Maaş Band & Benchmark (Modül 4) ----
 @api_router.get("/dashboard/ucret-benchmark")
-async def get_ucret_benchmark(year: int = 2025, department: str = None, position: str = None, tenant: str = None, segment: str = None, hrbp: str = None):
+async def get_ucret_benchmark(year: int = 2025, department: str = None, position: str = None, tenant: str = None, segment: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
     BENCH = cfg.get("SALARY_BENCHMARK", {})
-    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     if department:
         active = [e for e in active if shorten_dept(e['department']) == department or e['department'] == department]
     if position:
@@ -1933,11 +1937,11 @@ def _compute_group_turnover(active, left, groups, group_key, label_key="name", l
     return result
 
 @api_router.get("/dashboard/turnover")
-async def get_turnover(year: int = 2025, country: str = None, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_turnover(year: int = 2025, country: str = None, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
-    all_emp, active, hired, left = await get_filtered(year, country, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+    all_emp, active, hired, left = await get_filtered(year, country, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     hc = len(active)
     vol = [e for e in left if e.get('termination_type') == 'voluntary']
     invol = [e for e in left if e.get('termination_type') == 'involuntary']
@@ -1958,7 +1962,7 @@ async def get_turnover(year: int = 2025, country: str = None, tenant: str = None
 
     yearly = []
     for y in range(2020, year + 1):
-        _, ya, _, yl = await get_filtered(y, country, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+        _, ya, _, yl = await get_filtered(y, country, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
         rate = round(len(yl) / len(ya) * 100, 1) if ya else 0
         yearly.append({"year": y, "rate": rate})
 
@@ -1980,11 +1984,11 @@ async def get_turnover(year: int = 2025, country: str = None, tenant: str = None
 
 # ---- Movement ----
 @api_router.get("/dashboard/movement")
-async def get_movement(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_movement(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
-    all_emp, active, hired, left = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+    all_emp, active, hired, left = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     hc = len(active)
     early_left = [e for e in left if e['hire_date'][:4]==str(year) or (int(e.get('termination_date','2025')[:4]) - int(e['hire_date'][:4])) < 1]
     failure_180 = round(len(early_left)/len(hired)*100,1) if hired else 0
@@ -2002,7 +2006,7 @@ async def get_movement(year: int = 2025, tenant: str = None, segment: str = None
         hl_dept.append({"department": short, "hires": h, "leaves": l})
     retention_yearly = []
     for y in range(2020, year+1):
-        _, ya, _, yl = await get_filtered(y, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+        _, ya, _, yl = await get_filtered(y, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
         rate = round((1 - len(yl)/len(ya))*100,1) if ya else 100
         retention_yearly.append({"year": y, "rate": rate})
     band_move = []
@@ -2221,7 +2225,7 @@ async def reset_data():
 
 # ---- Recruitment ----
 @api_router.get("/dashboard/recruitment")
-async def get_recruitment(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_recruitment(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     seg_depts = _segment_depts(sector, segment)
     rq = {"tenant_id": tenant} if tenant else {}
@@ -2254,11 +2258,11 @@ async def get_recruitment(year: int = 2025, tenant: str = None, segment: str = N
 
 # ---- Performance ----
 @api_router.get("/dashboard/performance")
-async def get_performance(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_performance(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
-    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     scores = [e.get('performance_score', 3) for e in active]
     avg_score = round(sum(scores)/len(scores), 1) if scores else 0
     high = len([s for s in scores if s >= 4.0])
@@ -2281,7 +2285,7 @@ async def get_performance(year: int = 2025, tenant: str = None, segment: str = N
 
 # ---- Learning ----
 @api_router.get("/dashboard/learning")
-async def get_learning(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_learning(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     seg_depts = _segment_depts(sector, segment)
     cfg = _cfg(sector)
@@ -2297,7 +2301,7 @@ async def get_learning(year: int = 2025, tenant: str = None, segment: str = None
     completed = [t for t in trn if t['status'] == 'Completed']
     in_progress = [t for t in trn if t['status'] == 'In Progress']
     total_hours = round(sum(t.get('hours', 0) for t in trn), 1)
-    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     hc = len(active)
     unique_participants = len(set(t['employee_id'] for t in trn if t.get('employee_id')))
     participation = round(unique_participants / hc * 100, 1) if hc else 0
@@ -2323,11 +2327,11 @@ async def get_learning(year: int = 2025, tenant: str = None, segment: str = None
 
 # ---- Compensation ----
 @api_router.get("/dashboard/compensation")
-async def get_compensation(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_compensation(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
-    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     salaries = [e.get('salary', 0) for e in active]
     avg_sal = round(sum(salaries)/len(salaries)) if salaries else 0
     total_cost = sum(salaries)
@@ -2357,7 +2361,7 @@ async def get_compensation(year: int = 2025, tenant: str = None, segment: str = 
 
 # ---- Engagement ----
 @api_router.get("/dashboard/engagement")
-async def get_engagement(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_engagement(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
@@ -2395,11 +2399,11 @@ async def get_engagement(year: int = 2025, tenant: str = None, segment: str = No
 
 # ---- Career & Talent ----
 @api_router.get("/dashboard/career")
-async def get_career(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_career(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
-    _, active, hired, left = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+    _, active, hired, left = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     hc = len(active)
     talents = [e for e in active if e.get('is_talent')]
     managers = [e for e in active if e.get('is_manager')]
@@ -2421,11 +2425,11 @@ async def get_career(year: int = 2025, tenant: str = None, segment: str = None, 
 
 # ---- HR Operations ----
 @api_router.get("/dashboard/hr-operations")
-async def get_hr_operations(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_hr_operations(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
-    _, active, hired, left = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+    _, active, hired, left = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     hc = len(active)
     ft = len([e for e in active if e.get('is_full_time')])
     pt = hc - ft
@@ -2447,8 +2451,8 @@ async def get_hr_operations(year: int = 2025, tenant: str = None, segment: str =
 
 # ---- Skills Map & Gap Analysis ----
 @api_router.get("/dashboard/skills-map")
-async def get_skills_map(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
-    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+async def get_skills_map(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     skill_agg = {}
     dept_skills = {}
     cat_counts = {"Tech": 0, "Soft": 0, "Domain": 0}
@@ -2688,11 +2692,11 @@ async def get_career_path_detail(path_id: str, tenant: str = None):
 
 # ---- Internal Mobility & Skill Gap by Department ----
 @api_router.get("/dashboard/internal-mobility")
-async def get_internal_mobility(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_internal_mobility(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
-    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     seg_depts = _segment_depts(sector, segment)
     depts_to_show = seg_depts if seg_depts else cfg["DEPARTMENTS"]
     dept_needs = {}
@@ -2807,8 +2811,8 @@ async def run_scenario(body: ScenarioRequest):
 
 # ---- Capability Forecasting ----
 @api_router.get("/dashboard/capability-forecast")
-async def get_capability_forecast(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
-    _, active, _, left = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+async def get_capability_forecast(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
+    _, active, _, left = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     hc = len(active)
     skill_supply = {}
     for emp in active:
@@ -2851,8 +2855,8 @@ async def get_capability_forecast(year: int = 2025, tenant: str = None, segment:
 
 # ---- Succession Planning + Knowledge Risk ----
 @api_router.get("/dashboard/succession")
-async def get_succession(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
-    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+async def get_succession(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     band_order = {"A": 1, "B": 2, "C": 3, "D": 4, "E": 5}
     # Critical roles: Band E + Band D with high performance/talent
     critical_roles = [e for e in active if e.get('band') == 'E' or
@@ -2912,8 +2916,8 @@ async def get_succession(year: int = 2025, tenant: str = None, segment: str = No
 
 # ---- Burnout Early Warning ----
 @api_router.get("/dashboard/burnout")
-async def get_burnout(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
-    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+async def get_burnout(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     beq = {"tenant_id": tenant} if tenant else {}
     all_eng = await db.engagement.find(beq, {"_id": 0}).to_list(10000)
     eng_map = {e['employee_id']: e for e in all_eng}
@@ -2964,12 +2968,12 @@ TARGET_HEADCOUNT = {
 }
 
 @api_router.get("/dashboard/headcount-plan")
-async def get_headcount_plan(year: int = 2025, country: str = None, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_headcount_plan(year: int = 2025, country: str = None, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
     THC = cfg["TARGET_HEADCOUNT"]
-    _, active, hired, left = await get_filtered(year, country, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+    _, active, hired, left = await get_filtered(year, country, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     hc = len(active)
     total_target = sum(t["target"] for t in THC.values())
     total_gap = total_target - hc
@@ -3068,11 +3072,11 @@ STRATEGIC_OBJECTIVES = [
 ]
 
 @api_router.get("/dashboard/workforce-alignment")
-async def get_workforce_alignment(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_workforce_alignment(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
-    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     objectives = []
     for obj in cfg["STRATEGIC_OBJECTIVES"]:
         target_emps = [e for e in active if e['department'] in obj["target_departments"]]
@@ -3116,11 +3120,11 @@ async def get_workforce_alignment(year: int = 2025, tenant: str = None, segment:
 
 # ---- Org Health (Structure Analysis) ----
 @api_router.get("/dashboard/org-health")
-async def get_org_health(year: int = 2025, country: str = None, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_org_health(year: int = 2025, country: str = None, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
-    _, active, _, _ = await get_filtered(year, country, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+    _, active, _, _ = await get_filtered(year, country, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     hc = len(active)
     total_managers = len([e for e in active if e.get('is_manager')])
     total_ic = hc - total_managers
@@ -3211,11 +3215,11 @@ def generate_open_positions(active_employees, sector="Bankacılık"):
 
 # ---- Enhanced Skills Map ----
 @api_router.get("/dashboard/skills-map-v2")
-async def get_skills_map_v2(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_skills_map_v2(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
-    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     hc = len(active)
     skill_agg = {}
     dept_skills = {}
@@ -3338,9 +3342,9 @@ async def get_skills_map_v2(year: int = 2025, tenant: str = None, segment: str =
 
 # ---- Internal Mobility (Positions + Matching) ----
 @api_router.get("/dashboard/positions")
-async def get_positions(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_positions(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
-    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     positions = generate_open_positions(active, sector)
     filled_count = random.Random(51).randint(8, 18)
     internal_fill = random.Random(51).randint(3, filled_count)
@@ -3390,9 +3394,9 @@ def _compute_matches(position, active_employees):
     return sorted(matches, key=lambda x: -x["fit_score"])[:10]
 
 @api_router.get("/dashboard/positions/{position_id}/matches")
-async def get_position_matches(position_id: str, year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_position_matches(position_id: str, year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
-    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+    _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     positions = generate_open_positions(active, sector)
     pos = next((p for p in positions if p["id"] == position_id), None)
     if not pos:
@@ -3402,11 +3406,11 @@ async def get_position_matches(position_id: str, year: int = 2025, tenant: str =
 
 # ---- Action Center (Alert Engine) ----
 @api_router.get("/dashboard/alerts")
-async def get_alerts(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_alerts(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
-    all_emp, active, hired, left = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+    all_emp, active, hired, left = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     hc = len(active)
     alerts = []
     alert_id = 0
@@ -3424,7 +3428,7 @@ async def get_alerts(year: int = 2025, tenant: str = None, segment: str = None, 
                 "suggested_action": f"{short} departmanında bağlılık görüşmeleri yap, ücret bantlarını gözden geçir, risk altındaki çalışanlar için mentorluk programı başlat.",
                 "entity_ref": short, "status": "active"})
     # Rule 2: Succession — roles without high-readiness successors
-    _, s_active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+    _, s_active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     critical_roles_s = [e for e in s_active if e.get('band') == 'E' or (e.get('band') == 'D' and e.get('is_talent') and e.get('performance_score', 0) >= 4.0)]
     succ_pool = [e for e in s_active if e.get('band') in ['C','D'] and e.get('performance_score',0) >= 3.5]
     weak_succ_roles = []
@@ -3659,7 +3663,7 @@ async def get_branches():
     return {"branches": branches, "regions": sorted(set(b["region"] for b in branches))}
 
 @api_router.get("/branches/performance")
-async def get_branch_performance(period: str = "2025", region: str = "", tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_branch_performance(period: str = "2025", region: str = "", tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     bq = {"tenant_id": tenant} if tenant else {}
     sq = {"tenant_id": tenant} if tenant else {}
     branches = await db.branches.find(bq, {"_id": 0}).to_list(100)
@@ -3795,11 +3799,11 @@ async def get_sales_reps(period: str = "2025", branch: str = "", region: str = "
 
 # ---- Branch Staffing & Turnover ----
 @api_router.get("/branches/staffing")
-async def get_branch_staffing(year: int = 2025, region: str = "", tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_branch_staffing(year: int = 2025, region: str = "", tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     bq = {"tenant_id": tenant} if tenant else {}
     sq = {"tenant_id": tenant} if tenant else {}
     branches = await db.branches.find(bq, {"_id": 0}).to_list(100)
-    all_emp, active, hired, left = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+    all_emp, active, hired, left = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     sales = await db.sales_performance.find(sq, {"_id": 0}).to_list(50000)
     if region:
         branches = [b for b in branches if b["region"] == region]
@@ -3860,11 +3864,11 @@ async def get_branch_staffing(year: int = 2025, region: str = "", tenant: str = 
 
 # ---- Branch Map ----
 @api_router.get("/branches/map")
-async def get_branch_map(metric: str = "performance", year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None):
+async def get_branch_map(metric: str = "performance", year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     bq = {"tenant_id": tenant} if tenant else {}
     sq = {"tenant_id": tenant} if tenant else {}
     branches = await db.branches.find(bq, {"_id": 0}).to_list(100)
-    _, active, _, left = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp)
+    _, active, _, left = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     sales = await db.sales_performance.find(sq, {"_id": 0}).to_list(50000)
     pins = []
     for b in branches:
@@ -3918,6 +3922,192 @@ async def get_branch_map(metric: str = "performance", year: int = 2025, tenant: 
         "best_5": sorted(pins, key=lambda x: -x["achievement_pct"])[:5],
         "worst_5": sorted(pins, key=lambda x: x["achievement_pct"])[:5]
     }
+
+# ─────────────────────────────────────────────
+#  YETENEK PROGRAMLARI (Talent Programs) ENDPOINT
+# ─────────────────────────────────────────────
+@api_router.get("/dashboard/yetenek-programlari")
+async def get_yetenek_programlari(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
+    """Talent program analytics: SKY, LIFT UP, MGP etc."""
+    query = {}
+    if tenant:
+        query["tenant_id"] = tenant
+    records = await db.talent_programs.find(query, {"_id": 0}).to_list(5000)
+    if not records:
+        return {"kpis": {"total": 0, "completed": 0, "hired": 0, "retained": 0, "completion_rate": 0, "hire_rate": 0, "retention_rate": 0}, "by_program": [], "by_year": [], "by_gender": [], "by_university": []}
+
+    total = len(records)
+    completed = [r for r in records if r.get("tamamladi")]
+    hired = [r for r in records if r.get("ise_alindi")]
+    retained = [r for r in records if r.get("ilk_yil_kaldi")]
+
+    # By program
+    from collections import Counter
+    prog_counts = Counter(r.get("program", "") for r in records)
+    by_program = []
+    for prog, cnt in prog_counts.most_common():
+        p_records = [r for r in records if r.get("program") == prog]
+        p_completed = len([r for r in p_records if r.get("tamamladi")])
+        p_hired = len([r for r in p_records if r.get("ise_alindi")])
+        p_retained = len([r for r in p_records if r.get("ilk_yil_kaldi")])
+        by_program.append({
+            "program": prog, "total": cnt,
+            "tamamlayan": p_completed, "ise_alınan": p_hired, "kalan": p_retained,
+            "tamamlama_orani": round(p_completed / cnt * 100, 1) if cnt else 0,
+            "ise_alim_orani": round(p_hired / cnt * 100, 1) if cnt else 0,
+            "retention_orani": round(p_retained / max(p_hired, 1) * 100, 1) if p_hired else 0,
+        })
+
+    # By year/dönem
+    donem_counts = Counter(r.get("donem") for r in records)
+    by_year = []
+    for d in sorted(donem_counts.keys(), key=lambda x: x or 0):
+        d_recs = [r for r in records if r.get("donem") == d]
+        d_comp = len([r for r in d_recs if r.get("tamamladi")])
+        d_hired = len([r for r in d_recs if r.get("ise_alindi")])
+        by_year.append({"donem": d or 0, "katilimci": len(d_recs), "tamamlayan": d_comp, "ise_alinan": d_hired})
+
+    # By gender
+    g_counts = Counter(r.get("cinsiyet", "") for r in records)
+    by_gender = [{"cinsiyet": g, "sayi": c} for g, c in g_counts.most_common()]
+
+    # By university (top 15)
+    uni_counts = Counter(r.get("universite", "") for r in records if r.get("universite"))
+    by_university = [{"universite": u, "sayi": c} for u, c in uni_counts.most_common(15)]
+
+    return {
+        "kpis": {
+            "total": total,
+            "completed": len(completed),
+            "hired": len(hired),
+            "retained": len(retained),
+            "completion_rate": round(len(completed) / total * 100, 1) if total else 0,
+            "hire_rate": round(len(hired) / total * 100, 1) if total else 0,
+            "retention_rate": round(len(retained) / max(len(hired), 1) * 100, 1) if hired else 0,
+        },
+        "by_program": by_program,
+        "by_year": by_year,
+        "by_gender": by_gender,
+        "by_university": by_university,
+    }
+
+
+# ─────────────────────────────────────────────
+#  GÜVENLİK SORUŞTURMASI ANALİZİ ENDPOINT
+# ─────────────────────────────────────────────
+@api_router.get("/dashboard/guvenlik-sorusturmasi")
+async def get_guvenlik_sorusturmasi(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
+    """Security clearance analysis for defense sector recruitment."""
+    query = {}
+    if tenant:
+        query["tenant_id"] = tenant
+    if department:
+        query["department"] = department
+    if hrbp:
+        query["hrbp"] = hrbp
+    records = await db.recruitment.find(query, {"_id": 0}).to_list(10000)
+    if not records:
+        return {"kpis": {"total_basvuru": 0, "guvenlik_asamasina_gelen": 0, "guvenlik_gecen": 0, "ort_guvenlik_suresi": 0, "ort_toplam_sure": 0, "guvenlik_gecis_orani": 0}, "by_department": [], "by_stage": [], "sure_dagilimi": [], "monthly_trend": []}
+
+    from datetime import datetime as dt
+    from collections import Counter
+
+    total = len(records)
+    # Filter those that reached security clearance stage
+    guvenlik_reached = [r for r in records if r.get("security_clearance_date")]
+    guvenlik_passed = [r for r in records if r.get("offer_date") and r.get("security_clearance_date")]
+    hired = [r for r in records if r.get("hired")]
+
+    # Calculate average security clearance duration (from technical interview to clearance)
+    clearance_durations = []
+    for r in guvenlik_reached:
+        try:
+            tech_date = r.get("technical_interview_date") or r.get("hr_interview_date") or r.get("application_date")
+            clear_date = r.get("security_clearance_date")
+            if tech_date and clear_date:
+                d1 = dt.strptime(str(tech_date)[:10], "%Y-%m-%d")
+                d2 = dt.strptime(str(clear_date)[:10], "%Y-%m-%d")
+                days = (d2 - d1).days
+                if 0 < days < 365:
+                    clearance_durations.append(days)
+        except (ValueError, TypeError):
+            pass
+    avg_clearance = round(sum(clearance_durations) / len(clearance_durations), 1) if clearance_durations else 0
+
+    # Total process duration
+    total_durations = [r.get("total_days", 0) for r in records if r.get("total_days") and r["total_days"] > 0]
+    avg_total = round(sum(total_durations) / len(total_durations), 1) if total_durations else 0
+
+    # By department
+    dept_counts = Counter(r.get("department", "") for r in records)
+    by_department = []
+    for dept, cnt in dept_counts.most_common():
+        d_recs = [r for r in records if r.get("department") == dept]
+        d_guvenlik = [r for r in d_recs if r.get("security_clearance_date")]
+        d_hired = [r for r in d_recs if r.get("hired")]
+        d_durations = []
+        for dr in d_guvenlik:
+            try:
+                tech = dr.get("technical_interview_date") or dr.get("application_date")
+                clr = dr.get("security_clearance_date")
+                if tech and clr:
+                    d1 = dt.strptime(str(tech)[:10], "%Y-%m-%d")
+                    d2 = dt.strptime(str(clr)[:10], "%Y-%m-%d")
+                    days = (d2 - d1).days
+                    if 0 < days < 365:
+                        d_durations.append(days)
+            except (ValueError, TypeError):
+                pass
+        by_department.append({
+            "department": dept, "basvuru": cnt,
+            "guvenlik_asamasi": len(d_guvenlik), "ise_alinan": len(d_hired),
+            "ort_guvenlik_gun": round(sum(d_durations) / len(d_durations), 0) if d_durations else 0,
+            "gecis_orani": round(len(d_hired) / max(len(d_guvenlik), 1) * 100, 1) if d_guvenlik else 0,
+        })
+
+    # By stage (funnel)
+    stage_names = ["Başvuru", "Online Değerlendirme", "İK Mülakatı", "Teknik Mülakat", "Güvenlik Soruşturması", "Teklif", "İşe Başlama"]
+    stage_fields = ["application_date", "online_eval_date", "hr_interview_date", "technical_interview_date", "security_clearance_date", "offer_date", "start_date"]
+    by_stage = []
+    for i, (sname, sfield) in enumerate(zip(stage_names, stage_fields)):
+        reached = len([r for r in records if r.get(sfield)])
+        by_stage.append({"asama": sname, "aday_sayisi": reached, "sira": i})
+
+    # Duration distribution (buckets)
+    buckets = [("0-30 gün", 0, 30), ("31-60 gün", 31, 60), ("61-90 gün", 61, 90), ("91-120 gün", 91, 120), ("120+ gün", 121, 9999)]
+    sure_dagilimi = []
+    for label, lo, hi in buckets:
+        cnt = len([d for d in clearance_durations if lo <= d <= hi])
+        sure_dagilimi.append({"aralik": label, "aday_sayisi": cnt})
+
+    # Monthly trend
+    monthly = Counter()
+    for r in guvenlik_reached:
+        try:
+            d = str(r.get("security_clearance_date", ""))[:7]
+            if d:
+                monthly[d] += 1
+        except (ValueError, TypeError, AttributeError):
+            pass
+    monthly_trend = [{"ay": k, "tamamlanan": v} for k, v in sorted(monthly.items())]
+
+    return {
+        "kpis": {
+            "total_basvuru": total,
+            "guvenlik_asamasina_gelen": len(guvenlik_reached),
+            "guvenlik_gecen": len(guvenlik_passed),
+            "ise_alinan": len(hired),
+            "ort_guvenlik_suresi": avg_clearance,
+            "ort_toplam_sure": avg_total,
+            "guvenlik_gecis_orani": round(len(guvenlik_passed) / max(len(guvenlik_reached), 1) * 100, 1) if guvenlik_reached else 0,
+        },
+        "by_department": by_department,
+        "by_stage": by_stage,
+        "sure_dagilimi": sure_dagilimi,
+        "monthly_trend": monthly_trend,
+    }
+
+
 
 app.include_router(api_router)
 

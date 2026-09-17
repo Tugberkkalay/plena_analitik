@@ -8,6 +8,7 @@ let _currentTenant = null;
 let _currentSegment = null;
 let _currentDepartment = null;
 let _currentHrbp = null;
+let _currentProject = null;
 
 export function setActiveTenant(slug) { _currentTenant = slug; }
 export function getActiveTenant() { return _currentTenant; }
@@ -17,6 +18,8 @@ export function setActiveDepartment(dept) { _currentDepartment = dept; }
 export function getActiveDepartment() { return _currentDepartment; }
 export function setActiveHrbp(hrbp) { _currentHrbp = hrbp; }
 export function getActiveHrbp() { return _currentHrbp; }
+export function setActiveProject(project) { _currentProject = project; }
+export function getActiveProject() { return _currentProject; }
 
 // Add request interceptor
 axios.interceptors.request.use((config) => {
@@ -26,6 +29,7 @@ axios.interceptors.request.use((config) => {
     if (_currentSegment) config.url += `&segment=${encodeURIComponent(_currentSegment)}`;
     if (_currentDepartment) config.url += `&department=${encodeURIComponent(_currentDepartment)}`;
     if (_currentHrbp) config.url += `&hrbp=${encodeURIComponent(_currentHrbp)}`;
+    if (_currentProject) config.url += `&project=${encodeURIComponent(_currentProject)}`;
     if (config.method === "post" || config.method === "put") {
       if (config.data && typeof config.data === "object" && !(config.data instanceof FormData)) {
         config.data = { ...config.data, tenant: _currentTenant };

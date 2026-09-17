@@ -3,11 +3,11 @@ import "@/App.css";
 import { BrowserRouter, Routes, Route, useLocation, useParams, Navigate } from "react-router-dom";
 import axios from "axios";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import { setActiveTenant, setActiveSegment, setActiveDepartment, setActiveHrbp } from "@/lib/tenantInterceptor";
+import { setActiveTenant, setActiveSegment, setActiveDepartment, setActiveHrbp, setActiveProject } from "@/lib/tenantInterceptor";
 import Sidebar from "@/components/Sidebar";
 import PdfExportButton from "@/components/PdfExportButton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CalendarBlank, GlobeHemisphereWest, Funnel, Buildings, UserCircle } from "@phosphor-icons/react";
+import { CalendarBlank, GlobeHemisphereWest, Funnel, Buildings, UserCircle, Briefcase } from "@phosphor-icons/react";
 import OverviewPage from "@/pages/OverviewPage";
 import HeadcountPage from "@/pages/HeadcountPage";
 import HiresLeavesPage from "@/pages/HiresLeavesPage";
@@ -47,6 +47,8 @@ import KaynakAnaliziPage from "@/pages/KaynakAnaliziPage";
 import UniversiteAnaliziPage from "@/pages/UniversiteAnaliziPage";
 import MaliyetAnaliziPage from "@/pages/MaliyetAnaliziPage";
 import AdayHunisiPage from "@/pages/AdayHunisiPage";
+import YetenekProgramlariPage from "@/pages/YetenekProgramlariPage";
+import GuvenlikSoruPage from "@/pages/GuvenlikSoruPage";
 
 import LoginPage from "@/pages/LoginPage";
 import AdminDashboard from "@/pages/AdminDashboard";
@@ -66,6 +68,8 @@ const PAGE_TITLES = {
   "/universite-analizi": "Üniversite Analizi",
   "/maliyet-analizi": "İşe Alım Maliyeti",
   "/aday-hunisi": "Aday Hunisi",
+  "/yetenek-programlari": "Yetenek Programları",
+  "/guvenlik-sorusturmasi": "Güvenlik Soruşturması",
   "/turnover": "Personel Devir Analizi",
   "/movement": "İşgücü Hareketi",
   "/ai-forecast": "Plena AI Tahminleme",
@@ -96,7 +100,7 @@ const PAGE_TITLES = {
 };
 
 function TopBar({ year, setYear, years, country, setCountry, segment, setSegment, segments, sector,
-  department, setDepartment, departments, hrbp, setHrbp, hrbps }) {
+  department, setDepartment, departments, hrbp, setHrbp, hrbps, project, setProject, projects }) {
   const location = useLocation();
   const cleanPath = location.pathname.replace(/^\/admin\/rapor\/[^/]+/, "");
   const title = PAGE_TITLES[cleanPath || "/"] || PAGE_TITLES[location.pathname] || "Dashboard";
@@ -173,6 +177,22 @@ function TopBar({ year, setYear, years, country, setCountry, segment, setSegment
             </Select>
           </div>
         )}
+        {projects && projects.length > 0 && (
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-50 border border-slate-200">
+            <Briefcase size={16} className="text-slate-500" />
+            <Select value={project || "all"} onValueChange={(v) => setProject(v === "all" ? null : v)}>
+              <SelectTrigger data-testid="project-selector" className="w-[140px] border-0 bg-transparent h-7 text-sm text-slate-700 p-0 focus:ring-0">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-white border-slate-200">
+                <SelectItem value="all" className="text-slate-700 focus:bg-slate-100">Tüm Projeler</SelectItem>
+                {projects.map((p) => (
+                  <SelectItem key={p} value={p} className="text-slate-700 focus:bg-slate-100">{p}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-50 border border-slate-200">
           <CalendarBlank size={16} className="text-slate-500" />
           <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
@@ -193,9 +213,9 @@ function TopBar({ year, setYear, years, country, setCountry, segment, setSegment
   );
 }
 
-function DashboardRoutes({ year, country, segment, department, hrbp }) {
+function DashboardRoutes({ year, country, segment, department, hrbp, project }) {
   return (
-    <div key={`seg-${segment || 'all'}-dept-${department || 'all'}-hrbp-${hrbp || 'all'}`}>
+    <div key={`seg-${segment || 'all'}-dept-${department || 'all'}-hrbp-${hrbp || 'all'}-prj-${project || 'all'}`}>
     <Routes>
       <Route path="/" element={<OverviewPage year={year} country={country} />} />
       <Route path="/headcount" element={<HeadcountPage year={year} country={country} />} />
@@ -208,6 +228,8 @@ function DashboardRoutes({ year, country, segment, department, hrbp }) {
       <Route path="/universite-analizi" element={<UniversiteAnaliziPage year={year} />} />
       <Route path="/maliyet-analizi" element={<MaliyetAnaliziPage year={year} />} />
       <Route path="/aday-hunisi" element={<AdayHunisiPage year={year} />} />
+      <Route path="/yetenek-programlari" element={<YetenekProgramlariPage year={year} />} />
+      <Route path="/guvenlik-sorusturmasi" element={<GuvenlikSoruPage year={year} />} />
       <Route path="/turnover" element={<TurnoverPage year={year} country={country} />} />
       <Route path="/movement" element={<MovementPage year={year} country={country} />} />
       <Route path="/recruitment" element={<RecruitmentPage year={year} />} />
@@ -253,6 +275,8 @@ function ProtectedDashboard() {
   const [departments, setDepartments] = useState([]);
   const [hrbp, setHrbp] = useState(null);
   const [hrbps, setHrbps] = useState([]);
+  const [project, setProject] = useState(null);
+  const [projects, setProjects] = useState([]);
   const [tenantInfo, setTenantInfo] = useState(null);
 
   // Set tenant context for all API calls
@@ -275,9 +299,11 @@ function ProtectedDashboard() {
         const sec = r.data.sector || "Bankacılık";
         const depts = r.data.departments || [];
         const hrbpList = r.data.hrbps || [];
+        const projectList = r.data.projects || [];
         setSegments(segs);
         setDepartments(depts);
         setHrbps(hrbpList);
+        setProjects(projectList);
         // Also set sector on tenantInfo if not set
         setTenantInfo(prev => prev ? { ...prev, sector: prev.sector || sec } : { sector: sec });
       }).catch(() => {});
@@ -287,8 +313,9 @@ function ProtectedDashboard() {
       setSegments([]);
       setDepartments([]);
       setHrbps([]);
+      setProjects([]);
     }
-    return () => { setActiveTenant(null); setActiveSegment(null); setActiveDepartment(null); setActiveHrbp(null); };
+    return () => { setActiveTenant(null); setActiveSegment(null); setActiveDepartment(null); setActiveHrbp(null); setActiveProject(null); };
   }, [slug]);
 
   // Sync segment to interceptor
@@ -305,6 +332,11 @@ function ProtectedDashboard() {
   useEffect(() => {
     setActiveHrbp(hrbp);
   }, [hrbp]);
+
+  // Sync project to interceptor
+  useEffect(() => {
+    setActiveProject(project);
+  }, [project]);
 
   useEffect(() => {
     axios.get(`${API}/dashboard/years`).then((res) => {
@@ -335,9 +367,10 @@ function ProtectedDashboard() {
         <TopBar year={year} setYear={setYear} years={years} country={country} setCountry={setCountry}
           segment={segment} setSegment={setSegment} segments={segments} sector={tenantInfo?.sector}
           department={department} setDepartment={setDepartment} departments={departments}
-          hrbp={hrbp} setHrbp={setHrbp} hrbps={hrbps} />
+          hrbp={hrbp} setHrbp={setHrbp} hrbps={hrbps}
+          project={project} setProject={setProject} projects={projects} />
         <div className="hrlytic-content">
-          <DashboardRoutes year={year} country={country} segment={segment} department={department} hrbp={hrbp} />
+          <DashboardRoutes year={year} country={country} segment={segment} department={department} hrbp={hrbp} project={project} />
         </div>
       </div>
     </div>
