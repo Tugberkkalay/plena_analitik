@@ -59,6 +59,7 @@ export const NAV_SECTIONS = [
       { path: "/internal-mobility", label: "İç Mobilite", icon: UserSwitch },
       { path: "/recruitment", label: "İşe Alım", icon: Funnel },
       { path: "/performance", label: "Performans", icon: Target },
+      { path: "/jollytur", label: "Jolly Tur Performans", icon: Trophy },
       { path: "/learning", label: "Eğitim", icon: GraduationCap },
       { path: "/compensation", label: "Ücretlendirme", icon: CurrencyDollar },
       { path: "/engagement", label: "Bağlılık", icon: Smiley },
@@ -79,7 +80,6 @@ export const NAV_SECTIONS = [
 ];
 
 const BOTTOM_ITEMS = [
-  { path: "/jollytur", label: "Jolly Tur Performans", icon: Trophy },
   { path: "/rapor-tasarimcisi", label: "Rapor Tasarımcısı", icon: PaintBrushBroad },
   { path: "/dashboard-yonetimi", label: "Dashboard Yönetimi", icon: GridNine },
   { path: "/data-upload", label: "Veri Yönetimi", icon: CloudArrowUp },
