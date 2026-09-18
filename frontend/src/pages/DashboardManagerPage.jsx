@@ -5,7 +5,7 @@ import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend } from "recharts";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Trash, FloppyDisk, Eye, PencilSimple, Copy, X, ArrowsOutCardinal, GridFour, Broadcast } from "@phosphor-icons/react";
+import { Plus, Trash, FloppyDisk, Eye, PencilSimple, Copy, X, ArrowsOutCardinal, GridFour, Broadcast, ShareNetwork, LinkSimple } from "@phosphor-icons/react";
 
 const API = process.env.REACT_APP_BACKEND_URL + "/api";
 const COLORS = ["#0E7490", "#F59E0B", "#14B8A6", "#EF4444", "#8B5CF6", "#EC4899", "#6366F1", "#10B981"];
@@ -21,6 +21,7 @@ export default function DashboardManagerPage() {
   const [dashName, setDashName] = useState("");
   const [saving, setSaving] = useState(false);
   const [showAddWidget, setShowAddWidget] = useState(false);
+  const [shareLink, setShareLink] = useState(null);
 
   useEffect(() => {
     loadAll();
@@ -100,6 +101,14 @@ export default function DashboardManagerPage() {
     loadAll();
   };
 
+  const shareDashboard = async (id, password) => {
+    const r = await axios.post(`${API}/dashboards/${id}/share${password ? `?password=${encodeURIComponent(password)}` : ""}`);
+    const baseUrl = window.location.origin;
+    const url = `${baseUrl}/shared/dashboard/${r.data.share_token}`;
+    setShareLink(url);
+    try { await navigator.clipboard.writeText(url); } catch {}
+  };
+
   // ─── List View ───
   if (view === "list") {
     return (
@@ -135,13 +144,19 @@ export default function DashboardManagerPage() {
                   </span>
                 </div>
                 {d.description && <p className="text-xs text-slate-500 mb-2">{d.description}</p>}
-                <div className="flex gap-2 mt-3">
+                <div className="flex gap-2 mt-3 flex-wrap">
                   <button onClick={() => openEditor(d)} className="flex items-center gap-1 text-xs text-cyan-600 hover:text-cyan-800">
                     <PencilSimple size={12} /> Düzenle
                   </button>
                   <button onClick={() => duplicateDashboard(d.id)} className="flex items-center gap-1 text-xs text-amber-600 hover:text-amber-800">
                     <Copy size={12} /> Kopyala
                   </button>
+                  {d.status === "published" && (
+                    <button onClick={() => shareDashboard(d.id)} data-testid={`share-${d.id}`}
+                      className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-800">
+                      <ShareNetwork size={12} /> Paylaş
+                    </button>
+                  )}
                   <button onClick={() => deleteDashboard(d.id)} className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700">
                     <Trash size={12} /> Sil
                   </button>
@@ -179,6 +194,12 @@ export default function DashboardManagerPage() {
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-emerald-600 rounded-md hover:bg-emerald-700 transition-colors">
             <Broadcast size={14} /> Yayınla
           </button>
+          {activeDashboard?.status === "published" && (
+            <button data-testid="share-dashboard-btn" onClick={() => shareDashboard(activeDashboard.id)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 rounded-md hover:bg-emerald-100 transition-colors">
+              <ShareNetwork size={14} /> Paylaş
+            </button>
+          )}
         </div>
       </div>
 
@@ -190,7 +211,18 @@ export default function DashboardManagerPage() {
               <h3 className="font-semibold text-slate-800">Rapor Seçin</h3>
               <button onClick={() => setShowAddWidget(false)} className="text-slate-400 hover:text-slate-600"><X size={18} /></button>
             </div>
-            {reports.length === 0 ? (
+            {shareLink && (
+          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex items-center justify-between" data-testid="share-link-banner">
+            <div className="flex items-center gap-2">
+              <LinkSimple size={16} className="text-emerald-600" />
+              <span className="text-xs text-emerald-800">Paylaşım linki kopyalandı:</span>
+              <code className="text-xs bg-white px-2 py-0.5 rounded border border-emerald-200 text-emerald-700">{shareLink}</code>
+            </div>
+            <button onClick={() => setShareLink(null)} className="text-emerald-400 hover:text-emerald-600"><X size={14} /></button>
+          </div>
+        )}
+
+        {reports.length === 0 ? (
               <p className="text-sm text-slate-400 text-center py-8">Henüz rapor tanımlanmamış. Önce Rapor Tasarımcısı'ndan rapor oluşturun.</p>
             ) : (
               <div className="space-y-2">

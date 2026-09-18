@@ -52,6 +52,7 @@ import GuvenlikSoruPage from "@/pages/GuvenlikSoruPage";
 import ReportDesignerPage from "@/pages/ReportDesignerPage";
 import AnketAnaliziPage from "@/pages/AnketAnaliziPage";
 import DashboardManagerPage from "@/pages/DashboardManagerPage";
+import SharedDashboardPage from "@/pages/SharedDashboardPage";
 
 import LoginPage from "@/pages/LoginPage";
 import AdminDashboard from "@/pages/AdminDashboard";
@@ -395,6 +396,7 @@ function App() {
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/rapor/:slug/*" element={<ProtectedDashboard />} />
           <Route path="/raporlar/:slug" element={<PublicReportPage />} />
+          <Route path="/shared/dashboard/:token" element={<SharedDashboardPage />} />
           {/* Default: redirect to login */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>

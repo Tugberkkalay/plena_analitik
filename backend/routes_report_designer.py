@@ -247,8 +247,109 @@ async def get_column_values(source_id: str, column: str, tenant: str = None):
     ds = DATA_SOURCES[source_id]
     query = {"tenant_id": tenant} if tenant else {}
     values = await db[ds["collection"]].distinct(column, query)
-    values = [v for v in values if v is not None and v != ""]
-    return {"column": column, "values": sorted(values, key=str)}
+
+# ─── Hazır Rapor Şablonları ───
+REPORT_TEMPLATES = [
+    # İşgücü
+    {"name": "Departman Bazlı Headcount", "data_source": "employees", "chart_type": "bar",
+     "dimensions": ["department"], "measures": [{"column": "salary", "aggregation": "count", "label": "Çalışan Sayısı"}],
+     "filters": [{"column": "status", "operator": "eq", "value": "active"}], "kpi_ids": ["headcount", "female_ratio"], "category": "İşgücü"},
+    {"name": "Band Bazlı Ücret Dağılımı", "data_source": "employees", "chart_type": "bar",
+     "dimensions": ["band"], "measures": [{"column": "salary", "aggregation": "avg", "label": "Ort. Ücret"}, {"column": "salary", "aggregation": "count", "label": "Kişi Sayısı"}],
+     "filters": [{"column": "status", "operator": "eq", "value": "active"}], "kpi_ids": ["avg_salary", "headcount"], "category": "Ücret"},
+    {"name": "Turnover Analizi (Departman)", "data_source": "employees", "chart_type": "bar",
+     "dimensions": ["department"], "measures": [{"column": "salary", "aggregation": "count", "label": "Ayrılan Sayı"}],
+     "filters": [{"column": "status", "operator": "eq", "value": "terminated"}], "kpi_ids": ["turnover_rate", "voluntary_turnover"], "category": "İşgücü"},
+    {"name": "Cinsiyet Dağılımı", "data_source": "employees", "chart_type": "pie",
+     "dimensions": ["gender"], "measures": [{"column": "salary", "aggregation": "count", "label": "Kişi"}],
+     "filters": [{"column": "status", "operator": "eq", "value": "active"}], "kpi_ids": ["female_ratio"], "category": "Çeşitlilik"},
+    {"name": "Performans Dağılımı", "data_source": "employees", "chart_type": "bar",
+     "dimensions": ["department"], "measures": [{"column": "performance_score", "aggregation": "avg", "label": "Ort. Performans"}],
+     "filters": [{"column": "status", "operator": "eq", "value": "active"}], "kpi_ids": ["avg_performance", "headcount"], "category": "Performans"},
+    {"name": "Eğitim Bazlı Kıdem", "data_source": "employees", "chart_type": "bar",
+     "dimensions": ["education_level"], "measures": [{"column": "seniority_years", "aggregation": "avg", "label": "Ort. Kıdem"}, {"column": "salary", "aggregation": "count", "label": "Kişi"}],
+     "filters": [{"column": "status", "operator": "eq", "value": "active"}], "kpi_ids": ["avg_seniority"], "category": "İşgücü"},
+    {"name": "Lokasyon Bazlı Dağılım", "data_source": "employees", "chart_type": "pie",
+     "dimensions": ["city"], "measures": [{"column": "salary", "aggregation": "count", "label": "Kişi"}],
+     "filters": [{"column": "status", "operator": "eq", "value": "active"}], "kpi_ids": ["headcount"], "category": "İşgücü"},
+    # İşe Alım
+    {"name": "Başvuru Kanalı Analizi", "data_source": "recruitment", "chart_type": "bar",
+     "dimensions": ["source"], "measures": [{"column": "total_days", "aggregation": "count", "label": "Başvuru"}, {"column": "total_days", "aggregation": "avg", "label": "Ort. Süre (gün)"}],
+     "filters": [], "kpi_ids": ["funnel_conversion", "time_to_hire"], "category": "İşe Alım"},
+    {"name": "İşe Alım Hunisi (Aşama)", "data_source": "recruitment", "chart_type": "bar",
+     "dimensions": ["stage"], "measures": [{"column": "total_days", "aggregation": "count", "label": "Aday Sayısı"}],
+     "filters": [], "kpi_ids": ["funnel_conversion", "offer_acceptance"], "category": "İşe Alım"},
+    {"name": "Red Nedeni Dağılımı", "data_source": "recruitment", "chart_type": "pie",
+     "dimensions": ["rejection_reason"], "measures": [{"column": "total_days", "aggregation": "count", "label": "Aday"}],
+     "filters": [{"column": "hired", "operator": "eq", "value": False}], "kpi_ids": [], "category": "İşe Alım"},
+    {"name": "Departman Bazlı İşe Alım", "data_source": "recruitment", "chart_type": "bar",
+     "dimensions": ["department"], "measures": [{"column": "total_days", "aggregation": "count", "label": "Başvuru"}, {"column": "total_days", "aggregation": "avg", "label": "Ort. Süre"}],
+     "filters": [], "kpi_ids": ["time_to_hire"], "category": "İşe Alım"},
+    # Eğitim
+    {"name": "Eğitim Kategorisi Bazlı Tamamlama", "data_source": "training", "chart_type": "bar",
+     "dimensions": ["category"], "measures": [{"column": "hours", "aggregation": "sum", "label": "Toplam Saat"}, {"column": "hours", "aggregation": "count", "label": "Kayıt"}],
+     "filters": [], "kpi_ids": ["training_completion", "training_hours"], "category": "Eğitim"},
+    {"name": "Departman Eğitim Yatırımı", "data_source": "training", "chart_type": "bar",
+     "dimensions": ["department"], "measures": [{"column": "cost", "aggregation": "sum", "label": "Toplam Maliyet"}, {"column": "hours", "aggregation": "avg", "label": "Ort. Saat"}],
+     "filters": [], "kpi_ids": ["training_cost", "hours_per_emp"], "category": "Eğitim"},
+    {"name": "Eğitim Program Detayı", "data_source": "training", "chart_type": "table",
+     "dimensions": ["course_name"], "measures": [{"column": "hours", "aggregation": "count", "label": "Katılımcı"}, {"column": "score", "aggregation": "avg", "label": "Ort. Puan"}, {"column": "cost", "aggregation": "sum", "label": "Toplam Maliyet"}],
+     "filters": [], "kpi_ids": ["training_avg_score"], "category": "Eğitim"},
+    # Bağlılık
+    {"name": "Departman Bağlılık Karşılaştırma", "data_source": "engagement", "chart_type": "bar",
+     "dimensions": ["department"], "measures": [{"column": "engagement_score", "aggregation": "avg", "label": "Ort. Bağlılık"}, {"column": "satisfaction", "aggregation": "avg", "label": "Ort. Memnuniyet"}],
+     "filters": [], "kpi_ids": ["enps", "avg_satisfaction"], "category": "Bağlılık"},
+    {"name": "eNPS & Devamsızlık Analizi", "data_source": "engagement", "chart_type": "bar",
+     "dimensions": ["department"], "measures": [{"column": "enps_score", "aggregation": "avg", "label": "Ort. eNPS"}, {"column": "absenteeism_days", "aggregation": "avg", "label": "Ort. Devamsızlık"}],
+     "filters": [], "kpi_ids": ["enps", "avg_absenteeism"], "category": "Bağlılık"},
+    # Yetenek
+    {"name": "Program Bazlı Dönüşüm", "data_source": "talent_programs", "chart_type": "bar",
+     "dimensions": ["program"], "measures": [{"column": "donem", "aggregation": "count", "label": "Katılımcı"}],
+     "filters": [], "kpi_ids": ["program_completion", "program_hire_rate", "program_retention"], "category": "Yetenek"},
+    {"name": "Üniversite Bazlı Katılım", "data_source": "talent_programs", "chart_type": "bar",
+     "dimensions": ["universite"], "measures": [{"column": "donem", "aggregation": "count", "label": "Katılımcı"}],
+     "filters": [], "kpi_ids": ["program_completion"], "category": "Yetenek"},
+    # KPI Dashboard'ları
+    {"name": "İK Temel KPI'lar", "data_source": "employees", "chart_type": "kpi_card",
+     "dimensions": [], "measures": [],
+     "filters": [], "kpi_ids": ["headcount", "turnover_rate", "voluntary_turnover", "avg_salary", "female_ratio", "avg_performance", "avg_seniority", "critical_role_ratio"], "category": "KPI Dashboard"},
+    {"name": "İşe Alım KPI'lar", "data_source": "recruitment", "chart_type": "kpi_card",
+     "dimensions": [], "measures": [],
+     "filters": [], "kpi_ids": ["funnel_conversion", "time_to_hire", "offer_acceptance"], "category": "KPI Dashboard"},
+    {"name": "Eğitim KPI'lar", "data_source": "training", "chart_type": "kpi_card",
+     "dimensions": [], "measures": [],
+     "filters": [], "kpi_ids": ["training_hours", "training_completion", "training_avg_score", "training_cost", "hours_per_emp"], "category": "KPI Dashboard"},
+]
+
+@router.get("/report-templates")
+async def get_report_templates():
+    """Return predefined report templates for quick creation."""
+    return {"templates": REPORT_TEMPLATES}
+
+@router.post("/report-templates/{template_index}/create")
+async def create_from_template(template_index: int, tenant: str = None):
+    """Create a report from a template."""
+    if template_index < 0 or template_index >= len(REPORT_TEMPLATES):
+        raise HTTPException(400, "Geçersiz şablon")
+    tmpl = REPORT_TEMPLATES[template_index]
+    report = {
+        "id": str(uuid.uuid4()),
+        "name": tmpl["name"],
+        "data_source": tmpl["data_source"],
+        "chart_type": tmpl["chart_type"],
+        "dimensions": tmpl["dimensions"],
+        "measures": tmpl["measures"],
+        "filters": tmpl["filters"],
+        "kpi_ids": tmpl["kpi_ids"],
+        "conditional_formatting": [],
+        "description": f"Hazır şablon: {tmpl['category']}",
+        "tenant_id": tenant or "default",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.report_definitions.insert_one(report)
+    report.pop("_id", None)
+    return report
 
 
 @router.get("/kpi-templates")

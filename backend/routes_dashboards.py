@@ -124,3 +124,40 @@ async def publish_dashboard(dashboard_id: str):
     if result.matched_count == 0:
         raise HTTPException(404, "Dashboard bulunamadı")
     return await db.dashboards.find_one({"id": dashboard_id}, {"_id": 0})
+
+
+@router.post("/{dashboard_id}/share")
+async def generate_share_link(dashboard_id: str, password: str = None):
+    """Generate a share token for a published dashboard."""
+    import hashlib, secrets
+    dashboard = await db.dashboards.find_one({"id": dashboard_id}, {"_id": 0})
+    if not dashboard:
+        raise HTTPException(404, "Dashboard bulunamadı")
+    share_token = secrets.token_urlsafe(16)
+    update = {"share_token": share_token, "share_password": password, "updated_at": datetime.now(timezone.utc).isoformat()}
+    await db.dashboards.update_one({"id": dashboard_id}, {"$set": update})
+    return {"share_token": share_token, "share_url": f"/shared/dashboard/{share_token}"}
+
+
+@router.get("/shared/{share_token}")
+async def get_shared_dashboard(share_token: str, password: str = None):
+    """Access a shared dashboard by token."""
+    dashboard = await db.dashboards.find_one({"share_token": share_token}, {"_id": 0})
+    if not dashboard:
+        raise HTTPException(404, "Dashboard bulunamadı veya link geçersiz")
+    if dashboard.get("share_password"):
+        if password != dashboard["share_password"]:
+            raise HTTPException(403, "Şifre gerekli")
+    # Execute all widgets
+    widget_results = {}
+    for w in dashboard.get("widgets", []):
+        rid = w.get("report_id")
+        report = await db.report_definitions.find_one({"id": rid}, {"_id": 0})
+        if report:
+            from routes_report_designer import _execute_report_config
+            try:
+                result = await _execute_report_config(report, dashboard.get("tenant_id"))
+                widget_results[rid] = result
+            except Exception:
+                widget_results[rid] = None
+    return {"dashboard": dashboard, "widget_data": widget_results}

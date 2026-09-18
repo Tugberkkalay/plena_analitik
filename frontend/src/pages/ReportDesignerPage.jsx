@@ -32,6 +32,7 @@ export default function ReportDesignerPage() {
   const [dataSources, setDataSources] = useState({});
   const [kpiTemplates, setKpiTemplates] = useState([]);
   const [reports, setReports] = useState([]);
+  const [reportTemplates, setReportTemplates] = useState([]);
   const [view, setView] = useState("list"); // list | builder
   const [editingReport, setEditingReport] = useState(null);
 
@@ -51,6 +52,7 @@ export default function ReportDesignerPage() {
   useEffect(() => {
     axios.get(`${API}/report-designer/data-sources`).then(r => setDataSources(r.data.data_sources || {}));
     axios.get(`${API}/report-designer/kpi-templates`).then(r => setKpiTemplates(r.data.templates || []));
+    axios.get(`${API}/report-designer/report-templates`).then(r => setReportTemplates(r.data.templates || [])).catch(() => {});
     loadReports();
   }, []);
 
@@ -101,7 +103,11 @@ export default function ReportDesignerPage() {
   const saveReport = async () => {
     if (!name.trim()) return;
     setSaving(true);
-    const body = { name, data_source: dataSource, chart_type: chartType, dimensions, measures, filters, kpi_ids: selectedKpis, conditional_formatting: condFmt };
+    const cleanMeasures = measures.map(m => ({
+      ...m,
+      label: m.label || (dataSources[dataSource]?.columns?.[m.column]?.label || m.column)
+    }));
+    const body = { name, data_source: dataSource, chart_type: chartType, dimensions, measures: cleanMeasures, filters, kpi_ids: selectedKpis, conditional_formatting: condFmt };
     try {
       if (editingReport) {
         await axios.put(`${API}/report-designer/reports/${editingReport}`, body);
@@ -110,7 +116,10 @@ export default function ReportDesignerPage() {
         setEditingReport(r.data.id);
       }
       loadReports();
-    } catch (e) { /* ignore */ }
+    } catch (e) {
+      console.error("Save error:", e);
+      alert("Rapor kaydedilemedi: " + (e?.response?.data?.detail || e.message));
+    }
     setSaving(false);
   };
 
@@ -138,6 +147,34 @@ export default function ReportDesignerPage() {
             <Plus size={16} weight="bold" /> Yeni Rapor
           </button>
         </div>
+
+        {/* Hazır Şablonlar */}
+        {reportTemplates.length > 0 && (
+          <div>
+            <h3 className="text-sm font-medium text-slate-600 mb-2">Hazır Şablonlardan Oluştur</h3>
+            <div className="flex flex-wrap gap-2">
+              {[...new Set(reportTemplates.map(t => t.category))].map(cat => (
+                <div key={cat} className="relative group/cat">
+                  <button className="px-3 py-1.5 text-xs font-medium bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors">
+                    {cat} ({reportTemplates.filter(t => t.category === cat).length})
+                  </button>
+                  <div className="absolute z-20 left-0 top-full mt-1 w-64 bg-white border border-slate-200 rounded-lg shadow-lg invisible group-hover/cat:visible">
+                    {reportTemplates.filter(t => t.category === cat).map((tmpl, i) => {
+                      const globalIdx = reportTemplates.indexOf(tmpl);
+                      return (
+                        <button key={i} data-testid={`template-${globalIdx}`}
+                          onClick={async () => { await axios.post(`${API}/report-designer/report-templates/${globalIdx}/create`); loadReports(); }}
+                          className="block w-full text-left px-3 py-2 text-xs text-slate-700 hover:bg-cyan-50 first:rounded-t-lg last:rounded-b-lg">
+                          {tmpl.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {reports.length === 0 ? (
           <div className="text-center py-16 text-slate-400">
