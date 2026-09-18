@@ -97,7 +97,8 @@ export default function DashboardManagerPage() {
   const publishDashboard = async () => {
     if (!activeDashboard) return;
     await saveDashboard();
-    await axios.post(`${API}/dashboards/${activeDashboard.id}/publish`);
+    const r = await axios.post(`${API}/dashboards/${activeDashboard.id}/publish`);
+    setActiveDashboard(prev => prev ? { ...prev, ...r.data, status: "published" } : prev);
     loadAll();
   };
 
@@ -203,6 +204,17 @@ export default function DashboardManagerPage() {
         </div>
       </div>
 
+      {shareLink && (
+        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex items-center justify-between" data-testid="share-link-banner">
+          <div className="flex items-center gap-2 min-w-0">
+            <LinkSimple size={16} className="text-emerald-600 flex-shrink-0" />
+            <span className="text-xs text-emerald-800 flex-shrink-0">Paylaşım linki kopyalandı:</span>
+            <code className="text-xs bg-white px-2 py-0.5 rounded border border-emerald-200 text-emerald-700 truncate">{shareLink}</code>
+          </div>
+          <button onClick={() => setShareLink(null)} className="text-emerald-400 hover:text-emerald-600 flex-shrink-0 ml-2"><X size={14} /></button>
+        </div>
+      )}
+
       {/* Add Widget Modal */}
       {showAddWidget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
@@ -211,16 +223,6 @@ export default function DashboardManagerPage() {
               <h3 className="font-semibold text-slate-800">Rapor Seçin</h3>
               <button onClick={() => setShowAddWidget(false)} className="text-slate-400 hover:text-slate-600"><X size={18} /></button>
             </div>
-            {shareLink && (
-          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex items-center justify-between" data-testid="share-link-banner">
-            <div className="flex items-center gap-2">
-              <LinkSimple size={16} className="text-emerald-600" />
-              <span className="text-xs text-emerald-800">Paylaşım linki kopyalandı:</span>
-              <code className="text-xs bg-white px-2 py-0.5 rounded border border-emerald-200 text-emerald-700">{shareLink}</code>
-            </div>
-            <button onClick={() => setShareLink(null)} className="text-emerald-400 hover:text-emerald-600"><X size={14} /></button>
-          </div>
-        )}
 
         {reports.length === 0 ? (
               <p className="text-sm text-slate-400 text-center py-8">Henüz rapor tanımlanmamış. Önce Rapor Tasarımcısı'ndan rapor oluşturun.</p>
