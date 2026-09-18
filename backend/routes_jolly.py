@@ -495,6 +495,77 @@ async def jt_filters(tenant: str = None):
     return {"bolgeler": bolgeler, "subeler": subeler, "roller": roller}
 
 
+@router.get("/harita")
+async def jt_harita(tenant: str = None):
+    """Map data: region & branch level performance for Turkey map."""
+    q = {"tenant_id": tenant} if tenant else {}
+    karne = await db.jt_karne.find(q, {"_id": 0}).to_list(500)
+    if not karne:
+        return {"bolgeler": [], "subeler": []}
+
+    # Branch → province mapping
+    SUBE_IL = {
+        "Kadıköy": "İstanbul", "Bakırköy": "İstanbul", "Nişantaşı": "İstanbul",
+        "Genel Müdürlük": "İstanbul", "Çağrı Merkezi": "İstanbul",
+        "Alsancak": "İzmir", "Kuşadası": "Aydın", "Bodrum": "Muğla",
+        "Antalya Merkez": "Antalya", "Lara": "Antalya",
+        "Ankara Kızılay": "Ankara", "Ankara Çankaya": "Ankara",
+    }
+    # Region → provinces mapping
+    BOLGE_ILLER = {
+        "Marmara": ["İstanbul", "Bursa", "Kocaeli", "Tekirdağ", "Balıkesir", "Çanakkale", "Edirne", "Kırklareli", "Sakarya", "Yalova", "Bilecik"],
+        "Ege": ["İzmir", "Aydın", "Denizli", "Manisa", "Muğla", "Afyonkarahisar", "Kütahya", "Uşak"],
+        "Akdeniz": ["Antalya", "Mersin", "Adana", "Hatay", "Burdur", "Isparta", "Kahramanmaraş", "Osmaniye"],
+        "İç Anadolu": ["Ankara", "Konya", "Kayseri", "Eskişehir", "Sivas", "Yozgat", "Kırşehir", "Kırıkkale", "Aksaray", "Niğde", "Nevşehir", "Çankırı", "Karaman"],
+        "Merkez": ["İstanbul"],
+    }
+
+    bolge_data = defaultdict(lambda: {"skorlar": [], "kisi": 0, "segments": Counter()})
+    sube_data = defaultdict(lambda: {"skorlar": [], "kisi": 0, "segments": Counter()})
+    for k in karne:
+        b = k.get("bolge", "")
+        s = k.get("sube", "")
+        bolge_data[b]["skorlar"].append(k["toplam_skor"])
+        bolge_data[b]["kisi"] += 1
+        bolge_data[b]["segments"][k.get("segment", "")] += 1
+        sube_data[s]["skorlar"].append(k["toplam_skor"])
+        sube_data[s]["kisi"] += 1
+        sube_data[s]["segments"][k.get("segment", "")] += 1
+
+    bolge_result = []
+    for b, d in bolge_data.items():
+        avg = round(sum(d["skorlar"]) / len(d["skorlar"]), 1)
+        bolge_result.append({
+            "bolge": b, "iller": BOLGE_ILLER.get(b, []), "kisi": d["kisi"],
+            "ort_skor": avg, "yildiz": d["segments"].get("Yıldız", 0),
+            "segments": dict(d["segments"]),
+        })
+
+    sube_result = []
+    for s, d in sube_data.items():
+        avg = round(sum(d["skorlar"]) / len(d["skorlar"]), 1)
+        sube_result.append({
+            "sube": s, "il": SUBE_IL.get(s, ""), "kisi": d["kisi"],
+            "ort_skor": avg, "yildiz": d["segments"].get("Yıldız", 0),
+            "segments": dict(d["segments"]),
+            "lat": _SUBE_COORDS.get(s, {}).get("lat"),
+            "lng": _SUBE_COORDS.get(s, {}).get("lng"),
+        })
+
+    return {"bolgeler": bolge_result, "subeler": sube_result}
+
+
+_SUBE_COORDS = {
+    "Kadıköy": {"lat": 40.98, "lng": 29.03}, "Bakırköy": {"lat": 40.98, "lng": 28.87},
+    "Nişantaşı": {"lat": 41.05, "lng": 28.99}, "Genel Müdürlük": {"lat": 41.01, "lng": 28.97},
+    "Çağrı Merkezi": {"lat": 41.02, "lng": 29.01},
+    "Alsancak": {"lat": 38.44, "lng": 27.14}, "Kuşadası": {"lat": 37.86, "lng": 27.26},
+    "Bodrum": {"lat": 37.04, "lng": 27.43},
+    "Antalya Merkez": {"lat": 36.89, "lng": 30.71}, "Lara": {"lat": 36.86, "lng": 30.76},
+    "Ankara Kızılay": {"lat": 39.92, "lng": 32.85}, "Ankara Çankaya": {"lat": 39.90, "lng": 32.86},
+}
+
+
 @router.get("/calisan-listesi")
 async def jt_calisan_listesi(tenant: str = None, bolge: str = None, sube: str = None, rol: str = None):
     """Return employee list for selection."""

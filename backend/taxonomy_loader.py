@@ -976,6 +976,79 @@ def _build_savunma_config():
 # ─── Caching ───
 _config_cache = {}
 
+def _build_turizm_config():
+    """Turizm sektörü konfigürasyonu — Jolly Tur."""
+    DEPARTMENTS = [
+        "Kadıköy", "Bakırköy", "Nişantaşı", "Genel Müdürlük", "Çağrı Merkezi",
+        "Alsancak", "Kuşadası", "Bodrum", "Antalya Merkez", "Lara",
+        "Ankara Kızılay", "Ankara Çankaya",
+    ]
+    HRBP_MAP = {
+        "Kadıköy": "Seda Yılmaz", "Bakırköy": "Seda Yılmaz", "Nişantaşı": "Seda Yılmaz",
+        "Genel Müdürlük": "Seda Yılmaz", "Çağrı Merkezi": "Seda Yılmaz",
+        "Alsancak": "Mert Kara", "Kuşadası": "Mert Kara", "Bodrum": "Mert Kara",
+        "Antalya Merkez": "Ayşe Demir", "Lara": "Ayşe Demir",
+        "Ankara Kızılay": "Kerem Öz", "Ankara Çankaya": "Kerem Öz",
+    }
+    SEGMENTS = ["Yıldız", "Güçlü", "Beklenen", "Gelişim Alanı"]
+    ROLES = {
+        "Satış Danışmanı": {"band": "B", "salary_range": (25000, 45000)},
+        "Çağrı Merkezi Temsilcisi": {"band": "B", "salary_range": (22000, 38000)},
+        "Şube Müdürü": {"band": "C", "salary_range": (45000, 75000)},
+        "Çağrı Merkezi Yöneticisi": {"band": "C", "salary_range": (50000, 70000)},
+        "Satış Direktörü": {"band": "D", "salary_range": (70000, 120000)},
+    }
+    SKILL_TAXONOMY = {
+        "satis": ["Destinasyon Bilgisi", "Paket Tur Satışı", "Uçak Bileti Satışı", "Çapraz Satış Teknikleri", "Otel Satışı", "Transfer Satışı"],
+        "operasyon": ["Otel Rezervasyon Yönetimi", "Vize ve Pasaport İşlemleri", "Transfer ve Lojistik", "Muhasebe ve Fatura", "Seyahat Sigortası", "Etkinlik Organizasyonu"],
+        "dijital": ["CRM Kullanımı", "Dijital Pazarlama", "Raporlama ve Analiz", "NPS ve Memnuniyet Ölçümü", "SEO ve Dijital Kanal Yönetimi"],
+        "davranissal": ["Müşteri İlişkileri", "Şikayet Yönetimi", "İletişim Becerileri", "Takım Çalışması", "Stres Yönetimi"],
+        "yonetsel": ["Ekip Yönetimi", "Performans Değerlendirme", "Bütçe Planlama", "Stratejik Düşünme"],
+    }
+    SKILL_CLUSTERS = {
+        "Satış Uzmanlığı": ["Destinasyon Bilgisi", "Paket Tur Satışı", "Çapraz Satış Teknikleri"],
+        "Operasyon Yetkinliği": ["Otel Rezervasyon Yönetimi", "Vize ve Pasaport İşlemleri", "Transfer ve Lojistik"],
+        "Dijital Yetkinlik": ["CRM Kullanımı", "Dijital Pazarlama", "Raporlama ve Analiz"],
+        "Müşteri Deneyimi": ["Müşteri İlişkileri", "Şikayet Yönetimi", "NPS ve Memnuniyet Ölçümü"],
+    }
+    CAREER_PATHS = {
+        "Satış Danışmanı": ["Kıdemli Satış Danışmanı", "Şube Müdür Yardımcısı", "Şube Müdürü"],
+        "Çağrı Merkezi Temsilcisi": ["Kıdemli Temsilci", "Takım Lideri", "Çağrı Merkezi Yöneticisi"],
+        "Şube Müdürü": ["Bölge Müdürü", "Satış Direktörü"],
+    }
+    return {
+        "DEPARTMENTS": DEPARTMENTS,
+        "HRBP_MAP": HRBP_MAP,
+        "SEGMENTS": SEGMENTS,
+        "ROLES": ROLES,
+        "SKILL_TAXONOMY": SKILL_TAXONOMY,
+        "SKILL_CLUSTERS": SKILL_CLUSTERS,
+        "CAREER_PATHS": CAREER_PATHS,
+        "NORM_KADRO": {d: 5 for d in DEPARTMENTS},
+        "BANDS": ["B", "C", "D"],
+        "CITIES": ["İstanbul", "İzmir", "Antalya", "Ankara", "Muğla", "Aydın"],
+        "DEPT_SKILL_FOCUS": {
+            "Kadıköy": {"tech": ["Paket Tur Satışı", "CRM Kullanımı"], "soft": ["Müşteri İlişkileri"], "domain": ["Çapraz Satış Teknikleri"]},
+            "Bakırköy": {"tech": ["Paket Tur Satışı", "CRM Kullanımı"], "soft": ["Müşteri İlişkileri"], "domain": ["Destinasyon Bilgisi"]},
+            "Nişantaşı": {"tech": ["Paket Tur Satışı", "Otel Satışı"], "soft": ["Müşteri İlişkileri"], "domain": ["CRM Kullanımı"]},
+            "Genel Müdürlük": {"tech": ["Raporlama ve Analiz", "Dijital Pazarlama"], "soft": ["Ekip Yönetimi"], "domain": ["Stratejik Düşünme"]},
+            "Çağrı Merkezi": {"tech": ["Çağrı Merkezi Protokolü", "CRM Kullanımı"], "soft": ["Müşteri İlişkileri"], "domain": ["Şikayet Yönetimi"]},
+            "Alsancak": {"tech": ["Paket Tur Satışı", "Transfer Satışı"], "soft": ["Müşteri İlişkileri"], "domain": ["Destinasyon Bilgisi"]},
+            "Kuşadası": {"tech": ["Paket Tur Satışı", "Otel Rezervasyon Yönetimi"], "soft": ["Müşteri İlişkileri"], "domain": ["Destinasyon Bilgisi"]},
+            "Bodrum": {"tech": ["Paket Tur Satışı", "Uçak Bileti Satışı"], "soft": ["Müşteri İlişkileri"], "domain": ["Destinasyon Bilgisi"]},
+            "Antalya Merkez": {"tech": ["Paket Tur Satışı", "Transfer ve Lojistik"], "soft": ["Müşteri İlişkileri"], "domain": ["Destinasyon Bilgisi"]},
+            "Lara": {"tech": ["Paket Tur Satışı", "Otel Satışı"], "soft": ["Müşteri İlişkileri"], "domain": ["Destinasyon Bilgisi"]},
+            "Ankara Kızılay": {"tech": ["Paket Tur Satışı", "CRM Kullanımı"], "soft": ["Müşteri İlişkileri"], "domain": ["Destinasyon Bilgisi"]},
+            "Ankara Çankaya": {"tech": ["Paket Tur Satışı", "Çapraz Satış Teknikleri"], "soft": ["Müşteri İlişkileri"], "domain": ["Destinasyon Bilgisi"]},
+        },
+        "STRATEGIC_OBJECTIVES": [
+            {"objective": "Dijital Kanal Satışlarını Artır", "required_skills": ["Dijital Pazarlama", "SEO ve Dijital Kanal Yönetimi", "CRM Kullanımı"]},
+            {"objective": "Müşteri Deneyimi İyileştir", "required_skills": ["Müşteri İlişkileri", "Şikayet Yönetimi", "NPS ve Memnuniyet Ölçümü"]},
+            {"objective": "Çapraz Satış Oranını Yükselt", "required_skills": ["Çapraz Satış Teknikleri", "Otel Satışı", "Seyahat Sigortası"]},
+        ],
+    }
+
+
 def get_sector_config(sector="Bankacılık"):
     """Return the full taxonomy config dict for the given sector."""
     if sector not in _config_cache:
@@ -985,6 +1058,8 @@ def get_sector_config(sector="Bankacılık"):
             _config_cache[sector] = _build_teknoloji_config()
         elif sector in ("Savunma/Havacılık", "Savunma"):
             _config_cache[sector] = _build_savunma_config()
+        elif sector in ("Turizm", "turizm"):
+            _config_cache[sector] = _build_turizm_config()
         else:
             _config_cache[sector] = _build_banking_config()
     return _config_cache[sector]
