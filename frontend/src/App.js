@@ -53,6 +53,7 @@ import ReportDesignerPage from "@/pages/ReportDesignerPage";
 import AnketAnaliziPage from "@/pages/AnketAnaliziPage";
 import DashboardManagerPage from "@/pages/DashboardManagerPage";
 import SharedDashboardPage from "@/pages/SharedDashboardPage";
+import JollyTurPage from "@/pages/JollyTurPage";
 
 import LoginPage from "@/pages/LoginPage";
 import AdminDashboard from "@/pages/AdminDashboard";
@@ -77,6 +78,7 @@ const PAGE_TITLES = {
   "/rapor-tasarimcisi": "Rapor Tasarımcısı",
   "/anket-analizi": "Anket Analizi",
   "/dashboard-yonetimi": "Dashboard Yönetimi",
+  "/jollytur": "Jolly Tur Performans",
   "/turnover": "Personel Devir Analizi",
   "/movement": "İşgücü Hareketi",
   "/ai-forecast": "Plena AI Tahminleme",
@@ -240,6 +242,7 @@ function DashboardRoutes({ year, country, segment, department, hrbp, project }) 
       <Route path="/rapor-tasarimcisi" element={<ReportDesignerPage />} />
       <Route path="/anket-analizi" element={<AnketAnaliziPage />} />
       <Route path="/dashboard-yonetimi" element={<DashboardManagerPage />} />
+      <Route path="/jollytur" element={<JollyTurPage />} />
       <Route path="/turnover" element={<TurnoverPage year={year} country={country} />} />
       <Route path="/movement" element={<MovementPage year={year} country={country} />} />
       <Route path="/recruitment" element={<RecruitmentPage year={year} />} />

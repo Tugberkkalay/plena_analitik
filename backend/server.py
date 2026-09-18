@@ -4133,6 +4133,11 @@ from routes_dashboards import router as dashboard_router, setup_dashboards
 setup_dashboards(db)
 app.include_router(dashboard_router)
 
+# Jolly Tur Performance Analytics routes
+from routes_jolly import router as jolly_router, setup_jolly, import_jolly_data
+setup_jolly(db)
+app.include_router(jolly_router)
+
 # Serve uploaded files (logos etc.)
 from fastapi.staticfiles import StaticFiles
 app.mount("/api/uploads", StaticFiles(directory="/app/backend/uploads"), name="uploads")

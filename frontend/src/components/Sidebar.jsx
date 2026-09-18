@@ -79,6 +79,7 @@ export const NAV_SECTIONS = [
 ];
 
 const BOTTOM_ITEMS = [
+  { path: "/jollytur", label: "Jolly Tur Performans", icon: Trophy },
   { path: "/rapor-tasarimcisi", label: "Rapor Tasarımcısı", icon: PaintBrushBroad },
   { path: "/dashboard-yonetimi", label: "Dashboard Yönetimi", icon: GridNine },
   { path: "/data-upload", label: "Veri Yönetimi", icon: CloudArrowUp },
