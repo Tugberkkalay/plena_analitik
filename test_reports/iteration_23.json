@@ -1,0 +1,36 @@
+{
+  "summary": "Iteration 23 full E2E of Jolly Tur data enrichment + Şube Haritası + Excel export. Backend: 10/10 pytest cases PASS (overview headcount=52, headcount kpis, recruitment funnel Applied=122/Hired=12, learning total_hours>1000, engagement total_surveys=51 avg_engagement/enps, skills-map 18 unique skills + heatmap + gaps, internal-mobility department_needs no 500, career kpis with talent_pool/manager_count/succession_coverage, segments returns turizm depts Kadıköy/Alsancak + HRBPs Seda/Mert/Ayşe/Kerem, /api/jolly/harita returns 5 bolgeler + 12 subeler with lat/lng). Frontend: admin login OK, all 5 standard report pages load (Overview shows '52', Kadro shows '52', Recruitment/Skills-Map/Engagement render). JollyTur custom page has 7 tabs including new jt-tab-harita; Turkey map SVG renders with 5 colored regions + 12 branch markers + region/branch performance panels. Excel export buttons present on all 7 tabs (overview:3, hedef:4, yetkinlik:4, kalibrasyon:3, matris:1, karne:1, harita:1 = 17 total, all with data-testid excel-export-*).",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/dashboard/recruitment?tenant=jollytur", "issue": "Response does not expose top-level 'total_applications' or 'hired' keys as review spec expects; values are derivable from funnel[] stages (Applied=122, Hired=12). Consider surfacing them at top-level or under kpis for API consumers."},
+      {"endpoint": "/api/dashboard/overview & /headcount", "issue": "Business metrics (headcount, hires, leaves, turnover_rate, female_leaders, avg_age, avg_seniority) are nested under kpis{} rather than top-level; tests had to flatten. Ensure frontend reads the same nested path."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Jolly Tur page top area", "issues": ["Same as iter22: outer report wrapper filters (Tümü/Tüm Departmanlar/Tüm HRBP/2025) still shown above Jolly-specific Bölge/Şube/Rol filters — visually redundant."]},
+      {"screen": "Şube Haritası", "issues": ["Branch markers overlap slightly for close cities (e.g. İstanbul cluster) — labels stack over the map, consider offset labels or hover-only tooltips."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_iter23_jollytur_enrichment.py", "/app/test_reports/pytest/iter23_results.xml"],
+  "action_items": [
+    "OPTIONAL: Surface 'total_applications' and 'hired' at top level of /api/dashboard/recruitment for API contract cleanliness (data currently only under funnel[]).",
+    "OPTIONAL: Consider consolidating standard report page filters with the Jolly-specific ones on the custom performance page."
+  ],
+  "critical_code_review_comments": [
+    "Dashboard response schema inconsistency: some endpoints put KPI numbers under top-level, others under 'kpis' — standardize.",
+    "JollyTurPage.jsx now has 7 tabs (was 6). File is likely >900 lines — should be split per tab file (still >700 line threshold).",
+    "harita endpoint good: returns bolgeler with iller[] and subeler with lat/lng — matches frontend react-simple-maps consumer.",
+    "Excel export buttons follow consistent data-testid pattern excel-export-JollyTur_* — good for automated testing."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter23_jollytur_enrichment.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "admin@plenalitik.com / Plena2025!",
+  "seed_data_creation": "None (uses existing jollytur enriched seed: 55 emps [51 active + 4 left], 200 recruitment, 192 training, 51 engagement, 6 exit, 20 onboarding, 631 pulse).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Iter23 verified: (1) all standard HR dashboards populated for tenant=jollytur, (2) new jt-tab-harita renders Turkey map with 5 regions + 12 branches, (3) Excel export buttons on all 7 JollyTur tabs. Pytest: /app/backend/tests/test_iter23_jollytur_enrichment.py (10 tests). Note that dashboard endpoints nest KPIs under 'kpis' key — tests use a _flatten helper. Recruitment endpoint does not expose 'total_applications'/'hired' at top-level; derived from funnel."
+}
