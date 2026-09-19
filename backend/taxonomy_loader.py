@@ -1046,6 +1046,15 @@ def _build_turizm_config():
             {"objective": "Müşteri Deneyimi İyileştir", "required_skills": ["Müşteri İlişkileri", "Şikayet Yönetimi", "NPS ve Memnuniyet Ölçümü"]},
             {"objective": "Çapraz Satış Oranını Yükselt", "required_skills": ["Çapraz Satış Teknikleri", "Otel Satışı", "Seyahat Sigortası"]},
         ],
+        "SALARY_BENCHMARK": {
+            "A": {"min": 18000, "mid": 24000, "max": 30000, "sector_avg": 22000},
+            "B": {"min": 25000, "mid": 35000, "max": 45000, "sector_avg": 33000},
+            "C": {"min": 45000, "mid": 60000, "max": 75000, "sector_avg": 58000},
+            "D": {"min": 70000, "mid": 95000, "max": 120000, "sector_avg": 90000},
+            "E": {"min": 100000, "mid": 140000, "max": 180000, "sector_avg": 130000},
+        },
+        "HIRING_REASONS": ["Sezon Açılışı", "Büyüme", "Ayrılma Yerine", "Yeni Şube", "Staj"],
+        "REJECTION_REASONS": ["Maaş Beklentisi", "Yan Haklar Yetersiz", "Başka Teklif Kabul", "Lokasyon Uyumsuz", "Kişisel Nedenler", "Pozisyon Değişikliği"],
     }
 
 
