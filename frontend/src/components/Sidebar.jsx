@@ -59,7 +59,7 @@ export const NAV_SECTIONS = [
       { path: "/internal-mobility", label: "İç Mobilite", icon: UserSwitch },
       { path: "/recruitment", label: "İşe Alım", icon: Funnel },
       { path: "/performance", label: "Performans", icon: Target },
-      { path: "/jollytur", label: "Jolly Tur Performans", icon: Trophy },
+      { path: "/jollytur", label: "Performans Karnesi", icon: Trophy, tenantOnly: "jollytur" },
       { path: "/learning", label: "Eğitim", icon: GraduationCap },
       { path: "/compensation", label: "Ücretlendirme", icon: CurrencyDollar },
       { path: "/engagement", label: "Bağlılık", icon: Smiley },
@@ -85,7 +85,7 @@ const BOTTOM_ITEMS = [
   { path: "/data-upload", label: "Veri Yönetimi", icon: CloudArrowUp },
 ];
 
-export default function Sidebar({ open, onToggle, basePath = "", brandColor, brandLogo, brandName }) {
+export default function Sidebar({ open, onToggle, basePath = "", brandColor, brandLogo, brandName, tenantSlug = "" }) {
   const API_BASE = process.env.REACT_APP_BACKEND_URL;
   const logoSrc = brandLogo ? (brandLogo.startsWith("http") ? brandLogo : `${API_BASE}${brandLogo}`) : null;
   const sidebarColor = brandColor || "#0F766E";
@@ -128,7 +128,7 @@ export default function Sidebar({ open, onToggle, basePath = "", brandColor, bra
           {NAV_SECTIONS.map((section) => (
             <div key={section.label} className="mb-3">
               <p className="px-3 mb-2 text-[10px] tracking-[0.2em] uppercase text-slate-400 font-medium">{section.label}</p>
-              {section.items.map((item) => (
+              {section.items.filter(item => !item.tenantOnly || item.tenantOnly === tenantSlug).map((item) => (
                 <NavLink
                   key={item.path}
                   to={basePath ? `${basePath}${item.path}` : item.path}

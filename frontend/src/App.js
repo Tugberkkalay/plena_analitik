@@ -78,7 +78,7 @@ const PAGE_TITLES = {
   "/rapor-tasarimcisi": "Rapor Tasarımcısı",
   "/anket-analizi": "Anket Analizi",
   "/dashboard-yonetimi": "Dashboard Yönetimi",
-  "/jollytur": "Jolly Tur Performans",
+  "/jollytur": "Performans Karnesi",
   "/turnover": "Personel Devir Analizi",
   "/movement": "İşgücü Hareketi",
   "/ai-forecast": "Plena AI Tahminleme",
@@ -375,7 +375,7 @@ function ProtectedDashboard() {
           .hrlytic-layout .hover\\:bg-teal-700:hover { background-color: ${brandColor} !important; filter: brightness(0.9); }
         `}</style>
       )}
-      <Sidebar open={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} basePath={basePath} brandColor={brandColor} brandLogo={brandLogo} brandName={tenantInfo?.report_title || tenantInfo?.name} />
+      <Sidebar open={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} basePath={basePath} brandColor={brandColor} brandLogo={brandLogo} brandName={tenantInfo?.report_title || tenantInfo?.name} tenantSlug={slug} />
       <div className="hrlytic-main">
         <TopBar year={year} setYear={setYear} years={years} country={country} setCountry={setCountry}
           segment={segment} setSegment={setSegment} segments={segments} sector={tenantInfo?.sector}
