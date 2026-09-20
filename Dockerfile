@@ -16,16 +16,20 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app/backend
 COPY backend/requirements.txt ./requirements.txt
-RUN pip install --no-cache-dir --requirement requirements.txt
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gosu \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install --no-cache-dir --requirement requirements.txt
 COPY backend/ ./
 COPY --from=frontend-build /build/frontend/dist /app/frontend_dist
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 RUN addgroup --system plenalitik \
     && adduser --system --ingroup plenalitik plenalitik \
     && mkdir -p /app/backend/uploads \
-    && chown -R plenalitik:plenalitik /app
+    && chown -R plenalitik:plenalitik /app \
+    && chmod 0755 /usr/local/bin/docker-entrypoint.sh
 
-USER plenalitik
 EXPOSE 8000
 
-CMD ["sh", "-c", "exec uvicorn server:app --host 0.0.0.0 --port ${PORT:-8000}"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
