@@ -46,11 +46,37 @@ REPORT_GET_PATHS = {
     "/api/dashboard/burnout", "/api/dashboard/guvenlik-sorusturmasi",
     "/api/dashboard/survey-analytics",
     "/api/career-paths",
+    "/api/report-designer/data-sources", "/api/report-designer/kpi-templates",
+    "/api/report-designer/report-templates", "/api/report-designer/reports",
+    "/api/dashboards",
 }
 REPORT_GET_PATTERNS = (
     re.compile(r"^/api/career-paths/[a-z0-9-]+$"),
+    re.compile(r"^/api/report-designer/reports/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"),
+    re.compile(r"^/api/dashboards/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"),
 )
-REPORT_POST_PATHS = set()
+REPORT_METHOD_PATHS = {
+    "POST": {
+        "/api/report-designer/execute-preview",
+        "/api/report-designer/reports",
+        "/api/dashboards",
+    },
+}
+REPORT_METHOD_PATTERNS = {
+    "POST": (
+        re.compile(r"^/api/report-designer/report-templates/\d+/create$"),
+        re.compile(r"^/api/report-designer/reports/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/(duplicate|execute)$"),
+        re.compile(r"^/api/dashboards/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/duplicate$"),
+    ),
+    "PUT": (
+        re.compile(r"^/api/report-designer/reports/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"),
+        re.compile(r"^/api/dashboards/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"),
+    ),
+    "DELETE": (
+        re.compile(r"^/api/report-designer/reports/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"),
+        re.compile(r"^/api/dashboards/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"),
+    ),
+}
 MUTATING_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
 
 
@@ -61,7 +87,9 @@ def _is_public(path: str) -> bool:
 def _report_route_allowed(method: str, path: str) -> bool:
     if method == "GET":
         return path in REPORT_GET_PATHS or any(pattern.fullmatch(path) for pattern in REPORT_GET_PATTERNS)
-    return method == "POST" and path in REPORT_POST_PATHS
+    if path in REPORT_METHOD_PATHS.get(method, set()):
+        return True
+    return any(pattern.fullmatch(path) for pattern in REPORT_METHOD_PATTERNS.get(method, ()))
 
 
 def _bind_tenant(request: Request, tenant_id: str) -> None:

@@ -28,7 +28,7 @@ const AGG_OPTIONS = [
   { value: "ratio_percent", label: "Yüzde (true/toplam)" },
 ];
 
-export default function ReportDesignerPage() {
+export default function ReportDesignerPage({ publicMode = false }) {
   const [dataSources, setDataSources] = useState({});
   const [kpiTemplates, setKpiTemplates] = useState([]);
   const [reports, setReports] = useState([]);
@@ -139,8 +139,8 @@ export default function ReportDesignerPage() {
       <div className="space-y-6" data-testid="report-designer-list">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-slate-800">Rapor Tasarımcısı</h2>
-            <p className="text-sm text-slate-500">KPI tanımlama, hesaplama formülleri ve rapor oluşturma</p>
+            <h2 className="text-lg font-semibold text-slate-800">{publicMode ? "Görsel & KPI Oluşturucu" : "Rapor Tasarımcısı"}</h2>
+            <p className="text-sm text-slate-500">{publicMode ? "Seed veriden KPI, tablo ve grafik oluşturun; ana veri değişmez." : "KPI tanımlama, hesaplama formülleri ve rapor oluşturma"}</p>
           </div>
           <button data-testid="new-report-btn" onClick={() => openBuilder(null)}
             className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-cyan-700 rounded-lg hover:bg-cyan-800 transition-colors">

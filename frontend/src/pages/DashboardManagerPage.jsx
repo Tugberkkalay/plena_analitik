@@ -11,7 +11,7 @@ const API = process.env.REACT_APP_BACKEND_URL + "/api";
 const COLORS = ["#0E7490", "#F59E0B", "#14B8A6", "#EF4444", "#8B5CF6", "#EC4899", "#6366F1", "#10B981"];
 const TT = { contentStyle: { background: "#1e293b", border: "none", borderRadius: 8, color: "#f8fafc", fontSize: 12 } };
 
-export default function DashboardManagerPage() {
+export default function DashboardManagerPage({ publicMode = false }) {
   const [dashboards, setDashboards] = useState([]);
   const [reports, setReports] = useState([]);
   const [view, setView] = useState("list"); // list | edit
@@ -116,8 +116,8 @@ export default function DashboardManagerPage() {
       <div className="space-y-6" data-testid="dashboard-manager-list">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-slate-800">Dashboard Yönetimi</h2>
-            <p className="text-sm text-slate-500">Rapor widget'larını dashboard'lara yerleştirin</p>
+            <h2 className="text-lg font-semibold text-slate-800">{publicMode ? "Sayfa Tasarımı" : "Dashboard Yönetimi"}</h2>
+            <p className="text-sm text-slate-500">Oluşturduğunuz KPI ve grafikleri sürükleyip boyutlandırarak yerleştirin.</p>
           </div>
           <button data-testid="new-dashboard-btn" onClick={createDashboard}
             className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-cyan-700 rounded-lg hover:bg-cyan-800 transition-colors">
@@ -138,11 +138,11 @@ export default function DashboardManagerPage() {
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <h3 className="font-medium text-slate-800 text-sm">{d.name}</h3>
-                    <p className="text-xs text-slate-400 mt-0.5">{(d.widgets || []).length} widget / {d.status === "published" ? "Yayında" : "Taslak"}</p>
+                    <p className="text-xs text-slate-400 mt-0.5">{(d.widgets || []).length} bileşen{publicMode ? "" : ` / ${d.status === "published" ? "Yayında" : "Taslak"}`}</p>
                   </div>
-                  <span className={`px-2 py-0.5 text-[10px] rounded-full font-medium ${d.status === "published" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
+                  {!publicMode && <span className={`px-2 py-0.5 text-[10px] rounded-full font-medium ${d.status === "published" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
                     {d.status === "published" ? "Yayında" : "Taslak"}
-                  </span>
+                  </span>}
                 </div>
                 {d.description && <p className="text-xs text-slate-500 mb-2">{d.description}</p>}
                 <div className="flex gap-2 mt-3 flex-wrap">
@@ -152,7 +152,7 @@ export default function DashboardManagerPage() {
                   <button onClick={() => duplicateDashboard(d.id)} className="flex items-center gap-1 text-xs text-amber-600 hover:text-amber-800">
                     <Copy size={12} /> Kopyala
                   </button>
-                  {d.status === "published" && (
+                  {!publicMode && d.status === "published" && (
                     <button onClick={() => shareDashboard(d.id)} data-testid={`share-${d.id}`}
                       className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-800">
                       <ShareNetwork size={12} /> Paylaş
@@ -191,11 +191,11 @@ export default function DashboardManagerPage() {
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors">
             <FloppyDisk size={14} /> {saving ? "..." : "Kaydet"}
           </button>
-          <button data-testid="publish-dashboard-btn" onClick={publishDashboard}
+          {!publicMode && <button data-testid="publish-dashboard-btn" onClick={publishDashboard}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-emerald-600 rounded-md hover:bg-emerald-700 transition-colors">
             <Broadcast size={14} /> Yayınla
-          </button>
-          {activeDashboard?.status === "published" && (
+          </button>}
+          {!publicMode && activeDashboard?.status === "published" && (
             <button data-testid="share-dashboard-btn" onClick={() => shareDashboard(activeDashboard.id)}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 rounded-md hover:bg-emerald-100 transition-colors">
               <ShareNetwork size={14} /> Paylaş

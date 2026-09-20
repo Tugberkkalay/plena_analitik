@@ -18,6 +18,7 @@ if str(BACKEND_DIR) not in sys.path:
 from auth import JWT_ALGORITHM, create_access_token, validate_security_config
 from security import SecurityMiddleware
 import routes_report_designer
+import routes_dashboards
 
 
 class FakeCollection:
@@ -88,6 +89,18 @@ def secured_client(monkeypatch):
     async def position_matches(position_id: str):
         return {"matches": [{"name": "Sensitive"}]}
 
+    @app.post("/api/report-designer/execute-preview")
+    async def report_preview(request: Request, tenant: str = None):
+        return {"tenant": tenant, "principal_type": request.state.principal["type"]}
+
+    @app.post("/api/dashboards")
+    async def dashboard_create(request: Request, tenant: str = None):
+        return {"tenant": tenant, "principal_type": request.state.principal["type"]}
+
+    @app.post("/api/dashboards/{dashboard_id}/publish")
+    async def dashboard_publish(dashboard_id: str):
+        return {"unexpected": dashboard_id}
+
     app.add_middleware(SecurityMiddleware, db=fake_db)
     app.state.fake_db = fake_db
     return TestClient(app), user_id
@@ -145,11 +158,25 @@ def test_report_token_cannot_call_admin_mutation(secured_client):
     assert response.status_code == 403
 
 
-def test_report_token_is_read_only_and_cannot_access_person_search(secured_client):
+def test_report_token_cannot_mutate_source_data_or_access_person_search(secured_client):
     client, _ = secured_client
     headers = {"Authorization": f"Bearer {_report_token()}"}
     assert client.get("/api/employees/search", headers=headers).status_code == 403
     assert client.post("/api/ai/forecast", headers=headers).status_code == 403
+
+
+def test_report_token_can_only_write_tenant_bound_report_artifacts(secured_client):
+    client, _ = secured_client
+    headers = {"Authorization": f"Bearer {_report_token()}"}
+    preview = client.post("/api/report-designer/execute-preview", headers=headers)
+    dashboard = client.post("/api/dashboards", headers=headers)
+    assert preview.json() == {"tenant": "tenant-a", "principal_type": "report"}
+    assert dashboard.json() == {"tenant": "tenant-a", "principal_type": "report"}
+    assert client.post(
+        "/api/report-designer/execute-preview?tenant=tenant-b", headers=headers
+    ).status_code == 403
+    dashboard_id = "00000000-0000-0000-0000-000000000000"
+    assert client.post(f"/api/dashboards/{dashboard_id}/publish", headers=headers).status_code == 403
 
 
 def test_report_token_gets_tenant_bound_redacted_dashboard_payload(secured_client):
@@ -190,6 +217,26 @@ def test_report_filters_reject_tenant_operators_and_nested_values(malicious_filt
     }
     with pytest.raises(HTTPException) as exc:
         asyncio.run(routes_report_designer._execute_report_config(config, "tenant-a"))
+    assert exc.value.status_code == 400
+
+
+def test_public_report_designer_rejects_person_level_dimensions():
+    with pytest.raises(HTTPException) as exc:
+        routes_report_designer._validate_public_report_config({
+            "data_source": "employees",
+            "chart_type": "table",
+            "dimensions": ["name"],
+            "measures": [],
+            "filters": [],
+        })
+    assert exc.value.status_code == 403
+
+
+def test_dashboard_layout_limits_are_enforced():
+    with pytest.raises(HTTPException) as exc:
+        routes_dashboards._validate_dashboard_payload("POC", [{
+            "report_id": "not-a-uuid", "x": 0, "y": 0, "w": 6, "h": 4,
+        }])
     assert exc.value.status_code == 400
 
 

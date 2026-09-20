@@ -3,6 +3,7 @@ Dashboard Manager API — Create, manage dashboards with widget grid layout.
 """
 import uuid
 import os
+import re
 from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -11,6 +12,7 @@ from auth import hash_password, verify_password
 
 router = APIRouter(prefix="/api/dashboards", tags=["dashboards"])
 db = None
+UUID_PATTERN = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$")
 
 
 def _require_public_sharing_enabled():
@@ -57,9 +59,26 @@ def _dashboard_query(dashboard_id: str, tenant: str = None):
     return query
 
 
+def _validate_dashboard_payload(name=None, widgets=None):
+    if name is not None and (not isinstance(name, str) or not name.strip() or len(name.strip()) > 120):
+        raise HTTPException(400, "Dashboard adı 1-120 karakter olmalı")
+    if widgets is None:
+        return
+    if not isinstance(widgets, list) or len(widgets) > 30:
+        raise HTTPException(400, "Dashboard en fazla 30 bileşen içerebilir")
+    for widget in widgets:
+        if not isinstance(widget, dict) or not UUID_PATTERN.fullmatch(str(widget.get("report_id", ""))):
+            raise HTTPException(400, "Geçersiz dashboard bileşeni")
+        for key, minimum, maximum in (("x", 0, 11), ("y", 0, 1000), ("w", 1, 12), ("h", 1, 20)):
+            value = widget.get(key)
+            if not isinstance(value, int) or not minimum <= value <= maximum:
+                raise HTTPException(400, f"Geçersiz bileşen {key} değeri")
+
+
 @router.post("")
 async def create_dashboard(body: DashboardCreate, tenant: str = None):
     """Create a new dashboard."""
+    _validate_dashboard_payload(body.name, body.widgets)
     dashboard = {
         "id": str(uuid.uuid4()),
         "name": body.name,
@@ -97,6 +116,7 @@ async def get_dashboard(dashboard_id: str, tenant: str = None):
 async def update_dashboard(dashboard_id: str, body: DashboardUpdate, tenant: str = None):
     """Update dashboard (name, widgets, layout, filters, status)."""
     update = {k: v for k, v in body.dict().items() if v is not None}
+    _validate_dashboard_payload(update.get("name"), update.get("widgets"))
     if not update:
         raise HTTPException(400, "Güncelleme verisi boş")
     update["updated_at"] = datetime.now(timezone.utc).isoformat()

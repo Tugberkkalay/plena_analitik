@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { Lock, FileText } from "@phosphor-icons/react";
+import { Lock, FileText, PaintBrushBroad } from "@phosphor-icons/react";
 import { setActiveTenant, setActiveSegment, setActiveDepartment, setActiveHrbp, setReportAccessToken, clearReportAccessToken } from "@/lib/tenantInterceptor";
 import { NAV_SECTIONS } from "@/components/Sidebar";
 import PdfExportButton from "@/components/PdfExportButton";
@@ -48,6 +48,7 @@ import YetenekProgramlariPage from "@/pages/YetenekProgramlariPage";
 import GuvenlikSoruPage from "@/pages/GuvenlikSoruPage";
 import ReportDesignerPage from "@/pages/ReportDesignerPage";
 import AnketAnaliziPage from "@/pages/AnketAnaliziPage";
+import PublicReportStudioPage from "@/pages/PublicReportStudioPage";
 
 const API = process.env.REACT_APP_BACKEND_URL;
 
@@ -94,6 +95,7 @@ const PAGE_MAP = {
   "/capability-forecast": CapabilityForecastPage,
   "/burnout": BurnoutPage,
   "/hr-operations": HROperationsPage,
+  "/report-studio": PublicReportStudioPage,
 };
 
 const COUNTRY_PAGES = new Set(["/", "/headcount", "/hires-leaves", "/turnover", "/headcount-plan", "/org-health"]);
@@ -103,13 +105,17 @@ const PUBLIC_REPORT_DISABLED_PATHS = new Set([
 ]);
 
 function getReportNav(sector) {
-  return NAV_SECTIONS
+  const sections = NAV_SECTIONS
     .filter((section) => sector === "Bankacılık" || section.label !== "Satış & Şube")
     .map((section) => ({
       ...section,
       items: section.items.filter((item) => !PUBLIC_REPORT_DISABLED_PATHS.has(item.path) && !item.tenantOnly),
     }))
     .filter((section) => section.items.length > 0);
+  return [
+    { label: "Rapor Stüdyosu", items: [{ path: "/report-studio", label: "Raporumu Tasarla", icon: PaintBrushBroad }] },
+    ...sections,
+  ];
 }
 
 function PasswordGate({ slug, tenantInfo, onAccess }) {

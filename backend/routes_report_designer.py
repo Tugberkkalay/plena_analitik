@@ -12,9 +12,49 @@ from collections import Counter
 router = APIRouter(prefix="/api/report-designer", tags=["report-designer"])
 db = None
 
+PUBLIC_FORBIDDEN_COLUMNS = {"name", "employee_name"}
+PUBLIC_CHART_TYPES = {"table", "bar", "line", "pie", "kpi_card"}
+
 def setup_report_designer(database):
     global db
     db = database
+
+
+def _is_report_request(request: Request) -> bool:
+    principal = getattr(request.state, "principal", None) or {}
+    return principal.get("type") == "report"
+
+
+def _validate_public_report_config(config):
+    source_id = config.get("data_source", "employees")
+    if source_id not in DATA_SOURCES:
+        raise HTTPException(400, "Geçersiz veri kaynağı")
+    name = config.get("name", "Rapor")
+    if not isinstance(name, str) or not name.strip() or len(name.strip()) > 120:
+        raise HTTPException(400, "Rapor adı 1-120 karakter olmalı")
+    if config.get("chart_type", "table") not in PUBLIC_CHART_TYPES:
+        raise HTTPException(400, "Geçersiz grafik türü")
+    dimensions = config.get("dimensions", []) or []
+    filters = config.get("filters", []) or []
+    measures = config.get("measures", []) or []
+    kpi_ids = config.get("kpi_ids", []) or []
+    columns = DATA_SOURCES[source_id]["columns"]
+    if not isinstance(dimensions, list) or any(not isinstance(column, str) or column not in columns for column in dimensions):
+        raise HTTPException(400, "Geçersiz boyut kolonu")
+    if not isinstance(filters, list) or any(not isinstance(item, dict) for item in filters):
+        raise HTTPException(400, "Geçersiz filtre listesi")
+    if not isinstance(measures, list) or any(not isinstance(item, dict) for item in measures):
+        raise HTTPException(400, "Geçersiz ölçü listesi")
+    allowed_kpis = {item["id"] for item in KPI_TEMPLATES if item["data_source"] == source_id}
+    if not isinstance(kpi_ids, list) or len(kpi_ids) > 12 or any(kpi not in allowed_kpis for kpi in kpi_ids):
+        raise HTTPException(400, "Geçersiz KPI seçimi")
+    selected_columns = set(dimensions)
+    selected_columns.update(item.get("column") for item in filters if isinstance(item, dict))
+    selected_columns.update(item.get("column") for item in measures if isinstance(item, dict))
+    if selected_columns & PUBLIC_FORBIDDEN_COLUMNS:
+        raise HTTPException(403, "Kişi bazlı alanlar müşteri raporunda kullanılamaz")
+    if len(dimensions) > 3 or len(measures) > 6 or len(filters) > 12:
+        raise HTTPException(400, "Rapor yapılandırması sınırı aşıldı")
 
 # ─── Data Source Definitions ───
 DATA_SOURCES = {
@@ -224,9 +264,20 @@ class ReportUpdate(BaseModel):
 # ─── Endpoints ───
 
 @router.get("/data-sources")
-async def get_data_sources(tenant: str = None):
+async def get_data_sources(request: Request, tenant: str = None):
     """Return available data sources with column metadata."""
-    return {"data_sources": DATA_SOURCES}
+    if not _is_report_request(request):
+        return {"data_sources": DATA_SOURCES}
+    safe_sources = {}
+    for source_id, source in DATA_SOURCES.items():
+        safe_sources[source_id] = {
+            **source,
+            "columns": {
+                column: metadata for column, metadata in source["columns"].items()
+                if column not in PUBLIC_FORBIDDEN_COLUMNS
+            },
+        }
+    return {"data_sources": safe_sources}
 
 
 @router.get("/data-sources/{source_id}/preview")
@@ -362,8 +413,10 @@ async def get_kpi_templates():
 
 
 @router.post("/reports")
-async def create_report(body: ReportCreate, tenant: str = None):
+async def create_report(body: ReportCreate, request: Request, tenant: str = None):
     """Create a new report definition."""
+    if _is_report_request(request):
+        _validate_public_report_config(body.dict())
     report = {
         "id": str(uuid.uuid4()),
         "name": body.name,
@@ -405,7 +458,7 @@ async def get_report(report_id: str, tenant: str = None):
 
 
 @router.put("/reports/{report_id}")
-async def update_report(report_id: str, body: ReportUpdate, tenant: str = None):
+async def update_report(report_id: str, body: ReportUpdate, request: Request, tenant: str = None):
     """Update a report definition."""
     update = {k: v for k, v in body.dict().items() if v is not None}
     if not update:
@@ -414,6 +467,11 @@ async def update_report(report_id: str, body: ReportUpdate, tenant: str = None):
     query = {"id": report_id}
     if tenant:
         query["tenant_id"] = tenant
+    if _is_report_request(request):
+        existing = await db.report_definitions.find_one(query, {"_id": 0})
+        if not existing:
+            raise HTTPException(404, "Rapor bulunamadı")
+        _validate_public_report_config({**existing, **update})
     result = await db.report_definitions.update_one(query, {"$set": update})
     if result.matched_count == 0:
         raise HTTPException(404, "Rapor bulunamadı")
@@ -433,7 +491,7 @@ async def delete_report(report_id: str, tenant: str = None):
 
 
 @router.post("/reports/{report_id}/duplicate")
-async def duplicate_report(report_id: str, tenant: str = None):
+async def duplicate_report(report_id: str, request: Request, tenant: str = None):
     """Duplicate a report."""
     query = {"id": report_id}
     if tenant:
@@ -441,6 +499,8 @@ async def duplicate_report(report_id: str, tenant: str = None):
     original = await db.report_definitions.find_one(query, {"_id": 0})
     if not original:
         raise HTTPException(404, "Rapor bulunamadı")
+    if _is_report_request(request):
+        _validate_public_report_config(original)
     new_report = {**original, "id": str(uuid.uuid4()), "name": f"{original['name']} (Kopya)",
                   "created_at": datetime.now(timezone.utc).isoformat(), "updated_at": datetime.now(timezone.utc).isoformat()}
     await db.report_definitions.insert_one(new_report)
@@ -449,7 +509,7 @@ async def duplicate_report(report_id: str, tenant: str = None):
 
 
 @router.post("/reports/{report_id}/execute")
-async def execute_report(report_id: str, tenant: str = None):
+async def execute_report(report_id: str, request: Request, tenant: str = None):
     """Execute a report definition and return computed results."""
     query = {"id": report_id}
     if tenant:
@@ -457,21 +517,25 @@ async def execute_report(report_id: str, tenant: str = None):
     report = await db.report_definitions.find_one(query, {"_id": 0})
     if not report:
         raise HTTPException(404, "Rapor bulunamadı")
-    return await _execute_report_config(report, tenant or report.get("tenant_id"))
+    return await _execute_report_config(
+        report, tenant or report.get("tenant_id"), public_safe=_is_report_request(request)
+    )
 
 
 @router.post("/execute-preview")
-async def execute_preview(body: ReportCreate, tenant: str = None):
+async def execute_preview(body: ReportCreate, request: Request, tenant: str = None):
     """Execute a report config without saving (live preview)."""
     config = body.dict()
     config["tenant_id"] = tenant or "default"
-    return await _execute_report_config(config, tenant)
+    return await _execute_report_config(config, tenant, public_safe=_is_report_request(request))
 
 
 # ─── Report Execution Engine ───
 
-async def _execute_report_config(config, tenant):
+async def _execute_report_config(config, tenant, public_safe=False):
     """Core engine: runs a report config against MongoDB and returns chart-ready data."""
+    if public_safe:
+        _validate_public_report_config(config)
     source_id = config.get("data_source", "employees")
     if source_id not in DATA_SOURCES:
         raise HTTPException(400, f"Bilinmeyen veri kaynağı: {source_id}")
@@ -484,7 +548,7 @@ async def _execute_report_config(config, tenant):
     measures = config.get("measures", [])
     if not isinstance(dimensions, list) or any(dim not in columns for dim in dimensions):
         raise HTTPException(400, "Geçersiz boyut kolonu")
-    allowed_aggregations = {"count", "distinct_count", "sum", "avg", "min", "max"}
+    allowed_aggregations = {"count", "distinct_count", "sum", "avg", "min", "max", "ratio_percent"}
     if not isinstance(measures, list):
         raise HTTPException(400, "Geçersiz ölçü listesi")
     for measure in measures:
