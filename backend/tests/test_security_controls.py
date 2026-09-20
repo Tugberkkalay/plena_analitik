@@ -80,8 +80,9 @@ def secured_client(monkeypatch):
         return {"unexpected": True}
 
     @app.get("/api/dashboard/headcount")
-    async def named_headcount():
-        return {"employee_list": [{"name": "Sensitive"}]}
+    async def report_safe_headcount(request: Request, tenant: str = None):
+        is_report = request.state.principal["type"] == "report"
+        return {"tenant": tenant, "employee_list": [] if is_report else [{"name": "Sensitive"}]}
 
     @app.get("/api/dashboard/positions/{position_id}/matches")
     async def position_matches(position_id: str):
@@ -151,10 +152,12 @@ def test_report_token_is_read_only_and_cannot_access_person_search(secured_clien
     assert client.post("/api/ai/forecast", headers=headers).status_code == 403
 
 
-def test_report_token_cannot_access_named_dashboard_payloads(secured_client):
+def test_report_token_gets_tenant_bound_redacted_dashboard_payload(secured_client):
     client, _ = secured_client
     headers = {"Authorization": f"Bearer {_report_token()}"}
-    assert client.get("/api/dashboard/headcount", headers=headers).status_code == 403
+    response = client.get("/api/dashboard/headcount", headers=headers)
+    assert response.status_code == 200
+    assert response.json() == {"tenant": "tenant-a", "employee_list": []}
     assert client.get("/api/dashboard/positions/role-1/matches", headers=headers).status_code == 403
 
 

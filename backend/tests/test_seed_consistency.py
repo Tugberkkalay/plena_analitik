@@ -5,6 +5,7 @@ import pytest
 
 from seed_validation import SeedValidationError, validate_seed_bundle
 from server import (
+    _normalized_career_paths,
     generate_ek_kadro_talepleri,
     generate_engagement_data,
     generate_norm_kadro_data,
@@ -64,6 +65,13 @@ def test_unknown_sector_does_not_fall_back_to_banking():
 
 def test_legacy_defense_alias_resolves_to_defense_taxonomy():
     assert get_sector_config("Savunma") is get_sector_config(SECTOR)
+
+
+def test_defense_career_paths_are_normalized_for_api():
+    paths = _normalized_career_paths(CONFIG)
+    assert len(paths) == 8
+    assert all(path.get("id") and len(path.get("adimlar", [])) == 2 for path in paths)
+    assert paths[0]["adimlar"][1]["tipik_sure_ay"] == 24
 
 
 def test_integrity_gate_rejects_cross_record_corruption(defense_bundle):

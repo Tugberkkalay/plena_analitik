@@ -813,6 +813,10 @@ def _cfg(sector=None):
     """Shorthand to get sector config."""
     return get_sector_config(sector or "Bankacılık")
 
+def _is_report_request(request: Request) -> bool:
+    principal = getattr(request.state, "principal", None) or {}
+    return principal.get("type") == "report"
+
 async def _resolve_dept_list(tenant_slug):
     """Get departments list for a tenant."""
     sector = await _resolve_sector(tenant_slug)
@@ -1066,7 +1070,7 @@ async def get_overview(year: int = 2025, country: str = None, tenant: str = None
 
 # ---- Headcount ----
 @api_router.get("/dashboard/headcount")
-async def get_headcount(year: int = 2025, country: str = None, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
+async def get_headcount(request: Request, year: int = 2025, country: str = None, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     _, active, _, _ = await get_filtered(year, country, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     hc = len(active)
     female_leaders = len([e for e in active if e.get('gender') == 'Female' and e.get('is_manager')])
@@ -1090,12 +1094,12 @@ async def get_headcount(year: int = 2025, country: str = None, tenant: str = Non
             {"name": "Full Time", "value": len([e for e in active if e.get('is_full_time')])},
             {"name": "Part Time", "value": len([e for e in active if not e.get('is_full_time')])}
         ],
-        "employee_list": emp_list
+        "employee_list": [] if _is_report_request(request) else emp_list
     }
 
 # ---- Hires ----
 @api_router.get("/dashboard/hires")
-async def get_hires(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
+async def get_hires(request: Request, year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     _, active, hired, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     hc = len(active)
     females = len([e for e in hired if e['gender']=='Female'])
@@ -1115,12 +1119,12 @@ async def get_hires(year: int = 2025, tenant: str = None, segment: str = None, d
         "department_distribution": count_by(hired, 'department'),
         "education_distribution": count_by(hired, 'education_level'),
         "band_distribution": count_by(hired, 'band'),
-        "employee_list": emp_list
+        "employee_list": [] if _is_report_request(request) else emp_list
     }
 
 # ---- Leaves ----
 @api_router.get("/dashboard/leaves")
-async def get_leaves(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
+async def get_leaves(request: Request, year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     _, active, _, left = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     females = len([e for e in left if e['gender']=='Female'])
     leaves_month = []
@@ -1140,7 +1144,7 @@ async def get_leaves(year: int = 2025, tenant: str = None, segment: str = None, 
         "age_distribution": count_by_range(left, 'age', get_age_range, AGE_RANGES),
         "department_distribution": count_by(left, 'department'),
         "leaving_reasons": [{"reason": k, "count": v} for k, v in sorted(reasons.items(), key=lambda x:-x[1])],
-        "employee_list": emp_list
+        "employee_list": [] if _is_report_request(request) else emp_list
     }
 
 
@@ -1268,7 +1272,7 @@ async def get_offer_analysis(year: int = 2025, tenant: str = None, segment: str 
 
 # ---- Compensation Benchmark (Ücret Kıyaslama) ----
 @api_router.get("/dashboard/compensation-benchmark")
-async def get_compensation_benchmark(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
+async def get_compensation_benchmark(request: Request, year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
@@ -1338,7 +1342,7 @@ async def get_compensation_benchmark(year: int = 2025, tenant: str = None, segme
                  "above_sector": total_above, "below_sector": total_below, "at_sector": total_at,
                  "avg_compa_ratio": avg_compa},
         "band_summary": band_summary, "department_summary": dept_summary,
-        "employee_list": sorted(emp_list, key=lambda x: -x["salary"])[:100]
+        "employee_list": [] if _is_report_request(request) else sorted(emp_list, key=lambda x: -x["salary"])[:100]
     }
 
 
@@ -1429,7 +1433,7 @@ async def get_norm_kadro(year: int = 2025, quarter: str = None, month: int = Non
 
 # ---- Ek Kadro Talepleri (Modül 2) ----
 @api_router.get("/dashboard/ek-kadro")
-async def get_ek_kadro(year: int = 2025, quarter: str = None, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
+async def get_ek_kadro(request: Request, year: int = 2025, quarter: str = None, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
@@ -1497,8 +1501,9 @@ async def get_ek_kadro(year: int = 2025, quarter: str = None, tenant: str = None
                  "butcelenen_maliyet": butcelenen_maliyet, "gerceklesen_maliyet": gerceklesen_maliyet,
                  "maliyet_sapma": sapma_maliyet},
         "reason_distribution": reasons, "department_breakdown": dept_breakdown,
-        "quarterly_trend": quarterly, "talep_listesi": talep_year[:50],
-        "asim_listesi": asim_listesi[:20]
+        "quarterly_trend": quarterly,
+        "talep_listesi": [] if _is_report_request(request) else talep_year[:50],
+        "asim_listesi": [] if _is_report_request(request) else asim_listesi[:20]
     }
 
 # ---- Teklif Red Analizi Detay (Modül 3) ----
@@ -1831,7 +1836,7 @@ async def get_aday_hunisi(year: int = 2025, tenant: str = None, segment: str = N
 
 # ---- Maaş Band & Benchmark (Modül 4) ----
 @api_router.get("/dashboard/ucret-benchmark")
-async def get_ucret_benchmark(year: int = 2025, department: str = None, position: str = None, tenant: str = None, segment: str = None, hrbp: str = None, project: str = None):
+async def get_ucret_benchmark(request: Request, year: int = 2025, department: str = None, position: str = None, tenant: str = None, segment: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
@@ -1921,8 +1926,8 @@ async def get_ucret_benchmark(year: int = 2025, department: str = None, position
                  "sektor_alti": total_below, "sektor_ustu": total_above, "risk_sayisi": total_risk},
         "birim_summary": sorted(birim_list, key=lambda x: -x["risk"]),
         "position_summary": sorted(pos_list, key=lambda x: -x["risk"]),
-        "employee_list": sorted(emp_list, key=lambda x: x["fark_pct"])[:100],
-        "risk_employees": risk_employees[:30],
+        "employee_list": [] if _is_report_request(request) else sorted(emp_list, key=lambda x: x["fark_pct"])[:100],
+        "risk_employees": [] if _is_report_request(request) else risk_employees[:30],
         "band_box": band_box
     }
 
@@ -2287,7 +2292,7 @@ async def get_recruitment(year: int = 2025, tenant: str = None, segment: str = N
 
 # ---- Performance ----
 @api_router.get("/dashboard/performance")
-async def get_performance(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
+async def get_performance(request: Request, year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     seg_depts = _segment_depts(sector, segment)
@@ -2309,7 +2314,8 @@ async def get_performance(year: int = 2025, tenant: str = None, segment: str = N
     top_list = [{"name": e['name'], "department": e['department'], "score": e.get('performance_score',0), "band": e['band']} for e in top]
     return {
         "kpis": {"avg_score": avg_score, "high_performers": high, "high_pct": round(high/hc*100,1) if hc else 0, "low_performers": low, "low_pct": round(low/hc*100,1) if hc else 0},
-        "distribution": dist, "by_department": by_dept, "by_band": by_band, "top_performers": top_list
+        "distribution": dist, "by_department": by_dept, "by_band": by_band,
+        "top_performers": [] if _is_report_request(request) else top_list
     }
 
 # ---- Learning ----
@@ -2637,15 +2643,46 @@ Toplam 200 kelimeyi geçme. Somut ve uygulanabilir yaz."""
     return result
 
 # ---- Career Paths API ----
+def _normalize_career_path(path):
+    """Normalize lightweight sector career edges to the full API schema."""
+    if path.get("id") and path.get("adimlar") is not None:
+        return path
+    from_role = path.get("from_role", "Başlangıç Rolü")
+    to_role = path.get("to_role", "Sonraki Rol")
+    path_key = f"{from_role}->{to_role}"
+    path_id = f"career-{uuid.uuid5(uuid.NAMESPACE_URL, path_key).hex[:12]}"
+    from_id = f"role-{uuid.uuid5(uuid.NAMESPACE_URL, from_role).hex[:12]}"
+    to_id = f"role-{uuid.uuid5(uuid.NAMESPACE_URL, to_role).hex[:12]}"
+    duration_months = int(path.get("typical_years", 0) * 12) or None
+    return {
+        "id": path_id,
+        "ad": f"{from_role} → {to_role}",
+        "aciklama": f"{from_role} rolünden {to_role} rolüne kariyer geçişi.",
+        "tur": "dikey",
+        "aile": path.get("aile", ""),
+        "adimlar": [
+            {"sira": 1, "rol_id": from_id, "unvan": from_role, "kademe": path.get("band_from", "")},
+            {"sira": 2, "rol_id": to_id, "unvan": to_role, "kademe": path.get("band_to", ""),
+             "tipik_sure_ay": duration_months},
+        ],
+        "alternatif_yollar": [],
+    }
+
+
+def _normalized_career_paths(cfg):
+    return [_normalize_career_path(path) for path in cfg.get("CAREER_PATHS", [])]
+
+
 @api_router.get("/career-paths")
 async def get_career_paths(department: Optional[str] = None, tenant: str = None):
     """Return all career paths from taxonomy with resolved role names."""
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
     paths = []
-    for p in cfg["CAREER_PATHS"]:
+    normalized_paths = _normalized_career_paths(cfg)
+    for p in normalized_paths:
         # Filter by department if specified
-        if department:
+        if department and p.get("aile"):
             dept_families = cfg["DEPT_ROLE_FAMILIES"].get(department, [])
             if not any(fam in str(p.get("aile", "")) for fam in dept_families):
                 continue
@@ -2655,8 +2692,8 @@ async def get_career_paths(department: Optional[str] = None, tenant: str = None)
             steps.append({
                 "sira": a["sira"],
                 "rol_id": a["rol_id"],
-                "unvan": role.get("unvan", a["rol_id"].replace("-", " ").title()),
-                "kademe": role.get("kademe", ""),
+                "unvan": role.get("unvan", a.get("unvan", a["rol_id"].replace("-", " ").title())),
+                "kademe": role.get("kademe", a.get("kademe", "")),
                 "kademe_seviyesi": role.get("kademe_seviyesi", a["sira"]),
                 "tipik_sure_ay": a.get("tipik_sure_ay"),
                 "gecis_kosullari": a.get("gecis_kosullari", []),
@@ -2664,7 +2701,7 @@ async def get_career_paths(department: Optional[str] = None, tenant: str = None)
             })
         alt_paths = []
         for alt_id in p.get("alternatif_yollar", []):
-            alt = next((cp for cp in cfg["CAREER_PATHS"] if cp["id"] == alt_id), None)
+            alt = next((cp for cp in normalized_paths if cp["id"] == alt_id), None)
             if alt:
                 alt_paths.append({"id": alt["id"], "ad": alt["ad"]})
         paths.append({
@@ -2683,7 +2720,8 @@ async def get_career_path_detail(path_id: str, tenant: str = None):
     """Return single career path detail with full role info."""
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
-    path = next((p for p in cfg["CAREER_PATHS"] if p["id"] == path_id), None)
+    normalized_paths = _normalized_career_paths(cfg)
+    path = next((p for p in normalized_paths if p["id"] == path_id), None)
     if not path:
         raise HTTPException(404, "Career path not found")
     steps = []
@@ -2700,8 +2738,8 @@ async def get_career_path_detail(path_id: str, tenant: str = None):
         steps.append({
             "sira": a["sira"],
             "rol_id": a["rol_id"],
-            "unvan": role.get("unvan", a["rol_id"].replace("-", " ").title()),
-            "kademe": role.get("kademe", ""),
+            "unvan": role.get("unvan", a.get("unvan", a["rol_id"].replace("-", " ").title())),
+            "kademe": role.get("kademe", a.get("kademe", "")),
             "kademe_seviyesi": role.get("kademe_seviyesi", a["sira"]),
             "tipik_sure_ay": a.get("tipik_sure_ay"),
             "gecis_kosullari": a.get("gecis_kosullari", []),
@@ -2710,7 +2748,7 @@ async def get_career_path_detail(path_id: str, tenant: str = None):
         })
     alt_paths = []
     for alt_id in path.get("alternatif_yollar", []):
-        alt = next((cp for cp in cfg["CAREER_PATHS"] if cp["id"] == alt_id), None)
+        alt = next((cp for cp in normalized_paths if cp["id"] == alt_id), None)
         if alt:
             alt_paths.append({"id": alt["id"], "ad": alt["ad"], "tur": alt.get("tur", "dikey")})
     return {
@@ -2948,7 +2986,7 @@ async def get_succession(year: int = 2025, tenant: str = None, segment: str = No
 
 # ---- Burnout Early Warning ----
 @api_router.get("/dashboard/burnout")
-async def get_burnout(year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
+async def get_burnout(request: Request, year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     beq = {"tenant_id": tenant} if tenant else {}
     all_eng = await db.engagement.find(beq, {"_id": 0}).to_list(10000)
@@ -2983,7 +3021,8 @@ async def get_burnout(year: int = 2025, tenant: str = None, segment: str = None,
                      "critical_count": len([r for r in risk_list if r['risk_level']=='Kritik']),
                      "avg_risk_score": round(sum(r['risk_score'] for r in risk_list)/len(risk_list),1) if risk_list else 0,
                      "avg_engagement": round(sum(r['engagement'] for r in risk_list)/len(risk_list),1) if risk_list else 0},
-            "top_risk": risk_list[:15], "department_risk": sorted(dept_risk, key=lambda x: -x['avg_risk']), "risk_distribution": dist}
+            "top_risk": [] if _is_report_request(request) else risk_list[:15],
+            "department_risk": sorted(dept_risk, key=lambda x: -x['avg_risk']), "risk_distribution": dist}
 
 # ---- Target Headcount Planning ----
 TARGET_HEADCOUNT = {

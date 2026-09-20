@@ -98,8 +98,19 @@ const PAGE_MAP = {
 
 const COUNTRY_PAGES = new Set(["/", "/headcount", "/hires-leaves", "/turnover", "/headcount-plan", "/org-health"]);
 
-// Filter out "Veri Yönetimi" section from nav
-const REPORT_NAV = NAV_SECTIONS.filter(s => s.label !== "Ayarlar");
+const PUBLIC_REPORT_DISABLED_PATHS = new Set([
+  "/scenario-sim", "/succession", "/career-dev", "/action-center", "/ai-forecast",
+]);
+
+function getReportNav(sector) {
+  return NAV_SECTIONS
+    .filter((section) => sector === "Bankacılık" || section.label !== "Satış & Şube")
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) => !PUBLIC_REPORT_DISABLED_PATHS.has(item.path) && !item.tenantOnly),
+    }))
+    .filter((section) => section.items.length > 0);
+}
 
 function PasswordGate({ slug, tenantInfo, onAccess }) {
   const [password, setPassword] = useState("");
@@ -172,6 +183,7 @@ function ReportDashboard({ slug, tenant }) {
   const color = tenant.primary_color || "#0D9488";
   const API_BASE = process.env.REACT_APP_BACKEND_URL;
   const isRetail = tenant.sector === "Perakende";
+  const reportNav = getReportNav(tenant.sector);
 
   useEffect(() => {
     setActiveTenant(slug);
@@ -206,7 +218,7 @@ function ReportDashboard({ slug, tenant }) {
 
   // Find current label
   let currentLabel = "Genel Bakış";
-  for (const section of REPORT_NAV) {
+  for (const section of reportNav) {
     const item = section.items.find(i => i.path === activePath);
     if (item) { currentLabel = item.label; break; }
   }
@@ -250,7 +262,7 @@ function ReportDashboard({ slug, tenant }) {
 
           {/* Nav sections */}
           <div className="flex-1 overflow-y-auto py-3 px-3">
-            {REPORT_NAV.map((section) => (
+            {reportNav.map((section) => (
               <div key={section.label} className="mb-3">
                 <p className="px-3 mb-1.5 text-[9px] tracking-[0.15em] uppercase font-semibold text-slate-400">
                   {section.label}

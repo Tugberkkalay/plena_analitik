@@ -24,8 +24,8 @@ PUBLIC_PATTERNS = (
     re.compile(r"^/api/uploads/[a-z0-9_-]+_logo\.(png|jpe?g|webp)$"),
 )
 REPORT_GET_PATHS = {
-    # Aggregate-only public report surface. Endpoints returning named employees,
-    # candidates, successors, risk lists, branches or sales reps are omitted.
+    # Password-protected report surface. Endpoints with person-level sections
+    # redact those sections when the authenticated principal is a report token.
     "/api/dashboard/segments", "/api/dashboard/years", "/api/dashboard/overview",
     "/api/dashboard/hiring-plan", "/api/dashboard/offer-analysis",
     "/api/dashboard/norm-kadro", "/api/dashboard/teklif-analizi",
@@ -40,8 +40,16 @@ REPORT_GET_PATHS = {
     "/api/dashboard/workforce-alignment", "/api/dashboard/org-health",
     "/api/dashboard/skills-map-v2", "/api/dashboard/positions",
     "/api/dashboard/alerts", "/api/dashboard/yetenek-programlari",
+    "/api/dashboard/headcount", "/api/dashboard/hires", "/api/dashboard/leaves",
+    "/api/dashboard/compensation-benchmark", "/api/dashboard/ek-kadro",
+    "/api/dashboard/ucret-benchmark", "/api/dashboard/performance",
+    "/api/dashboard/burnout", "/api/dashboard/guvenlik-sorusturmasi",
+    "/api/dashboard/survey-analytics",
     "/api/career-paths",
 }
+REPORT_GET_PATTERNS = (
+    re.compile(r"^/api/career-paths/[a-z0-9-]+$"),
+)
 REPORT_POST_PATHS = set()
 MUTATING_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
 
@@ -52,7 +60,7 @@ def _is_public(path: str) -> bool:
 
 def _report_route_allowed(method: str, path: str) -> bool:
     if method == "GET":
-        return path in REPORT_GET_PATHS
+        return path in REPORT_GET_PATHS or any(pattern.fullmatch(path) for pattern in REPORT_GET_PATTERNS)
     return method == "POST" and path in REPORT_POST_PATHS
 
 
