@@ -26,6 +26,19 @@ _BANKING_PROFICIENCY = _load_json("proficiency-levels.json").get("seviyeler", []
 # ─── Retail Taxonomy (loaded once) ───
 _RETAIL_RAW = _load_json("perakende_kutuphane.json")
 
+SUPPORTED_SECTORS = (
+    "Bankacılık",
+    "Perakende",
+    "Teknoloji",
+    "Savunma/Havacılık",
+    "Turizm",
+)
+
+_SECTOR_ALIASES = {
+    "Savunma": "Savunma/Havacılık",
+    "turizm": "Turizm",
+}
+
 # ─────────────────────────────────────────────
 #  BANKING CONFIG
 # ─────────────────────────────────────────────
@@ -1060,15 +1073,18 @@ def _build_turizm_config():
 
 def get_sector_config(sector="Bankacılık"):
     """Return the full taxonomy config dict for the given sector."""
-    if sector not in _config_cache:
-        if sector == "Perakende":
-            _config_cache[sector] = _build_retail_config()
-        elif sector == "Teknoloji":
-            _config_cache[sector] = _build_teknoloji_config()
-        elif sector in ("Savunma/Havacılık", "Savunma"):
-            _config_cache[sector] = _build_savunma_config()
-        elif sector in ("Turizm", "turizm"):
-            _config_cache[sector] = _build_turizm_config()
-        else:
-            _config_cache[sector] = _build_banking_config()
-    return _config_cache[sector]
+    canonical_sector = _SECTOR_ALIASES.get(sector, sector)
+    if canonical_sector not in SUPPORTED_SECTORS:
+        raise ValueError(f"Desteklenmeyen sektör: {sector}")
+    if canonical_sector not in _config_cache:
+        if canonical_sector == "Bankacılık":
+            _config_cache[canonical_sector] = _build_banking_config()
+        elif canonical_sector == "Perakende":
+            _config_cache[canonical_sector] = _build_retail_config()
+        elif canonical_sector == "Teknoloji":
+            _config_cache[canonical_sector] = _build_teknoloji_config()
+        elif canonical_sector == "Savunma/Havacılık":
+            _config_cache[canonical_sector] = _build_savunma_config()
+        elif canonical_sector == "Turizm":
+            _config_cache[canonical_sector] = _build_turizm_config()
+    return _config_cache[canonical_sector]

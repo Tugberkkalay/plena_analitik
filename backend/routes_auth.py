@@ -8,6 +8,7 @@ from pathlib import Path
 import base64, binascii, logging, os, re, uuid, zipfile
 from auth import (hash_password, verify_password, create_access_token,
                   create_refresh_token, get_current_user, require_admin)
+from taxonomy_loader import SUPPORTED_SECTORS
 
 auth_router = APIRouter(prefix="/api/auth")
 tenant_router = APIRouter(prefix="/api/tenants")
@@ -28,6 +29,14 @@ LOGO_FORMATS = {
     "image/jpeg": ("jpg", b"\xff\xd8\xff"),
     "image/webp": ("webp", b"RIFF"),
 }
+
+
+def _validate_sector(sector: str) -> None:
+    if sector not in SUPPORTED_SECTORS:
+        raise HTTPException(
+            400,
+            f"Desteklenmeyen sektör. Geçerli değerler: {', '.join(SUPPORTED_SECTORS)}",
+        )
 
 
 async def _read_limited(file: UploadFile, maximum: int) -> bytes:
@@ -146,6 +155,7 @@ def setup_tenant_routes(db):
     @tenant_router.post("")
     async def create_tenant(body: TenantCreate, request: Request):
         await require_admin(request, db)
+        _validate_sector(body.sector)
         slug = body.slug.strip().lower().replace(" ", "-")
         if not SLUG_PATTERN.fullmatch(slug):
             raise HTTPException(400, "Slug yalnızca küçük harf, rakam ve tek tire grupları içerebilir")
@@ -188,6 +198,8 @@ def setup_tenant_routes(db):
     async def update_tenant(tenant_id: str, body: TenantUpdate, request: Request):
         await require_admin(request, db)
         updates = {k: v for k, v in body.dict().items() if v is not None}
+        if "sector" in updates:
+            _validate_sector(updates["sector"])
         if updates.get("primary_color") and not COLOR_PATTERN.fullmatch(updates["primary_color"]):
             raise HTTPException(400, "Geçersiz renk kodu")
         if updates.get("logo_url") and not SAFE_LOGO_URL_PATTERN.fullmatch(updates["logo_url"]):
@@ -234,6 +246,7 @@ def setup_tenant_routes(db):
             raise HTTPException(404, "Müşteri bulunamadı")
         slug = tenant["slug"]
         sector = tenant.get("sector", "Bankacılık")
+        _validate_sector(sector)
         # Import generators from server
         from server import (generate_seed_data, generate_branches,  generate_sales_data,
                            generate_recruitment_data, generate_training_data,

@@ -22,6 +22,7 @@ const COLOR_PRESETS = [
 ];
 
 const HEX_COLOR_PATTERN = /^#[0-9A-F]{6}$/;
+const SECTOR_OPTIONS = ["Bankacılık", "Perakende", "Teknoloji", "Savunma/Havacılık", "Turizm"];
 
 function BrandColorPicker({ value, onChange, testIdPrefix }) {
   const [hexValue, setHexValue] = useState(value.toUpperCase());
@@ -173,12 +174,7 @@ function CreateTenantModal({ open, onClose, onCreated }) {
               <label className="text-xs font-medium text-slate-600 mb-1 block">Sektör</label>
               <select value={sector} onChange={(e) => setSector(e.target.value)}
                 className="w-full px-3 py-2 rounded-md border border-slate-200 text-sm">
-                <option>Bankacılık</option>
-                <option>Sigorta</option>
-                <option>Perakende</option>
-                <option>Teknoloji</option>
-                <option>Üretim</option>
-                <option>Diğer</option>
+                {SECTOR_OPTIONS.map((option) => <option key={option} value={option}>{option}</option>)}
               </select>
             </div>
             <div>
@@ -284,7 +280,7 @@ function EditTenantModal({ tenant, onClose, onSaved }) {
             <div>
               <label className="text-xs font-medium text-slate-600 mb-1 block">Sektör</label>
               <select value={sector} onChange={(e) => setSector(e.target.value)} className="w-full px-3 py-2 rounded-md border border-slate-200 text-sm">
-                <option>Bankacılık</option><option>Sigorta</option><option>Perakende</option><option>Teknoloji</option><option>Üretim</option><option>Diğer</option>
+                {SECTOR_OPTIONS.map((option) => <option key={option} value={option}>{option}</option>)}
               </select>
             </div>
           </div>

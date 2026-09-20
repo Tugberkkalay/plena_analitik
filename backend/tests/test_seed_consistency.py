@@ -57,6 +57,15 @@ def test_defense_employee_generation_is_reproducible(defense_bundle):
     assert regenerated == defense_bundle["employees"]
 
 
+def test_unknown_sector_does_not_fall_back_to_banking():
+    with pytest.raises(ValueError, match="Desteklenmeyen sektör"):
+        get_sector_config("Üretim")
+
+
+def test_legacy_defense_alias_resolves_to_defense_taxonomy():
+    assert get_sector_config("Savunma") is get_sector_config(SECTOR)
+
+
 def test_integrity_gate_rejects_cross_record_corruption(defense_bundle):
     corrupted = deepcopy(defense_bundle)
     corrupted["training"][0]["employee_id"] = "unknown-employee"
