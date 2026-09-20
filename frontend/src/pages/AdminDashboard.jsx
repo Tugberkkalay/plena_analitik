@@ -8,6 +8,79 @@ import { Input } from "@/components/ui/input";
 
 const API = process.env.REACT_APP_BACKEND_URL;
 
+const COLOR_PRESETS = [
+  { label: "Teal", value: "#0D9488" },
+  { label: "Kurumsal Lacivert", value: "#263685" },
+  { label: "Mavi", value: "#2563EB" },
+  { label: "Lacivert", value: "#1E3A5F" },
+  { label: "Kurumsal Kırmızı", value: "#DD140E" },
+  { label: "Kırmızı", value: "#DC2626" },
+  { label: "Turuncu", value: "#EA580C" },
+  { label: "Mor", value: "#7C3AED" },
+  { label: "Yeşil", value: "#059669" },
+  { label: "Siyah", value: "#18181B" },
+];
+
+const HEX_COLOR_PATTERN = /^#[0-9A-F]{6}$/;
+
+function BrandColorPicker({ value, onChange, testIdPrefix }) {
+  const [hexValue, setHexValue] = useState(value.toUpperCase());
+
+  useEffect(() => {
+    setHexValue(value.toUpperCase());
+  }, [value]);
+
+  const handleHexChange = (event) => {
+    let next = event.target.value.trim().toUpperCase();
+    if (next && !next.startsWith("#")) next = `#${next}`;
+    setHexValue(next);
+    if (HEX_COLOR_PATTERN.test(next)) onChange(next);
+  };
+
+  const hexIsValid = HEX_COLOR_PATTERN.test(hexValue);
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2 flex-wrap">
+        {COLOR_PRESETS.map((color) => (
+          <button
+            key={color.value}
+            type="button"
+            onClick={() => onChange(color.value)}
+            title={`${color.label} (${color.value})`}
+            aria-label={`${color.label} ${color.value}`}
+            className={`w-7 h-7 rounded-full border-2 transition-all ${value.toUpperCase() === color.value ? "border-slate-900 scale-110" : "border-transparent hover:border-slate-300"}`}
+            style={{ backgroundColor: color.value }}
+          />
+        ))}
+      </div>
+      <div className="flex items-center gap-2">
+        <input
+          type="color"
+          value={value}
+          onChange={(event) => onChange(event.target.value.toUpperCase())}
+          className="w-9 h-9 rounded-md cursor-pointer border border-slate-200 bg-white p-1"
+          aria-label="Renk paletinden seç"
+          data-testid={`${testIdPrefix}-native`}
+        />
+        <div className="flex-1">
+          <Input
+            value={hexValue}
+            onChange={handleHexChange}
+            onBlur={() => { if (!hexIsValid) setHexValue(value.toUpperCase()); }}
+            placeholder="#263685"
+            maxLength={7}
+            aria-label="HEX renk kodu"
+            data-testid={`${testIdPrefix}-hex`}
+            className={`font-mono uppercase ${hexIsValid ? "" : "border-red-400 focus-visible:ring-red-400"}`}
+          />
+          {!hexIsValid && <p className="text-[10px] text-red-600 mt-1">Renk kodu #RRGGBB biçiminde olmalı.</p>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function CreateTenantModal({ open, onClose, onCreated }) {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
@@ -54,22 +127,11 @@ function CreateTenantModal({ open, onClose, onCreated }) {
     setLoading(false);
   };
 
-  const COLOR_PRESETS = [
-    { label: "Teal", value: "#0D9488" },
-    { label: "Mavi", value: "#2563EB" },
-    { label: "Lacivert", value: "#1E3A5F" },
-    { label: "Kırmızı", value: "#DC2626" },
-    { label: "Turuncu", value: "#EA580C" },
-    { label: "Mor", value: "#7C3AED" },
-    { label: "Yeşil", value: "#059669" },
-    { label: "Siyah", value: "#18181B" },
-  ];
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
       <div className="bg-white rounded-lg border border-slate-200 shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto" data-testid="create-tenant-modal">
         <h2 className="text-lg font-semibold text-slate-900 mb-4">Yeni Müşteri Oluştur</h2>
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-3" autoComplete="off">
           {error && <div className="p-2 rounded bg-red-50 text-red-700 text-sm border border-red-200">{error}</div>}
 
           {/* Logo Upload */}
@@ -86,9 +148,9 @@ function CreateTenantModal({ open, onClose, onCreated }) {
               <div>
                 <label className="cursor-pointer px-3 py-1.5 rounded-md bg-slate-100 text-slate-600 text-xs font-medium hover:bg-slate-200 transition-colors inline-block">
                   Dosya Seç
-                  <input type="file" accept="image/*" onChange={handleLogoChange} className="hidden" data-testid="logo-upload" />
+                  <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleLogoChange} className="hidden" data-testid="logo-upload" />
                 </label>
-                <p className="text-[10px] text-slate-400 mt-1">PNG, JPG · Max 2MB</p>
+                <p className="text-[10px] text-slate-400 mt-1">PNG, JPG, WebP · Max 2MB</p>
               </div>
             </div>
           </div>
@@ -101,8 +163,8 @@ function CreateTenantModal({ open, onClose, onCreated }) {
           <div>
             <label className="text-xs font-medium text-slate-600 mb-1 block">URL Slug</label>
             <div className="flex items-center gap-1">
-              <span className="text-xs text-slate-400">plenalitik.com/raporlar/</span>
-              <Input data-testid="tenant-slug" value={slug} onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""))}
+              <span className="text-xs text-slate-400">{window.location.host}/raporlar/</span>
+              <Input data-testid="tenant-slug" value={slug} autoComplete="off" onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""))}
                 placeholder="yapikredi" className="flex-1" required />
             </div>
           </div>
@@ -121,26 +183,16 @@ function CreateTenantModal({ open, onClose, onCreated }) {
             </div>
             <div>
               <label className="text-xs font-medium text-slate-600 mb-1 block">Erişim Şifresi</label>
-              <Input data-testid="tenant-password" type="text" value={password} onChange={(e) => setPassword(e.target.value)}
-                placeholder="ör: yk2025" required />
+              <Input data-testid="tenant-password" type="password" value={password} autoComplete="new-password" onChange={(e) => setPassword(e.target.value)}
+                placeholder="En az 12 karakter" minLength={12} required />
+              <p className="text-[10px] text-slate-400 mt-1">En az 12 karakter kullanın.</p>
             </div>
           </div>
 
           {/* Color Picker */}
           <div>
             <label className="text-xs font-medium text-slate-600 mb-1.5 block">Kurumsal Renk</label>
-            <div className="flex items-center gap-2 flex-wrap">
-              {COLOR_PRESETS.map((c) => (
-                <button key={c.value} type="button" onClick={() => setPrimaryColor(c.value)} title={c.label}
-                  className={`w-7 h-7 rounded-full border-2 transition-all ${primaryColor === c.value ? "border-slate-900 scale-110" : "border-transparent hover:border-slate-300"}`}
-                  style={{ backgroundColor: c.value }} />
-              ))}
-              <div className="flex items-center gap-1.5 ml-1">
-                <input type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)}
-                  className="w-7 h-7 rounded cursor-pointer border-0" data-testid="color-picker" />
-                <span className="text-[10px] text-slate-400 font-mono">{primaryColor}</span>
-              </div>
-            </div>
+            <BrandColorPicker value={primaryColor} onChange={setPrimaryColor} testIdPrefix="create-color" />
           </div>
 
           {/* Report Title */}
@@ -170,17 +222,6 @@ function CreateTenantModal({ open, onClose, onCreated }) {
     </div>
   );
 }
-
-const COLOR_PRESETS = [
-  { label: "Teal", value: "#0D9488" },
-  { label: "Mavi", value: "#2563EB" },
-  { label: "Lacivert", value: "#1E3A5F" },
-  { label: "Kırmızı", value: "#DC2626" },
-  { label: "Turuncu", value: "#EA580C" },
-  { label: "Mor", value: "#7C3AED" },
-  { label: "Yeşil", value: "#059669" },
-  { label: "Siyah", value: "#18181B" },
-];
 
 function EditTenantModal({ tenant, onClose, onSaved }) {
   const [primaryColor, setPrimaryColor] = useState(tenant.primary_color || "#0D9488");
@@ -230,7 +271,7 @@ function EditTenantModal({ tenant, onClose, onSaved }) {
               </div>
               <label className="cursor-pointer px-3 py-1.5 rounded-md bg-slate-100 text-slate-600 text-xs font-medium hover:bg-slate-200 transition-colors inline-block">
                 Dosya Seç
-                <input type="file" accept="image/*" onChange={handleLogoChange} className="hidden" />
+                <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleLogoChange} className="hidden" />
               </label>
             </div>
           </div>
@@ -251,15 +292,7 @@ function EditTenantModal({ tenant, onClose, onSaved }) {
           {/* Color */}
           <div>
             <label className="text-xs font-medium text-slate-600 mb-1.5 block">Kurumsal Renk</label>
-            <div className="flex items-center gap-2 flex-wrap">
-              {COLOR_PRESETS.map((c) => (
-                <button key={c.value} type="button" onClick={() => setPrimaryColor(c.value)} title={c.label}
-                  className={`w-7 h-7 rounded-full border-2 transition-all ${primaryColor === c.value ? "border-slate-900 scale-110" : "border-transparent hover:border-slate-300"}`}
-                  style={{ backgroundColor: c.value }} />
-              ))}
-              <input type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="w-7 h-7 rounded cursor-pointer border-0" />
-              <span className="text-[10px] text-slate-400 font-mono">{primaryColor}</span>
-            </div>
+            <BrandColorPicker value={primaryColor} onChange={setPrimaryColor} testIdPrefix="edit-color" />
           </div>
 
           {/* Report Title */}
