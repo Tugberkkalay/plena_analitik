@@ -1,0 +1,16 @@
+.git
+.github
+.env
+.env.*
+**/.env
+**/.env.*
+**/.venv
+**/node_modules
+**/__pycache__
+**/.pytest_cache
+frontend/dist
+backend/uploads
+test_reports
+tmp
+*.pdf
+*.xlsx

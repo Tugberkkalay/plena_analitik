@@ -9,7 +9,7 @@ from pathlib import Path
 
 # Load BASE_URL from frontend/.env
 def _load_base_url():
-    env_url = os.environ.get("REACT_APP_BACKEND_URL")
+    env_url = os.environ.get("VITE_BACKEND_URL")
     if env_url:
         return env_url.rstrip("/")
     env_path = Path("/app/frontend/.env")
@@ -21,8 +21,8 @@ def _load_base_url():
 
 BASE_URL = _load_base_url()
 TENANT = "tusas"
-ADMIN_EMAIL = "admin@plenalitik.com"
-ADMIN_PASS = "Plena2025!"
+ADMIN_EMAIL = os.environ["ADMIN_EMAIL"]
+ADMIN_PASS = os.environ["ADMIN_PASSWORD"]
 
 
 @pytest.fixture(scope="module")

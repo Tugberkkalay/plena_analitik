@@ -9,6 +9,7 @@ let _currentSegment = null;
 let _currentDepartment = null;
 let _currentHrbp = null;
 let _currentProject = null;
+let _reportAccessToken = null;
 
 export function setActiveTenant(slug) { _currentTenant = slug; }
 export function getActiveTenant() { return _currentTenant; }
@@ -20,9 +21,16 @@ export function setActiveHrbp(hrbp) { _currentHrbp = hrbp; }
 export function getActiveHrbp() { return _currentHrbp; }
 export function setActiveProject(project) { _currentProject = project; }
 export function getActiveProject() { return _currentProject; }
+export function setReportAccessToken(token) { _reportAccessToken = token || null; }
+export function clearReportAccessToken() { _reportAccessToken = null; }
 
 // Add request interceptor
 axios.interceptors.request.use((config) => {
+  config.withCredentials = true;
+  if (_reportAccessToken) {
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${_reportAccessToken}`;
+  }
   if (_currentTenant && config.url && config.url.includes("/api/")) {
     const sep = config.url.includes("?") ? "&" : "?";
     config.url = `${config.url}${sep}tenant=${_currentTenant}`;

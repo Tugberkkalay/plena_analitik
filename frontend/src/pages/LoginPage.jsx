@@ -46,7 +46,7 @@ export default function LoginPage() {
               <label className="text-xs font-medium text-slate-600 mb-1 block">E-posta</label>
               <input data-testid="login-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-3 py-2 rounded-md border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                placeholder="admin@plenalitik.com" required />
+                placeholder="yonetici@firma.com" required />
             </div>
             <div>
               <label className="text-xs font-medium text-slate-600 mb-1 block">Şifre</label>

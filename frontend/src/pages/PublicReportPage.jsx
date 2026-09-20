@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { Lock, FileText } from "@phosphor-icons/react";
-import { setActiveTenant, setActiveSegment, setActiveDepartment, setActiveHrbp } from "@/lib/tenantInterceptor";
+import { setActiveTenant, setActiveSegment, setActiveDepartment, setActiveHrbp, setReportAccessToken, clearReportAccessToken } from "@/lib/tenantInterceptor";
 import { NAV_SECTIONS } from "@/components/Sidebar";
 import PdfExportButton from "@/components/PdfExportButton";
 
@@ -353,6 +353,8 @@ export default function PublicReportPage() {
       .finally(() => setChecking(false));
   }, [slug]);
 
+  useEffect(() => () => clearReportAccessToken(), []);
+
   if (checking) return <div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" /></div>;
 
   if (notFound) return (
@@ -371,6 +373,6 @@ export default function PublicReportPage() {
 
   return (
     <PasswordGate slug={slug} tenantInfo={tenantInfo}
-      onAccess={(token, t) => { setAccessToken(token); setTenant(t); }} />
+      onAccess={(token, t) => { setReportAccessToken(token); setAccessToken(token); setTenant(t); }} />
   );
 }

@@ -13,7 +13,7 @@ import urllib.parse
 import pytest
 import requests
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "").rstrip("/")
+BASE_URL = os.environ.get("VITE_BACKEND_URL", "http://localhost:8000").rstrip("/")
 if not BASE_URL:
     # Read directly from frontend/.env if env var not propagated
     with open("/app/frontend/.env") as fh:
@@ -22,8 +22,8 @@ if not BASE_URL:
                 BASE_URL = line.split("=", 1)[1].strip().rstrip("/")
                 break
 
-ADMIN_EMAIL = "admin@plenalitik.com"
-ADMIN_PASS = "Plena2025!"
+ADMIN_EMAIL = os.environ["ADMIN_EMAIL"]
+ADMIN_PASS = os.environ["ADMIN_PASSWORD"]
 RETAIL_TENANT = "parakende"
 BANKING_TENANT = "yapikredi"
 

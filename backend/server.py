@@ -1,9 +1,10 @@
 from fastapi import FastAPI, APIRouter, UploadFile, File, HTTPException, Query, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
-import os, uuid, random, json, logging, requests
+import os, uuid, random, json, logging, requests, re
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import List, Optional
@@ -20,7 +21,12 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-app = FastAPI()
+APP_ENV = os.environ.get("APP_ENV", "production").lower()
+app = FastAPI(
+    docs_url=None if APP_ENV == "production" else "/docs",
+    redoc_url=None if APP_ENV == "production" else "/redoc",
+    openapi_url=None if APP_ENV == "production" else "/openapi.json",
+)
 api_router = APIRouter(prefix="/api")
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -153,8 +159,16 @@ PRIM_TIERS = [
     {"min":100,"max":120,"rate":0.01,"label":"Tam"},
     {"min":120,"max":999,"rate":0.015,"label":"Hızlandırıcı"}
 ]
+SEED_GENERATED_AT = "2025-12-31T00:00:00+00:00"
+
+
+def _seed_uuid(kind, *parts):
+    """Stable identifier for reproducible demo datasets."""
+    value = ":".join(["plenalitik", "seed", kind, *[str(part) for part in parts]])
+    return str(uuid.uuid5(uuid.NAMESPACE_URL, value))
 
 def generate_branches():
+    rng = random.Random(41)
     branches = []
     for i, bd in enumerate(BRANCH_DATA):
         branches.append({
@@ -163,8 +177,8 @@ def generate_branches():
             "region": bd["region"], "city": bd["city"],
             "lat": bd["lat"], "lng": bd["lng"],
             "segment": bd["segment"],
-            "headcount": 0, "target_headcount": random.randint(8, 22),
-            "opened_date": f"{random.randint(2015,2023)}-{random.randint(1,12):02d}-01"
+            "headcount": 0, "target_headcount": rng.randint(8, 22),
+            "opened_date": f"{rng.randint(2015,2023)}-{rng.randint(1,12):02d}-01"
         })
     return branches
 
@@ -292,7 +306,7 @@ def generate_seed_data(count=500, sector="Bankacılık"):
                     termination_type = leave_types[idx]
                     status = "terminated"
         emp = {
-            "id": str(uuid.uuid4()), "name": f"{first} {last}", "gender": gender, "age": age,
+            "id": _seed_uuid("employee", sector, i), "name": f"{first} {last}", "gender": gender, "age": age,
             "hire_date": hire_date, "termination_date": termination_date, "department": dept,
             "job_title": pos, "band": band, "salary": salary, "city": city, "country": country,
             "education_level": edu, "university": uni, "marital_status": marital,
@@ -303,23 +317,25 @@ def generate_seed_data(count=500, sector="Bankacılık"):
             "segment": DEPT_SEG.get(dept, ""),
             "hrbp": HRBP_MAP.get(dept, ""),
             "status": status, "leaving_reason": leaving_reason, "termination_type": termination_type,
-            "data_source": "seed", "created_at": datetime.now(timezone.utc).isoformat()
+            "data_source": "seed", "created_at": SEED_GENERATED_AT
         }
         employees.append(emp)
-    # Assign branches to employees
-    branches = generate_branches()
+    # Branch/sales concepts are banking-specific. Other sectors must not receive
+    # synthetic bank branches merely because the original demo started as a bank POC.
+    branches = generate_branches() if sector == "Bankacılık" else []
     branch_ids = [b["id"] for b in branches]
     branch_regions = {b["id"]: b["region"] for b in branches}
     big_city_branches = [b["id"] for b in branches if b["city"] in ["Istanbul","Ankara","Izmir"]]
     small_city_branches = [b["id"] for b in branches if b["city"] not in ["Istanbul","Ankara","Izmir"]]
     for emp in employees:
-        if random.random() < 0.65:
-            bid = random.choice(big_city_branches)
-        else:
-            bid = random.choice(small_city_branches) if small_city_branches else random.choice(branch_ids)
-        emp["branch_id"] = bid
-        emp["region"] = branch_regions[bid]
-        if emp["department"] == "Sales" or emp["department"] == "Mağaza Satış" or (emp["band"] in ["A","B"] and random.random() < 0.4):
+        if branches:
+            if random.random() < 0.65:
+                bid = random.choice(big_city_branches)
+            else:
+                bid = random.choice(small_city_branches) if small_city_branches else random.choice(branch_ids)
+            emp["branch_id"] = bid
+            emp["region"] = branch_regions[bid]
+        if sector == "Bankacılık" and (emp["department"] == "Sales" or (emp["band"] in ["A","B"] and random.random() < 0.4)):
             emp["role_type"] = "sales"
         elif emp["is_manager"]:
             emp["role_type"] = "manager"
@@ -397,9 +413,9 @@ def generate_employee_skills(department, band, sector="Bankacılık"):
     clusters = dept_clusters.get(department, list(dept_clusters.values())[0] if dept_clusters else ["liderlik-yonetim","davranissal-iletisim"])
     # Always add core/leadership clusters
     if sector == "Perakende":
-        all_clusters = list(set(clusters + ["core"]))
+        all_clusters = sorted(set(clusters + ["core"]))
     else:
-        all_clusters = list(set(clusters + ["liderlik-yonetim","davranissal-iletisim"]))
+        all_clusters = sorted(set(clusters + ["liderlik-yonetim","davranissal-iletisim"]))
     # Get skills from relevant clusters
     dept_skills = [s for s in skill_tax if s["kume_id"] in all_clusters]
     primary_skills = [s for s in skill_tax if s["kume_id"] in clusters]
@@ -513,7 +529,7 @@ def generate_recruitment_data(count=200, sector="Bankacılık"):
                 stage = "Reddedildi"
                 rejection_reason = random.choices(REJ_REASONS, weights=[35, 20, 15, 15, 10, 5], k=1)[0]
         candidates.append({
-            "id": str(uuid.uuid4()), "candidate_name": name, "position": pos,
+            "id": _seed_uuid("candidate", sector, i), "candidate_name": name, "position": pos,
             "department": dept, "band": band, "source": source, "stage": stage,
             "applied_date": applied_date, "quarter": quarter,
             "days_in_pipeline": days, "cost": total_cost,
@@ -528,7 +544,7 @@ def generate_recruitment_data(count=200, sector="Bankacılık"):
             "offer_salary": offer_salary,
             "offer_vs_benchmark": offer_vs_benchmark,
             "rejection_reason": rejection_reason,
-            "created_at": datetime.now(timezone.utc).isoformat()
+            "created_at": SEED_GENERATED_AT
         })
     return candidates
 
@@ -585,7 +601,7 @@ def generate_ek_kadro_talepleri(sector="Bankacılık", count=30):
             sapma_maliyet = gerceklesen_yillik - butcelenen_yillik
 
         requests.append({
-            "id": str(uuid.uuid4()),
+            "id": _seed_uuid("headcount-request", sector, i),
             "talep_no": f"EK-2025-{i+1:03d}",
             "department": dept, "position": pos, "band": band,
             "talep_tarihi": f"2025-{month:02d}-{random.randint(1,28):02d}",
@@ -607,50 +623,29 @@ def generate_ek_kadro_talepleri(sector="Bankacılık", count=30):
             # Sapma
             "sapma_kisi": sapma_kisi,
             "sapma_maliyet": sapma_maliyet,
-            "created_at": datetime.now(timezone.utc).isoformat()
+            "created_at": SEED_GENERATED_AT
         })
     return requests
 
 def generate_norm_kadro_data(employees, sector="Bankacılık"):
-    """Generate norm kadro (target vs actual) records per department per month.
-    Some departments intentionally over-hire (norm üstü) to create realistic cost variance."""
+    """Generate target vs actual records reconciled to employee effective dates."""
     cfg = _cfg(sector)
     THC = cfg["TARGET_HEADCOUNT"]
     BENCH = cfg.get("SALARY_BENCHMARK", {})
     DEPTS = cfg["DEPARTMENTS"]
-    random.seed(61)
     records = []
-    active = [e for e in employees if e['status'] == 'active']
-
-    # ~40% of departments over-hired (norm üstü)
-    dept_list = list(THC.keys())
-    random.shuffle(dept_list)
-    overhire_depts = set(dept_list[:max(3, len(dept_list) * 4 // 10)])
 
     for dept_name, target_info in THC.items():
-        base_target = target_info["target"]
-        dept_emps = [e for e in active if e['department'] == dept_name]
-        actual_count = len(dept_emps)
-
-        # For overhire depts: set budgeted norm LOWER than actual (they hired more than planned)
-        if dept_name in overhire_depts:
-            budgeted_norm = max(5, int(actual_count * random.uniform(0.65, 0.85)))
-        else:
-            budgeted_norm = max(actual_count, base_target)
-
-        # Get unique positions
-        positions = {}
-        for e in dept_emps:
-            pos = e['job_title']
-            if pos not in positions:
-                positions[pos] = {"band": e['band'], "count": 0, "salaries": []}
-            positions[pos]["count"] += 1
-            positions[pos]["salaries"].append(e.get('salary', 0))
-
         for month in range(1, 13):
-            variation = random.randint(-2, 2)
-            month_actual = max(0, actual_count + variation)
-            month_target = budgeted_norm
+            period_end = f"2025-{month:02d}-31"
+            dept_emps = [
+                e for e in employees
+                if e.get("department") == dept_name
+                and e.get("hire_date", "9999-99-99") <= period_end
+                and (not e.get("termination_date") or e["termination_date"] > period_end)
+            ]
+            month_actual = len(dept_emps)
+            month_target = target_info["target"]
             sapma = month_actual - month_target
 
             # Employer cost = brüt maaş × 1.35 (SGK + yan haklar)
@@ -660,7 +655,7 @@ def generate_norm_kadro_data(employees, sector="Bankacılık"):
             ek_maliyet = max(0, sapma) * avg_employer_cost if sapma > 0 else 0
 
             records.append({
-                "id": str(uuid.uuid4()),
+                "id": _seed_uuid("norm-department", sector, dept_name, month),
                 "department": dept_name,
                 "donem": f"2025-{month:02d}",
                 "yil": 2025, "ay": month,
@@ -673,22 +668,23 @@ def generate_norm_kadro_data(employees, sector="Bankacılık"):
                 "avg_employer_cost": avg_employer_cost,
             })
 
-            # Position-level records
-            for pos_name, pos_data in positions.items():
-                pos_actual = pos_data["count"] + random.randint(-1, 1)
-                pos_actual = max(0, pos_actual)
-                # Position norm proportional to dept norm
-                pos_norm = max(1, round(pos_data["count"] * budgeted_norm / actual_count)) if actual_count else 1
-                if dept_name in overhire_depts:
-                    pos_norm = max(1, int(pos_norm * random.uniform(0.7, 0.95)))
+            positions = {}
+            for employee in dept_emps:
+                key = (employee["job_title"], employee["band"])
+                positions.setdefault(key, []).append(employee)
+
+            # Position-level actuals add up exactly to the department actual.
+            for (pos_name, band), position_emps in positions.items():
+                pos_actual = len(position_emps)
+                pos_norm = max(1, round(pos_actual * month_target / month_actual)) if month_actual else 1
                 pos_sapma = pos_actual - pos_norm
-                bench = BENCH.get(pos_data["band"], {"mid": 30000})
+                bench = BENCH.get(band, {"mid": 30000})
                 pos_employer_cost = round(bench["mid"] * 1.35)
                 records.append({
-                    "id": str(uuid.uuid4()),
+                    "id": _seed_uuid("norm-position", sector, dept_name, pos_name, band, month),
                     "department": dept_name,
                     "position": pos_name,
-                    "band": pos_data["band"],
+                    "band": band,
                     "donem": f"2025-{month:02d}",
                     "yil": 2025, "ay": month,
                     "quarter": f"Ç{min(4, (month-1)//3 + 1)}",
@@ -713,16 +709,16 @@ def generate_training_data(employees, count=300):
         status = random.choices(["Completed","In Progress","Not Started"], weights=[60,25,15], k=1)[0]
         hours = round(random.uniform(4, 40), 1) if status != "Not Started" else 0
         score = round(random.uniform(55, 100), 1) if status == "Completed" else None
-        records.append({"id": str(uuid.uuid4()), "employee_id": emp['id'], "employee_name": emp['name'], "department": emp['department'], "course_name": course, "category": cat, "hours": hours, "status": status, "score": score, "date": f"2025-{random.randint(1,12):02d}-{random.randint(1,28):02d}", "cost": round(random.uniform(200, 5000), -2), "created_at": datetime.now(timezone.utc).isoformat()})
+        records.append({"id": _seed_uuid("training", i), "employee_id": emp['id'], "employee_name": emp['name'], "department": emp['department'], "course_name": course, "category": cat, "hours": hours, "status": status, "score": score, "date": f"2025-{random.randint(1,12):02d}-{random.randint(1,28):02d}", "cost": round(random.uniform(200, 5000), -2), "created_at": SEED_GENERATED_AT})
     return records
 
 def generate_engagement_data(employees):
     random.seed(45)
     surveys = []
     active = [e for e in employees if e['status'] == 'active']
-    for emp in active:
+    for i, emp in enumerate(active):
         eng = round(max(1, min(10, random.gauss(7, 1.5))), 1)
-        surveys.append({"id": str(uuid.uuid4()), "employee_id": emp['id'], "employee_name": emp['name'], "department": emp['department'], "engagement_score": eng, "enps_score": random.randint(-20, 80), "satisfaction": round(max(1, min(5, random.gauss(3.5, 0.8))), 1), "work_life_balance": round(max(1, min(5, random.gauss(3.3, 0.9))), 1), "career_growth": round(max(1, min(5, random.gauss(3.2, 1.0))), 1), "manager_rating": round(max(1, min(5, random.gauss(3.6, 0.7))), 1), "recognition": round(max(1, min(5, random.gauss(3.4, 0.8))), 1), "culture_alignment": round(max(1, min(5, random.gauss(3.5, 0.7))), 1), "survey_date": f"2025-{random.randint(1,6):02d}-01", "absenteeism_days": random.randint(0, 15), "created_at": datetime.now(timezone.utc).isoformat()})
+        surveys.append({"id": _seed_uuid("engagement", emp['id'], i), "employee_id": emp['id'], "employee_name": emp['name'], "department": emp['department'], "engagement_score": eng, "enps_score": random.randint(-20, 80), "satisfaction": round(max(1, min(5, random.gauss(3.5, 0.8))), 1), "work_life_balance": round(max(1, min(5, random.gauss(3.3, 0.9))), 1), "career_growth": round(max(1, min(5, random.gauss(3.2, 1.0))), 1), "manager_rating": round(max(1, min(5, random.gauss(3.6, 0.7))), 1), "recognition": round(max(1, min(5, random.gauss(3.4, 0.8))), 1), "culture_alignment": round(max(1, min(5, random.gauss(3.5, 0.7))), 1), "survey_date": f"2025-{random.randint(1,6):02d}-01", "absenteeism_days": random.randint(0, 15), "created_at": SEED_GENERATED_AT})
     return surveys
 
 
@@ -847,14 +843,13 @@ def _effective_depts(sector, segment=None, department=None, hrbp=None):
 # ---- Startup ----
 @app.on_event("startup")
 async def startup():
+    from auth import validate_security_config
+    validate_security_config()
     try:
         count = await db.employees.count_documents({})
-        if count == 0:
+        if count == 0 and os.environ.get("SEED_DEMO_DATA", "false").lower() == "true":
             logger.info("Seeding demo data (first deploy)...")
             emps = generate_seed_data(500)
-            for emp in emps:
-                random.seed(hash(emp['id']) % 2**32)
-                emp['skills'] = generate_employee_skills(emp.get('department',''), emp.get('band','B'))
             await db.employees.insert_many(emps)
             logger.info(f"Seeded {len(emps)} employees with skills")
             # Seed branches
@@ -878,7 +873,7 @@ async def startup():
             await db.engagement.insert_many(eng)
             logger.info(f"Seeded {len(eng)} engagement surveys")
             logger.info("Demo data seeding complete!")
-        else:
+        elif count > 0 and os.environ.get("MIGRATE_LEGACY_BRANCH_DATA", "false").lower() == "true":
             if await db.branches.count_documents({}) == 0:
                 logger.info("Adding branches and sales data to existing DB...")
                 emps = await db.employees.find({}, {"_id": 0}).to_list(10000)
@@ -973,15 +968,26 @@ async def startup():
         logger.info("Admin user ready")
     except Exception as e:
         logger.error(f"Admin seed error: {e}")
-    try:
-        init_storage()
-        logger.info("Storage initialized")
-    except Exception as e:
-        logger.warning(f"Storage init: {e}")
+    if EMERGENT_KEY:
+        try:
+            init_storage()
+            logger.info("Storage initialized")
+        except Exception as e:
+            logger.warning(f"Storage init: {e}")
 
 @api_router.get("/")
 async def root():
     return {"message": "Plenalitik API v1.0"}
+
+
+@api_router.get("/health")
+async def health():
+    """Deployment readiness probe; succeeds only when MongoDB is reachable."""
+    try:
+        await db.command("ping")
+    except Exception:
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    return {"status": "ok"}
 
 @api_router.get("/dashboard/segments")
 async def get_segments(tenant: str = None):
@@ -997,7 +1003,11 @@ async def get_segments(tenant: str = None):
             "projects": projects}
 
 @api_router.post("/seed")
-async def seed_data():
+async def seed_data(request: Request):
+    from auth import require_admin
+    await require_admin(request, db)
+    if APP_ENV == "production":
+        raise HTTPException(404, "Endpoint production ortamında kapalı")
     await db.employees.delete_many({})
     emps = generate_seed_data(500)
     # Add skills to employees
@@ -1008,8 +1018,9 @@ async def seed_data():
     return {"message": f"Seeded {len(emps)} employees", "count": len(emps)}
 
 @api_router.get("/dashboard/years")
-async def get_years():
-    emps = await db.employees.find({}, {"_id": 0, "hire_date": 1}).to_list(10000)
+async def get_years(tenant: str = None):
+    query = {"tenant_id": tenant} if tenant else {}
+    emps = await db.employees.find(query, {"_id": 0, "hire_date": 1}).to_list(10000)
     years = sorted(set(int(e['hire_date'][:4]) for e in emps), reverse=True)
     return {"years": years}
 
@@ -2060,9 +2071,8 @@ def _build_at_risk_list(active):
              "risk_level": "Yüksek" if e.get('performance_score', 3) < 2 else "Orta"} for e in at_risk]
 
 @api_router.post("/ai/forecast")
-async def ai_forecast(body: ForecastRequest):
+async def ai_forecast(body: ForecastRequest, tenant: str = None):
     year = body.year
-    tenant = body.tenant
     segment = body.segment
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
@@ -2161,18 +2171,31 @@ def _try_store_file(content, ext, content_type):
         return None
 
 @api_router.post("/data/upload")
-async def upload_data(file: UploadFile = File(...)):
-    content = await file.read()
+async def upload_data(request: Request, file: UploadFile = File(...)):
+    from auth import require_admin
+    from routes_auth import _read_limited, _validate_xlsx, MAX_EXCEL_BYTES
+    await require_admin(request, db)
+    if APP_ENV == "production":
+        raise HTTPException(404, "Endpoint production ortamında kapalı")
+    content = await _read_limited(file, MAX_EXCEL_BYTES)
     filename = file.filename or "unknown"
     ext = filename.split('.')[-1].lower()
     if ext not in ['xlsx', 'xls', 'csv']:
         raise HTTPException(400, "Unsupported format. Use .xlsx or .csv")
+    if ext == "xlsx":
+        _validate_xlsx(content, file.content_type or "")
+    if ext == "xls":
+        raise HTTPException(415, "Eski .xls formatı desteklenmiyor; .xlsx veya .csv kullanın")
+    if ext == "csv" and file.content_type not in ("text/csv", "application/csv", "application/vnd.ms-excel", "application/octet-stream"):
+        raise HTTPException(415, "Geçersiz CSV MIME türü")
     try:
         df = pd.read_excel(BytesIO(content)) if ext in ['xlsx', 'xls'] else pd.read_csv(BytesIO(content))
         storage_path = _try_store_file(content, ext, file.content_type)
         col_map = _map_upload_columns(df)
         df_renamed = df.rename(columns=col_map)
         records = df_renamed.to_dict('records')
+        if len(records) > 100_000:
+            raise HTTPException(413, "Dosya satır sayısı sınırı aşıldı")
         employees = [_create_employee_from_record(rec) for rec in records]
         if employees:
             await db.employees.insert_many(employees)
@@ -2187,15 +2210,21 @@ async def upload_data(file: UploadFile = File(...)):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(400, f"Error processing file: {str(e)}")
+        logger.warning("Legacy data upload parsing failed", exc_info=e)
+        raise HTTPException(400, "Dosya işlenemedi")
 
 @api_router.get("/data/sources")
-async def get_sources():
-    sources = await db.data_sources.find({}, {"_id": 0}).to_list(100)
+async def get_sources(tenant: str = None):
+    query = {"tenant_id": tenant} if tenant else {}
+    sources = await db.data_sources.find(query, {"_id": 0}).to_list(100)
     return {"sources": sources}
 
 @api_router.delete("/data/reset")
-async def reset_data():
+async def reset_data(request: Request):
+    from auth import require_admin
+    await require_admin(request, db)
+    if APP_ENV == "production":
+        raise HTTPException(404, "Endpoint production ortamında kapalı")
     await db.employees.delete_many({})
     await db.data_sources.delete_many({})
     await db.recruitment.delete_many({})
@@ -2497,12 +2526,13 @@ async def get_skills_map(year: int = 2025, tenant: str = None, segment: str = No
 
 # ---- Employee Search ----
 @api_router.get("/employees/search")
-async def search_employees(q: str = "", department: str = "", limit: int = 20, tenant: str = None):
+async def search_employees(q: str = Query("", max_length=100), department: str = Query("", max_length=100),
+                           limit: int = Query(20, ge=1, le=100), tenant: str = None):
     query = {"$or": [{"status": "active"}, {"status": {"$exists": False}}]}
     if tenant:
         query["tenant_id"] = tenant
     if q:
-        query["name"] = {"$regex": q, "$options": "i"}
+        query["name"] = {"$regex": re.escape(q), "$options": "i"}
     if department:
         query["department"] = department
     try:
@@ -2521,8 +2551,11 @@ class CareerPlanRequest(BaseModel):
     employee_id: str
 
 @api_router.post("/employee/career-plan")
-async def get_career_plan(body: CareerPlanRequest):
-    emp = await db.employees.find_one({"id": body.employee_id}, {"_id": 0})
+async def get_career_plan(body: CareerPlanRequest, tenant: str = None):
+    employee_query = {"id": body.employee_id}
+    if tenant:
+        employee_query["tenant_id"] = tenant
+    emp = await db.employees.find_one(employee_query, {"_id": 0})
     if not emp:
         raise HTTPException(404, "Employee not found")
     tenant = emp.get("tenant_id")
@@ -2572,7 +2605,7 @@ async def get_career_plan(body: CareerPlanRequest):
     }
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
-        prompt = f"""{emp['name']} ({emp['department']}, {emp['job_title']}, Band {emp['band']}) için kısa kariyer gelişim planı.
+        prompt = f"""Anonim çalışan ({emp['department']}, {emp['job_title']}, Band {emp['band']}) için kısa kariyer gelişim planı.
 Perf: {emp.get('performance_score',0)}/5, Kıdem: {emp.get('seniority_years',0)} yıl
 Güçlü: {', '.join(s['skill'] for s in strong_skills[:3])}
 Gelişim: {', '.join(s['skill'] for s in weak_skills[:3])}
@@ -2764,8 +2797,7 @@ class ScenarioRequest(BaseModel):
     segment: Optional[str] = None
 
 @api_router.post("/simulator/scenario")
-async def run_scenario(body: ScenarioRequest):
-    tenant = body.tenant
+async def run_scenario(body: ScenarioRequest, tenant: str = None):
     segment = body.segment
     sector = await _resolve_sector(tenant)
     cfg = _cfg(sector)
@@ -3587,10 +3619,9 @@ class AIAlertScanRequest(BaseModel):
     segment: Optional[str] = None
 
 @api_router.post("/dashboard/alerts/ai-scan")
-async def ai_alert_scan(body: AIAlertScanRequest):
+async def ai_alert_scan(body: AIAlertScanRequest, tenant: str = None):
     """Generate AI-powered executive brief from all active alerts + HR context."""
     year = body.year
-    tenant = body.tenant
     segment = body.segment
     all_emp, active, hired, left = await get_filtered(year, tenant=tenant, segment=segment, department=None, hrbp=None)
     hc = len(active)
@@ -3658,8 +3689,9 @@ Her bölüm 2-4 cümle olsun. Uyarılardaki verileri referans al. Somut önerile
 
 # ---- Branch Performance ----
 @api_router.get("/branches/list")
-async def get_branches():
-    branches = await db.branches.find({}, {"_id": 0}).to_list(100)
+async def get_branches(tenant: str = None):
+    query = {"tenant_id": tenant} if tenant else {}
+    branches = await db.branches.find(query, {"_id": 0}).to_list(100)
     return {"branches": branches, "regions": sorted(set(b["region"] for b in branches))}
 
 @api_router.get("/branches/performance")
@@ -3729,8 +3761,11 @@ async def get_branch_performance(period: str = "2025", region: str = "", tenant:
     }
 
 @api_router.get("/branches/{branch_id}/trend")
-async def get_branch_trend(branch_id: str):
-    sales = await db.sales_performance.find({"branch_id": branch_id}, {"_id": 0}).to_list(10000)
+async def get_branch_trend(branch_id: str, tenant: str = None):
+    query = {"branch_id": branch_id}
+    if tenant:
+        query["tenant_id"] = tenant
+    sales = await db.sales_performance.find(query, {"_id": 0}).to_list(10000)
     monthly = {}
     for s in sales:
         p = s["period"]
@@ -4138,13 +4173,51 @@ from routes_jolly import router as jolly_router, setup_jolly, import_jolly_data
 setup_jolly(db)
 app.include_router(jolly_router)
 
-# Serve uploaded files (logos etc.)
-from fastapi.staticfiles import StaticFiles
-app.mount("/api/uploads", StaticFiles(directory="/app/backend/uploads"), name="uploads")
+# Serve only content-verified raster logos. Other files in the upload directory are private.
+@app.get("/api/uploads/{filename}")
+async def get_uploaded_logo(filename: str):
+    from routes_auth import SAFE_LOGO_URL_PATTERN, LOGO_FORMATS
+    public_path = f"/api/uploads/{filename}"
+    if not SAFE_LOGO_URL_PATTERN.fullmatch(public_path):
+        raise HTTPException(404, "Dosya bulunamadı")
+    filepath = ROOT_DIR / "uploads" / filename
+    if not filepath.is_file():
+        raise HTTPException(404, "Dosya bulunamadı")
+    if filepath.stat().st_size > 2 * 1024 * 1024:
+        raise HTTPException(413, "Logo boyutu sınırı aşıldı")
+    content = filepath.read_bytes()
+    media_by_ext = {"png": "image/png", "jpg": "image/jpeg", "jpeg": "image/jpeg", "webp": "image/webp"}
+    ext = filepath.suffix.lower().lstrip(".")
+    media_type = media_by_ext.get(ext)
+    expected = LOGO_FORMATS.get(media_type)
+    if not expected or not content.startswith(expected[1]) or (media_type == "image/webp" and content[8:12] != b"WEBP"):
+        raise HTTPException(415, "Logo içeriği güvenli bir raster format değil")
+    return FileResponse(filepath, media_type=media_type, headers={"Cache-Control": "public, max-age=3600"})
 
 app.add_middleware(CORSMiddleware, allow_credentials=True,
-                   allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-                   allow_methods=["*"], allow_headers=["*"])
+                   allow_origins=[origin.strip() for origin in os.environ.get('CORS_ORIGINS', '').split(',') if origin.strip()],
+                   allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+                   allow_headers=["Authorization", "Content-Type", "X-Requested-With"])
+
+from security import SecurityMiddleware
+app.add_middleware(SecurityMiddleware, db=db)
+
+# In production the compiled SPA is served from the same HTTPS origin as the API.
+# Local development keeps using Vite because FRONTEND_DIST is absent.
+FRONTEND_DIST = Path(os.environ.get("FRONTEND_DIST", "/app/frontend_dist"))
+if FRONTEND_DIST.is_dir():
+    assets_dir = FRONTEND_DIST / "assets"
+    if assets_dir.is_dir():
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="frontend-assets")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def serve_frontend(full_path: str):
+        if full_path.startswith("api/"):
+            raise HTTPException(404, "Endpoint bulunamadı")
+        candidate = FRONTEND_DIST / full_path
+        if full_path and candidate.is_file() and FRONTEND_DIST in candidate.resolve().parents:
+            return FileResponse(candidate)
+        return FileResponse(FRONTEND_DIST / "index.html")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():

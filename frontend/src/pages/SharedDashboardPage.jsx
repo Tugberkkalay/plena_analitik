@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend } from "recharts";
 import { Lock, Eye } from "@phosphor-icons/react";
@@ -10,7 +10,6 @@ const TT = { contentStyle: { background: "#1e293b", border: "none", borderRadius
 
 export default function SharedDashboardPage() {
   const { token } = useParams();
-  const [searchParams] = useSearchParams();
   const [dashboard, setDashboard] = useState(null);
   const [widgetData, setWidgetData] = useState({});
   const [error, setError] = useState(null);
@@ -21,8 +20,7 @@ export default function SharedDashboardPage() {
   const loadDashboard = async (pwd) => {
     setLoading(true);
     try {
-      const params = pwd ? `?password=${encodeURIComponent(pwd)}` : "";
-      const r = await axios.get(`${API}/dashboards/shared/${token}${params}`);
+      const r = await axios.post(`${API}/dashboards/shared/${token}`, { password: pwd || null });
       setDashboard(r.data.dashboard);
       setWidgetData(r.data.widget_data || {});
       setNeedsPassword(false);
@@ -39,7 +37,7 @@ export default function SharedDashboardPage() {
   };
 
   useEffect(() => {
-    loadDashboard(searchParams.get("password"));
+    loadDashboard(null);
   }, [token]);
 
   if (loading) return <div className="flex items-center justify-center h-screen text-slate-400">Yükleniyor...</div>;

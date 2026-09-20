@@ -2,13 +2,21 @@
 Dashboard Manager API — Create, manage dashboards with widget grid layout.
 """
 import uuid
-from datetime import datetime, timezone
+import os
+from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional
+from auth import hash_password, verify_password
 
 router = APIRouter(prefix="/api/dashboards", tags=["dashboards"])
 db = None
+
+
+def _require_public_sharing_enabled():
+    if (os.environ.get("APP_ENV", "production").lower() == "production"
+            and os.environ.get("ENABLE_PUBLIC_DASHBOARD_SHARING", "false").lower() != "true"):
+        raise HTTPException(404, "Public dashboard paylaşımı etkin değil")
 
 def setup_dashboards(database):
     global db
@@ -36,6 +44,18 @@ class DashboardUpdate(BaseModel):
     shared_filters: Optional[list] = None
     status: Optional[str] = None
 
+class ShareRequest(BaseModel):
+    password: Optional[str] = None
+
+class ShareAccessRequest(BaseModel):
+    password: Optional[str] = None
+
+def _dashboard_query(dashboard_id: str, tenant: str = None):
+    query = {"id": dashboard_id}
+    if tenant:
+        query["tenant_id"] = tenant
+    return query
+
 
 @router.post("")
 async def create_dashboard(body: DashboardCreate, tenant: str = None):
@@ -60,45 +80,46 @@ async def create_dashboard(body: DashboardCreate, tenant: str = None):
 async def list_dashboards(tenant: str = None):
     """List all dashboards for a tenant."""
     query = {"tenant_id": tenant} if tenant else {}
-    dashboards = await db.dashboards.find(query, {"_id": 0}).sort("created_at", -1).to_list(50)
+    dashboards = await db.dashboards.find(query, {"_id": 0, "share_password_hash": 0}).sort("created_at", -1).to_list(50)
     return {"dashboards": dashboards}
 
 
 @router.get("/{dashboard_id}")
-async def get_dashboard(dashboard_id: str):
+async def get_dashboard(dashboard_id: str, tenant: str = None):
     """Get a single dashboard with all widget configs."""
-    dashboard = await db.dashboards.find_one({"id": dashboard_id}, {"_id": 0})
+    dashboard = await db.dashboards.find_one(_dashboard_query(dashboard_id, tenant), {"_id": 0, "share_password_hash": 0})
     if not dashboard:
         raise HTTPException(404, "Dashboard bulunamadı")
     return dashboard
 
 
 @router.put("/{dashboard_id}")
-async def update_dashboard(dashboard_id: str, body: DashboardUpdate):
+async def update_dashboard(dashboard_id: str, body: DashboardUpdate, tenant: str = None):
     """Update dashboard (name, widgets, layout, filters, status)."""
     update = {k: v for k, v in body.dict().items() if v is not None}
     if not update:
         raise HTTPException(400, "Güncelleme verisi boş")
     update["updated_at"] = datetime.now(timezone.utc).isoformat()
-    result = await db.dashboards.update_one({"id": dashboard_id}, {"$set": update})
+    query = _dashboard_query(dashboard_id, tenant)
+    result = await db.dashboards.update_one(query, {"$set": update})
     if result.matched_count == 0:
         raise HTTPException(404, "Dashboard bulunamadı")
-    return await db.dashboards.find_one({"id": dashboard_id}, {"_id": 0})
+    return await db.dashboards.find_one(query, {"_id": 0, "share_password_hash": 0})
 
 
 @router.delete("/{dashboard_id}")
-async def delete_dashboard(dashboard_id: str):
+async def delete_dashboard(dashboard_id: str, tenant: str = None):
     """Delete a dashboard."""
-    result = await db.dashboards.delete_one({"id": dashboard_id})
+    result = await db.dashboards.delete_one(_dashboard_query(dashboard_id, tenant))
     if result.deleted_count == 0:
         raise HTTPException(404, "Dashboard bulunamadı")
     return {"message": "Dashboard silindi"}
 
 
 @router.post("/{dashboard_id}/duplicate")
-async def duplicate_dashboard(dashboard_id: str):
+async def duplicate_dashboard(dashboard_id: str, tenant: str = None):
     """Duplicate a dashboard."""
-    original = await db.dashboards.find_one({"id": dashboard_id}, {"_id": 0})
+    original = await db.dashboards.find_one(_dashboard_query(dashboard_id, tenant), {"_id": 0, "share_password_hash": 0})
     if not original:
         raise HTTPException(404, "Dashboard bulunamadı")
     new_db = {**original, "id": str(uuid.uuid4()), "name": f"{original['name']} (Kopya)",
@@ -109,50 +130,78 @@ async def duplicate_dashboard(dashboard_id: str):
 
 
 @router.put("/{dashboard_id}/widgets")
-async def update_widgets(dashboard_id: str, widgets: list):
+async def update_widgets(dashboard_id: str, widgets: list, tenant: str = None):
     """Bulk update widget positions/sizes."""
-    result = await db.dashboards.update_one({"id": dashboard_id}, {"$set": {"widgets": widgets, "updated_at": datetime.now(timezone.utc).isoformat()}})
+    query = _dashboard_query(dashboard_id, tenant)
+    result = await db.dashboards.update_one(query, {"$set": {"widgets": widgets, "updated_at": datetime.now(timezone.utc).isoformat()}})
     if result.matched_count == 0:
         raise HTTPException(404, "Dashboard bulunamadı")
-    return await db.dashboards.find_one({"id": dashboard_id}, {"_id": 0})
+    return await db.dashboards.find_one(query, {"_id": 0, "share_password_hash": 0})
 
 
 @router.post("/{dashboard_id}/publish")
-async def publish_dashboard(dashboard_id: str):
+async def publish_dashboard(dashboard_id: str, tenant: str = None):
     """Publish a dashboard (draft → published)."""
-    result = await db.dashboards.update_one({"id": dashboard_id}, {"$set": {"status": "published", "updated_at": datetime.now(timezone.utc).isoformat()}})
+    query = _dashboard_query(dashboard_id, tenant)
+    result = await db.dashboards.update_one(query, {"$set": {"status": "published", "updated_at": datetime.now(timezone.utc).isoformat()}})
     if result.matched_count == 0:
         raise HTTPException(404, "Dashboard bulunamadı")
-    return await db.dashboards.find_one({"id": dashboard_id}, {"_id": 0})
+    return await db.dashboards.find_one(query, {"_id": 0, "share_password_hash": 0})
 
 
 @router.post("/{dashboard_id}/share")
-async def generate_share_link(dashboard_id: str, password: str = None):
+async def generate_share_link(dashboard_id: str, body: ShareRequest, tenant: str = None):
     """Generate a share token for a published dashboard."""
-    import hashlib, secrets
-    dashboard = await db.dashboards.find_one({"id": dashboard_id}, {"_id": 0})
+    _require_public_sharing_enabled()
+    import secrets
+    query = _dashboard_query(dashboard_id, tenant)
+    dashboard = await db.dashboards.find_one(query, {"_id": 0})
     if not dashboard:
         raise HTTPException(404, "Dashboard bulunamadı")
+    if dashboard.get("status") != "published":
+        raise HTTPException(409, "Yalnız yayınlanmış dashboard paylaşılabilir")
+    if not body.password or len(body.password) < 12:
+        raise HTTPException(400, "Paylaşım şifresi en az 12 karakter olmalı")
     share_token = secrets.token_urlsafe(16)
-    update = {"share_token": share_token, "share_password": password, "updated_at": datetime.now(timezone.utc).isoformat()}
-    await db.dashboards.update_one({"id": dashboard_id}, {"$set": update})
+    expires_at = (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()
+    update = {
+        "share_token": share_token,
+        "share_password_hash": hash_password(body.password),
+        "share_expires_at": expires_at,
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.dashboards.update_one(query, {"$set": update, "$unset": {"share_password": ""}})
     return {"share_token": share_token, "share_url": f"/shared/dashboard/{share_token}"}
 
 
-@router.get("/shared/{share_token}")
-async def get_shared_dashboard(share_token: str, password: str = None):
+@router.post("/shared/{share_token}")
+async def get_shared_dashboard(share_token: str, body: ShareAccessRequest):
     """Access a shared dashboard by token."""
+    _require_public_sharing_enabled()
     dashboard = await db.dashboards.find_one({"share_token": share_token}, {"_id": 0})
     if not dashboard:
         raise HTTPException(404, "Dashboard bulunamadı veya link geçersiz")
-    if dashboard.get("share_password"):
-        if password != dashboard["share_password"]:
-            raise HTTPException(403, "Şifre gerekli")
+    expires_at = dashboard.get("share_expires_at")
+    if isinstance(expires_at, str):
+        try:
+            expires_at = datetime.fromisoformat(expires_at)
+        except ValueError:
+            expires_at = None
+    if expires_at and expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    if not expires_at or expires_at <= datetime.now(timezone.utc):
+        raise HTTPException(410, "Paylaşım linkinin süresi dolmuş")
+    if not body.password or not verify_password(body.password, dashboard.get("share_password_hash", "")):
+        raise HTTPException(403, "Şifre gerekli")
+    dashboard.pop("share_password_hash", None)
+    dashboard.pop("share_password", None)
     # Execute all widgets
     widget_results = {}
     for w in dashboard.get("widgets", []):
         rid = w.get("report_id")
-        report = await db.report_definitions.find_one({"id": rid}, {"_id": 0})
+        report = await db.report_definitions.find_one({
+            "id": rid, "tenant_id": dashboard.get("tenant_id")
+        }, {"_id": 0})
         if report:
             from routes_report_designer import _execute_report_config
             try:

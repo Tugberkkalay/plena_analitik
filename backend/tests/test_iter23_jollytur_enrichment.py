@@ -3,8 +3,9 @@ import os
 import pytest
 import requests
 
-BASE_URL = (os.environ.get("REACT_APP_BACKEND_URL")
-            or open("/app/frontend/.env").read().split("REACT_APP_BACKEND_URL=")[1].split("\n")[0]).rstrip("/")
+BASE_URL = os.environ.get("VITE_BACKEND_URL", "http://localhost:8000").rstrip("/")
+ADMIN_EMAIL = os.environ["ADMIN_EMAIL"]
+ADMIN_PASSWORD = os.environ["ADMIN_PASSWORD"]
 TENANT = "jollytur"
 YEAR = 2025
 
@@ -13,7 +14,7 @@ YEAR = 2025
 def session():
     s = requests.Session()
     r = s.post(f"{BASE_URL}/api/auth/login",
-               json={"email": "admin@plenalitik.com", "password": "Plena2025!"})
+               json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD})
     assert r.status_code == 200, r.text
     return s
 

@@ -103,7 +103,7 @@ export default function DashboardManagerPage() {
   };
 
   const shareDashboard = async (id, password) => {
-    const r = await axios.post(`${API}/dashboards/${id}/share${password ? `?password=${encodeURIComponent(password)}` : ""}`);
+    const r = await axios.post(`${API}/dashboards/${id}/share`, { password: password || null });
     const baseUrl = window.location.origin;
     const url = `${baseUrl}/shared/dashboard/${r.data.share_token}`;
     setShareLink(url);

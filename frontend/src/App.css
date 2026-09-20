@@ -51,7 +51,7 @@
   [data-testid="pdf-export-btn"],
   [data-testid="year-selector"],
   [data-testid="country-selector"],
-  .print\\:hidden,
+  .print\:hidden,
   button,
   nav { display: none !important; }
 

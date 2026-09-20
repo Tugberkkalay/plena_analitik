@@ -10,7 +10,7 @@ import uuid
 import requests
 import pytest
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "").rstrip("/")
+BASE_URL = os.environ.get("VITE_BACKEND_URL", "http://localhost:8000").rstrip("/")
 if not BASE_URL:
     # Fallback for local pytest exec
     with open("/app/frontend/.env") as f:
@@ -18,8 +18,8 @@ if not BASE_URL:
             if line.startswith("REACT_APP_BACKEND_URL="):
                 BASE_URL = line.split("=", 1)[1].strip().rstrip("/")
 
-ADMIN_EMAIL = "admin@plenalitik.com"
-ADMIN_PASSWORD = "Plena2025!"
+ADMIN_EMAIL = os.environ["ADMIN_EMAIL"]
+ADMIN_PASSWORD = os.environ["ADMIN_PASSWORD"]
 BANKING_SLUG = "yapikredi"
 
 RETAIL_DEPARTMENTS = {

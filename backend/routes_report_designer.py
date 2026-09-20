@@ -2,8 +2,9 @@
 Report Designer API — KPI tanımlama, hesaplama formülleri, rapor oluşturma/yürütme.
 """
 import uuid
+import re
 from datetime import datetime, timezone
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Query
 from pydantic import BaseModel
 from typing import Optional
 from collections import Counter
@@ -229,7 +230,7 @@ async def get_data_sources(tenant: str = None):
 
 
 @router.get("/data-sources/{source_id}/preview")
-async def preview_data_source(source_id: str, tenant: str = None, limit: int = 20):
+async def preview_data_source(source_id: str, tenant: str = None, limit: int = Query(20, ge=1, le=100)):
     """Return first N rows of a data source for preview."""
     if source_id not in DATA_SOURCES:
         raise HTTPException(404, "Veri kaynağı bulunamadı")
@@ -245,6 +246,8 @@ async def get_column_values(source_id: str, column: str, tenant: str = None):
     if source_id not in DATA_SOURCES:
         raise HTTPException(404, "Veri kaynağı bulunamadı")
     ds = DATA_SOURCES[source_id]
+    if column not in ds["columns"]:
+        raise HTTPException(400, "Geçersiz kolon")
     query = {"tenant_id": tenant} if tenant else {}
     values = await db[ds["collection"]].distinct(column, query)
 
@@ -390,40 +393,52 @@ async def list_reports(tenant: str = None):
 
 
 @router.get("/reports/{report_id}")
-async def get_report(report_id: str):
+async def get_report(report_id: str, tenant: str = None):
     """Get a single report definition."""
-    report = await db.report_definitions.find_one({"id": report_id}, {"_id": 0})
+    query = {"id": report_id}
+    if tenant:
+        query["tenant_id"] = tenant
+    report = await db.report_definitions.find_one(query, {"_id": 0})
     if not report:
         raise HTTPException(404, "Rapor bulunamadı")
     return report
 
 
 @router.put("/reports/{report_id}")
-async def update_report(report_id: str, body: ReportUpdate):
+async def update_report(report_id: str, body: ReportUpdate, tenant: str = None):
     """Update a report definition."""
     update = {k: v for k, v in body.dict().items() if v is not None}
     if not update:
         raise HTTPException(400, "Güncelleme verisi boş")
     update["updated_at"] = datetime.now(timezone.utc).isoformat()
-    result = await db.report_definitions.update_one({"id": report_id}, {"$set": update})
+    query = {"id": report_id}
+    if tenant:
+        query["tenant_id"] = tenant
+    result = await db.report_definitions.update_one(query, {"$set": update})
     if result.matched_count == 0:
         raise HTTPException(404, "Rapor bulunamadı")
-    return await db.report_definitions.find_one({"id": report_id}, {"_id": 0})
+    return await db.report_definitions.find_one(query, {"_id": 0})
 
 
 @router.delete("/reports/{report_id}")
-async def delete_report(report_id: str):
+async def delete_report(report_id: str, tenant: str = None):
     """Delete a report definition."""
-    result = await db.report_definitions.delete_one({"id": report_id})
+    query = {"id": report_id}
+    if tenant:
+        query["tenant_id"] = tenant
+    result = await db.report_definitions.delete_one(query)
     if result.deleted_count == 0:
         raise HTTPException(404, "Rapor bulunamadı")
     return {"message": "Rapor silindi"}
 
 
 @router.post("/reports/{report_id}/duplicate")
-async def duplicate_report(report_id: str):
+async def duplicate_report(report_id: str, tenant: str = None):
     """Duplicate a report."""
-    original = await db.report_definitions.find_one({"id": report_id}, {"_id": 0})
+    query = {"id": report_id}
+    if tenant:
+        query["tenant_id"] = tenant
+    original = await db.report_definitions.find_one(query, {"_id": 0})
     if not original:
         raise HTTPException(404, "Rapor bulunamadı")
     new_report = {**original, "id": str(uuid.uuid4()), "name": f"{original['name']} (Kopya)",
@@ -436,7 +451,10 @@ async def duplicate_report(report_id: str):
 @router.post("/reports/{report_id}/execute")
 async def execute_report(report_id: str, tenant: str = None):
     """Execute a report definition and return computed results."""
-    report = await db.report_definitions.find_one({"id": report_id}, {"_id": 0})
+    query = {"id": report_id}
+    if tenant:
+        query["tenant_id"] = tenant
+    report = await db.report_definitions.find_one(query, {"_id": 0})
     if not report:
         raise HTTPException(404, "Rapor bulunamadı")
     return await _execute_report_config(report, tenant or report.get("tenant_id"))
@@ -462,14 +480,38 @@ async def _execute_report_config(config, tenant):
     collection = ds["collection"]
     columns = ds["columns"]
 
-    # Build MongoDB query from filters
+    dimensions = config.get("dimensions", [])
+    measures = config.get("measures", [])
+    if not isinstance(dimensions, list) or any(dim not in columns for dim in dimensions):
+        raise HTTPException(400, "Geçersiz boyut kolonu")
+    allowed_aggregations = {"count", "distinct_count", "sum", "avg", "min", "max"}
+    if not isinstance(measures, list):
+        raise HTTPException(400, "Geçersiz ölçü listesi")
+    for measure in measures:
+        if not isinstance(measure, dict):
+            raise HTTPException(400, "Geçersiz ölçü")
+        if measure.get("column") not in columns or measure.get("aggregation", "count") not in allowed_aggregations:
+            raise HTTPException(400, "Geçersiz ölçü kolonu veya agregasyonu")
+
+    # Build MongoDB query from allowlisted scalar filters. Tenant scope is immutable.
     query = {"tenant_id": tenant} if tenant else {}
-    for f in config.get("filters", []):
+    filters = config.get("filters", [])
+    if not isinstance(filters, list) or len(filters) > 25:
+        raise HTTPException(400, "Geçersiz filtre listesi")
+    for f in filters:
+        if not isinstance(f, dict):
+            raise HTTPException(400, "Geçersiz filtre")
         col = f.get("column")
         op = f.get("operator", "eq")
         val = f.get("value")
         if not col or val is None:
             continue
+        if col == "tenant_id" or col not in columns or col.startswith("$") or "." in col:
+            raise HTTPException(400, "Filtre kolonu kullanılamaz")
+        if isinstance(val, dict) or (isinstance(val, list) and any(isinstance(item, (dict, list)) for item in val)):
+            raise HTTPException(400, "Filtre değeri yalnızca scalar olabilir")
+        if isinstance(val, list) and len(val) > 100:
+            raise HTTPException(400, "Filtre değer listesi çok uzun")
         if op == "eq":
             query[col] = val
         elif op == "ne":
@@ -485,12 +527,14 @@ async def _execute_report_config(config, tenant):
         elif op == "lte":
             query[col] = {"$lte": val}
         elif op == "contains":
-            query[col] = {"$regex": str(val), "$options": "i"}
+            if len(str(val)) > 100:
+                raise HTTPException(400, "Arama değeri çok uzun")
+            query[col] = {"$regex": re.escape(str(val)), "$options": "i"}
+        else:
+            raise HTTPException(400, "Geçersiz filtre operatörü")
 
     rows = await db[collection].find(query, {"_id": 0, "skills": 0, "created_at": 0, "data_source": 0}).to_list(50000)
 
-    dimensions = config.get("dimensions", [])
-    measures = config.get("measures", [])
     chart_type = config.get("chart_type", "table")
     kpi_ids = config.get("kpi_ids", [])
     cond_fmt = config.get("conditional_formatting", [])

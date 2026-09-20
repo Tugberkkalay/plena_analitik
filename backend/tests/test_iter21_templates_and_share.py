@@ -8,7 +8,7 @@ import os
 import pytest
 import requests
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://workforce-insights-15.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("VITE_BACKEND_URL", "http://localhost:8000").rstrip("/")
 TENANT = "tusas"
 
 
@@ -16,6 +16,11 @@ TENANT = "tusas"
 def api():
     s = requests.Session()
     s.headers.update({"Content-Type": "application/json"})
+    response = s.post(f"{BASE_URL}/api/auth/login", json={
+        "email": os.environ["ADMIN_EMAIL"],
+        "password": os.environ["ADMIN_PASSWORD"],
+    })
+    assert response.status_code == 200, response.text
     return s
 
 
@@ -101,48 +106,32 @@ def prepared_dashboard(api):
     api.delete(f"{BASE_URL}/api/report-designer/reports/{rid}")
 
 
-def test_dashboard_share_no_password(api, prepared_dashboard):
+def test_dashboard_share_requires_password(api, prepared_dashboard):
     did = prepared_dashboard["dashboard"]["id"]
-    r = api.post(f"{BASE_URL}/api/dashboards/{did}/share")
-    assert r.status_code == 200, r.text
-    data = r.json()
-    assert "share_token" in data
-    assert len(data["share_token"]) >= 16
-    assert data["share_url"].startswith("/shared/dashboard/")
-
-    # fetch shared
-    token = data["share_token"]
-    sr = api.get(f"{BASE_URL}/api/dashboards/shared/{token}")
-    assert sr.status_code == 200, sr.text
-    shared = sr.json()
-    assert "dashboard" in shared
-    assert "widget_data" in shared
-    assert shared["dashboard"]["id"] == did
-    # widget data should include the report id
-    rid = prepared_dashboard["report_id"]
-    assert rid in shared["widget_data"]
-    assert shared["widget_data"][rid] is not None
+    r = api.post(f"{BASE_URL}/api/dashboards/{did}/share", json={"password": None})
+    assert r.status_code == 400, r.text
 
 
 def test_dashboard_share_with_password(api, prepared_dashboard):
     did = prepared_dashboard["dashboard"]["id"]
-    r = api.post(f"{BASE_URL}/api/dashboards/{did}/share?password=secret123")
+    password = "test-secret-123"
+    r = api.post(f"{BASE_URL}/api/dashboards/{did}/share", json={"password": password})
     assert r.status_code == 200
     token = r.json()["share_token"]
 
     # without password => 403
-    bad = api.get(f"{BASE_URL}/api/dashboards/shared/{token}")
+    bad = api.post(f"{BASE_URL}/api/dashboards/shared/{token}", json={"password": None})
     assert bad.status_code == 403
 
     # wrong password => 403
-    wrong = api.get(f"{BASE_URL}/api/dashboards/shared/{token}?password=nope")
+    wrong = api.post(f"{BASE_URL}/api/dashboards/shared/{token}", json={"password": "wrong-value"})
     assert wrong.status_code == 403
 
     # correct => 200
-    ok = api.get(f"{BASE_URL}/api/dashboards/shared/{token}?password=secret123")
+    ok = api.post(f"{BASE_URL}/api/dashboards/shared/{token}", json={"password": password})
     assert ok.status_code == 200
 
 
 def test_shared_invalid_token(api):
-    r = api.get(f"{BASE_URL}/api/dashboards/shared/nonexistent_token_xyz")
+    r = api.post(f"{BASE_URL}/api/dashboards/shared/nonexistent_token_xyz", json={"password": None})
     assert r.status_code == 404
