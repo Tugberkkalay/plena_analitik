@@ -14,6 +14,8 @@ db = None
 
 PUBLIC_FORBIDDEN_COLUMNS = {"name", "employee_name"}
 PUBLIC_CHART_TYPES = {"table", "bar", "line", "pie", "kpi_card"}
+PUBLIC_AGGREGATIONS = {"count", "distinct_count", "sum", "avg", "min", "max", "ratio_percent"}
+PUBLIC_FILTER_OPERATORS = {"eq", "ne", "in", "gt", "lt", "gte", "lte", "contains"}
 
 def setup_report_designer(database):
     global db
@@ -38,6 +40,7 @@ def _validate_public_report_config(config):
     filters = config.get("filters", []) or []
     measures = config.get("measures", []) or []
     kpi_ids = config.get("kpi_ids", []) or []
+    conditional_formatting = config.get("conditional_formatting", []) or []
     columns = DATA_SOURCES[source_id]["columns"]
     if not isinstance(dimensions, list) or any(not isinstance(column, str) or column not in columns for column in dimensions):
         raise HTTPException(400, "Geçersiz boyut kolonu")
@@ -45,6 +48,16 @@ def _validate_public_report_config(config):
         raise HTTPException(400, "Geçersiz filtre listesi")
     if not isinstance(measures, list) or any(not isinstance(item, dict) for item in measures):
         raise HTTPException(400, "Geçersiz ölçü listesi")
+    if any(item.get("column") not in columns or item.get("aggregation", "count") not in PUBLIC_AGGREGATIONS for item in measures):
+        raise HTTPException(400, "Geçersiz ölçü kolonu veya agregasyonu")
+    if any(
+        item.get("column") not in columns
+        or item.get("operator", "eq") not in PUBLIC_FILTER_OPERATORS
+        or item.get("value") is None
+        or isinstance(item.get("value"), dict)
+        for item in filters
+    ):
+        raise HTTPException(400, "Geçersiz filtre")
     allowed_kpis = {item["id"] for item in KPI_TEMPLATES if item["data_source"] == source_id}
     if not isinstance(kpi_ids, list) or len(kpi_ids) > 12 or any(kpi not in allowed_kpis for kpi in kpi_ids):
         raise HTTPException(400, "Geçersiz KPI seçimi")
@@ -55,6 +68,22 @@ def _validate_public_report_config(config):
         raise HTTPException(403, "Kişi bazlı alanlar müşteri raporunda kullanılamaz")
     if len(dimensions) > 3 or len(measures) > 6 or len(filters) > 12:
         raise HTTPException(400, "Rapor yapılandırması sınırı aşıldı")
+    chart_type = config.get("chart_type", "table")
+    if chart_type == "kpi_card" and not kpi_ids:
+        raise HTTPException(400, "KPI kartı için en az bir KPI seçilmeli")
+    if chart_type != "kpi_card" and not dimensions and not measures:
+        raise HTTPException(400, "En az bir boyut veya ölçüt seçilmeli")
+    if chart_type in {"bar", "line", "pie"} and (len(dimensions) != 1 or not measures):
+        raise HTTPException(400, "Grafik için bir boyut ve en az bir ölçüt seçilmeli")
+    if chart_type == "pie" and len(measures) != 1:
+        raise HTTPException(400, "Pasta grafik için yalnızca bir ölçüt seçilmeli")
+    if not isinstance(conditional_formatting, list) or len(conditional_formatting) > 12:
+        raise HTTPException(400, "Geçersiz koşullu biçimlendirme")
+    for rule in conditional_formatting:
+        if not isinstance(rule, dict):
+            raise HTTPException(400, "Geçersiz koşullu biçimlendirme")
+        if any(isinstance(value, (dict, list)) for value in rule.values()):
+            raise HTTPException(400, "Koşullu biçimlendirme değerleri scalar olmalı")
 
 # ─── Data Source Definitions ───
 DATA_SOURCES = {
@@ -252,6 +281,7 @@ class ReportCreate(BaseModel):
 
 class ReportUpdate(BaseModel):
     name: Optional[str] = None
+    data_source: Optional[str] = None
     chart_type: Optional[str] = None
     dimensions: Optional[list] = None
     measures: Optional[list] = None
@@ -548,7 +578,7 @@ async def _execute_report_config(config, tenant, public_safe=False):
     measures = config.get("measures", [])
     if not isinstance(dimensions, list) or any(dim not in columns for dim in dimensions):
         raise HTTPException(400, "Geçersiz boyut kolonu")
-    allowed_aggregations = {"count", "distinct_count", "sum", "avg", "min", "max", "ratio_percent"}
+    allowed_aggregations = PUBLIC_AGGREGATIONS
     if not isinstance(measures, list):
         raise HTTPException(400, "Geçersiz ölçü listesi")
     for measure in measures:
@@ -623,6 +653,9 @@ async def _execute_report_config(config, tenant, public_safe=False):
         return {"chart_type": "kpi_card", "kpis": kpi_results, "total_rows": len(rows)}
 
     if not dimensions and not measures:
+        if public_safe:
+            # Public report sessions must never fall back to unprojected source rows.
+            raise HTTPException(400, "En az bir boyut veya ölçüt seçilmeli")
         # Return raw table data
         return {"chart_type": chart_type, "data": rows[:500], "total_rows": len(rows), "kpis": kpi_results}
 

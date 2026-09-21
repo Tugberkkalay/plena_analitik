@@ -232,6 +232,45 @@ def test_public_report_designer_rejects_person_level_dimensions():
     assert exc.value.status_code == 403
 
 
+def test_public_report_designer_rejects_unconfigured_raw_preview():
+    """A public session must never receive unprojected employee rows."""
+    with pytest.raises(HTTPException) as exc:
+        routes_report_designer._validate_public_report_config({
+            "name": "Boş Rapor",
+            "data_source": "employees",
+            "chart_type": "table",
+            "dimensions": [],
+            "measures": [],
+            "filters": [],
+        })
+    assert exc.value.status_code == 400
+    assert "boyut veya ölçüt" in exc.value.detail
+
+
+@pytest.mark.parametrize("config", [
+    {
+        "name": "Eksik ölçüt",
+        "data_source": "employees",
+        "chart_type": "bar",
+        "dimensions": ["department"],
+        "measures": [],
+        "filters": [],
+    },
+    {
+        "name": "Eksik kolon",
+        "data_source": "employees",
+        "chart_type": "table",
+        "dimensions": ["department"],
+        "measures": [{"column": "", "aggregation": "count"}],
+        "filters": [],
+    },
+])
+def test_public_report_designer_rejects_incomplete_visual_config(config):
+    with pytest.raises(HTTPException) as exc:
+        routes_report_designer._validate_public_report_config(config)
+    assert exc.value.status_code == 400
+
+
 def test_dashboard_layout_limits_are_enforced():
     with pytest.raises(HTTPException) as exc:
         routes_dashboards._validate_dashboard_payload("POC", [{

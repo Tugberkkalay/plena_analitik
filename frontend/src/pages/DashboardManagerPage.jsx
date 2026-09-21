@@ -5,7 +5,7 @@ import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend } from "recharts";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Trash, FloppyDisk, Eye, PencilSimple, Copy, X, ArrowsOutCardinal, GridFour, Broadcast, ShareNetwork, LinkSimple } from "@phosphor-icons/react";
+import { Plus, Trash, FloppyDisk, PencilSimple, Copy, X, ArrowsOutCardinal, GridFour, Broadcast, ShareNetwork, LinkSimple, WarningCircle, CheckCircle, ArrowClockwise } from "@phosphor-icons/react";
 
 const API = process.env.REACT_APP_BACKEND_URL + "/api";
 const COLORS = ["#0E7490", "#F59E0B", "#14B8A6", "#EF4444", "#8B5CF6", "#EC4899", "#6366F1", "#10B981"];
@@ -22,30 +22,55 @@ export default function DashboardManagerPage({ publicMode = false }) {
   const [saving, setSaving] = useState(false);
   const [showAddWidget, setShowAddWidget] = useState(false);
   const [shareLink, setShareLink] = useState(null);
+  const [feedback, setFeedback] = useState(null);
 
   useEffect(() => {
     loadAll();
   }, []);
 
   const loadAll = () => {
-    axios.get(`${API}/dashboards`).then(r => setDashboards(r.data.dashboards || []));
-    axios.get(`${API}/report-designer/reports`).then(r => setReports(r.data.reports || []));
+    Promise.all([
+      axios.get(`${API}/dashboards`),
+      axios.get(`${API}/report-designer/reports`),
+    ]).then(([dashboardResponse, reportResponse]) => {
+      setDashboards(dashboardResponse.data.dashboards || []);
+      setReports(reportResponse.data.reports || []);
+    }).catch((error) => {
+      setFeedback({ type: "error", text: `Dashboard araçları yüklenemedi: ${error?.response?.data?.detail || "Bağlantınızı kontrol edip tekrar deneyin."}` });
+    });
   };
 
   const createDashboard = async () => {
-    const r = await axios.post(`${API}/dashboards`, { name: "Yeni Dashboard" });
-    setDashboards(prev => [r.data, ...prev]);
-    openEditor(r.data);
+    setFeedback(null);
+    try {
+      const r = await axios.post(`${API}/dashboards`, { name: "Yeni Dashboard" });
+      setDashboards(prev => [r.data, ...prev]);
+      openEditor(r.data);
+      setFeedback({ type: "success", text: "Dashboard oluşturuldu. Adını değiştirip rapor bileşenleri ekleyebilirsiniz." });
+    } catch (error) {
+      setFeedback({ type: "error", text: `Dashboard oluşturulamadı: ${error?.response?.data?.detail || "Lütfen tekrar deneyin."}` });
+    }
   };
 
   const deleteDashboard = async (id) => {
-    await axios.delete(`${API}/dashboards/${id}`);
-    setDashboards(prev => prev.filter(d => d.id !== id));
+    if (!window.confirm("Bu dashboard ve kaydedilmiş yerleşimi silinecek. Devam edilsin mi?")) return;
+    try {
+      await axios.delete(`${API}/dashboards/${id}`);
+      setDashboards(prev => prev.filter(d => d.id !== id));
+      setFeedback({ type: "success", text: "Dashboard silindi." });
+    } catch (error) {
+      setFeedback({ type: "error", text: `Dashboard silinemedi: ${error?.response?.data?.detail || "Lütfen tekrar deneyin."}` });
+    }
   };
 
   const duplicateDashboard = async (id) => {
-    await axios.post(`${API}/dashboards/${id}/duplicate`);
-    loadAll();
+    try {
+      await axios.post(`${API}/dashboards/${id}/duplicate`);
+      loadAll();
+      setFeedback({ type: "success", text: "Dashboard kopyalandı." });
+    } catch (error) {
+      setFeedback({ type: "error", text: `Dashboard kopyalanamadı: ${error?.response?.data?.detail || "Lütfen tekrar deneyin."}` });
+    }
   };
 
   const openEditor = (dashboard) => {
@@ -53,6 +78,7 @@ export default function DashboardManagerPage({ publicMode = false }) {
     setDashName(dashboard.name);
     setWidgets(dashboard.widgets || []);
     setWidgetData({});
+    setFeedback(null);
     setView("edit");
     // Load data for existing widgets
     (dashboard.widgets || []).forEach(w => executeWidget(w.report_id));
@@ -88,10 +114,22 @@ export default function DashboardManagerPage({ publicMode = false }) {
 
   const saveDashboard = async () => {
     if (!activeDashboard) return;
+    if (!dashName.trim()) {
+      setFeedback({ type: "error", text: "Dashboard adını boş bırakamazsınız." });
+      return;
+    }
     setSaving(true);
-    await axios.put(`${API}/dashboards/${activeDashboard.id}`, { name: dashName, widgets });
-    setSaving(false);
-    loadAll();
+    setFeedback(null);
+    try {
+      const response = await axios.put(`${API}/dashboards/${activeDashboard.id}`, { name: dashName.trim(), widgets });
+      setActiveDashboard(response.data);
+      setFeedback({ type: "success", text: "Dashboard adı ve yerleşimi kaydedildi." });
+      loadAll();
+    } catch (error) {
+      setFeedback({ type: "error", text: `Dashboard kaydedilemedi: ${error?.response?.data?.detail || "Lütfen tekrar deneyin."}` });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const publishDashboard = async () => {
@@ -124,6 +162,7 @@ export default function DashboardManagerPage({ publicMode = false }) {
             <Plus size={16} weight="bold" /> Yeni Dashboard
           </button>
         </div>
+        {feedback && <DashboardFeedback feedback={feedback} />}
         {dashboards.length === 0 ? (
           <div className="text-center py-16 text-slate-400">
             <GridFour size={48} className="mx-auto mb-3 opacity-40" />
@@ -179,8 +218,9 @@ export default function DashboardManagerPage({ publicMode = false }) {
       <div className="flex items-center justify-between bg-white border border-slate-200 rounded-lg px-4 py-2">
         <div className="flex items-center gap-3">
           <button onClick={() => { setView("list"); setActiveDashboard(null); }} className="text-slate-400 hover:text-slate-600"><X size={18} /></button>
-          <input data-testid="dashboard-name-input" value={dashName} onChange={e => setDashName(e.target.value)}
-            className="text-sm font-medium text-slate-800 border-0 border-b border-transparent hover:border-slate-200 focus:border-cyan-500 focus:outline-none px-1 py-0.5 w-64" />
+          <input data-testid="dashboard-name-input" value={dashName} onChange={e => { setDashName(e.target.value); if (feedback?.type === "error") setFeedback(null); }}
+            aria-label="Dashboard adı" aria-invalid={!dashName.trim()}
+            className={`text-sm font-medium text-slate-800 border-0 border-b hover:border-slate-200 focus:outline-none px-1 py-0.5 w-64 ${!dashName.trim() ? "border-red-400 focus:border-red-500" : "border-transparent focus:border-cyan-500"}`} />
         </div>
         <div className="flex items-center gap-2">
           <button data-testid="add-widget-btn" onClick={() => setShowAddWidget(true)}
@@ -203,6 +243,8 @@ export default function DashboardManagerPage({ publicMode = false }) {
           )}
         </div>
       </div>
+
+      {feedback && <DashboardFeedback feedback={feedback} />}
 
       {shareLink && (
         <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex items-center justify-between" data-testid="share-link-banner">
@@ -249,13 +291,25 @@ export default function DashboardManagerPage({ publicMode = false }) {
           <button onClick={() => setShowAddWidget(true)} className="mt-2 text-cyan-600 hover:underline text-sm">Widget Ekle</button>
         </div>
       ) : (
-        <GridArea widgets={widgets} reports={reports} widgetData={widgetData} removeWidget={removeWidget} onLayoutChange={onLayoutChange} />
+        <GridArea widgets={widgets} reports={reports} widgetData={widgetData} removeWidget={removeWidget} onLayoutChange={onLayoutChange} executeWidget={executeWidget} />
       )}
     </div>
   );
 }
 
-function GridArea({ widgets, reports, widgetData, removeWidget, onLayoutChange }) {
+function DashboardFeedback({ feedback }) {
+  const isError = feedback.type === "error";
+  const Icon = isError ? WarningCircle : CheckCircle;
+  return (
+    <div role={isError ? "alert" : "status"} data-testid={`dashboard-${feedback.type}`}
+      className={`flex items-start gap-2 rounded-md border px-3 py-2 text-xs ${isError ? "border-red-200 bg-red-50 text-red-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}>
+      <Icon size={16} weight="fill" className="mt-0.5 flex-shrink-0" />
+      <span>{feedback.text}</span>
+    </div>
+  );
+}
+
+function GridArea({ widgets, reports, widgetData, removeWidget, onLayoutChange, executeWidget }) {
   const { width, containerRef, mounted } = useContainerWidth({ initialWidth: 1200 });
   const layout = widgets.map((w, i) => ({ i: String(i), x: w.x, y: w.y, w: w.w, h: w.h, minW: 3, minH: 3 }));
 
@@ -286,8 +340,15 @@ function GridArea({ widgets, reports, widgetData, removeWidget, onLayoutChange }
                   </button>
                 </div>
                 <div className="flex-1 overflow-auto p-2">
-                  {!data ? (
+                  {data === undefined ? (
                     <div className="flex items-center justify-center h-full text-xs text-slate-400">Yükleniyor...</div>
+                  ) : data === null ? (
+                    <div className="flex flex-col gap-2 items-center justify-center h-full text-xs text-red-600">
+                      <span>Bu bileşenin verisi yüklenemedi.</span>
+                      <button type="button" onClick={() => executeWidget(w.report_id)} className="flex items-center gap-1 rounded bg-red-50 px-2 py-1 hover:bg-red-100">
+                        <ArrowClockwise size={12} /> Tekrar Dene
+                      </button>
+                    </div>
                   ) : (
                     <WidgetRenderer data={data} chartType={data.chart_type || report?.chart_type || "table"} />
                   )}

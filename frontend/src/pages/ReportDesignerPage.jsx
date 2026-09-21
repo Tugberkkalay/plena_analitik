@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend } from "recharts";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash, Play, FloppyDisk, Copy, PencilSimple, Eye, ChartBar, Table as TableIcon, ChartPie, ChartLine as ChartLineIcon, Funnel, Gauge, X, CaretDown, CaretRight } from "@phosphor-icons/react";
+import { Plus, Trash, Play, FloppyDisk, Copy, PencilSimple, Eye, ChartBar, Table as TableIcon, ChartPie, ChartLine as ChartLineIcon, Gauge, X, WarningCircle, CheckCircle } from "@phosphor-icons/react";
 import ExcelExportButton from "@/components/ExcelExportButton";
 
 const API = process.env.REACT_APP_BACKEND_URL + "/api";
@@ -48,12 +48,22 @@ export default function ReportDesignerPage({ publicMode = false }) {
   const [previewData, setPreviewData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [feedback, setFeedback] = useState(null);
 
   useEffect(() => {
-    axios.get(`${API}/report-designer/data-sources`).then(r => setDataSources(r.data.data_sources || {}));
-    axios.get(`${API}/report-designer/kpi-templates`).then(r => setKpiTemplates(r.data.templates || []));
-    axios.get(`${API}/report-designer/report-templates`).then(r => setReportTemplates(r.data.templates || [])).catch(() => {});
-    loadReports();
+    Promise.all([
+      axios.get(`${API}/report-designer/data-sources`),
+      axios.get(`${API}/report-designer/kpi-templates`),
+      axios.get(`${API}/report-designer/report-templates`),
+      axios.get(`${API}/report-designer/reports`),
+    ]).then(([sources, kpis, templates, savedReports]) => {
+      setDataSources(sources.data.data_sources || {});
+      setKpiTemplates(kpis.data.templates || []);
+      setReportTemplates(templates.data.templates || []);
+      setReports(savedReports.data.reports || []);
+    }).catch((error) => {
+      setFeedback({ type: "error", text: `Rapor araçları yüklenemedi: ${error?.response?.data?.detail || "Bağlantınızı kontrol edip tekrar deneyin."}` });
+    });
   }, []);
 
   const loadReports = () => {
@@ -69,6 +79,7 @@ export default function ReportDesignerPage({ publicMode = false }) {
     setName(""); setDataSource("employees"); setChartType("table");
     setDimensions([]); setMeasures([]); setFilters([]); setSelectedKpis([]); setCondFmt([]);
     setPreviewData(null); setEditingReport(null);
+    setFeedback(null);
   };
 
   const openBuilder = (report) => {
@@ -82,27 +93,70 @@ export default function ReportDesignerPage({ publicMode = false }) {
       resetBuilder();
     }
     setPreviewData(null);
+    setFeedback(null);
     setView("builder");
   };
 
-  const runPreview = useCallback(async () => {
+  const getDraft = (source = null) => ({
+    name: source?.name ?? name,
+    data_source: source?.data_source ?? dataSource,
+    chart_type: source?.chart_type ?? chartType,
+    dimensions: source?.dimensions ?? dimensions,
+    measures: source?.measures ?? measures,
+    filters: source?.filters ?? filters,
+    kpi_ids: source?.kpi_ids ?? selectedKpis,
+    conditional_formatting: source?.conditional_formatting ?? condFmt,
+  });
+
+  const validateDraft = (draft) => {
+    if (!draft.name?.trim()) return "Devam etmek için rapora bir ad verin.";
+    if ((draft.measures || []).some(m => !m.column)) return "Eklediğiniz her ölçüt için bir kolon seçin.";
+    if ((draft.filters || []).some(f => !f.column || f.value === "" || f.value === null || f.value === undefined)) return "Eklediğiniz her filtre için kolon ve değer girin.";
+    if (draft.chart_type === "kpi_card" && !(draft.kpi_ids || []).length) return "KPI kartı için en az bir hazır KPI seçin.";
+    if (draft.chart_type !== "kpi_card" && !(draft.dimensions || []).length && !(draft.measures || []).length) return "En az bir boyut veya ölçüt seçin.";
+    if (["bar", "line", "pie"].includes(draft.chart_type) && (draft.dimensions || []).length !== 1) return "Grafik için tek bir boyut (eksen) seçin.";
+    if (["bar", "line", "pie"].includes(draft.chart_type) && !(draft.measures || []).length) return "Grafik için en az bir ölçüt (değer) ekleyin.";
+    if (draft.chart_type === "pie" && (draft.measures || []).length !== 1) return "Pasta grafik için yalnızca bir ölçüt seçin.";
+    return null;
+  };
+
+  const executePreview = async (draft) => {
+    const validationError = validateDraft(draft);
+    if (validationError) {
+      setPreviewData(null);
+      setFeedback({ type: "error", text: validationError });
+      return;
+    }
     setLoading(true);
+    setFeedback(null);
     try {
-      const r = await axios.post(`${API}/report-designer/execute-preview`, {
-        name, data_source: dataSource, chart_type: chartType,
-        dimensions, measures, filters, kpi_ids: selectedKpis,
-        conditional_formatting: condFmt,
-      });
+      const r = await axios.post(`${API}/report-designer/execute-preview`, draft);
       setPreviewData(r.data);
+      setFeedback({ type: "success", text: "Önizleme güncellendi. Seçilen kolon ve ölçütler aşağıda gösteriliyor." });
     } catch (e) {
       setPreviewData(null);
+      setFeedback({ type: "error", text: `Önizleme oluşturulamadı: ${e?.response?.data?.detail || "Lütfen seçimlerinizi kontrol edin."}` });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  }, [name, dataSource, chartType, dimensions, measures, filters, selectedKpis, condFmt]);
+  };
+
+  const runPreview = () => executePreview(getDraft());
+
+  const previewSavedReport = (report) => {
+    openBuilder(report);
+    void executePreview(getDraft(report));
+  };
 
   const saveReport = async () => {
-    if (!name.trim()) return;
+    const draft = getDraft();
+    const validationError = validateDraft(draft);
+    if (validationError) {
+      setFeedback({ type: "error", text: validationError });
+      return;
+    }
     setSaving(true);
+    setFeedback(null);
     const cleanMeasures = measures.map(m => ({
       ...m,
       label: m.label || (dataSources[dataSource]?.columns?.[m.column]?.label || m.column)
@@ -116,21 +170,43 @@ export default function ReportDesignerPage({ publicMode = false }) {
         setEditingReport(r.data.id);
       }
       loadReports();
+      setFeedback({ type: "success", text: editingReport ? "Rapor değişiklikleri kaydedildi." : "Rapor kaydedildi. Artık Sayfayı Tasarla adımında kullanabilirsiniz." });
     } catch (e) {
-      console.error("Save error:", e);
-      alert("Rapor kaydedilemedi: " + (e?.response?.data?.detail || e.message));
+      setFeedback({ type: "error", text: `Rapor kaydedilemedi: ${e?.response?.data?.detail || "Lütfen tekrar deneyin."}` });
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   };
 
   const deleteReport = async (id) => {
-    await axios.delete(`${API}/report-designer/reports/${id}`);
-    loadReports();
+    if (!window.confirm("Bu rapor silinecek. Rapora bağlı dashboard bileşenleri veri gösteremeyebilir. Devam edilsin mi?")) return;
+    try {
+      await axios.delete(`${API}/report-designer/reports/${id}`);
+      loadReports();
+      setFeedback({ type: "success", text: "Rapor silindi." });
+    } catch (e) {
+      setFeedback({ type: "error", text: `Rapor silinemedi: ${e?.response?.data?.detail || "Lütfen tekrar deneyin."}` });
+    }
   };
 
   const duplicateReport = async (id) => {
-    await axios.post(`${API}/report-designer/reports/${id}/duplicate`);
-    loadReports();
+    try {
+      await axios.post(`${API}/report-designer/reports/${id}/duplicate`);
+      loadReports();
+      setFeedback({ type: "success", text: "Rapor kopyalandı." });
+    } catch (e) {
+      setFeedback({ type: "error", text: `Rapor kopyalanamadı: ${e?.response?.data?.detail || "Lütfen tekrar deneyin."}` });
+    }
+  };
+
+  const createFromTemplate = async (templateIndex) => {
+    try {
+      await axios.post(`${API}/report-designer/report-templates/${templateIndex}/create`);
+      loadReports();
+      setFeedback({ type: "success", text: "Hazır şablondan rapor oluşturuldu. Aşağıdaki listeden düzenleyebilirsiniz." });
+    } catch (e) {
+      setFeedback({ type: "error", text: `Şablon oluşturulamadı: ${e?.response?.data?.detail || "Lütfen tekrar deneyin."}` });
+    }
   };
 
   // ─── Report List View ───
@@ -148,6 +224,8 @@ export default function ReportDesignerPage({ publicMode = false }) {
           </button>
         </div>
 
+        {feedback && <FeedbackBanner feedback={feedback} />}
+
         {/* Hazır Şablonlar */}
         {reportTemplates.length > 0 && (
           <div>
@@ -163,7 +241,7 @@ export default function ReportDesignerPage({ publicMode = false }) {
                       const globalIdx = reportTemplates.indexOf(tmpl);
                       return (
                         <button key={i} data-testid={`template-${globalIdx}`}
-                          onClick={async () => { await axios.post(`${API}/report-designer/report-templates/${globalIdx}/create`); loadReports(); }}
+                          onClick={() => createFromTemplate(globalIdx)}
                           className="block w-full text-left px-3 py-2 text-xs text-slate-700 hover:bg-cyan-50 first:rounded-t-lg last:rounded-b-lg">
                           {tmpl.name}
                         </button>
@@ -199,11 +277,11 @@ export default function ReportDesignerPage({ publicMode = false }) {
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-1 mt-2">
-                  {(r.dimensions || []).map(d => <span key={d} className="px-2 py-0.5 text-[10px] bg-sky-50 text-sky-700 rounded-full">{cols[d]?.label || d}</span>)}
+                  {(r.dimensions || []).map(d => <span key={d} className="px-2 py-0.5 text-[10px] bg-sky-50 text-sky-700 rounded-full">{dataSources[r.data_source]?.columns?.[d]?.label || d}</span>)}
                   {(r.measures || []).map((m, i) => <span key={i} className="px-2 py-0.5 text-[10px] bg-amber-50 text-amber-700 rounded-full">{m.label || m.column}</span>)}
                   {(r.kpi_ids || []).map(k => <span key={k} className="px-2 py-0.5 text-[10px] bg-emerald-50 text-emerald-700 rounded-full">{kpiTemplates.find(t => t.id === k)?.name || k}</span>)}
                 </div>
-                <button onClick={() => { openBuilder(r); setTimeout(runPreview, 300); }}
+                <button onClick={() => previewSavedReport(r)}
                   className="mt-3 flex items-center gap-1 text-xs text-cyan-600 hover:text-cyan-800">
                   <Eye size={12} /> Önizle & Düzenle
                 </button>
@@ -228,8 +306,10 @@ export default function ReportDesignerPage({ publicMode = false }) {
         {/* Name */}
         <div>
           <label className="block text-xs font-medium text-slate-500 mb-1">Rapor Adı</label>
-          <input data-testid="report-name-input" value={name} onChange={e => setName(e.target.value)}
-            className="w-full px-3 py-1.5 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-cyan-500" placeholder="Ör: Departman Bazlı Turnover" />
+          <input data-testid="report-name-input" value={name} onChange={e => { setName(e.target.value); if (feedback?.type === "error") setFeedback(null); }}
+            aria-invalid={!name.trim()} aria-describedby="report-name-help"
+            className={`w-full px-3 py-1.5 text-sm border rounded-md focus:outline-none focus:ring-1 ${!name.trim() ? "border-amber-300 focus:ring-amber-500" : "border-slate-200 focus:ring-cyan-500"}`} placeholder="Ör: Departman Bazlı Turnover" />
+          {!name.trim() && <p id="report-name-help" className="mt-1 text-[11px] text-amber-700">Önizlemek ve kaydetmek için rapor adı zorunludur.</p>}
         </div>
 
         {/* Data Source */}
@@ -361,12 +441,28 @@ export default function ReportDesignerPage({ publicMode = false }) {
         </div>
 
         {/* Actions */}
+        <div className="rounded-md border border-slate-200 bg-slate-50 p-2.5" data-testid="selected-fields-summary">
+          <p className="text-[11px] font-semibold text-slate-600 mb-1.5">Seçilen kolonlar</p>
+          {chartType === "kpi_card" ? (
+            selectedKpis.length > 0
+              ? <p className="text-[11px] text-slate-600">KPI: {selectedKpis.map(id => kpiTemplates.find(k => k.id === id)?.name || id).join(", ")}</p>
+              : <p className="text-[11px] text-amber-700">Henüz KPI seçilmedi.</p>
+          ) : dimensions.length || measures.length ? (
+            <div className="space-y-1 text-[11px] text-slate-600">
+              <p><span className="font-medium">Boyut:</span> {dimensions.length ? dimensions.map(d => cols[d]?.label || d).join(", ") : "Seçilmedi"}</p>
+              <p><span className="font-medium">Ölçüt:</span> {measures.length ? measures.map(m => `${cols[m.column]?.label || "Kolon seçilmedi"} · ${AGG_OPTIONS.find(a => a.value === m.aggregation)?.label || m.aggregation}`).join(", ") : "Seçilmedi"}</p>
+            </div>
+          ) : <p className="text-[11px] text-amber-700">Henüz boyut veya ölçüt seçilmedi.</p>}
+        </div>
+
+        {feedback && <FeedbackBanner feedback={feedback} />}
+
         <div className="flex gap-2 pt-2 border-t border-slate-100">
           <button data-testid="run-preview-btn" onClick={runPreview} disabled={loading}
             className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-white bg-cyan-700 rounded-lg hover:bg-cyan-800 disabled:opacity-50 transition-colors">
             <Play size={14} weight="fill" /> {loading ? "Çalışıyor..." : "Önizle"}
           </button>
-          <button data-testid="save-report-btn" onClick={saveReport} disabled={saving || !name.trim()}
+          <button data-testid="save-report-btn" onClick={saveReport} disabled={saving}
             className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 disabled:opacity-50 transition-colors">
             <FloppyDisk size={14} /> {saving ? "Kaydediliyor..." : "Kaydet"}
           </button>
@@ -383,7 +479,7 @@ export default function ReportDesignerPage({ publicMode = false }) {
             </div>
           </div>
         ) : (
-          <ReportPreview data={previewData} chartType={chartType} />
+          <ReportPreview data={previewData} chartType={previewData.chart_type || chartType} columns={cols} />
         )}
       </div>
     </div>
@@ -391,8 +487,22 @@ export default function ReportDesignerPage({ publicMode = false }) {
 }
 
 // ─── Report Preview Component ───
-function ReportPreview({ data, chartType }) {
+function FeedbackBanner({ feedback }) {
+  const isError = feedback.type === "error";
+  const Icon = isError ? WarningCircle : CheckCircle;
+  return (
+    <div role={isError ? "alert" : "status"} data-testid={`report-${feedback.type}`}
+      className={`flex items-start gap-2 rounded-md border px-3 py-2 text-xs ${isError ? "border-red-200 bg-red-50 text-red-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}>
+      <Icon size={16} weight="fill" className="mt-0.5 flex-shrink-0" />
+      <span>{feedback.text}</span>
+    </div>
+  );
+}
+
+function ReportPreview({ data, chartType, columns }) {
   const { kpis = [], data: rows = [], total_rows = 0 } = data;
+  const dimensionLabels = (data.dimensions || []).map(d => columns?.[d]?.label || d);
+  const measureLabels = (data.measures || []).map(m => m.label || columns?.[m.column]?.label || m.column);
 
   return (
     <div className="space-y-4" data-testid="report-preview">
@@ -417,6 +527,13 @@ function ReportPreview({ data, chartType }) {
         <span>{total_rows.toLocaleString("tr-TR")} kayıt, {rows.length} satır gösteriliyor</span>
         <ExcelExportButton data={rows.map(r => { const { _formatting, ...rest } = r; return rest; })} filename="rapor-export" sheetName="Rapor" />
       </div>
+
+      {chartType !== "kpi_card" && (dimensionLabels.length > 0 || measureLabels.length > 0) && (
+        <div className="flex flex-wrap gap-2 text-xs" data-testid="preview-column-labels">
+          {dimensionLabels.map((label, index) => <span key={`d-${label}-${index}`} className="rounded-full bg-sky-50 px-2.5 py-1 text-sky-700">Eksen: {label}</span>)}
+          {measureLabels.map((label, index) => <span key={`m-${label}-${index}`} className="rounded-full bg-amber-50 px-2.5 py-1 text-amber-700">Değer: {label}</span>)}
+        </div>
+      )}
 
       {/* Chart / Table */}
       {chartType === "kpi_card" ? null : chartType === "table" ? (
