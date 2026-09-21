@@ -271,9 +271,9 @@ export default function ReportDesignerPage({ publicMode = false }) {
                     <p className="text-xs text-slate-400 mt-0.5">{dataSources[r.data_source]?.label || r.data_source} / {CHART_TYPES.find(c => c.value === r.chart_type)?.label || r.chart_type}</p>
                   </div>
                   <div className="flex gap-1">
-                    <button onClick={() => openBuilder(r)} className="p-1 text-slate-400 hover:text-cyan-600"><PencilSimple size={14} /></button>
-                    <button onClick={() => duplicateReport(r.id)} className="p-1 text-slate-400 hover:text-amber-600"><Copy size={14} /></button>
-                    <button onClick={() => deleteReport(r.id)} className="p-1 text-slate-400 hover:text-red-600"><Trash size={14} /></button>
+                    <button aria-label={`${r.name} raporunu düzenle`} onClick={() => openBuilder(r)} className="p-1 text-slate-400 hover:text-cyan-600"><PencilSimple size={14} /></button>
+                    <button aria-label={`${r.name} raporunu kopyala`} onClick={() => duplicateReport(r.id)} className="p-1 text-slate-400 hover:text-amber-600"><Copy size={14} /></button>
+                    <button aria-label={`${r.name} raporunu sil`} onClick={() => deleteReport(r.id)} className="p-1 text-slate-400 hover:text-red-600"><Trash size={14} /></button>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-1 mt-2">

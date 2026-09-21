@@ -402,6 +402,7 @@ function WidgetRenderer({ data, chartType }) {
             </>
           )}
           <Tooltip {...TT} />
+          <Legend wrapperStyle={{ fontSize: 9 }} />
           {valueKeys.slice(0, 3).map((vk, i) => <Bar key={vk} dataKey={vk} fill={COLORS[i % COLORS.length]} radius={[3, 3, 0, 0]} />)}
         </BarChart>
       </ResponsiveContainer>
@@ -416,6 +417,7 @@ function WidgetRenderer({ data, chartType }) {
           <XAxis dataKey={labelKey} tick={{ fontSize: 9, fill: "#94a3b8" }} />
           <YAxis tick={{ fontSize: 9, fill: "#94a3b8" }} />
           <Tooltip {...TT} />
+          <Legend wrapperStyle={{ fontSize: 9 }} />
           {valueKeys.slice(0, 3).map((vk, i) => <Line key={vk} type="monotone" dataKey={vk} stroke={COLORS[i % COLORS.length]} strokeWidth={2} dot={{ r: 2 }} />)}
         </LineChart>
       </ResponsiveContainer>
