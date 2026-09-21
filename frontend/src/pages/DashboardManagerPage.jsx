@@ -320,7 +320,7 @@ function GridArea({ widgets, reports, widgetData, removeWidget, onLayoutChange, 
           width={width}
           layouts={{ lg: layout }}
           breakpoints={{ lg: 1200, md: 996, sm: 768 }}
-          cols={{ lg: 12, md: 10, sm: 6 }}
+          cols={{ lg: 12, md: 12, sm: 12 }}
           rowHeight={60}
           onLayoutChange={onLayoutChange}
           draggableHandle=".widget-drag-handle"
