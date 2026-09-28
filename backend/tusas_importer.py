@@ -40,6 +40,10 @@ _KADRO_MAP = {
 
 _CINSIYET_MAP = {"Erkek": "Male", "Kadin": "Female"}
 
+_PROGRAM_MAP = {
+    "Kadin Mentorluk": "Kadın Mentorluk",
+}
+
 _DURUM_MAP = {"Aktif": "active", "Ayrildi": "terminated"}
 
 _CIKIS_MAP = {
@@ -265,7 +269,7 @@ def import_tusas_yetenek(filepath, tenant_slug="tusas"):
     for r in rows:
         records.append({
             "id": r.get("KatilimciNo") or str(uuid.uuid4()),
-            "program": r.get("Program", ""),
+            "program": _PROGRAM_MAP.get(r.get("Program", ""), r.get("Program", "")),
             "donem": r.get("Donem"),
             "cinsiyet": _CINSIYET_MAP.get(r.get("Cinsiyet", ""), "Male"),
             "universite": r.get("Universite", ""),
