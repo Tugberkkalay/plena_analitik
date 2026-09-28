@@ -2904,9 +2904,9 @@ async def get_capability_forecast(year: int = 2025, tenant: str = None, segment:
         # appearing healthy while the expert bench is thin.
         expert_pool = max(data.get("experts", 0), 1)
         risk_ratio = gap / expert_pool
-        if risk_ratio >= 0.35:
+        if risk_ratio >= 0.30:
             return "Kritik", round(risk_ratio, 2)
-        if risk_ratio >= 0.20:
+        if risk_ratio >= 0.15:
             return "Uyarı", round(risk_ratio, 2)
         return "Stabil", round(risk_ratio, 2)
 
