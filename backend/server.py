@@ -2271,7 +2271,7 @@ async def get_recruitment(year: int = 2025, tenant: str = None, segment: str = N
     cands = [c for c in all_cands if c.get('applied_date','')[:4] == str(year)]
     total = len(cands)
     hired = [c for c in cands if c['stage'] == 'Hired']
-    offered = [c for c in cands if c['stage'] in ['Offered','Hired']]
+    offered = [c for c in cands if c['stage'] in ['Offered','Hired','Reddedildi']]
     avg_days = safe_avg(hired, 'days_in_pipeline') if hired else safe_avg(cands, 'days_in_pipeline')
     total_cost = sum(c['cost'] for c in hired)
     cost_per = round(total_cost / len(hired)) if hired else 0

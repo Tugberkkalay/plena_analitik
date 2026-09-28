@@ -19,7 +19,7 @@ from pymongo import MongoClient
 from tusas_importer import DEPT_SEGMENT_MAP, HRBP_MAP
 
 
-SEED_VERSION = "tusas-focus-v2"
+SEED_VERSION = "tusas-focus-v3"
 FIXED_CREATED_AT = "2026-09-28T00:00:00+00:00"
 EXPECTED_FUNNEL = [3000, 1066, 574, 341, 289, 243, 223]
 EXPECTED_PROGRAMS = {
@@ -102,9 +102,16 @@ def generate_recruitment(tenant: str) -> list[dict]:
             legacy_stage = "Screened"
         else:
             legacy_stage = "Rejected" if index % 4 else "Applied"
-        dropout_reason = None if hired or legacy_stage == "Offered" else [
-            "Teknik Yeterlilik", "Aday Vazgeçti", "Kontenjan Doldu", "Süreç Uzunluğu",
-        ][index % 4]
+        if hired or legacy_stage == "Offered":
+            dropout_reason = None
+        elif legacy_stage == "Reddedildi":
+            dropout_reason = [
+                "Maaş Beklentisi", "Yan Haklar Yetersiz", "Başka Teklif", "Süreç Uzunluğu",
+            ][(index // 2) % 4]
+        else:
+            dropout_reason = [
+                "Teknik Yeterlilik", "Aday Vazgeçti", "Kontenjan Doldu", "Süreç Uzunluğu",
+            ][index % 4]
         channel_cost = 350 + (index % 7) * 125
         interview_cost = (700 + (index % 9) * 110) if level >= 2 else 0
         onboarding_cost = (2400 + (index % 6) * 300) if hired else 0

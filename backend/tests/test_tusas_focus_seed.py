@@ -62,6 +62,10 @@ def test_recruitment_seed_populates_customer_dashboard_contract():
     ] == [3000, 1066, 574, 341, 243, 223]
     assert sum(row["stage"] == "Hired" for row in rows) == 223
     assert sum(row["stage"] in {"Hired", "Offered", "Reddedildi"} for row in rows) == 243
+    rejected_offer_reasons = {
+        row["rejection_reason"] for row in rows if row["stage"] == "Reddedildi"
+    }
+    assert {"Maaş Beklentisi", "Yan Haklar Yetersiz"} <= rejected_offer_reasons
     assert {row["university"] for row in rows}
     assert all(row["cost"] > 0 for row in rows if row["hired"])
     assert all(row["compensation_is_synthetic"] for row in rows if row["offer_salary"])
