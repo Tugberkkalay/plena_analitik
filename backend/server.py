@@ -4108,8 +4108,13 @@ async def get_guvenlik_sorusturmasi(year: int = 2025, tenant: str = None, segmen
             pass
     avg_clearance = round(sum(clearance_durations) / len(clearance_durations), 1) if clearance_durations else 0
 
-    # Total process duration
-    total_durations = [r.get("total_days", 0) for r in records if r.get("total_days") and r["total_days"] > 0]
+    # Total process duration is meaningful only for completed/hired journeys.
+    # Including candidates still at early stages can make the end-to-end
+    # average shorter than the security-clearance stage itself.
+    total_durations = [
+        r.get("total_days", 0) for r in hired
+        if r.get("start_date") and r.get("total_days") and r["total_days"] > 0
+    ]
     avg_total = round(sum(total_durations) / len(total_durations), 1) if total_durations else 0
 
     # By department

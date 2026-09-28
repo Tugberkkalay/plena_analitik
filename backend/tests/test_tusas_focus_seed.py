@@ -1,6 +1,7 @@
 """Integrity checks for the TUSAŞ security and talent POC seed."""
 
 import sys
+from datetime import date
 from pathlib import Path
 
 
@@ -36,3 +37,12 @@ def test_focus_seed_is_reproducible_and_logically_consistent():
     assert all(row["synthetic"] is True for row in first["recruitment"])
     assert all(not row["ilk_yil_kaldi"] or row["ise_alindi"] for row in first["talent_programs"])
     assert all(not row["ise_alindi"] or row["tamamladi"] for row in first["talent_programs"])
+
+    hired_durations = [row["total_days"] for row in first["recruitment"] if row["hired"]]
+    clearance_durations = []
+    for row in first["recruitment"]:
+        if row.get("technical_interview_date") and row.get("security_clearance_date"):
+            clearance_durations.append(
+                (date.fromisoformat(row["security_clearance_date"]) - date.fromisoformat(row["technical_interview_date"])).days
+            )
+    assert sum(hired_durations) / len(hired_durations) > sum(clearance_durations) / len(clearance_durations)
