@@ -2897,6 +2897,19 @@ async def get_capability_forecast(year: int = 2025, tenant: str = None, segment:
         s["avg_prof"] = round(s["total"]/s["current_count"],1) if s["current_count"] else 0
         del s["total"]
     attrition_rate = len(left)/hc if hc else 0.1
+    def forecast_status(data, gap):
+        # Risk is measured against the expert pool that can absorb/rebuild the
+        # projected gap, not against the much larger population that merely
+        # has some exposure to the skill. This prevents every capability from
+        # appearing healthy while the expert bench is thin.
+        expert_pool = max(data.get("experts", 0), 1)
+        risk_ratio = gap / expert_pool
+        if risk_ratio >= 0.35:
+            return "Kritik", round(risk_ratio, 2)
+        if risk_ratio >= 0.20:
+            return "Uyarı", round(risk_ratio, 2)
+        return "Stabil", round(risk_ratio, 2)
+
     forecasts = []
     for sn, data in skill_supply.items():
         for horizon in [6, 12, 24]:
@@ -2905,9 +2918,9 @@ async def get_capability_forecast(year: int = 2025, tenant: str = None, segment:
             demand_growth = int(data["current_count"] * 0.08 * (horizon/12))
             gap = projected_loss + demand_growth
             remaining = data["current_count"] - projected_loss
-            status = "Kritik" if remaining < data["current_count"]*0.6 else "Uyarı" if remaining < data["current_count"]*0.8 else "Stabil"
+            status, risk_ratio = forecast_status(data, gap)
             if horizon == 6:
-                forecasts.append({**data, "horizon_6m": {"gap": gap, "remaining": remaining, "status": status},
+                forecasts.append({**data, "horizon_6m": {"gap": gap, "remaining": remaining, "status": status, "risk_ratio": risk_ratio},
                     "horizon_12m": {}, "horizon_24m": {}})
         for f in forecasts:
             if f["skill"] == sn:
@@ -2916,8 +2929,9 @@ async def get_capability_forecast(year: int = 2025, tenant: str = None, segment:
                     projected_loss = int(data["current_count"] * loss_rate)
                     demand_growth = int(data["current_count"] * 0.08 * (horizon/12))
                     remaining = data["current_count"] - projected_loss
-                    status = "Kritik" if remaining < data["current_count"]*0.6 else "Uyarı" if remaining < data["current_count"]*0.8 else "Stabil"
-                    f[f"horizon_{horizon}m"] = {"gap": projected_loss + demand_growth, "remaining": remaining, "status": status}
+                    gap = projected_loss + demand_growth
+                    status, risk_ratio = forecast_status(data, gap)
+                    f[f"horizon_{horizon}m"] = {"gap": gap, "remaining": remaining, "status": status, "risk_ratio": risk_ratio}
     critical_6m = [f for f in forecasts if f.get("horizon_6m",{}).get("status")=="Kritik"]
     warning_12m = [f for f in forecasts if f.get("horizon_12m",{}).get("status") in ["Kritik","Uyarı"]]
     top_demand = sorted(forecasts, key=lambda x: -x.get("horizon_12m",{}).get("gap",0))[:10]
@@ -3017,11 +3031,15 @@ async def get_burnout(request: Request, year: int = 2025, tenant: str = None, se
         if de:
             dept_risk.append({"department": short, "avg_risk": round(sum(r['risk_score'] for r in de)/len(de),1), "critical": len([r for r in de if r['risk_level']=='Kritik']), "high": len([r for r in de if r['risk_level']=='Yüksek']), "count": len(de)})
     dist = [{"level": lv, "count": len([r for r in risk_list if r['risk_level']==lv])} for lv in ["Kritik","Yüksek","Orta","Düşük"]]
+    public_risk = [
+        {**row, "name": f"Anonim Çalışan {index:03d}"}
+        for index, row in enumerate(risk_list[:15], start=1)
+    ]
     return {"kpis": {"total_at_risk": len([r for r in risk_list if r['risk_level'] in ['Kritik','Yüksek']]),
                      "critical_count": len([r for r in risk_list if r['risk_level']=='Kritik']),
                      "avg_risk_score": round(sum(r['risk_score'] for r in risk_list)/len(risk_list),1) if risk_list else 0,
                      "avg_engagement": round(sum(r['engagement'] for r in risk_list)/len(risk_list),1) if risk_list else 0},
-            "top_risk": [] if _is_report_request(request) else risk_list[:15],
+            "top_risk": public_risk if _is_report_request(request) else risk_list[:15],
             "department_risk": sorted(dept_risk, key=lambda x: -x['avg_risk']), "risk_distribution": dist}
 
 # ---- Target Headcount Planning ----
@@ -3465,7 +3483,7 @@ def _compute_matches(position, active_employees):
     return sorted(matches, key=lambda x: -x["fit_score"])[:10]
 
 @api_router.get("/dashboard/positions/{position_id}/matches")
-async def get_position_matches(position_id: str, year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
+async def get_position_matches(request: Request, position_id: str, year: int = 2025, tenant: str = None, segment: str = None, department: str = None, hrbp: str = None, project: str = None):
     sector = await _resolve_sector(tenant)
     _, active, _, _ = await get_filtered(year, tenant=tenant, segment=segment, department=department, hrbp=hrbp, project=project)
     positions = generate_open_positions(active, sector)
@@ -3473,6 +3491,11 @@ async def get_position_matches(position_id: str, year: int = 2025, tenant: str =
     if not pos:
         raise HTTPException(404, "Position not found")
     matches = _compute_matches(pos, active)
+    if _is_report_request(request):
+        matches = [
+            {**match, "employee_id": f"public-match-{index:02d}", "name": f"Anonim Aday {index:02d}"}
+            for index, match in enumerate(matches, start=1)
+        ]
     return {"position": pos, "matches": matches}
 
 # ---- Action Center (Alert Engine) ----

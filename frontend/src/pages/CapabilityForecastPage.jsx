@@ -6,7 +6,7 @@ import ChartCard, { CHART_COLORS, DARK_TOOLTIP } from "@/components/ChartCard";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from "recharts";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
-const STATUS_COLOR = { Critical: "#EF4444", Warning: "#F59E0B", Stable: "#14B8A6" };
+const STATUS_COLOR = { "Kritik": "#EF4444", "Uyarı": "#F59E0B", "Stabil": "#14B8A6" };
 
 export default function CapabilityForecastPage({ year }) {
   const [data, setData] = useState(null);
@@ -71,7 +71,7 @@ export default function CapabilityForecastPage({ year }) {
                   <p className="text-[10px] text-red-500">{s.horizon_6m?.remaining} remaining</p>
                 </div>
               </div>
-            )) : <p className="text-xs text-slate-400 text-center py-6">No critical skills in 6-month horizon</p>}
+            )) : <p className="text-xs text-slate-400 text-center py-6">6 aylık görünümde kritik yetkinlik bulunmuyor</p>}
           </div>
         </ChartCard>
 
@@ -84,12 +84,12 @@ export default function CapabilityForecastPage({ year }) {
                   <p className="text-xs text-slate-500">{s.category} · {s.current_count} people · Avg: {s.avg_prof}/5</p>
                 </div>
                 <div className="text-right">
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${s.horizon_12m?.status === 'Critical' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'}`}>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${s.horizon_12m?.status === 'Kritik' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'}`}>
                     {s.horizon_12m?.status}
                   </span>
                 </div>
               </div>
-            )) : <p className="text-xs text-slate-400 text-center py-6">No warnings detected</p>}
+            )) : <p className="text-xs text-slate-400 text-center py-6">12 aylık görünümde uyarı bulunmuyor</p>}
           </div>
         </ChartCard>
       </div>

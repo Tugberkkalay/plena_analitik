@@ -86,8 +86,12 @@ def secured_client(monkeypatch):
         return {"tenant": tenant, "employee_list": [] if is_report else [{"name": "Sensitive"}]}
 
     @app.get("/api/dashboard/positions/{position_id}/matches")
-    async def position_matches(position_id: str):
-        return {"matches": [{"name": "Sensitive"}]}
+    async def position_matches(position_id: str, request: Request, tenant: str = None):
+        is_report = request.state.principal["type"] == "report"
+        return {
+            "tenant": tenant,
+            "matches": [{"name": "Anonim Aday 01" if is_report else "Sensitive"}],
+        }
 
     @app.post("/api/report-designer/execute-preview")
     async def report_preview(request: Request, tenant: str = None):
@@ -185,7 +189,17 @@ def test_report_token_gets_tenant_bound_redacted_dashboard_payload(secured_clien
     response = client.get("/api/dashboard/headcount", headers=headers)
     assert response.status_code == 200
     assert response.json() == {"tenant": "tenant-a", "employee_list": []}
-    assert client.get("/api/dashboard/positions/role-1/matches", headers=headers).status_code == 403
+    position_id = "00000000-0000-5000-8000-000000000000"
+    matches = client.get(f"/api/dashboard/positions/{position_id}/matches", headers=headers)
+    assert matches.status_code == 200
+    assert matches.json() == {
+        "tenant": "tenant-a",
+        "matches": [{"name": "Anonim Aday 01"}],
+    }
+    assert client.get(
+        f"/api/dashboard/positions/{position_id}/matches?tenant=tenant-b",
+        headers=headers,
+    ).status_code == 403
 
 
 def test_successful_protected_read_is_audited(secured_client):

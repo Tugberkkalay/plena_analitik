@@ -19,7 +19,7 @@ from pymongo import MongoClient
 from tusas_importer import DEPT_SEGMENT_MAP, HRBP_MAP
 
 
-SEED_VERSION = "tusas-focus-v1"
+SEED_VERSION = "tusas-focus-v2"
 FIXED_CREATED_AT = "2026-09-28T00:00:00+00:00"
 EXPECTED_FUNNEL = [3000, 1066, 574, 341, 289, 243, 223]
 EXPECTED_PROGRAMS = {
@@ -37,6 +37,7 @@ STAGE_NAMES = [
     "Başvuru", "Online Değerlendirme", "İK Mülakatı", "Teknik Mülakat",
     "Güvenlik Soruşturması", "Teklif", "İşe Başlama",
 ]
+LEGACY_FUNNEL_STAGES = ["Başvuru", "Ön Eleme", "Mülakat", "Teknik Test", "Teklif", "Kabul"]
 PROGRAM_SPECS = [
     ("SKY Stajyer", 236, 212, 97, 76),
     ("MGP", 131, 118, 109, 97),
@@ -89,21 +90,59 @@ def generate_recruitment(tenant: str) -> list[dict]:
         ]
         department = DEPARTMENTS[index % len(DEPARTMENTS)]
         hired = level == 6
+        legacy_level = 5 if hired else 4 if level >= 5 else 3 if level >= 3 else 2 if level >= 2 else 1 if level >= 1 else 0
+        funnel_stages = LEGACY_FUNNEL_STAGES[:legacy_level + 1]
+        if hired:
+            legacy_stage = "Hired"
+        elif level == 5:
+            legacy_stage = "Reddedildi" if index % 2 else "Offered"
+        elif level >= 2:
+            legacy_stage = "Interviewed"
+        elif level == 1:
+            legacy_stage = "Screened"
+        else:
+            legacy_stage = "Rejected" if index % 4 else "Applied"
+        dropout_reason = None if hired or legacy_stage == "Offered" else [
+            "Teknik Yeterlilik", "Aday Vazgeçti", "Kontenjan Doldu", "Süreç Uzunluğu",
+        ][index % 4]
+        channel_cost = 350 + (index % 7) * 125
+        interview_cost = (700 + (index % 9) * 110) if level >= 2 else 0
+        onboarding_cost = (2400 + (index % 6) * 300) if hired else 0
+        total_cost = channel_cost + interview_cost + onboarding_cost
+        offer_salary = (58_000 + (index % 12) * 2_750) if level >= 5 else None
         row = {
             "id": f"POC-BSV-{index + 1:04d}",
             "name": f"Anonim Aday {index + 1:04d}",
+            "candidate_name": f"Anonim Aday {index + 1:04d}",
             "gender": "Female" if index % 3 == 0 else "Male",
             "department": department,
             "position": f"{department} Uzmanı",
             "band": "B" if index % 4 else "A",
             "source": SOURCES[index % len(SOURCES)],
-            "stage": STAGE_NAMES[level],
+            # ``stage`` and the compatibility fields below are consumed by the
+            # general recruitment dashboards. The seven-step security funnel
+            # continues to use the explicit date fields.
+            "stage": legacy_stage,
+            "security_stage": STAGE_NAMES[level],
             "stage_index": level,
             "status": "İşe Başlatıldı" if hired else ("Süreçte" if index % 5 == 0 else "Elendi/Vazgeçti"),
             "hired": hired,
+            "applied_date": _iso(application),
+            "quarter": f"Ç{((application.month - 1) // 3) + 1}",
+            "funnel_stages": funnel_stages,
+            "funnel_reached": funnel_stages[-1],
+            "days_in_pipeline": (dates[level] - dates[0]).days if level else 0,
             "university": UNIVERSITIES[index % len(UNIVERSITIES)],
             "education": "Yüksek Lisans" if index % 4 == 0 else "Lisans",
-            "rejection_reason": "" if hired else ["Teknik Yeterlilik", "Aday Vazgeçti", "Kontenjan", "Diğer"][index % 4],
+            "rejection_reason": "" if hired else (dropout_reason or ""),
+            "dropout_reason": dropout_reason,
+            "offer_salary": offer_salary,
+            "offer_vs_benchmark": ["Altında", "Ortalamada", "Üstünde"][index % 3] if offer_salary else None,
+            "channel_cost": channel_cost,
+            "interview_cost": interview_cost,
+            "onboarding_cost": onboarding_cost,
+            "cost": total_cost,
+            "compensation_is_synthetic": True,
             "segment": DEPT_SEGMENT_MAP.get(department, ""),
             "hrbp": HRBP_MAP.get(department, ""),
             "project": PROJECTS[index % len(PROJECTS)],
@@ -189,6 +228,20 @@ def validate_bundle(bundle: dict) -> dict:
         raise FocusSeedValidationError("Recruitment IDs must be unique")
     if any(not _date_order_is_valid(row) for row in recruitment):
         raise FocusSeedValidationError("Recruitment dates must be chronological")
+    legacy_funnel = [
+        sum(stage in row.get("funnel_stages", []) for row in recruitment)
+        for stage in LEGACY_FUNNEL_STAGES
+    ]
+    if legacy_funnel != [3000, 1066, 574, 341, 243, 223]:
+        raise FocusSeedValidationError(f"Recruitment dashboard funnel mismatch: {legacy_funnel}")
+    if sum(row.get("stage") == "Hired" for row in recruitment) != 223:
+        raise FocusSeedValidationError("Recruitment dashboard hired count must be 223")
+    if any(not row.get("applied_date") or not row.get("university") for row in recruitment):
+        raise FocusSeedValidationError("Recruitment dashboard dimensions must be populated")
+    if any(row.get("hired") and row.get("cost", 0) <= 0 for row in recruitment):
+        raise FocusSeedValidationError("Every hired candidate must have a synthetic hiring cost")
+    if any(row.get("offer_salary") and not row.get("compensation_is_synthetic") for row in recruitment):
+        raise FocusSeedValidationError("Synthetic offer values must be explicitly labelled")
 
     talent_stats = summary["talent_programs"]
     expected_talent = {"total": 700, "completed": 627, "hired": 352, "retained": 301}

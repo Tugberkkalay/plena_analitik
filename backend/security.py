@@ -52,6 +52,7 @@ REPORT_GET_PATHS = {
 }
 REPORT_GET_PATTERNS = (
     re.compile(r"^/api/career-paths/[a-z0-9-]+$"),
+    re.compile(r"^/api/dashboard/positions/[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/matches$"),
     re.compile(r"^/api/report-designer/reports/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"),
     re.compile(r"^/api/dashboards/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"),
 )

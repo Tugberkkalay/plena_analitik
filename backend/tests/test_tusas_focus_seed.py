@@ -9,7 +9,13 @@ BACKEND_DIR = Path(__file__).resolve().parents[1]
 if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
-from seed_tusas_focus import EXPECTED_FUNNEL, EXPECTED_PROGRAMS, load_bundle, summarize_bundle
+from seed_tusas_focus import (
+    EXPECTED_FUNNEL,
+    EXPECTED_PROGRAMS,
+    LEGACY_FUNNEL_STAGES,
+    load_bundle,
+    summarize_bundle,
+)
 
 
 def test_focus_seed_matches_target_kpis():
@@ -46,3 +52,17 @@ def test_focus_seed_is_reproducible_and_logically_consistent():
                 (date.fromisoformat(row["security_clearance_date"]) - date.fromisoformat(row["technical_interview_date"])).days
             )
     assert sum(hired_durations) / len(hired_durations) > sum(clearance_durations) / len(clearance_durations)
+
+
+def test_recruitment_seed_populates_customer_dashboard_contract():
+    rows = load_bundle()["recruitment"]
+    assert [
+        sum(stage in row["funnel_stages"] for row in rows)
+        for stage in LEGACY_FUNNEL_STAGES
+    ] == [3000, 1066, 574, 341, 243, 223]
+    assert sum(row["stage"] == "Hired" for row in rows) == 223
+    assert sum(row["stage"] in {"Hired", "Offered", "Reddedildi"} for row in rows) == 243
+    assert {row["university"] for row in rows}
+    assert all(row["cost"] > 0 for row in rows if row["hired"])
+    assert all(row["compensation_is_synthetic"] for row in rows if row["offer_salary"])
+    assert any(row["applied_date"].startswith("2025-") for row in rows)
